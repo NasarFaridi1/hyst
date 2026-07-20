@@ -1,0 +1,702 @@
+<?php
+
+namespace App\Http\Controllers\Front;
+
+use App\Http\Controllers\Controller;
+use App\Models\Product;
+use App\Models\Category;
+use App\Models\Restaurant;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Request;
+use App\Models\Offer;
+use App\Models\Order;
+use App\Models\OrderOffer;
+use App\Models\RestaurantCategory;
+
+class HomeController extends Controller
+{
+
+
+    public function home(Request $request)
+    {
+        $products = Product::latest()->get();
+
+        $categories = Category::whereNull('parent_id')->get();
+
+        $qrCode = QrCode::size(220)
+            ->generate(url('/restaurants'));
+
+
+        $ip = $request->ip();
+
+        Log::info('User IP: ' . $ip);
+
+        $response = Http::get("http://ip-api.com/json/" . $ip);
+
+        $data = $response->json();
+
+        Log::info('IP API Response', $data);
+
+        $latitude = $data['lat'] ?? null;
+        $longitude = $data['lon'] ?? null;
+
+        Log::info('User Latitude: ' . $latitude);
+        Log::info('User Longitude: ' . $longitude);
+
+        /*
+        |--------------------------------------------------------------------------
+        | IF LOCATION NOT FOUND
+        |--------------------------------------------------------------------------
+        */
+
+        if (!$latitude || !$longitude) {
+
+            $restaurants = Restaurant::latest()->get();
+
+            return view(
+                'front.home',
+                compact('restaurants', 'products', 'categories', 'qrCode')
+            );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | ALL RESTAURANTS WITH DISTANCE
+        |--------------------------------------------------------------------------
+        */
+
+        // $restaurants = Restaurant::select(
+        // $restaurants = Restaurant::with('featuredOffer')
+        $restaurants = Restaurant::with([
+
+            'featuredOffer',
+            'reviews'
+
+        ])
+            ->select(
+                        '*',
+                        DB::raw("
+                    (
+                        6371 * acos(
+                            cos(radians($latitude))
+                            * cos(radians(latitude))
+                            * cos(radians(longitude) - radians($longitude))
+                            + sin(radians($latitude))
+                            * sin(radians(latitude))
+                        )
+                    ) AS distance
+                ")
+                    )
+                    ->orderByRaw("
+                CASE
+                    WHEN distance <= 5 THEN 0
+                    ELSE 1
+                END
+            ")
+            ->orderBy('distance')
+            ->orderByRaw("
+                CASE
+                    WHEN display_order IS NULL THEN 999999
+                    ELSE display_order
+                END ASC
+            ")
+            ->get();
+
+        // Log::info('Restaurants Count: ' . $restaurants->count());
+
+        // foreach ($restaurants as $restaurant) {
+
+        //     Log::info('Restaurant Found', [
+        //         'name' => $restaurant->name,
+        //         'distance' => $restaurant->distance
+        //     ]);
+        // }    
+
+        $categories = RestaurantCategory::where('status', 'active')->orderBy('display_order')->get();
+
+        return view('front.home', compact(
+            'products',
+            'categories',
+            'qrCode',
+            'restaurants',
+            'latitude',
+            'longitude',
+            'categories'
+        ));
+    }
+
+    public function categoryProducts($id)
+    {
+        $category = Category::findOrFail($id);
+
+        $products = Product::where(
+            'category_id',
+            $id
+        )->latest()->get();
+
+        return view(
+            'front.category-products',
+            compact('products', 'category')
+        );
+    }
+
+    public function productDetails($id)
+    {
+        $product = Product::with([
+        'variants',
+        'allergies',
+        'dietaries',
+        'category'
+    ])->findOrFail($id);
+        $reviews = \App\Models\Review::with('user')
+
+        ->where(
+
+            'restaurant_id',
+            $product->restaurant_id
+
+        )
+
+        ->where(
+
+            'status',
+            'approved'
+
+        )
+
+        ->latest()
+
+        ->take(10)
+
+        ->get();
+
+        return view(
+            'front.product-details',
+            compact('product','reviews')
+        );
+    }
+
+    public function restaurants(Request $request)
+    {
+        $ip = $request->ip();
+
+        Log::info('User IP: ' . $ip);
+
+        $response = Http::get("http://ip-api.com/json/" . $ip);
+
+        $data = $response->json();
+
+        Log::info('IP API Response', $data);
+
+        $latitude = $data['lat'] ?? null;
+        $longitude = $data['lon'] ?? null;
+
+        Log::info('User Latitude: ' . $latitude);
+        Log::info('User Longitude: ' . $longitude);
+
+        /*
+        |--------------------------------------------------------------------------
+        | IF LOCATION NOT FOUND
+        |--------------------------------------------------------------------------
+        */
+
+        if (!$latitude || !$longitude) {
+
+            $restaurants = Restaurant::latest()->get();
+
+            return view(
+                'front.restaurants',
+                compact('restaurants')
+            );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | ALL RESTAURANTS WITH DISTANCE
+        |--------------------------------------------------------------------------
+        */
+
+        // $restaurants = Restaurant::select(
+        // $restaurants = Restaurant::with('featuredOffer')
+        $restaurants = Restaurant::with([
+
+            'featuredOffer',
+            'reviews'
+
+        ])
+            ->select(
+                '*',
+                DB::raw("
+                (
+                    6371 * acos(
+                        cos(radians($latitude))
+                        * cos(radians(latitude))
+                        * cos(radians(longitude) - radians($longitude))
+                        + sin(radians($latitude))
+                        * sin(radians(latitude))
+                    )
+                ) AS distance
+            ")
+            )
+            ->orderByRaw("
+                CASE
+                    WHEN distance <= 5 THEN 0
+                    ELSE 1
+                END
+            ")
+            ->orderBy('distance')
+            ->get();
+
+        Log::info('Restaurants Count: ' . $restaurants->count());
+
+        foreach ($restaurants as $restaurant) {
+
+            Log::info('Restaurant Found', [
+                'name' => $restaurant->name,
+                'distance' => $restaurant->distance
+            ]);
+        }
+
+
+        return view(
+            'front.restaurants',
+            compact(
+                'restaurants',
+                'latitude',
+                'longitude'
+
+            )
+        );
+    }
+    // public function restaurantProducts($slug)
+    // {
+    //     $restaurant = Restaurant::with([
+    //             'reviews',
+    //             'banners' => function ($query) {
+    //                 $query->where('status', 1);
+    //             }
+    //         ])
+
+    //         ->where(
+    //             'slug',
+    //             $slug
+    //         )
+
+    //         ->firstOrFail();
+
+    //     /*
+    //     |--------------------------------------------------------------------------
+    //     | ONLY THIS RESTAURANT CATEGORIES
+    //     |--------------------------------------------------------------------------
+    //     */
+
+    //     $categories = Category::where(
+    //         'restaurant_id',
+    //         $restaurant->id
+    //     )
+    //         ->whereNull('parent_id')
+    //         ->latest()
+    //         ->get();
+
+    //     /*
+    //     |--------------------------------------------------------------------------
+    //     | ONLY THIS RESTAURANT PRODUCTS
+    //     |--------------------------------------------------------------------------
+    //     */
+
+    //     $products = Product::with([
+    //             'allergies',
+    //             'dietaries',
+    //             'variants',
+    //             'addons'
+    //         ])
+    //         ->where(
+    //             'restaurant_id',
+    //             $restaurant->id
+    //         )
+    //         ->latest()
+    //         ->get();
+
+    //     $offers = Offer::where(
+    //         'restaurant_id',
+    //         $restaurant->id
+    //     )
+    //         ->where('is_active', 1)
+    //         // ->where('type', 'offer')
+    //         ->latest()
+    //         ->get();
+
+
+    //         $eligibleOffer = null;
+
+    //         if(auth()->check()) {
+
+    //             $completedOrder = Order::where('user_id', auth()->id())
+    //                 ->where('restaurant_id', $restaurant->id)
+    //                 ->whereIn('status', ['completed', 'delivered'])
+    //                 ->latest()
+    //                 ->first();
+                    
+
+    //             if($completedOrder) {
+
+    //                 $eligibleOffer = OrderOffer::active()
+    //                     ->where('restaurant_id', $restaurant->id)
+    //                     ->where('min_order_value', '<=', $completedOrder->total_amount)
+    //                     ->orderByDesc('value')
+    //                     ->first();
+    //             }
+    //         } 
+            
+
+    //     return view(
+    //         'front.restaurant-products',
+    //         compact(
+    //             'restaurant',
+    //             'products',
+    //             'categories',
+    //             'offers',
+    //             'eligibleOffer'
+    //         )
+    //     );
+    // }
+
+    // public function restaurantProducts(Request $request, $slug)
+    // {
+    //     $restaurant = Restaurant::with([
+    //         'reviews',
+    //         'banners' => function ($query) {
+    //             $query->where('status', 1);
+    //         }
+    //     ])
+    //     ->where('slug', $slug)
+    //     ->firstOrFail();
+
+    //     // $categories = Category::where('restaurant_id', $restaurant->id)
+    //     //     ->whereNull('parent_id')
+    //     //     ->latest()
+    //     //     ->get();
+    //     $categories = Category::where('restaurant_id', $restaurant->id)
+    //             ->whereNull('parent_id')
+    //             ->orderByRaw('display_order IS NULL, display_order ASC')
+    //             ->orderBy('id', 'ASC')
+    //             ->get();
+
+    //     $search = $request->search;
+
+    //     // $products = Product::with([
+    //     //         'allergies',
+    //     //         'dietaries',
+    //     //         'variants',
+    //     //         'addons'
+    //     //     ])
+    //     //     ->where('restaurant_id', $restaurant->id)
+    //     //     ->when($search, function ($query) use ($search) {
+    //     //         $query->where(function ($q) use ($search) {
+    //     //             $q->where('name', 'LIKE', "%{$search}%")
+    //     //             ->orWhere('description', 'LIKE', "%{$search}%");
+    //     //         });
+    //     //     })
+    //     //     ->latest()
+    //     //     ->get();
+    //             $products = Product::with([
+    //             'allergies',
+    //             'dietaries',
+    //             'variants',
+    //             'addons'
+    //         ])
+    //         ->leftJoin('categories', 'categories.id', '=', 'products.category_id')
+    //         ->select('products.*')
+    //         ->where('products.restaurant_id', $restaurant->id)
+    //         ->when($search, function ($query) use ($search) {
+    //             $query->where(function ($q) use ($search) {
+    //                 $q->where('products.name', 'LIKE', "%{$search}%")
+    //                 ->orWhere('products.description', 'LIKE', "%{$search}%");
+    //             });
+    //         })
+    //         ->orderByRaw('categories.display_order IS NULL')
+    //         ->orderBy('categories.display_order')
+    //         ->orderBy('products.id')
+    //         ->get();
+
+    //     $offers = Offer::where('restaurant_id', $restaurant->id)
+    //         ->where('is_active', 1)
+    //         ->latest()
+    //         ->get();
+
+    //     $eligibleOffer = null;
+
+    //     if (auth()->check()) {
+
+    //         $completedOrder = Order::where('user_id', auth()->id())
+    //             ->where('restaurant_id', $restaurant->id)
+    //             ->whereIn('status', ['completed', 'delivered'])
+    //             ->latest()
+    //             ->first();
+
+    //         if ($completedOrder) {
+    //             $eligibleOffer = OrderOffer::active()
+    //                 ->where('restaurant_id', $restaurant->id)
+    //                 ->where('min_order_value', '<=', $completedOrder->total_amount)
+    //                 ->orderByDesc('value')
+    //                 ->first();
+    //         }
+    //     }
+
+    //     return view(
+    //         'front.restaurant-products',
+    //         compact(
+    //             'restaurant',
+    //             'products',
+    //             'categories',
+    //             'offers',
+    //             'eligibleOffer',
+    //             'search'
+    //         )
+    //     );
+    // }
+    public function restaurantProducts(Request $request, $slug)
+    {
+
+   
+        $restaurant = Restaurant::with([
+            'reviews',
+            'banners' => function ($query) {
+                $query->where('status', 1);
+            }
+        ])
+        ->where('slug', $slug)
+        ->firstOrFail();
+        // Visitor Log Save
+
+        $categories = Category::where('restaurant_id', $restaurant->id)
+                ->whereNull('parent_id')
+                ->orderByRaw('display_order IS NULL, display_order ASC')
+                ->orderBy('id', 'ASC')
+                ->get();
+
+        $search = $request->search;
+
+       
+                $products = Product::with([
+                'allergies',
+                'dietaries',
+                'variants',
+                'addons'
+            ])
+            ->leftJoin('categories', 'categories.id', '=', 'products.category_id')
+            ->select('products.*')
+            ->where('products.restaurant_id', $restaurant->id)
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('products.name', 'LIKE', "%{$search}%")
+                    ->orWhere('products.description', 'LIKE', "%{$search}%");
+                });
+            })
+            ->orderByRaw('categories.display_order IS NULL')
+            ->orderBy('categories.display_order')
+            ->orderBy('products.id')
+            ->get();
+
+        $offers = Offer::where('restaurant_id', $restaurant->id)
+            ->where('is_active', 1)
+            ->latest()
+            ->get();
+
+        $eligibleOffer = null;
+
+        if (auth()->check()) {
+
+            $completedOrder = Order::where('user_id', auth()->id())
+                ->where('restaurant_id', $restaurant->id)
+                ->whereIn('status', ['completed', 'delivered'])
+                ->latest()
+                ->first();
+
+            if ($completedOrder) {
+                $eligibleOffer = OrderOffer::active()
+                    ->where('restaurant_id', $restaurant->id)
+                    ->where('min_order_value', '<=', $completedOrder->total_amount)
+                    ->orderByDesc('value')
+                    ->first();
+            }
+        }
+
+       $isAdmin = auth()->check() &&
+            in_array(auth()->user()->role, ['super_admin', 'restaurant_admin']);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'html'    => view('front.partials.restaurant-products-grid', compact('products', 'isAdmin'))->render(),
+                'count'   => $products->count(),
+            ]);
+        }
+
+        return view(
+            'front.restaurant-productsnew',
+            compact('restaurant', 'products', 'categories', 'offers', 'eligibleOffer', 'search', 'isAdmin')
+        );
+    }
+    // public function restaurantCategoryProducts(
+    //     $slug,
+    //     $categorySlug
+    // ) {
+
+    //     $restaurant = Restaurant::where(
+    //         'slug',
+    //         $slug
+    //     )->firstOrFail();
+
+    //     /*
+    //     |--------------------------------------------------------------------------
+    //     | CATEGORY MUST BELONG TO SAME RESTAURANT
+    //     |--------------------------------------------------------------------------
+    //     */
+
+    //     $category = Category::where(
+    //         'slug',
+    //         $categorySlug
+    //     )
+    //         ->where(
+    //             'restaurant_id',
+    //             $restaurant->id
+    //         )
+    //         ->firstOrFail();
+
+    //     /*
+    //     |--------------------------------------------------------------------------
+    //     | ALL CATEGORIES OF THIS RESTAURANT
+    //     |--------------------------------------------------------------------------
+    //     */
+
+    //     $categories = Category::where(
+    //         'restaurant_id',
+    //         $restaurant->id
+    //     )
+    //         ->whereNull('parent_id')
+    //         ->orderByRaw('display_order IS NULL, display_order ASC')
+    //         ->orderBy('id', 'ASC')
+    //         ->latest()
+    //         ->get();
+
+    //     /*
+    //     |--------------------------------------------------------------------------
+    //     | ONLY PRODUCTS OF THIS RESTAURANT + CATEGORY
+    //     |--------------------------------------------------------------------------
+    //     */
+
+    //     $products = Product::where(
+    //         'restaurant_id',
+    //         $restaurant->id
+    //     )
+    //         ->where(
+    //             'category_id',
+    //             $category->id
+    //         )
+    //         ->latest()
+    //         ->get();
+
+        
+    //      $eligibleOffer = null;
+
+    //         if(auth()->check()) {
+
+    //             $completedOrder = Order::where('user_id', auth()->id())
+    //                 ->where('restaurant_id', $restaurant->id)
+    //                 ->whereIn('status', ['completed', 'delivered'])
+    //                 ->latest()
+    //                 ->first();
+                    
+
+    //             if($completedOrder) {
+
+    //                 $eligibleOffer = OrderOffer::active()
+    //                     ->where('restaurant_id', $restaurant->id)
+    //                     ->where('min_order_value', '<=', $completedOrder->total_amount)
+    //                     ->orderByDesc('value')
+    //                     ->first();
+    //             }
+    //         } 
+                
+
+
+
+    //     return view(
+    //         'front.restaurant-products',
+    //         compact(
+    //             'restaurant',
+    //             'products',
+    //             'categories',
+    //             'category',
+    //             'eligibleOffer'
+
+    //         )
+    //     );
+    // }
+
+    public function restaurantCategoryProducts(Request $request, $slug, $categorySlug)
+{
+    $restaurant = Restaurant::where('slug', $slug)->firstOrFail();
+
+    $category = Category::where('slug', $categorySlug)
+        ->where('restaurant_id', $restaurant->id)
+        ->firstOrFail();
+
+    $categories = Category::where('restaurant_id', $restaurant->id)
+        ->whereNull('parent_id')
+        ->orderByRaw('display_order IS NULL, display_order ASC')
+        ->orderBy('id', 'ASC')
+        ->get();
+
+    $search = $request->search;
+
+    $products = Product::with(['allergies', 'dietaries', 'variants', 'addons'])
+        ->where('restaurant_id', $restaurant->id)
+        ->where('category_id', $category->id)
+        ->when($search, function ($query) use ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                  ->orWhere('description', 'LIKE', "%{$search}%");
+            });
+        })
+        ->latest()
+        ->get();
+
+    $isAdmin = auth()->check() &&
+        in_array(auth()->user()->role, ['super_admin', 'restaurant_admin']);
+
+    $eligibleOffer = null;
+    if (auth()->check()) {
+        $completedOrder = Order::where('user_id', auth()->id())
+            ->where('restaurant_id', $restaurant->id)
+            ->whereIn('status', ['completed', 'delivered'])
+            ->latest()
+            ->first();
+
+        if ($completedOrder) {
+            $eligibleOffer = OrderOffer::active()
+                ->where('restaurant_id', $restaurant->id)
+                ->where('min_order_value', '<=', $completedOrder->total_amount)
+                ->orderByDesc('value')
+                ->first();
+        }
+    }
+
+    if ($request->ajax() || $request->wantsJson()) {
+        return response()->json([
+            'success' => true,
+            'html'    => view('front.partials.restaurant-products-grid', compact('products', 'isAdmin'))->render(),
+            'count'   => $products->count(),
+        ]);
+    }
+
+    return view(
+        'front.restaurant-productsnew',
+        compact('restaurant', 'products', 'categories', 'category', 'eligibleOffer', 'isAdmin')
+    );
+}
+}
