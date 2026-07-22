@@ -18,53 +18,49 @@
 
                 <div>
                     <label class="block mb-2 font-medium">
-                        Member ID
+                        Business ID
                     </label>
 
                     <input
                         type="text"
-                        name="transactworld_member_id"
-                        value="{{ $restaurant->transactworld_member_id }}"
-                        class="w-full border rounded-xl p-4">
+                        name="worldpay_business_id"
+                        value="{{ $restaurant->worldpay_business_id }}"
+                        class="w-full border rounded-xl p-4"
+                        placeholder="example: 90809"
+                        >
                 </div>
 
                 <div>
                     <label class="block mb-2 font-medium">
-                        Account ID
+                        Username
                     </label>
 
                     <input
                         type="text"
-                        name="transactworld_account_id"
-                        value="{{ $restaurant->transactworld_account_id }}"
-                        class="w-full border rounded-xl p-4">
+                        name="worldpay_username"
+                        value="{{ $restaurant->worldpay_username }}"
+                        class="w-full border rounded-xl p-4"
+                        placeholder="example: 90809.1"
+                        >
                 </div>
 
                 <div>
                     <label class="block mb-2 font-medium">
-                        Terminal ID
+                        Password
                     </label>
 
                     <input
                         type="text"
-                        name="transactworld_terminal_id"
-                        value="{{ $restaurant->transactworld_terminal_id }}"
-                        class="w-full border rounded-xl p-4">
+                        name="worldpay_password"
+                        value="{{ $restaurant->worldpay_password }}"
+                        class="w-full border rounded-xl p-4"
+                        placeholder="example:dsgfdhdfhag51621gsdf"
+                        >
                 </div>
 
-                <div>
-                    <label class="block mb-2 font-medium">
-                        Checksum Key
-                    </label>
+                
 
-                    <input
-                        type="text"
-                        name="transactworld_checksum_key"
-                        value="{{ $restaurant->transactworld_checksum_key }}"
-                        class="w-full border rounded-xl p-4">
-                </div>
-
-                <div>
+                {{-- <div>
                     <label class="block mb-2 font-medium">
                         Mode
                     </label>
@@ -86,7 +82,7 @@
                         </option>
 
                     </select>
-                </div>
+                </div> --}}
 
             </div>
 

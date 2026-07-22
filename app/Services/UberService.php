@@ -53,8 +53,70 @@ class UberService
         return $token;
     }
 
+    public function quoteFromCheckout($restaurant, $user, $checkout)
+    {
+        $times = $this->getDeliveryTimes();
+
+        $payload = [
+
+            "pickup_address" => json_encode([
+                "street_address" => [$restaurant->address],
+                "city" => $restaurant->city,
+                "state" => $restaurant->state,
+                "zip_code" => $restaurant->postcode,
+                "country" => $restaurant->country,
+            ]),
+
+            "dropoff_address" => json_encode([
+                "street_address" => [$checkout['address']],
+                "city" => $checkout['city'],
+                "state" => $checkout['state'],
+                "zip_code" => $checkout['postcode'],
+                "country" => $checkout['country'],
+            ]),
+
+            "pickup_latitude" => (float)$restaurant->latitude,
+            "pickup_longitude" => (float)$restaurant->longitude,
+
+            "dropoff_latitude" => (float)$checkout['latitude'],
+            "dropoff_longitude" => (float)$checkout['longitude'],
+
+            "pickup_ready_dt" => $times['pickupReady']->toISOString(),
+            "pickup_deadline_dt" => $times['pickupDeadline']->toISOString(),
+            "dropoff_ready_dt" => $times['dropoffReady']->toISOString(),
+            "dropoff_deadline_dt" => $times['dropoffDeadline']->toISOString(),
+
+            "pickup_phone_number" => $restaurant->phone,
+            "dropoff_phone_number" => $user->phone,
+
+            "manifest_total_value" => (int) round($checkout['amount'] * 100),
+
+            "external_store_id" => (string)$restaurant->id,
+        ];
+
+        Log::info('Uber Quote Payload', $payload);
+
+            $response = Http::withToken($this->token())
+                ->acceptJson()
+                ->post(
+                    'https://api.uber.com/v1/customers/' .
+                    config('services.uber.customer_id') .
+                    '/delivery_quotes',
+                    $payload
+                );
+
+            Log::info('Uber Quote Response', [
+                'status' => $response->status(),
+                'body'   => $response->json(),
+            ]);
+
+            return $response->json();
+        
+    }
+
     public function quote($restaurant, $order)
     {
+        
         $isGuest = $order->is_guest;
 
         $name = $isGuest
@@ -156,8 +218,9 @@ class UberService
     }
     
 
-    public function createDelivery($order, $restaurant, $quoteId)
+    public function createDelivery($order, $restaurant, $request)
     {
+       
         $items = [];
 
         $isGuest = $order->is_guest;
@@ -214,7 +277,7 @@ class UberService
 
         $payload = [
 
-            "quote_id" => $quoteId,
+            "quote_id" => $request->uber_quote_id,
 
             "pickup_name" => $restaurant->name,
 
@@ -237,18 +300,18 @@ class UberService
             "dropoff_name" => $name,
 
             "dropoff_address" => json_encode([
-                "street_address" => [$order->address ?? $address],
-                "city" => $city,
-                "state" => $state,
-                "zip_code" => $postcode,
-                "country" => $country,
+                "street_address" => [$order->address ?? $request->address],
+                "city" => $request->city ?? $city,
+                "state" => $request->state ?? $state,
+                "zip_code" => $request->postcode ?? $postcode,
+                "country" => $request->country ?? $country,
             ]),
 
-            "dropoff_phone_number" => $order->phone ?? $phone,
+            "dropoff_phone_number" => $order->phone ?? $request->phone ?? $phone,
 
-            "dropoff_latitude" => (float) $latitude,
+            "dropoff_latitude" => (float) $request->latitude ?? $latitude,
 
-            "dropoff_longitude" => (float) $longitude,
+            "dropoff_longitude" => (float) $request->longitude ?? $longitude,
 
             "manifest_items" => $items,
 
@@ -277,6 +340,8 @@ class UberService
                 . "/deliveries",
                 $payload
             );
+
+          
 
         Log::info('Uber Delivery Response', [
             'status' => $response->status(),

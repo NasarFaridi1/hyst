@@ -5,13 +5,19 @@ namespace App\Http\Controllers\Front;
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
 use App\Models\User;
+use App\Models\UserAddress;
 use Illuminate\Http\Request;
 
 class ProfileController extends Controller
 {
-    public function index()
-    {
-        return view('front.profile');
+    public function index(Request $request)
+{
+        savePageVisit($request, 'Profile');
+        $addresses = UserAddress::where('user_id', auth()->id())
+        ->orderByDesc('is_default')
+        ->latest()
+        ->get();
+        return view('front.profile', compact('addresses'));
     }
 
     public function update(Request $request)

@@ -91,5 +91,10 @@ class User extends Authenticatable
         return $this->hasMany(Notification::class)
             ->latest();
     }
+
+    public function couponUsages()
+    {
+        return $this->hasMany(CouponUsage::class);
+    }
     
 }

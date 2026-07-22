@@ -12,16 +12,20 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use App\Models\Offer;
+use Carbon\Carbon;
 use App\Models\Order;
 use App\Models\OrderOffer;
 use App\Models\RestaurantCategory;
-
+use App\Models\HomeVisitor;
+use App\Models\RestaurantView;
+use Illuminate\Support\Facades\Auth;
 class HomeController extends Controller
 {
 
 
     public function home(Request $request)
     {
+        savePageVisit($request,'Home');
         $products = Product::latest()->get();
 
         $categories = Category::whereNull('parent_id')->get();
@@ -51,6 +55,9 @@ class HomeController extends Controller
         | IF LOCATION NOT FOUND
         |--------------------------------------------------------------------------
         */
+
+       
+
 
         if (!$latitude || !$longitude) {
 
@@ -104,6 +111,51 @@ class HomeController extends Controller
                 END ASC
             ")
             ->get();
+		
+		$restaurants = $restaurants->map(function ($restaurant) {
+
+            $restaurant->is_open = $restaurant->restaurant_status === 'Open'? true : false;
+
+            // if (
+            //     empty($restaurant->working_days) ||
+            //     empty($restaurant->opening_time) ||
+            //     empty($restaurant->closing_time)
+            // ) {
+            //     return $restaurant;
+            // }
+
+            // $now = Carbon::now('Europe/London');
+
+            // $today = $now->format('l');
+
+            // $workingDays = array_map('trim', explode(',', $restaurant->working_days));
+
+            // if (!in_array($today, $workingDays)) {
+            //     return $restaurant;
+            // }
+
+            // $open = Carbon::createFromFormat(
+            //     'H:i:s',
+            //     $restaurant->opening_time,
+            //     'Europe/London'
+            // );
+
+            // $close = Carbon::createFromFormat(
+            //     'H:i:s',
+            //     $restaurant->closing_time,
+            //     'Europe/London'
+            // );
+
+            // if ($close->lessThan($open)) {
+            //     $close->addDay();
+            // }
+
+            // if ($now->between($open, $close)) {
+            //     $restaurant->is_open = true;
+            // }
+
+            return $restaurant;
+        });
 
         // Log::info('Restaurants Count: ' . $restaurants->count());
 
@@ -179,57 +231,47 @@ class HomeController extends Controller
         );
     }
 
-    public function restaurants(Request $request)
-    {
-        $ip = $request->ip();
+   public function restaurants(Request $request)
+{
+    $ip = $request->ip();
 
-        Log::info('User IP: ' . $ip);
+    Log::info('User IP: ' . $ip);
 
-        $response = Http::get("http://ip-api.com/json/" . $ip);
+    $response = Http::get("http://ip-api.com/json/" . $ip);
 
-        $data = $response->json();
+    $data = $response->json();
 
-        Log::info('IP API Response', $data);
+    $latitude = $data['lat'] ?? null;
+    $longitude = $data['lon'] ?? null;
 
-        $latitude = $data['lat'] ?? null;
-        $longitude = $data['lon'] ?? null;
+    /*
+    |--------------------------------------------------------------------------
+    | IF LOCATION NOT FOUND
+    |--------------------------------------------------------------------------
+    */
 
-        Log::info('User Latitude: ' . $latitude);
-        Log::info('User Longitude: ' . $longitude);
+    if (!$latitude || !$longitude) {
 
-        /*
-        |--------------------------------------------------------------------------
-        | IF LOCATION NOT FOUND
-        |--------------------------------------------------------------------------
-        */
-
-        if (!$latitude || !$longitude) {
-
-            $restaurants = Restaurant::latest()->get();
-
-            return view(
-                'front.restaurants',
-                compact('restaurants')
-            );
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | ALL RESTAURANTS WITH DISTANCE
-        |--------------------------------------------------------------------------
-        */
-
-        // $restaurants = Restaurant::select(
-        // $restaurants = Restaurant::with('featuredOffer')
         $restaurants = Restaurant::with([
-
             'featuredOffer',
             'reviews'
+        ])->latest()->get();
 
+    } else {
+
+        /*
+        |--------------------------------------------------------------------------
+        | RESTAURANTS WITH DISTANCE
+        |--------------------------------------------------------------------------
+        */
+
+        $restaurants = Restaurant::with([
+            'featuredOffer',
+            'reviews'
         ])
-            ->select(
-                '*',
-                DB::raw("
+        ->select(
+            '*',
+            DB::raw("
                 (
                     6371 * acos(
                         cos(radians($latitude))
@@ -240,37 +282,78 @@ class HomeController extends Controller
                     )
                 ) AS distance
             ")
-            )
-            ->orderByRaw("
-                CASE
-                    WHEN distance <= 5 THEN 0
-                    ELSE 1
-                END
-            ")
-            ->orderBy('distance')
-            ->get();
+        )
+        ->orderByRaw("
+            CASE
+                WHEN distance <= 5 THEN 0
+                ELSE 1
+            END
+        ")
+        ->orderBy('distance')
+        ->get();
+    }
 
-        Log::info('Restaurants Count: ' . $restaurants->count());
+    /*
+    |--------------------------------------------------------------------------
+    | CHECK OPEN / CLOSED
+    |--------------------------------------------------------------------------
+    */
 
-        foreach ($restaurants as $restaurant) {
+    $restaurants = $restaurants->map(function ($restaurant) {
 
-            Log::info('Restaurant Found', [
-                'name' => $restaurant->name,
-                'distance' => $restaurant->distance
-            ]);
+        $restaurant->is_open = false;
+
+        if (
+            empty($restaurant->working_days) ||
+            empty($restaurant->opening_time) ||
+            empty($restaurant->closing_time)
+        ) {
+            return $restaurant;
         }
 
+        $now = Carbon::now('Europe/London');
 
-        return view(
-            'front.restaurants',
-            compact(
-                'restaurants',
-                'latitude',
-                'longitude'
+        $today = $now->format('l');
 
-            )
+        $workingDays = array_map('trim', explode(',', $restaurant->working_days));
+
+        if (!in_array($today, $workingDays)) {
+            return $restaurant;
+        }
+
+        $open = Carbon::createFromFormat(
+            'H:i:s',
+            $restaurant->opening_time,
+            'Europe/London'
         );
-    }
+
+        $close = Carbon::createFromFormat(
+            'H:i:s',
+            $restaurant->closing_time,
+            'Europe/London'
+        );
+
+        // Overnight timing support (e.g. 8 PM → 2 AM)
+        if ($close->lessThan($open)) {
+            $close->addDay();
+        }
+
+        if ($now->between($open, $close)) {
+            $restaurant->is_open = true;
+        }
+
+        return $restaurant;
+    });
+
+    return view(
+        'front.restaurants',
+        compact(
+            'restaurants',
+            'latitude',
+            'longitude'
+        )
+    );
+}
     // public function restaurantProducts($slug)
     // {
     //     $restaurant = Restaurant::with([
@@ -472,6 +555,13 @@ class HomeController extends Controller
         ->firstOrFail();
         // Visitor Log Save
 
+        savePageVisit(
+    $request,
+    'Restaurant View',
+    $restaurant->id,
+    $restaurant->name
+);
+    
         $categories = Category::where('restaurant_id', $restaurant->id)
                 ->whereNull('parent_id')
                 ->orderByRaw('display_order IS NULL, display_order ASC')

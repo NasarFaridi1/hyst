@@ -14,6 +14,7 @@ use App\Models\OrderItem;
 use App\Services\StuartService;
 use App\Models\Payment;
 use App\Models\Restaurant;
+use App\Models\UserAddress;
 use App\Services\WorldpayService;
 
 use Illuminate\Support\Facades\Auth;
@@ -35,8 +36,9 @@ class PaymentController extends Controller
 
     public function pay(Request $request)
     {
-        
 
+       
+        
 
         $request->validate([
 
@@ -47,9 +49,26 @@ class PaymentController extends Controller
 
         ]);
 
-       
+        $address = null;
 
+        if ($request->order_type == 'dine_in') {
 
+            $address = UserAddress::where('user_id', Auth::id())
+                ->where('is_default', 1)
+                ->first();
+
+            if (!$address) {
+                $address = UserAddress::where('user_id', Auth::id())
+                    ->latest()
+                    ->first();
+            }
+
+            if (!$address) {
+                return redirect()
+                    ->route('profile') // change to your profile route
+                    ->with('error', 'Please Complete your profile before making a payment.');
+            }
+        }
 
         $restaurant = Restaurant::findOrFail(
             $request->restaurant_id
@@ -97,13 +116,28 @@ class PaymentController extends Controller
 
                     'phone' => $request->phone ?? Auth::user()->phone,
 
-                    'address' => $request->address ?? Auth::user()->address,
+                    // 'address' => $request->address ?? Auth::user()->address,
 
-                    'postcode' => $request->pincode ?? Auth::user()->postcode,
+                    // 'postcode' => $request->postcode ?? Auth::user()->postcode,
 
-                    'state' => Auth::user()->state,
+                    // 'state' => Auth::user()->state,
 
-                    'country' => Auth::user()->country,
+                    // 'country' => Auth::user()->country,
+                    'address' => $request->order_type == 'dine_in'
+                        ? $address->address
+                        : ($request->address ?? Auth::user()->address),
+
+                    'postcode' => $request->order_type == 'dine_in'
+                        ? $address->postcode
+                        : ($request->postcode ?? Auth::user()->postcode),
+
+                    'state' => $request->order_type == 'dine_in'
+                        ? $address->state
+                        : Auth::user()->state,
+
+                    'country' => $request->order_type == 'dine_in'
+                        ? $address->country
+                        : Auth::user()->country,
 
 
                 ]

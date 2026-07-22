@@ -328,15 +328,20 @@ class RestaurantController extends Controller
     {
         $request->validate([
 
-            'transactworld_member_id' => 'required',
+            // 'transactworld_member_id' => 'required',
 
-            'transactworld_account_id' => 'required',
+            // 'transactworld_account_id' => 'required',
 
-            'transactworld_terminal_id' => 'required',
+            // 'transactworld_terminal_id' => 'required',
 
-            'transactworld_checksum_key' => 'required',
+            // 'transactworld_checksum_key' => 'required',
 
-            'transactworld_mode' => 'required|in:test,live'
+            // 'transactworld_mode' => 'required|in:test,live'
+
+            'worldpay_business_id' => 'required',
+            'worldpay_username' => 'required',
+            'worldpay_password' => 'required'
+
 
         ]);
 
@@ -344,20 +349,14 @@ class RestaurantController extends Controller
 
         $restaurant->update([
 
-            'transactworld_member_id' =>
-                $request->transactworld_member_id,
+            'worldpay_business_id' =>
+                $request->worldpay_business_id,
 
-            'transactworld_account_id' =>
-                $request->transactworld_account_id,
+            'worldpay_username' =>
+                $request->worldpay_username,
 
-            'transactworld_terminal_id' =>
-                $request->transactworld_terminal_id,
-
-            'transactworld_checksum_key' =>
-                $request->transactworld_checksum_key,
-
-            'transactworld_mode' =>
-                $request->transactworld_mode
+            'worldpay_password' =>  
+                $request->worldpay_password
 
         ]);
 
@@ -415,8 +414,9 @@ class RestaurantController extends Controller
 
     
 
-    public function favorites()
-    {
+    public function favorites(Request $request)
+{
+    savePageVisit($request, 'Favorite Restaurants');
         $restaurants = Restaurant::with([
             'featuredOffer',
             'reviews'

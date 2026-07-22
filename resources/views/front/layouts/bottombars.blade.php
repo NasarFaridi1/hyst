@@ -114,14 +114,16 @@
 
 @php
 
-$favoriteCount = auth()->check()
-    ? \App\Models\RestaurantFavorite::where(
-        'user_id',
-        auth()->id()
-    )->count()
-    : 0;
+    $favoriteCount = auth()->check()
+        ? \App\Models\RestaurantFavorite::where(
+            'user_id',
+            auth()->id()
+        )->count()
+        : 0;
+    $cartCount = collect(session('cart', []))->sum('quantity');
 
 @endphp
+
 
 {{-- ===== MOBILE BOTTOM NAV ===== --}}
 <div class="mob-nav">
@@ -132,10 +134,28 @@ $favoriteCount = auth()->check()
             <span class="mob-dot"></span>
         </a>
         
-        
         <a href="/cart" class="mob-nav-item {{ request()->is('cart') ? 'active' : '' }}">
-            <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 001.98 1.61h9.72a2 2 0 001.95-1.56L23 6H6"/></svg>
+            <svg viewBox="0 0 24 24">
+                <circle cx="9" cy="21" r="1"/>
+                <circle cx="20" cy="21" r="1"/>
+                <path d="M1 1h4l2.68 13.39a2 2 0 001.98 1.61h9.72a2 2 0 001.95-1.56L23 6H6"/>
+            </svg>
+
             Cart
+
+            @if($cartCount > 0)
+                <span id="cartCount" style="
+                    background:#C25A2A;
+                    color:#fff;
+                    padding:2px 8px;
+                    border-radius:20px;
+                    font-size:11px;
+                    margin-left:5px;
+                ">
+                    {{ $cartCount }}
+                </span>
+            @endif
+
             <span class="mob-dot"></span>
         </a>
 

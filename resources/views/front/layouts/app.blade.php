@@ -137,6 +137,13 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet/dist/leaflet.css">
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     @laravelPWA
 
@@ -668,7 +675,6 @@
 
     <script>lucide.createIcons();</script>
 
-    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <script type="module">
 

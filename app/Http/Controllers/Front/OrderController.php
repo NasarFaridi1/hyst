@@ -20,47 +20,50 @@ use App\Models\Restaurant;
 use Illuminate\Support\Facades\Log;
 use App\Services\FirebaseNotificationService;
 use App\Models\ActivityLog;
+use App\Models\Coupon;
 use App\Models\OrderItemAddon;
 use App\Models\User;
-
+use App\Models\UserAddress;
+use Illuminate\Support\Facades\Auth;
 
 class OrderController extends Controller
 {
 
-public function storeGuestInfo(Request $request)
-{
-    $request->validate([
-        'guest_name'  => 'required|string|max:255',
-        'guest_email' => 'required|email',
-        'guest_phone' => 'required',
-        'address'     => 'required',
-        'city'        => 'required',
-        'state'       => 'required',
-        'postcode'    => 'required',
-        'country'     => 'required',
-        'latitude'    => 'required',
-        'longitude'   => 'required',
-    ]);
-
-    session([
-        'guest_checkout' => [
-            'name'      => $request->guest_name,
-            'email'     => $request->guest_email,
-            'phone'     => $request->guest_phone,
-            'address'   => $request->address,
-            'city'      => $request->city,
-            'state'     => $request->state,
-            'postcode'  => $request->postcode,
-            'country'   => $request->country,
-            'latitude'  => $request->latitude,
-            'longitude' => $request->longitude
-        ]
-    ]);
-
-    return redirect()->route('checkout');
-}
-    public function checkout()
+    public function storeGuestInfo(Request $request)
     {
+        $request->validate([
+            'guest_name'  => 'required|string|max:255',
+            'guest_email' => 'required|email',
+            'guest_phone' => 'required',
+            'address'     => 'required',
+            'city'        => 'required',
+            'state'       => 'required',
+            'postcode'    => 'required',
+            'country'     => 'required',
+            'latitude'    => 'required',
+            'longitude'   => 'required',
+        ]);
+
+        session([
+            'guest_checkout' => [
+                'name'      => $request->guest_name,
+                'email'     => $request->guest_email,
+                'phone'     => $request->guest_phone,
+                'address'   => $request->address,
+                'city'      => $request->city,
+                'state'     => $request->state,
+                'postcode'  => $request->postcode,
+                'country'   => $request->country,
+                'latitude'  => $request->latitude,
+                'longitude' => $request->longitude
+            ]
+        ]);
+
+        return redirect()->route('checkout');
+    }
+    public function checkout(Request $request)
+    {
+        savePageVisit($request, 'Checkout');
        
         $cart = session()->get('cart', []);
 
@@ -297,19 +300,36 @@ public function storeGuestInfo(Request $request)
                 $itemPrice * $item['quantity'];
         }
 
-
         $paymentEnabled =
-        !empty($restaurant->transactworld_member_id) &&
-        !empty($restaurant->transactworld_checksum_key);
+        !empty($restaurant->worldpay_business_id) &&
+        !empty($restaurant->worldpay_username) &&
+        !empty($restaurant->worldpay_password);
 
         $serviceCharge = 0.12;
         $deliveryCharge = 0.12;
         $hystCharge = 0.25;
 
         $finalTotal +=
-            $serviceCharge +
+            // $serviceCharge +
             $deliveryCharge +
             $hystCharge;
+
+        $addresses = UserAddress::where('user_id', Auth::id())
+        ->orderByDesc('is_default')
+        ->latest()
+        ->get();
+
+
+
+        $couponDiscount = 0;
+
+        if(session()->has('coupon')){
+
+            $couponDiscount=session('coupon.discount');
+
+            $finalTotal -= $couponDiscount;
+
+        }
 
         return view(
 
@@ -327,7 +347,9 @@ public function storeGuestInfo(Request $request)
                 'orderOfferDiscount',
                 'serviceCharge',
                 'deliveryCharge',
-                'hystCharge'
+                'hystCharge',
+                'addresses',
+                'couponDiscount'
                 
             )
         );
@@ -335,6 +357,7 @@ public function storeGuestInfo(Request $request)
 
     public function placeOrder(Request $request, Payment $payment = null)
     {
+        
 
        
         
@@ -371,7 +394,7 @@ public function storeGuestInfo(Request $request)
                 //     'required_if:order_type,delivery|required_if:payment_method,Cash On Delivery',
                 'address' => 'nullable|required_if:order_type,delivery',
 
-                'pincode' => 'nullable|required_if:order_type,delivery',
+                'pincode' => 'nullable',
 
             ]);
 
@@ -605,21 +628,16 @@ public function storeGuestInfo(Request $request)
                 }
             }
 
-            $finalTotal = max(
-                $originalTotal - $discount,
-                0
-            );
-
-
-            $serviceCharge = 0.12;
-            $deliveryCharge = 0.12;
-            $hystCharge = 0.25;
+            $serviceCharge = (float) $request->service_charge;
+            $deliveryCharge = (float) $request->delivery_charge;
+            $hystCharge = (float) $request->hyst_charge;
 
             $finalTotal =
-                $finalTotal +
-                $serviceCharge +
-                $deliveryCharge +
-                $hystCharge;
+                ($originalTotal - $discount)
+                + $deliveryCharge
+                + $hystCharge;
+
+            $finalTotal = max($finalTotal, 0);
 
 
                 
@@ -636,6 +654,10 @@ public function storeGuestInfo(Request $request)
             | CREATE ORDER
             |--------------------------------------------------------------------------
             */
+
+            // 1. Fetch coupon details from session
+            $couponId = session('coupon.id');
+            $discountAmount = session('coupon.discount', 0);
 
             $order = Order::create([
 
@@ -664,7 +686,7 @@ public function storeGuestInfo(Request $request)
                 'total_amount' =>
                     $finalTotal,
 
-                'service_charge' => $serviceCharge,
+                'service_charge' => 0,
 
                 'delivery_charge' => $deliveryCharge,
 
@@ -680,7 +702,7 @@ public function storeGuestInfo(Request $request)
                     $request->address,
 
                 'pincode' =>
-                    $request->pincode,
+                    $request->postcode,
 
                 'payment_method' =>
                     $request->payment_method,
@@ -688,9 +710,29 @@ public function storeGuestInfo(Request $request)
 
 
                 'status' =>
-                    'pending'
+                    'pending',
+
+                'coupon_id' => $couponId,
+                'coupon_discount' => $discountAmount   
             ]);
 
+            if(session()->has('coupon')){
+
+                Coupon::where(
+                    'id',
+                    session('coupon.id')
+                )->increment('used_count');
+
+                session()->forget('coupon');
+
+            }
+            savePageVisit(
+                $request,
+                'Place Order',
+                $restaurantId,
+                Restaurant::find($restaurantId)?->name,
+                $order->id
+            );
 
             
 
@@ -827,6 +869,8 @@ public function storeGuestInfo(Request $request)
             |--------------------------------------------------------------------------
             */
 
+            
+
             $order->update([
 
                 'total_amount' =>$finalTotal
@@ -941,11 +985,11 @@ public function storeGuestInfo(Request $request)
 
                 'discount'        => $discount ?? 0,
 
-                'service_charge'  => $serviceCharge,
+                'service_charge'  => 0,
 
-                'delivery_charge' => $deliveryCharge,
+                'delivery_charge' => $request->delivery_charge ?? 0,
 
-                'hyst_charge'     => $hystCharge,
+                'hyst_charge'     => $request->hyst_charge ?? 0,
 
                 'total'           => $finalTotal,
 
@@ -1084,24 +1128,24 @@ public function storeGuestInfo(Request $request)
 
                     $uber = new UberService();
 
-                    Log::info('Generating Uber quote...');
+                    // Log::info('Generating Uber quote...');
 
                     
 
-                    $quote = $uber->quote(
-                        $restaurant,
-                        $order
-                    );
+                    // $quote = $uber->quote(
+                    //     $restaurant,
+                    //     $order
+                    // );
 
-                    Log::info('Uber quote generated', [
-                        'quote' => $quote,
-                    ]);
+                    // Log::info('Uber quote generated', [
+                    //     'quote' => $quote,
+                    // ]);
 
 
                     Log::info('Creating Uber delivery...');
 
                     Log::info('Uber quote generated',[
-                        'quote'=>$quote,
+                        'quote'=>$request->uber_quote_id,
                         'longitude'=>(float) $restaurant->longitude,
                     ]);
 
@@ -1113,15 +1157,17 @@ public function storeGuestInfo(Request $request)
 
                     // }
 
-                    $uberdelivery = $uber->createDelivery(
-                        $order,
-                        $restaurant,
-                        $quote['id']
-                    );
+                    
 
-                    Log::info('Uber delivery created successfully', [
-                        'delivery' => $uberdelivery,
-                    ]);
+                    // $uberdelivery = $uber->createDelivery(
+                    //     $order,
+                    //     $restaurant,
+                    //     $request
+                    // );
+
+                    // Log::info('Uber delivery created successfully', [
+                    //     'delivery' => $uberdelivery,
+                    // ]);
 
                 } catch (\Throwable $e) {
 
@@ -1165,17 +1211,19 @@ public function storeGuestInfo(Request $request)
                 //     ]);
                 // }
 
-                if($uberdelivery){
+                // if($uberdelivery){
+                if($quote = $request->uber_quote_id){
+
                     $order->update([
                         'delivery_provider' => 'uber',
 
-                        'uber_delivery_id'=>$uberdelivery['id'],
+                        // 'uber_delivery_id'=>$uberdelivery['id'],
 
-                        'uber_tracking_url'=>$uberdelivery['tracking_url'],
+                        // 'uber_tracking_url'=>$uberdelivery['tracking_url'],
 
-                        'uber_delivery_status'=>$uberdelivery['status'],
+                        // 'uber_delivery_status'=>$uberdelivery['status'],
 
-                        'uber_quote_id'=>$quote['id'],
+                        'uber_quote_id'=>$request->uber_quote_id,
 
                     ]);
                 }
@@ -1392,8 +1440,9 @@ public function storeGuestInfo(Request $request)
         ]);
     }
 
-    public function myOrders()
-    {
+   public function myOrders(Request $request)
+{
+    savePageVisit($request, 'My Orders');
         $orders = Order::where(
             'user_id',
             auth()->id()
@@ -1405,7 +1454,7 @@ public function storeGuestInfo(Request $request)
         );
     }
 
-    public function orderDetails($id)
+    public function orderDetails(Request $request, $id)
     {
         $order = Order::with([
 
@@ -1419,6 +1468,13 @@ public function storeGuestInfo(Request $request)
         ])
             ->where('user_id', auth()->id())
             ->findOrFail($id);
+            savePageVisit(
+    $request,
+    'Order Details',
+    $order->restaurant_id,
+    optional($order->restaurant)->name,
+    $order->id
+);
          
         $messages = Message::where('order_id', $order->id)
         ->where(function($q){
@@ -1462,8 +1518,9 @@ public function storeGuestInfo(Request $request)
         ]);
     }
 
-    public function transactions()
-    {
+    public function transactions(Request $request)
+{
+    savePageVisit($request, 'Transactions');
         $payments = Payment::with([
 
             'restaurant',

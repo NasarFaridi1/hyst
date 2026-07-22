@@ -100,4 +100,9 @@ class Restaurant extends Model
     {
         return $this->hasMany(\App\Models\Review::class);
     }
+
+    public function coupons()
+    {
+        return $this->hasMany(Coupon::class);
+    }
 }

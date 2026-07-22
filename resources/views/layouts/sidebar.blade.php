@@ -250,6 +250,26 @@
                 </div>
                 <span>Privacy Policy</span>
             </a>
+	
+	       <a href="{{ route('admin.page-visits.index') }}"
+
+            class="sidebar-item {{ str_contains($current,'admin/page-visits') ? 'active' : '' }}">
+
+
+
+            <div class="sidebar-icon">
+
+                <i data-lucide="activity"></i>
+
+            </div>
+
+
+
+            <span>Analytics Integration</span>
+
+
+
+        </a>
 
             
 
@@ -298,6 +318,14 @@
                 <span>Categories</span>
             </a>
 
+            <a href="/restaurant/coupons"
+            class="sidebar-item {{ str_contains($current,'restaurant/coupons') ? 'active' : '' }}">
+                <div class="sidebar-icon">
+                    <i data-lucide="discount"></i>
+                </div>
+                <span>Coupons</span>
+            </a>
+
             <a href="/restaurant/banners"
             class="sidebar-item {{ str_contains($current,'restaurant/banners') ? 'active' : '' }}">
                 <div class="sidebar-icon">
@@ -340,6 +368,27 @@
                 </div>
                 <span>Profile</span>
             </a>
+             
+            <a href="{{ route('restaurant.page-visits.index') }}"
+
+            class="sidebar-item {{ str_contains($current,'restaurant/page-visits') ? 'active' : '' }}">
+
+
+
+            <div class="sidebar-icon">
+
+                <i data-lucide="activity"></i>
+
+            </div>
+
+
+
+            <span>Analytics Integration</span>
+
+
+
+        </a>
+       
 
             {{-- <a href="/restaurant/privacy-policy"
             class="sidebar-item {{ str_contains($current,'restaurant/privacy-policy') ? 'active' : '' }}">

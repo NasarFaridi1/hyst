@@ -68,6 +68,8 @@ class Order extends Model
         'guest_state',
         'guest_latitude',
         'guest_longitude',
+        'coupon_id',
+        'coupon_discount'
         
     ];
 
@@ -98,4 +100,9 @@ class Order extends Model
         return $this->hasOne(Invoice::class);
     }
     
+
+    public function coupon()
+    {
+        return $this->belongsTo(Coupon::class);
+    }
 }

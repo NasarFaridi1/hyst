@@ -9,6 +9,7 @@ use App\Http\Controllers\Front\ProfileController as FrontProfileController;
 
 use App\Http\Controllers\RestaurantAdmin\ItemController;
 use App\Http\Controllers\RestaurantAdmin\OfferController;
+use App\Http\Controllers\Admin\PageVisitController;
 use App\Http\Controllers\RestaurantAdmin\RestaurantPaymentController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Front\HomeController;
@@ -76,6 +77,30 @@ Route::get('/cart/summary', [CartController::class, 'summary']);
 use App\Http\Controllers\UberWebhookController;
 
 Route::post('/uber/webhook', [UberWebhookController::class, 'handle']);
+
+
+
+
+use App\Http\Controllers\Front\UserAddressController;
+use App\Http\Controllers\RestaurantAdmin\PageVisitController as RestaurantAdminPageVisitController;
+
+Route::post('/checkout/uber/quote', [UserAddressController::class, 'generateUberQuote'])
+    ->name('checkout.uber.quote');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/addresses/{id}', [UserAddressController::class, 'show'])->name('addresses.show');
+    Route::get('/addresses', [UserAddressController::class, 'index'])->name('addresses.index');
+
+    Route::post('/addresses', [UserAddressController::class, 'store'])->name('addresses.store');
+
+    Route::put('/addresses/{id}', [UserAddressController::class, 'update'])->name('addresses.update');
+
+    Route::delete('/addresses/{id}', [UserAddressController::class, 'destroy'])->name('addresses.destroy');
+
+    Route::post('/addresses/{id}/default', [UserAddressController::class, 'setDefault'])->name('addresses.default');
+});
+
+
 
 
 Route::post(
@@ -167,6 +192,11 @@ Route::get(
 
 Route::get(
     '/',
+    [HomeController::class, 'home']
+);
+
+Route::get(
+    '/home',
     [HomeController::class, 'home']
 );
 
@@ -302,7 +332,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get(
         '/profile',
         [FrontProfileController::class, 'index']
-    );
+    )->name('profile');
     
 
     Route::post(
@@ -372,6 +402,13 @@ Route::middleware(['auth', 'super_admin'])
         );
         Route::resource('orders', OrdersController::class);
         Route::resource('vendor', VendorController::class);
+		Route::get(
+
+            '/page-visits',
+
+            [PageVisitController::class,'index']
+
+        )->name('page-visits.index');
 
         Route::resource('marketing-banners', MarketingBannerController::class);
 
@@ -434,6 +471,8 @@ Route::middleware(['auth', 'super_admin'])
             [RestaurantRefundPolicyController::class, 'update']
         )->name('restaurant.refund-policy.update');
 
+
+
     });
 
     Route::post(
@@ -450,6 +489,13 @@ Route::middleware(['auth', 'restaurant_admin'])
             '/dashboard',
             [RestaurantDashboardController::class, 'index']
         );
+        Route::get(
+
+            '/page-visits',
+
+            [RestaurantAdminPageVisitController::class,'index']
+
+        )->name('page-visits.index');
         Route::resource('items', ItemController::class);
         Route::resource('categories', CategoryController::class);
         Route::resource('payments', RestaurantPaymentController::class);
@@ -483,28 +529,28 @@ Route::middleware(['auth', 'restaurant_admin'])
         )->name('ordering.index');
         Route::get(
 
-    '/loyalty-rewards',
+            '/loyalty-rewards',
 
-    [
-        LoyaltyRewardController::class,
+            [
+                LoyaltyRewardController::class,
 
-        'index'
-    ]
+                'index'
+            ]
 
-)->name('loyalty.index');
+        )->name('loyalty.index');
 
 
-Route::post(
+        Route::post(
 
-    'restaurantloyalty-rewards/send',
+            'restaurantloyalty-rewards/send',
 
-    [
-        LoyaltyRewardController::class,
+            [
+                LoyaltyRewardController::class,
 
-        'send'
-    ]
+                'send'
+            ]
 
-)->name('loyalty.send');
+        )->name('loyalty.send');
         Route::post(
 
             '/reviews/{id}/approve',
@@ -586,11 +632,15 @@ Route::post(
             ->name('status.update');
 
 
+        Route::resource('coupons', \App\Http\Controllers\RestaurantAdmin\CouponController::class);    
+
+
 
 });
 
 
-
+Route::post('/coupon/apply', [\App\Http\Controllers\RestaurantAdmin\CouponController::class, 'apply'])
+    ->name('coupon.apply');
 
 Route::middleware(['auth', 'restaurant_admin'])
     ->prefix('restaurant/products/{product}')
@@ -598,6 +648,8 @@ Route::middleware(['auth', 'restaurant_admin'])
     ->group(function () {
 
         Route::get('/addons', [ProductAddonController::class,'index'])->name('index');
+
+        
 
         Route::get('/addons/create', [ProductAddonController::class,'create'])->name('create');
 
@@ -608,7 +660,9 @@ Route::middleware(['auth', 'restaurant_admin'])
         Route::put('/addons/{addon}', [ProductAddonController::class,'update'])->name('update');
 
         Route::delete('/addons/{addon}', [ProductAddonController::class,'destroy'])->name('destroy');
+       
     });
+    
 
     Route::get(
         '/sign-in',
@@ -626,19 +680,7 @@ Route::get('/cart-count', function () {
 
 });
 
-Route::get(
-    '/register',
-    [UserRegisterController::class, 'showRegister']
-);
 
-Route::post(
-    '/register-user',
-    [UserRegisterController::class, 'register']
-);
-
-Route::get('/verify-email', function () {
-    return view('auth.verify-email');
-});
 
 
 
@@ -699,12 +741,30 @@ Route::delete(
     'favorite.remove'
 );
 
-// Route::get('/login', [UsersController::class, 'showLogin']);    
+// Route::get('/login', [UsersController::class, 'showLogin']);  
 
-Route::get('/login', [UsersController::class, 'showLogin'])->name('login');
+Route::middleware('guest')->group(function () {
 
-// Route::post('/login-user', [UsersController::class, 'login']);
-Route::post('/login', [UsersController::class, 'login'])->name('login.submit');
+    Route::get('/login', [UsersController::class, 'showLogin'])->name('login');
+
+    // Route::post('/login-user', [UsersController::class, 'login']);
+    Route::post('/login', [UsersController::class, 'login'])->name('login.submit');
+
+    Route::get(
+        '/register',
+        [UserRegisterController::class, 'showRegister']
+    );
+
+    Route::post(
+        '/register-user',
+        [UserRegisterController::class, 'register']
+    );
+
+    Route::get('/verify-email', function () {
+        return view('auth.verify-email');
+    });
+
+});
 
 Route::get('/forgot-password', [UsersController::class, 'showForgotPassword']);
 Route::post('/forgot-password', [UsersController::class, 'forgotPassword']);  

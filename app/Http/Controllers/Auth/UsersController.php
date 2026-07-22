@@ -259,11 +259,12 @@ class UsersController extends Controller
             hash('sha256',$email)
         )->first();
 
-        if(!$user){
-            return redirect('/forgot-password?message=' .
-                urlencode('Email not found') .
-                '&type=error');
-        }
+    if (!$user) {
+
+    return back()
+        ->with('message', 'Invalid email address.')
+        ->with('type', 'error');
+}
 
         $url = URL::temporarySignedRoute(
             'password.reset',

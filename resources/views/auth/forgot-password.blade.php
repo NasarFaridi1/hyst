@@ -40,6 +40,21 @@
 
 </div>
 
+</div>
+
+@if ($errors->any())
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    Swal.fire({
+        icon: 'error',
+        title: 'Validation Error',
+        text: "{{ $errors->first() }}",
+        confirmButtonColor: '#111827'
+    });
+});
+</script>
+@endif
+
 @if(session('message'))
 <script>
 document.addEventListener('DOMContentLoaded', function () {

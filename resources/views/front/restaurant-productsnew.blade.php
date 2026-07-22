@@ -1329,7 +1329,8 @@
     <div class="cart-sidebar" id="cartSidebar">
         <div class="cart-header">
             <h3>Your order</h3>
-            <p>{{ $restaurant->name }}</p>
+            {{-- <p>{{ $restaurant->name }}</p> --}}
+             <p id="cartRestaurantName">{{ $restaurant->name }}</p>
         </div>
 
         {{-- Empty state --}}
@@ -1943,10 +1944,18 @@ function renderCartSidebar(data) {
     const cont = document.getElementById('cartItemsContainer');
     const list = document.getElementById('cartItemsList');
 
+
+
     if (!data.items || data.items.length === 0) {
         empty.style.display = 'flex';
         cont.style.display = 'none';
         return;
+    }
+
+    const restaurantName = document.getElementById('cartRestaurantName');
+
+    if (restaurantName) {
+        restaurantName.textContent = data.restaurant_name ?? '';
     }
 
     empty.style.display = 'none';
@@ -2053,7 +2062,7 @@ function renderCartSidebar(data) {
 
             </div>
 
-            <div style="text-align:right;">
+            <div style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
 
                 <div style="
                     font-size:16px;
@@ -2069,6 +2078,27 @@ function renderCartSidebar(data) {
                 ">
                     £${parseFloat(item.price).toFixed(2)} each
                 </div>
+
+                <button
+                    onclick="removeCartItem('${item.cart_key}')"
+                    style="
+                        display:flex;
+                        align-items:center;
+                        gap:4px;
+                        background:none;
+                        border:none;
+                        color:#d32f2f;
+                        font-size:13px;
+                        cursor:pointer;
+                        padding:0;
+                    "
+                >
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none"
+                        stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" d="M18 6L6 18M6 6l12 12"/>
+                    </svg>
+                    Remove
+                </button>
 
             </div>
 
@@ -2103,6 +2133,23 @@ async function cartAdjust(cartKey, delta) {
     });
     const d = await fetch('/cart-count').then(r => r.json());
     updateCounts(d.count);
+    refreshCartSidebar();
+}
+
+async function removeCartItem(cartKey) {
+
+    if (!confirm('Remove this item from cart?')) {
+        return;
+    }
+
+    await fetch(`/cart/remove/${cartKey}`, {
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        }
+    });
+
+    
+
     refreshCartSidebar();
 }
 

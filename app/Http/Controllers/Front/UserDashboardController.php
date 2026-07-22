@@ -1,15 +1,16 @@
 <?php
 
 namespace App\Http\Controllers\Front;
-
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 
 class UserDashboardController extends Controller
 {
 
-    public function index()
-    {
+   public function index(Request $request)
+{
+    savePageVisit($request, 'User Dashboard');
         $orders = Order::where(
             'user_id',
             auth()->id()

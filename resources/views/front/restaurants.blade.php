@@ -56,14 +56,7 @@
         gap:5px;
     }
 
-    .open-badge::before{
-        content:'';
-        width:5px;
-        height:5px;
-        border-radius:50%;
-        background:#22C55E;
-        flex-shrink:0;
-    }
+    
 
     .offer-strip{
         position:absolute;
@@ -402,98 +395,186 @@
         </div>
 
         <!-- RESTAURANT GRID -->
-        <div class="restaurant-grid">
+<div class="restaurant-grid">
 
-            @forelse($restaurants as $restaurant)
-                @php
-                    $avgRating = $restaurant->reviews->avg('rating') ?? 0;
-                    $reviewCount = $restaurant->reviews->count();
-                @endphp
-                <a href="{{ url('/restaurant/' . $restaurant->slug) }}"
-                    class="restaurant-card"
-                    style="text-decoration:none;"
-                    data-name="{{ strtolower($restaurant->name) }}"
-                    data-categories="{{ implode(',', $restaurant->category_ids ?? []) }}"
-                    data-rating="{{ number_format($avgRating, 1) }}"
-                    data-has-offer="{{ $restaurant->featuredOffer ? '1' : '0' }}">
+    @forelse($restaurants as $restaurant)
 
-                    <div class="restaurant-image-wrap">
+        @php
+            $avgRating = $restaurant->reviews->avg('rating') ?? 0;
+            $reviewCount = $restaurant->reviews->count();
+        @endphp
 
-                        <img
-                            src="{{ $restaurant->image ? asset('storage/' . $restaurant->image) : 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1200&auto=format&fit=crop' }}"
-                            class="restaurant-image">
+        @if($restaurant->is_open)
 
-                        <div class="open-badge">Open Now</div>
+            <a href="{{ url('/restaurant/' . $restaurant->slug) }}"
+                class="restaurant-card"
+                style="text-decoration:none;"
+                data-name="{{ strtolower($restaurant->name) }}"
+                data-categories="{{ implode(',', $restaurant->category_ids ?? []) }}"
+                data-rating="{{ number_format($avgRating, 1) }}"
+                data-has-offer="{{ $restaurant->featuredOffer ? '1' : '0' }}">
 
-                        @if($restaurant->featuredOffer)
-                            <div class="offer-strip">
-                                @if($restaurant->featuredOffer->value_type == 'percent')
-                                    {{ $restaurant->featuredOffer->value }}% OFF
-                                @else
-                                    £{{ $restaurant->featuredOffer->value }} OFF
-                                @endif
-                                — {{ Str::limit($restaurant->featuredOffer->title, 28) }}
-                            </div>
+        @else
+
+            <div
+                class="restaurant-card"
+                style="text-decoration:none;pointer-events:none;cursor:not-allowed;"
+                data-name="{{ strtolower($restaurant->name) }}"
+                data-categories="{{ implode(',', $restaurant->category_ids ?? []) }}"
+                data-rating="{{ number_format($avgRating, 1) }}"
+                data-has-offer="{{ $restaurant->featuredOffer ? '1' : '0' }}">
+
+        @endif
+
+
+            <div class="restaurant-image-wrap">
+
+                <img
+                    src="{{ $restaurant->image ? asset('storage/' . $restaurant->image) : 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1200&auto=format&fit=crop' }}"
+                    class="restaurant-image">
+
+                @if($restaurant->is_open)
+
+                    <div class="open-badge">
+                        🟢 Open
+                    </div>
+
+                @else
+
+                    <div class="open-badge" style="background:#dc2626;">
+                        🔴 Closed
+                    </div>
+
+                @endif
+
+                @if($restaurant->featuredOffer)
+
+                    <div class="offer-strip">
+
+                        @if($restaurant->featuredOffer->value_type == 'percent')
+
+                            {{ $restaurant->featuredOffer->value }}% OFF
+
+                        @else
+
+                            £{{ $restaurant->featuredOffer->value }} OFF
+
                         @endif
 
-                    </div>
-
-                    <div class="restaurant-body">
-
-                        <div class="restaurant-row1">
-                            <h3 class="restaurant-title">{{ $restaurant->name }}</h3>
-                            <div class="rating-pill {{ $avgRating == 0 ? 'no-rating' : '' }}">
-                                ★ {{ $avgRating > 0 ? number_format($avgRating, 1) : 'New' }}
-                            </div>
-                        </div>
-
-                        <p class="restaurant-meta-line">
-                            {{ $restaurant->location }}
-                            @if($reviewCount > 0)
-                                <span class="dot">&bull;</span>{{ $reviewCount }} {{ Str::plural('review', $reviewCount) }}
-                            @endif
-                        </p>
-
-                        <div class="restaurant-footer">
-                            @if($restaurant->hygiene_rating)
-                                <span class="hygiene-tag">
-                                    <i data-lucide="shield-check" style="width:13px; height:13px;"></i>
-                                    {{ number_format($restaurant->hygiene_rating,1) }}/5 hygiene
-                                </span>
-                            @else
-                                <span></span>
-                            @endif
-
-                            <span class="delivery-tag">
-                                <i data-lucide="bike" style="width:13px; height:13px;"></i> Fast & Ontime delivery
-                            </span>
-                        </div>
+                        — {{ Str::limit($restaurant->featuredOffer->title, 28) }}
 
                     </div>
 
-                </a>
+                @endif
 
-            @empty
+            </div>
 
-                <div style="grid-column:1/-1; text-align:center; background:#fff; padding:80px 20px; border-radius:24px; box-shadow:0 5px 20px rgba(0,0,0,0.06);">
 
-                    <div style="width:88px; height:88px; background:#FFF2EE; border-radius:22px; margin:0 auto 24px; display:flex; align-items:center; justify-content:center;">
-                        <i data-lucide="search-x" style="width:40px; height:40px; color:#C25A2A;"></i>
+            <div class="restaurant-body">
+
+                <div class="restaurant-row1">
+
+                    <h3 class="restaurant-title">
+                        {{ $restaurant->name }}
+                    </h3>
+
+                    <div class="rating-pill {{ $avgRating == 0 ? 'no-rating' : '' }}">
+                        ★ {{ $avgRating > 0 ? number_format($avgRating,1) : 'New' }}
                     </div>
-
-                    <h2 style="font-size:28px; margin-bottom:10px; color:#0D0D0D; font-family:'Poppins',sans-serif; font-weight:800;">
-                        No Restaurants Found
-                    </h2>
-
-                    <p style="color:#6B7280; font-size:15px; margin:0;">
-                        Restaurants will appear here soon.
-                    </p>
 
                 </div>
 
-            @endforelse
+
+                <p class="restaurant-meta-line">
+
+                    {{ $restaurant->location }}
+
+                    @if($reviewCount > 0)
+
+                        <span class="dot">&bull;</span>
+
+                        {{ $reviewCount }}
+                        {{ Str::plural('review', $reviewCount) }}
+
+                    @endif
+
+                </p>
+
+
+                <div class="restaurant-footer">
+
+                    @if($restaurant->hygiene_rating)
+
+                        <span class="hygiene-tag">
+
+                            <i data-lucide="shield-check"
+                                style="width:13px;height:13px;"></i>
+
+                            {{ number_format($restaurant->hygiene_rating,1) }}/5 hygiene
+
+                        </span>
+
+                    @else
+
+                        <span></span>
+
+                    @endif
+
+
+                    <span class="delivery-tag">
+
+                        <i data-lucide="bike"
+                            style="width:13px;height:13px;"></i>
+
+                        Fast & Ontime delivery
+
+                    </span>
+
+                </div>
+
+            </div>
+
+        @if($restaurant->is_open)
+
+            </a>
+
+        @else
+
+            </div>
+
+        @endif
+
+    @empty
+
+        <div
+            style="grid-column:1/-1;text-align:center;background:#fff;padding:80px 20px;border-radius:24px;box-shadow:0 5px 20px rgba(0,0,0,0.06);">
+
+            <div
+                style="width:88px;height:88px;background:#FFF2EE;border-radius:22px;margin:0 auto 24px;display:flex;align-items:center;justify-content:center;">
+
+                <i data-lucide="search-x"
+                    style="width:40px;height:40px;color:#C25A2A;"></i>
+
+            </div>
+
+            <h2
+                style="font-size:28px;margin-bottom:10px;color:#0D0D0D;font-family:'Poppins',sans-serif;font-weight:800;">
+
+                No Restaurants Found
+
+            </h2>
+
+            <p style="color:#6B7280;font-size:15px;margin:0;">
+
+                Restaurants will appear here soon.
+
+            </p>
 
         </div>
+
+    @endforelse
+
+</div>
 
         <div id="noFilterResults" style="display:none; grid-column:1/-1; text-align:center; background:#fff; padding:60px 20px; border-radius:24px; box-shadow:0 5px 20px rgba(0,0,0,0.06); margin-top:28px;">
             <h3 style="font-size:20px; margin-bottom:8px; color:#0D0D0D; font-family:'Poppins',sans-serif; font-weight:700;">No matches for that filter</h3>

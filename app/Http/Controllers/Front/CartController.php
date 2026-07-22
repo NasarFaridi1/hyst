@@ -15,8 +15,9 @@ use Illuminate\Http\JsonResponse;
 
 class CartController extends Controller
 {
-    public function index()
-    {
+   public function index(Request $request)
+{
+    savePageVisit($request, 'Cart');
         $cart = session()->get('cart', []);
         
 
@@ -36,6 +37,16 @@ class CartController extends Controller
         $cart  = session('cart', []);
         $items = [];
         $subtotal = 0;
+
+        $restaurantName = null;
+
+        if (!empty($cart)) {
+            $firstItem = reset($cart);
+
+            $restaurant = \App\Models\Restaurant::find($firstItem['restaurant_id']);
+
+            $restaurantName = $restaurant?->name;
+        }
 
         foreach ($cart as $cartKey => $row) {
 
@@ -74,6 +85,7 @@ class CartController extends Controller
         }
 
         return response()->json([
+             'restaurant_name' => $restaurantName,
             'items'    => $items,
             'count'    => array_sum(array_column($items, 'qty')),
             'subtotal' => number_format($subtotal, 2),
@@ -98,6 +110,14 @@ class CartController extends Controller
         $product =
             Product::findOrFail(
                 $request->product_id
+            );
+            savePageVisit(
+                $request,
+                'Add To Cart',
+                $product->restaurant_id,
+                null,
+                null,
+                $product->id
             );
 
         $variant = null;
@@ -234,6 +254,8 @@ class CartController extends Controller
             ] = [
             
                 'cart_key' => $cartKey,
+
+                'restaurant_id' => $product->restaurant_id,
 
                 'id' => $product->id,
 

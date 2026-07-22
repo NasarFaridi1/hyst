@@ -857,7 +857,7 @@
                     </div>
 
                     <!-- DELIVERY FIELDS -->
-                    <div id="deliveryFields" class="delivery-fields co-hidden">
+                    {{-- <div id="deliveryFields" class="delivery-fields co-hidden">
                         <div class="section-label">Delivery Details</div>
                         <div class="co-input-group">
                             <label for="address">Full Delivery Address</label>
@@ -871,7 +871,14 @@
                                 inputmode="text"
                                 autocomplete="postal-code">
                         </div>
-                    </div>
+                    </div> --}}
+
+                        @auth
+                        @include('front.address.index')
+                        @endauth
+
+
+                   
                 </div>
 
                 <!-- ── STEP 3: PAYMENT ── -->
@@ -895,7 +902,7 @@
 
                                 <input type="hidden" name="service_charge" value="{{ $serviceCharge }}">
 
-                                <input type="hidden" name="delivery_charge" value="{{ $deliveryCharge }}">
+                                {{-- <input type="hidden" name="delivery_charge" value="{{ $deliveryCharge }}"> --}}
 
                                 <input type="hidden" name="hyst_charge" value="{{ $hystCharge }}">
 
@@ -914,7 +921,7 @@
 
                         @endif
 
-                        <label class="pm-label" id="pm-cod">
+                        {{-- <label class="pm-label" id="pm-cod">
                             <input type="radio" name="payment_method" value="Cash On Delivery" required>
                             <div class="pm-icon">💵</div>
                             <div>
@@ -922,7 +929,7 @@
                                 <div class="pm-sub">Pay after delivery</div>
                             </div>
                             <div class="pm-radio-dot"></div>
-                        </label>
+                        </label> --}}
                     </div>
 
                     <!-- PHONE (COD only) -->
@@ -982,6 +989,33 @@
 
                 @endif
                 <div class="co-summary">
+
+                    <div class="co-card mb-4">
+
+                        <div class="co-card-title">
+                            <span class="step-num">🎁</span>
+                            Apply Coupon
+                        </div>
+
+                        <div style="display:flex;gap:10px;">
+                            <input
+                                type="text"
+                                id="coupon_code"
+                                class="co-input"
+                                placeholder="Enter coupon code">
+
+                            <button
+                                type="button"
+                                id="applyCoupon"
+                                class="co-place-btn"
+                                style="width:160px;padding:12px;">
+                                Apply
+                            </button>
+                        </div>
+
+                        <div id="couponMessage" style="margin-top:12px;"></div>
+
+                    </div>
                     <div class="summary-title">Order Summary</div>
 
                     <!-- Item list -->
@@ -1050,23 +1084,26 @@
                         <span class="sr-value">£{{ number_format($originalTotal, 2) }}</span>
                     </div>
 
+                    
+
+
                     @if(isset($orderOffer) && $orderOffer)
 
-                    <div class="summary-row">
-                        <span class="sr-label" style="color:#C25A2A;">
-                            🎉 {{ $orderOffer->title }}
-                        </span>
+                        <div class="summary-row">
+                            <span class="sr-label" style="color:#C25A2A;">
+                                🎉 {{ $orderOffer->title }}
+                            </span>
 
-                        <span class="sr-value green">
+                            <span class="sr-value green">
 
-                            @if($orderOffer->value_type == 'percentage')
-                                -{{ $orderOffer->value }}%
-                            @else
-                                -£{{ number_format($orderOffer->value,2) }}
-                            @endif
+                                @if($orderOffer->value_type == 'percentage')
+                                    -{{ $orderOffer->value }}%
+                                @else
+                                    -£{{ number_format($orderOffer->value,2) }}
+                                @endif
 
-                        </span>
-                    </div>
+                            </span>
+                        </div>
 
                     @endif
 
@@ -1081,32 +1118,93 @@
                         <span class="sr-label">Delivery</span>
                         <span class="sr-value free">Free</span>
                     </div> --}}
-                    <div class="summary-row">
+                    {{-- <div class="summary-row">
                         <span class="sr-label">Service Charge</span>
                         <span class="sr-value">
                             £{{ number_format($serviceCharge, 2) }}
                         </span>
-                    </div>
+                    </div> --}}
 
-                    <div class="summary-row">
+                    {{-- <div class="summary-row">
                         <span class="sr-label">Delivery Charge</span>
                         <span class="sr-value">
                             £{{ number_format($deliveryCharge, 2) }}
                         </span>
+                    </div> --}}
+                    <div class="summary-row">
+                        <span class="sr-label">Delivery Charge</span>
+                        <span class="sr-value" id="deliveryChargeText">
+                            £0.00
+                        </span>
                     </div>
 
-                    <div class="summary-row">
+                    
+
+
+                    <input type="hidden" id="delivery_charge" name="delivery_charge" value="0">
+
+                    <input
+                        type="hidden"
+                        id="hyst_charge"
+                        name="hyst_charge"
+                        value="0"
+                    >
+                    <input
+                        type="hidden"
+                        id="uber_quote_id"
+                        name="uber_quote_id"
+                        value=""
+                    >
+
+                    <input
+                        type="hidden"
+                        id="cartSubtotal"
+                        value="{{ $finalTotal }}"
+                    >
+
+                    
+
+                    {{-- <div class="summary-row">
                         <span class="sr-label">Hyst Charge</span>
                         <span class="sr-value">
                             £{{ number_format($hystCharge, 2) }}
                         </span>
+                    </div> --}}
+
+                    <div class="summary-row">
+                        <span class="sr-label">Hyst Charge</span>
+                        <span class="sr-value" id="hystChargeText">
+                            £0.00
+                        </span>
                     </div>
 
+                    @if($couponDiscount>0)
                     <hr class="summary-divider">
+
+                    <div class="summary-row">
+                        <span class="sr-label">
+                            Coupon Discount
+                        </span>
+
+                        <span class="sr-value green">
+                            -£{{ number_format($couponDiscount,2) }}
+                        </span>
+                    </div>
+
+                    @endif
+
+                    <hr class="summary-divider">
+                    
 
                     <div class="summary-total">
                         <span class="summary-total-label">Total to Pay</span>
-                        <span class="summary-total-value">£{{ number_format($finalTotal, 2) }}</span>
+                        {{-- <span class="summary-total-value">£{{ number_format($finalTotal, 2) }}</span> --}}
+                        <div
+                            class="summary-total-value"
+                            id="finalTotalText"
+                        >
+                            £{{ number_format($finalTotal,2) }}
+                        </div>
                     </div>
 
                     {{-- @if($discount > 0)
@@ -1142,7 +1240,10 @@
     <div class="mobile-footer-inner">
         <div class="mobile-footer-total">
             <div class="mobile-footer-label">Total to Pay</div>
-            <div class="mobile-footer-amount">£{{ number_format($finalTotal, 2) }}</div>
+            <div
+                class="mobile-footer-amount"
+                id="mobileFinalTotalText"
+            >£{{ number_format($finalTotal, 2) }}</div>
         </div>
         <button type="submit" form="checkoutForm" class="mobile-footer-btn">
             Place Order
@@ -1214,6 +1315,51 @@
     if (mf) mf.style.display = 'none';
     @endif
 })();
+</script>
+
+<script>
+
+document.getElementById('applyCoupon').onclick=function(){
+
+    fetch("{{ route('coupon.apply') }}",{
+
+        method:"POST",
+
+        headers:{
+            "Content-Type":"application/json",
+            "X-CSRF-TOKEN":"{{ csrf_token() }}"
+        },
+
+        body:JSON.stringify({
+
+            code:document.getElementById("coupon_code").value
+
+        })
+
+    })
+
+    .then(r=>r.json())
+
+    .then(res=>{
+
+        if(res.success){
+
+            document.getElementById("couponMessage").innerHTML=
+                "<span style='color:green'>Coupon Applied</span>";
+
+            location.reload();
+
+        }else{
+
+            document.getElementById("couponMessage").innerHTML=
+                "<span style='color:red'>"+res.message+"</span>";
+
+        }
+
+    });
+
+};
+
 </script>
 
 
