@@ -120,7 +120,7 @@
         const loaderSubtext = document.getElementById('global-loader-subtext');
         let hideTimer = null;
 
-        window.showGlobalLoader = function (message, subtext, autoHideMs = 2500) {
+        window.showGlobalLoader = function (message, subtext, autoHideMs = 3000) {
             if (loaderText) loaderText.textContent = message || 'Loading...';
             if (loaderSubtext) loaderSubtext.textContent = subtext || 'Please wait a moment';
             if (loader) loader.classList.add('active');
@@ -143,12 +143,43 @@
             window.hideGlobalLoader();
         });
 
+        // Hide loader when restoring page tab
+        document.addEventListener('visibilitychange', function () {
+            if (document.visibilityState === 'visible') {
+                window.hideGlobalLoader();
+            }
+        });
+
         // Show loader on form submission unless data-no-loader is set
         document.addEventListener('submit', function (e) {
             const form = e.target;
             if (!form || form.hasAttribute('data-no-loader')) return;
 
-            window.showGlobalLoader('Processing Request...', 'Please wait', 2500);
+            window.showGlobalLoader('Processing Request...', 'Please wait', 3000);
+        });
+
+        // Auto show loader when clicking restaurant links, home link, or menu items
+        document.addEventListener('click', function (e) {
+            const link = e.target.closest('a[href]');
+            if (!link) return;
+
+            const href = link.getAttribute('href');
+            if (!href || href.startsWith('#') || href.startsWith('javascript:') || href.startsWith('tel:') || href.startsWith('mailto:') || link.hasAttribute('data-no-loader') || link.getAttribute('target') === '_blank') {
+                return;
+            }
+
+            let msg = 'Loading...';
+            if (href.includes('/restaurant/')) {
+                msg = 'Opening Restaurant Menu...';
+            } else if (href === '/' || href.includes('/home')) {
+                msg = 'Loading Home...';
+            } else if (href.includes('/checkout')) {
+                msg = 'Opening Checkout...';
+            } else if (href.includes('/restaurants')) {
+                msg = 'Loading Restaurants...';
+            }
+
+            window.showGlobalLoader(msg, 'Please wait', 4000);
         });
     })();
 </script>
