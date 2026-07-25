@@ -19,6 +19,9 @@ use App\Models\RestaurantCategory;
 use App\Models\HomeVisitor;
 use App\Models\RestaurantView;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\PartnerRequestMail;
+
 class HomeController extends Controller
 {
 
@@ -805,4 +808,31 @@ class HomeController extends Controller
         compact('restaurant', 'products', 'categories', 'category', 'eligibleOffer', 'isAdmin')
     );
 }
+
+    public function becomePartner(Request $request)
+    {
+        $validated = $request->validate([
+            'partner_type' => 'required|string|in:Become Restaurant Partner,Become an Ambassador,Restaurant Partner,Ambassador',
+            'name'         => 'required|string|max:255',
+            'email'        => 'required|email|max:255',
+            'phone_number' => 'required|string|max:50',
+            'location'     => 'required|string|max:255',
+        ]);
+
+        try {
+            Mail::to('infoharry99@gmail.com')->send(new PartnerRequestMail($validated));
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Your request to become a partner has been submitted successfully! We will reach out to you soon.',
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Become Partner Mail Error: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to send request. Please try again later.',
+            ], 500);
+        }
+    }
 }

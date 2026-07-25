@@ -72,27 +72,7 @@
 
 
                     <!-- USER DROPDOWN -->
-                    {{-- <div style="position:relative;"
-                        onmouseenter="document.getElementById('userDropdown').style.display='block'"
-                        onmouseleave="document.getElementById('userDropdown').style.display='none'"> --}}
                     <div style="position:relative;" id="userDropdownWrapper">
-                        {{-- <button
-                            style="display:flex; align-items:center; gap:9px; background:#F5F5F0; border:none; padding:7px 13px 7px 7px; border-radius:12px; cursor:pointer; transition:background .18s;"
-                            onmouseover="this.style.background='#EBEBEB'" onmouseout="this.style.background='#F5F5F0'">
-                            <div class="avatar" style="width:34px; height:34px; font-size:14px;">
-                                {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-                            </div>
-                            <div style="text-align:left;">
-                                <p
-                                    style="font-family:'Poppins',sans-serif; font-weight:700; font-size:13px; margin:0; line-height:1.3;">
-                                    {{ auth()->user()->name }}
-                                </p>
-                                <p style="font-size:10px; color:#6B7280; margin:0; text-transform:capitalize;">
-                                    {{ auth()->user()->role }}
-                                </p>
-                            </div>
-                            <i data-lucide="chevron-down" style="width:14px; height:14px; color:#6B7280;"></i>
-                        </button> --}}
 
                         <button
                             onclick="toggleUserDropdown(event)"
@@ -121,9 +101,6 @@
 
                 
 
-                        {{-- <div id="userDropdown"
-                            style="display:none; position:absolute; right:0; top:100%; margin-top:8px; width:210px; background:#fff; border-radius:16px; box-shadow:0 16px 48px rgba(0,0,0,.14); overflow:hidden; z-index:200; border:1px solid #F0F0EC;">
-                             --}}
                             <div id="userDropdown"
                                 style="display:none; position:absolute; right:0; top:100%; margin-top:8px; width:210px; background:#fff; border-radius:16px; box-shadow:0 16px 48px rgba(0,0,0,.14); overflow:hidden; z-index:200; border:1px solid #F0F0EC;">
                             
@@ -167,26 +144,7 @@
                                 <i data-lucide="heart" style="width:15px; height:15px; color:#C25A2A;"></i>
                                 Favorite Restaurants
                             </a>
-                            {{-- <a href="/cart">
 
-                                <i data-lucide="shopping-cart"></i>
-
-                                Cart
-
-                                <span id="cartCount" style="
-                                    background:#C25A2A;
-                                    color:white;
-                                    padding:2px 8px;
-                                    border-radius:20px;
-                                    font-size:12px;
-                                    margin-left:5px;
-                                    ">
-
-                                    {{ collect(session('cart', []))->sum('quantity') }}
-
-                                </span>
-
-                            </a> --}}
                             <a href="/cart"
                                 style="
                                     display:flex;
@@ -244,14 +202,12 @@
                         </div>
                     </div>
 
-                    {{-- <a href="https://business.hyst.uk/" class="btn-primary"
-                            style="padding:9px 18px; font-size:13px; display:flex; align-items:center; gap:7px; text-decoration:none;">
-                            <i data-lucide="building-2" style="width:15px; height:15px;"></i> Main Website
-                    </a>
-                    <a href="{{ route('front.banners.index') }}" class="btn-primary"
-                            style="padding:9px 18px; font-size:13px; display:flex; align-items:center; gap:7px; text-decoration:none;">
-                            <i data-lucide="building-2" style="width:15px; height:15px;"></i> Business
-                    </a> --}}
+                    <button onclick="openPartnerModal()" type="button"
+                        style="padding:8px 15px; border-radius:10px; font-weight:600; font-size:14px; color:#C25A2A; background:#FFF5F0; border:1px solid #FCD9C8; cursor:pointer; display:flex; align-items:center; gap:6px; transition:all .18s; font-family:'Poppins',sans-serif; margin-left:6px;"
+                        onmouseover="this.style.background='#C25A2A'; this.style.color='#ffffff';"
+                        onmouseout="this.style.background='#FFF5F0'; this.style.color='#C25A2A';">
+                        <i data-lucide="handshake" style="width:16px; height:16px;"></i> Become a partner
+                    </button>
                 @endauth
 
                 @guest
@@ -273,29 +229,18 @@
 
                         </span>
                     </a>
-                    {{-- <a href="{{ route('login', ['redirect' => url()->current()]) }}" class="btn-black" --}}
-                        {{-- <a href="{{ route('login', ['redirect' => urlencode(url()->full())]) }}" class="btn-black"
-                            style="padding:9px 18px; font-size:13px; margin-left:4px; display:flex; align-items:center; gap:7px; text-decoration:none;">
-                            <i data-lucide="log-in" style="width:15px; height:15px;"></i> Login/Register
-                        </a> --}}
                         
-                        <a href="{{ route('login') }}" class="btn-black"
-                            style="padding:9px 18px; font-size:13px; margin-left:4px; display:flex; align-items:center; gap:7px; text-decoration:none;">
-                            <i data-lucide="log-in" style="width:15px; height:15px;"></i> Login/Register
-                        </a>
-                        
-                    {{-- <a href="/register" class="btn-primary"
-                        style="padding:9px 18px; font-size:13px; display:flex; align-items:center; gap:7px; text-decoration:none;">
-                        <i data-lucide="user-plus" style="width:15px; height:15px;"></i> Register
-                    </a> --}}
-                    {{-- <a href="https://business.hyst.uk/" class="btn-primary"
-                        style="padding:9px 18px; font-size:13px; display:flex; align-items:center; gap:7px; text-decoration:none;">
-                        <i data-lucide="building-2" style="width:15px; height:15px;"></i> Main Website
+                    <a href="{{ route('login') }}" class="btn-black"
+                        style="padding:9px 18px; font-size:13px; margin-left:4px; display:flex; align-items:center; gap:7px; text-decoration:none;">
+                        <i data-lucide="log-in" style="width:15px; height:15px;"></i> Login/Register
                     </a>
-                    <a href="{{ route('front.banners.index') }}" class="btn-primary"
-                        style="padding:9px 18px; font-size:13px; display:flex; align-items:center; gap:7px; text-decoration:none;">
-                        <i data-lucide="building-2" style="width:15px; height:15px;"></i> Business
-                    </a> --}}
+
+                    <button onclick="openPartnerModal()" type="button"
+                        style="padding:8px 15px; border-radius:10px; font-weight:600; font-size:14px; color:#C25A2A; background:#FFF5F0; border:1px solid #FCD9C8; cursor:pointer; display:flex; align-items:center; gap:6px; transition:all .18s; font-family:'Poppins',sans-serif; margin-left:6px;"
+                        onmouseover="this.style.background='#C25A2A'; this.style.color='#ffffff';"
+                        onmouseout="this.style.background='#FFF5F0'; this.style.color='#C25A2A';">
+                        <i data-lucide="handshake" style="width:16px; height:16px;"></i> Become a partner
+                    </button>
                 @endguest
             </nav>
 
@@ -458,12 +403,12 @@
 
         @guest
             <a href="/login"><i data-lucide="log-in" style="width:18px; height:18px; color:#C25A2A;"></i> Login/Register</a>
-            {{-- <a href="/register"><i data-lucide="user-plus" style="width:18px; height:18px; color:#C25A2A;"></i> Register</a> --}}
-            {{-- <a href="https://business.hyst.uk/"><i data-lucide="building-2" style="width:18px; height:18px; color:#C25A2A;"></i>Main Website</a>
-            <a href="{{ route('front.banners.index') }}"><i data-lucide="building-2" style="width:18px; height:18px; color:#C25A2A;"></i>Business</a>
- --}}
-
         @endguest
+
+        <button onclick="openPartnerModal(); toggleMobileMenu();" type="button"
+            style="display:flex; align-items:center; gap:10px; width:100%; background:none; border:none; padding:13px 0; font-size:14px; font-weight:600; color:#C25A2A; cursor:pointer; font-family:'Poppins',sans-serif; text-align:left; border-top:1px solid #F0F0EC; margin-top:4px;">
+            <i data-lucide="handshake" style="width:18px; height:18px; color:#C25A2A;"></i> Become a partner
+        </button>
     </div>
 </header>
 
@@ -495,9 +440,202 @@
 
         const wrapper = document.getElementById('userDropdownWrapper');
 
-        if (!wrapper.contains(event.target)) {
+        if (wrapper && !wrapper.contains(event.target)) {
             document.getElementById('userDropdown').style.display = 'none';
         }
     });
+
+    function openPartnerModal() {
+        const modal = document.getElementById('partnerModal');
+        if (modal) {
+            modal.style.display = 'flex';
+            if (window.lucide) lucide.createIcons();
+        }
+    }
+
+    function closePartnerModal() {
+        const modal = document.getElementById('partnerModal');
+        if (modal) {
+            modal.style.display = 'none';
+            document.getElementById('partnerForm').reset();
+            selectPartnerType('Become Restaurant Partner');
+            const alertBox = document.getElementById('partnerAlert');
+            if (alertBox) alertBox.style.display = 'none';
+        }
+    }
+
+    function selectPartnerType(type) {
+        document.getElementById('partnerTypeInput').value = type;
+        const btnRest = document.getElementById('btnTypeRestaurant');
+        const btnAmb = document.getElementById('btnTypeAmbassador');
+
+        if (type === 'Become Restaurant Partner' || type === 'Restaurant Partner') {
+            btnRest.style.border = '2px solid #C25A2A';
+            btnRest.style.background = '#FFF5F0';
+            btnRest.style.color = '#C25A2A';
+
+            btnAmb.style.border = '2px solid #E5E7EB';
+            btnAmb.style.background = '#fff';
+            btnAmb.style.color = '#4B5563';
+        } else {
+            btnAmb.style.border = '2px solid #C25A2A';
+            btnAmb.style.background = '#FFF5F0';
+            btnAmb.style.color = '#C25A2A';
+
+            btnRest.style.border = '2px solid #E5E7EB';
+            btnRest.style.background = '#fff';
+            btnRest.style.color = '#4B5563';
+        }
+    }
+
+    function submitPartnerForm(event) {
+        event.preventDefault();
+        const form = document.getElementById('partnerForm');
+        const alertBox = document.getElementById('partnerAlert');
+        const submitBtn = document.getElementById('btnSubmitPartner');
+        const formData = new FormData(form);
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span>Submitting...</span>';
+
+        fetch('/become-a-partner', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<span>Send Partner Request</span><i data-lucide="send" style="width:16px; height:16px;"></i>';
+            if (window.lucide) lucide.createIcons();
+
+            alertBox.style.display = 'block';
+            if (data.success) {
+                alertBox.style.background = '#DEF7EC';
+                alertBox.style.color = '#03543F';
+                alertBox.style.border = '1px solid #BCF0DA';
+                alertBox.innerText = data.message;
+                form.reset();
+                selectPartnerType('Become Restaurant Partner');
+                setTimeout(() => {
+                    closePartnerModal();
+                }, 3000);
+            } else {
+                alertBox.style.background = '#FDE8E8';
+                alertBox.style.color = '#9B1C1C';
+                alertBox.style.border = '1px solid #FBD5D5';
+                alertBox.innerText = data.message || 'An error occurred. Please check your inputs.';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<span>Send Partner Request</span><i data-lucide="send" style="width:16px; height:16px;"></i>';
+            if (window.lucide) lucide.createIcons();
+
+            alertBox.style.display = 'block';
+            alertBox.style.background = '#FDE8E8';
+            alertBox.style.color = '#9B1C1C';
+            alertBox.style.border = '1px solid #FBD5D5';
+            alertBox.innerText = 'Failed to submit request. Please try again.';
+        });
+    }
+
+    window.addEventListener('click', function(event) {
+        const modal = document.getElementById('partnerModal');
+        if (modal && event.target === modal) {
+            closePartnerModal();
+        }
+    });
 </script>
+
+<!-- BECOME A PARTNER MODAL -->
+<div id="partnerModal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.55); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:16px;">
+    <div style="background:#fff; border-radius:20px; width:100%; max-width:480px; box-shadow:0 20px 50px rgba(0,0,0,0.2); overflow:hidden; position:relative; animation: modalFadeIn 0.25s ease-out;">
+        
+        <!-- Modal Header -->
+        <div style="display:flex; align-items:center; justify-content:space-between; padding:20px 24px; border-bottom:1px solid #F0F0EC; background:#FAF9F6;">
+            <div>
+                <h3 style="font-family:'Poppins',sans-serif; font-size:18px; font-weight:700; color:#0D0D0D; margin:0;">Become a Partner</h3>
+                <p style="font-size:12px; color:#6B7280; margin:2px 0 0 0;">Register your request with HYST</p>
+            </div>
+            <button onclick="closePartnerModal()" type="button" style="background:none; border:none; cursor:pointer; color:#6B7280; padding:4px; border-radius:8px; display:flex; align-items:center; justify-content:center;" onmouseover="this.style.color='#0D0D0D'" onmouseout="this.style.color='#6B7280'">
+                <i data-lucide="x" style="width:20px; height:20px;"></i>
+            </button>
+        </div>
+
+        <!-- Modal Body -->
+        <form id="partnerForm" onsubmit="submitPartnerForm(event)" style="padding:24px;">
+            @csrf
+            
+            <!-- Alert Message Container -->
+            <div id="partnerAlert" style="display:none; padding:12px 16px; border-radius:12px; font-size:13px; margin-bottom:16px; font-family:'Poppins',sans-serif;"></div>
+
+            <!-- Partner Type Selection Buttons -->
+            <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:8px;">Choose Partner Type *</label>
+            <input type="hidden" name="partner_type" id="partnerTypeInput" value="Become Restaurant Partner">
+            
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px;">
+                <button type="button" id="btnTypeRestaurant" onclick="selectPartnerType('Become Restaurant Partner')"
+                    style="padding:12px 10px; border-radius:12px; border:2px solid #C25A2A; background:#FFF5F0; color:#C25A2A; font-weight:600; font-size:13px; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:6px; transition:all .18s; font-family:'Poppins',sans-serif;">
+                    <i data-lucide="store" style="width:20px; height:20px;"></i>
+                    <span>Become Restaurant Partner</span>
+                </button>
+                
+                <button type="button" id="btnTypeAmbassador" onclick="selectPartnerType('Become an Ambassador')"
+                    style="padding:12px 10px; border-radius:12px; border:2px solid #E5E7EB; background:#fff; color:#4B5563; font-weight:600; font-size:13px; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:6px; transition:all .18s; font-family:'Poppins',sans-serif;">
+                    <i data-lucide="award" style="width:20px; height:20px;"></i>
+                    <span>Become an Ambassador</span>
+                </button>
+            </div>
+
+            <!-- Form Inputs -->
+            <div style="margin-bottom:14px;">
+                <label style="display:block; font-size:12px; font-weight:600; color:#374151; margin-bottom:5px;">Full Name *</label>
+                <input type="text" name="name" required placeholder="Enter your full name"
+                    style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid #D1D5DB; font-size:14px; font-family:'Poppins',sans-serif; outline:none; box-sizing:border-box; transition:border .18s;"
+                    onfocus="this.style.borderColor='#C25A2A'" onblur="this.style.borderColor='#D1D5DB'">
+            </div>
+
+            <div style="margin-bottom:14px;">
+                <label style="display:block; font-size:12px; font-weight:600; color:#374151; margin-bottom:5px;">Email Address *</label>
+                <input type="email" name="email" required placeholder="name@example.com"
+                    style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid #D1D5DB; font-size:14px; font-family:'Poppins',sans-serif; outline:none; box-sizing:border-box; transition:border .18s;"
+                    onfocus="this.style.borderColor='#C25A2A'" onblur="this.style.borderColor='#D1D5DB'">
+            </div>
+
+            <div style="margin-bottom:14px;">
+                <label style="display:block; font-size:12px; font-weight:600; color:#374151; margin-bottom:5px;">Phone Number *</label>
+                <input type="tel" name="phone_number" required placeholder="e.g. +44 7123 456789"
+                    style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid #D1D5DB; font-size:14px; font-family:'Poppins',sans-serif; outline:none; box-sizing:border-box; transition:border .18s;"
+                    onfocus="this.style.borderColor='#C25A2A'" onblur="this.style.borderColor='#D1D5DB'">
+            </div>
+
+            <div style="margin-bottom:20px;">
+                <label style="display:block; font-size:12px; font-weight:600; color:#374151; margin-bottom:5px;">Location / City *</label>
+                <input type="text" name="location" required placeholder="Enter your city or area"
+                    style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid #D1D5DB; font-size:14px; font-family:'Poppins',sans-serif; outline:none; box-sizing:border-box; transition:border .18s;"
+                    onfocus="this.style.borderColor='#C25A2A'" onblur="this.style.borderColor='#D1D5DB'">
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" id="btnSubmitPartner"
+                style="width:100%; padding:12px; border-radius:12px; background:#C25A2A; color:#fff; border:none; font-size:14px; font-weight:700; cursor:pointer; font-family:'Poppins',sans-serif; transition:background .18s; display:flex; align-items:center; justify-content:center; gap:8px;"
+                onmouseover="this.style.background='#a84b20'" onmouseout="this.style.background='#C25A2A'">
+                <span>Send Partner Request</span>
+                <i data-lucide="send" style="width:16px; height:16px;"></i>
+            </button>
+        </form>
+    </div>
+</div>
+
+<style>
+@keyframes modalFadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+</style>
 
