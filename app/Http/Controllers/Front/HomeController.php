@@ -757,6 +757,16 @@ class HomeController extends Controller
     );
 }
 
+    public function becomePartnerPage()
+    {
+        return view('front.partner.restaurant');
+    }
+
+    public function becomeAmbassadorPage()
+    {
+        return view('front.partner.ambassador');
+    }
+
     public function becomePartner(Request $request)
     {
         $validated = $request->validate([

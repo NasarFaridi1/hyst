@@ -2,7 +2,7 @@
 <footer style="background:#0D0D0D; color:#fff; margin-top:80px;">
     <div style="max-width:1280px; margin:0 auto; padding:60px 24px 36px;">
 
-        <div class="footer-grid" style="display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:48px; margin-bottom:48px;">
+        <div class="footer-grid" style="display:grid; grid-template-columns: 1.8fr 1fr 1fr 1.2fr 1.2fr; gap:36px; margin-bottom:48px;">
 
             <!-- BRAND -->
             <div>
@@ -100,6 +100,31 @@
                             onmouseout="this.style.color='#9CA3AF'">
                             <i data-lucide="circle-help" style="width:13px; height:13px;"></i>
                             FAQs
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- PARTNERSHIPS -->
+            <div>
+                <h4 style="font-family:'Poppins',sans-serif; font-weight:700; font-size:14px; margin-bottom:20px; color:#fff; letter-spacing:.02em;">Partner With Us</h4>
+                <ul style="list-style:none; padding:0; display:flex; flex-direction:column; gap:12px;">
+                    <li>
+                        <a href="{{ route('front.become.partner.page') }}"
+                            style="color:#C25A2A; font-weight:700; text-decoration:none; font-size:14px; transition:color .15s; display:flex; align-items:center; gap:6px;"
+                            onmouseover="this.style.color='#fff'"
+                            onmouseout="this.style.color='#C25A2A'">
+                            <i data-lucide="store" style="width:14px; height:14px;"></i>
+                            Become Restaurant Partner
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('front.become.ambassador') }}"
+                            style="color:#C25A2A; font-weight:700; text-decoration:none; font-size:14px; transition:color .15s; display:flex; align-items:center; gap:6px;"
+                            onmouseover="this.style.color='#fff'"
+                            onmouseout="this.style.color='#C25A2A'">
+                            <i data-lucide="award" style="width:14px; height:14px;"></i>
+                            HYST Ambassador Programme
                         </a>
                     </li>
                     @php

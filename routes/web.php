@@ -73,6 +73,8 @@ use App\Http\Controllers\Auth\AmbassadorRegisterController;
 Route::get('/auth/{provider}/redirect', [SocialAuthController::class, 'redirect'])->name('social.redirect');
 Route::get('/auth/{provider}/callback', [SocialAuthController::class, 'callback'])->name('social.callback');
 
+Route::get('/become-a-partner', [HomeController::class, 'becomePartnerPage'])->name('front.become.partner.page');
+Route::get('/become-ambassador', [HomeController::class, 'becomeAmbassadorPage'])->name('front.become.ambassador');
 Route::post('/become-a-partner', [HomeController::class, 'becomePartner'])->name('front.become.partner');
 
 
