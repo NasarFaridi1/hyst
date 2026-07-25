@@ -6,74 +6,76 @@
 
     .rest-wrapper {
         font-family: 'Outfit', 'Poppins', sans-serif;
-        color: #0F172A;
-        background: #F8FAFC;
+        color: #1E293B;
+        background: #FFFFFF;
         overflow-x: hidden;
     }
 
-    /* HERO SECTION */
+    /* HERO SECTION - WHITE & TERRACOTTA */
     .rest-hero-section {
         position: relative;
-        background: radial-gradient(circle at 50% 0%, #1E293B 0%, #0F172A 70%, #020617 100%);
-        color: #fff;
-        padding: 90px 24px 80px;
+        background: linear-gradient(180deg, #FFF7F3 0%, #FFFFFF 100%);
+        color: #1E293B;
+        padding: 80px 24px 70px;
         text-align: center;
         overflow: hidden;
+        border-bottom: 1px solid #FFEFE8;
     }
     .rest-hero-section::before {
         content: '';
         position: absolute;
-        top: -100px;
+        top: -120px;
         left: 50%;
         transform: translateX(-50%);
-        width: 600px;
-        height: 600px;
-        background: radial-gradient(circle, rgba(194, 90, 42, 0.25) 0%, rgba(194, 90, 42, 0) 70%);
+        width: 650px;
+        height: 650px;
+        background: radial-gradient(circle, rgba(194, 90, 42, 0.12) 0%, rgba(194, 90, 42, 0) 70%);
         pointer-events: none;
     }
     .rest-pill-tag {
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        background: rgba(255, 255, 255, 0.08);
-        border: 1px solid rgba(255, 255, 255, 0.18);
-        backdrop-filter: blur(12px);
-        padding: 8px 18px;
+        background: #FFF0EC;
+        border: 1.5px solid #FFD8C9;
+        padding: 8px 20px;
         border-radius: 30px;
         font-size: 13px;
-        font-weight: 600;
-        color: #FFD8C9;
+        font-weight: 700;
+        color: #C25A2A;
         margin-bottom: 24px;
-        letter-spacing: 0.3px;
     }
     .pulse-dot {
         width: 8px;
         height: 8px;
-        background: #10B981;
+        background: #C25A2A;
         border-radius: 50%;
-        box-shadow: 0 0 10px #10B981;
+        box-shadow: 0 0 10px #C25A2A;
     }
     .rest-hero-title {
         font-size: clamp(32px, 5.5vw, 56px);
         font-weight: 900;
         line-height: 1.15;
-        max-width: 900px;
+        max-width: 920px;
         margin: 0 auto 20px;
         letter-spacing: -1px;
-        background: linear-gradient(135deg, #FFFFFF 30%, #FFD8C9 100%);
+        color: #0F172A;
+    }
+    .rest-hero-title span {
+        background: linear-gradient(135deg, #D36331 0%, #C25A2A 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
     }
     .rest-hero-desc {
         font-size: 17px;
-        color: #94A3B8;
+        color: #475569;
         max-width: 720px;
         margin: 0 auto 36px;
         line-height: 1.6;
         font-weight: 400;
     }
     .rest-btn-primary {
-        background: linear-gradient(135deg, #FF6B35 0%, #C25A2A 100%);
+        background: linear-gradient(135deg, #D36331 0%, #C25A2A 100%);
         color: #fff;
         font-weight: 800;
         padding: 16px 36px;
@@ -86,12 +88,12 @@
         border: none;
         cursor: pointer;
         transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 12px 30px rgba(194, 90, 42, 0.45);
+        box-shadow: 0 12px 30px rgba(194, 90, 42, 0.35);
     }
     .rest-btn-primary:hover {
         transform: translateY(-3px);
-        box-shadow: 0 18px 40px rgba(194, 90, 42, 0.6);
-        background: linear-gradient(135deg, #FF7B47 0%, #D36331 100%);
+        box-shadow: 0 18px 40px rgba(194, 90, 42, 0.5);
+        background: linear-gradient(135deg, #E06B37 0%, #B55023 100%);
     }
 
     /* HERO STATS BAR */
@@ -104,24 +106,24 @@
         padding: 0 16px;
     }
     .stat-item-box {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
-        border-radius: 16px;
+        background: #FFFFFF;
+        border: 1.5px solid #FFD8C9;
+        box-shadow: 0 6px 20px rgba(194, 90, 42, 0.06);
+        border-radius: 18px;
         padding: 20px 16px;
         text-align: center;
     }
     .stat-num-val {
         font-size: 32px;
         font-weight: 900;
-        color: #FFD8C9;
+        color: #C25A2A;
         line-height: 1;
         margin-bottom: 6px;
     }
     .stat-lbl-txt {
         font-size: 13px;
-        color: #94A3B8;
-        font-weight: 500;
+        color: #475569;
+        font-weight: 600;
     }
 
     /* SECTION CONTAINERS */
@@ -165,7 +167,8 @@
     }
     .ben-card-item {
         background: #FFFFFF;
-        border: 2px solid #F1F5F9;
+        border: 2px solid #FFEFE8;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
         border-radius: 24px;
         padding: 32px 28px;
         position: relative;
@@ -174,13 +177,14 @@
     .ben-card-item:hover {
         border-color: #C25A2A;
         transform: translateY(-6px);
-        box-shadow: 0 20px 40px rgba(194, 90, 42, 0.12);
+        box-shadow: 0 20px 40px rgba(194, 90, 42, 0.15);
+        background: #FFF7F3;
     }
     .ben-icon-wrap {
         width: 56px;
         height: 56px;
         border-radius: 16px;
-        background: #FFF7F3;
+        background: #FFF0EC;
         color: #C25A2A;
         display: flex;
         align-items: center;
@@ -203,9 +207,11 @@
 
     /* STEPS SECTION */
     .steps-bg-wrap {
-        background: #0F172A;
-        color: #fff;
+        background: #FFF7F3;
+        color: #0F172A;
         padding: 80px 0;
+        border-top: 1px solid #FFEFE8;
+        border-bottom: 1px solid #FFEFE8;
     }
     .steps-grid-wrap {
         display: grid;
@@ -213,8 +219,9 @@
         gap: 28px;
     }
     .step-box-item {
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid rgba(255, 255, 255, 0.09);
+        background: #FFFFFF;
+        border: 1.5px solid #FFD8C9;
+        box-shadow: 0 6px 20px rgba(194, 90, 42, 0.05);
         border-radius: 20px;
         padding: 32px 26px;
         position: relative;
@@ -224,7 +231,7 @@
         width: 44px;
         height: 44px;
         border-radius: 50%;
-        background: linear-gradient(135deg, #FF6B35 0%, #C25A2A 100%);
+        background: linear-gradient(135deg, #D36331 0%, #C25A2A 100%);
         color: #fff;
         font-weight: 900;
         font-size: 18px;
@@ -232,17 +239,17 @@
         align-items: center;
         justify-content: center;
         margin: 0 auto 18px;
-        box-shadow: 0 8px 20px rgba(194, 90, 42, 0.4);
+        box-shadow: 0 8px 20px rgba(194, 90, 42, 0.35);
     }
     .step-box-item h4 {
         font-size: 18px;
         font-weight: 700;
-        color: #fff;
+        color: #0F172A;
         margin-bottom: 8px;
     }
     .step-box-item p {
         font-size: 14px;
-        color: #94A3B8;
+        color: #64748B;
         line-height: 1.6;
     }
 
@@ -252,8 +259,8 @@
         position: fixed;
         inset: 0;
         z-index: 999999;
-        background: rgba(15, 23, 42, 0.75);
-        backdrop-filter: blur(8px);
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(6px);
         align-items: center;
         justify-content: center;
         padding: 20px;
@@ -266,13 +273,14 @@
         max-width: 500px;
         width: 100%;
         position: relative;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.2);
+        border: 2px solid #FFF7F3;
     }
     .rest-modal-close-btn {
         position: absolute;
         top: 20px;
         right: 20px;
-        background: #F1F5F9;
+        background: #F8FAFC;
         border: none;
         width: 36px;
         height: 36px;
@@ -285,7 +293,7 @@
         color: #64748B;
         transition: background 0.18s;
     }
-    .rest-modal-close-btn:hover { background: #E2E8F0; color: #0F172A; }
+    .rest-modal-close-btn:hover { background: #F1F5F9; color: #0F172A; }
 
     .form-group-lbl {
         display: block;
@@ -318,7 +326,7 @@
             <span class="pulse-dot"></span>
             <span>Zero Commission Restaurant Partner</span>
         </div>
-        <h1 class="rest-hero-title">Keep 100% of Your Hard-Earned Profit</h1>
+        <h1 class="rest-hero-title">Keep 100% of Your <span>Hard-Earned Profit</span></h1>
         <p class="rest-hero-desc">
             Join independent UK restaurants offering genuine menu prices directly to customers. Zero commission fees, transparent payouts, and complete control over your business.
         </p>
@@ -390,9 +398,9 @@
     <section class="steps-bg-wrap">
         <div class="rest-main-container">
             <div class="section-head" style="margin-bottom:60px;">
-                <span class="section-head-tag" style="color:#FFD8C9;">Fast Onboarding Process</span>
-                <h2 style="color:#fff;">Get Started in 3 Simple Steps</h2>
-                <p style="color:#94A3B8;">Our dedicated team assists you through every step of setup and verification.</p>
+                <span class="section-head-tag">Fast Onboarding Process</span>
+                <h2>Get Started in 3 Simple Steps</h2>
+                <p>Our dedicated team assists you through every step of setup and verification.</p>
             </div>
 
             <div class="steps-grid-wrap">
@@ -416,7 +424,9 @@
             </div>
 
             <!-- FINAL CTA -->
-            <div style="text-align:center; margin-top:60px;">
+            <div style="text-align:center; margin-top:60px; background:#FFFFFF; border:2px solid #FFD8C9; padding:50px 24px; border-radius:24px; box-shadow:0 10px 30px rgba(194,90,42,0.06);">
+                <h3 style="font-size:28px; font-weight:800; color:#0F172A; margin-bottom:10px;">Ready to Become a Restaurant Partner?</h3>
+                <p style="color:#64748B; font-size:15px; max-width:550px; margin:0 auto 24px;">Start accepting direct food orders with zero commission fees today.</p>
                 <button type="button" class="rest-btn-primary" onclick="openRestModal()">
                     <span>Apply as Restaurant Partner Now</span>
                     <span>→</span>
