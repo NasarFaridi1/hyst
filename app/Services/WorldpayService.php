@@ -167,4 +167,54 @@ class WorldpayService
 
         return json_decode($response, true);
     }
+
+
+    public function refundPayment(
+        Restaurant $restaurant,
+        string $accessToken,
+        string $transactionId,
+        float $amount,
+        string $description = 'Order Refund'
+    ): array {
+
+        $curl = curl_init();
+
+        curl_setopt_array($curl, [
+            CURLOPT_URL => "https://sandbox.auth.paymentsapi.io/businesses/{$restaurant->worldpay_business_id}/transactions/bank-payments/{$transactionId}/refunds",
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => json_encode([
+                "Reference" => "REFUND-" . strtoupper(Str::random(10)),
+                "Description" => $description,
+                "Amount" => (float) $amount,
+                "Audit" => [
+                    "Username" => auth()->check()
+                        ? auth()->user()->name
+                        : "Restaurant",
+                    "UserIP" => request()->ip(),
+                ],
+            ]),
+            CURLOPT_HTTPHEADER => [
+                'Authorization: Bearer ' . $accessToken,
+                'Content-Type: application/json',
+                'Accept: application/json',
+            ],
+        ]);
+
+        $response = curl_exec($curl);
+
+        if (curl_errno($curl)) {
+            throw new \Exception(curl_error($curl));
+        }
+
+        $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+
+        curl_close($curl);
+
+        if ($status < 200 || $status >= 300) {
+            throw new \Exception($response);
+        }
+
+        return json_decode($response, true);
+    }
 }

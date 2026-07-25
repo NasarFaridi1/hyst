@@ -49,26 +49,28 @@ class PaymentController extends Controller
 
         ]);
 
+        
+
         $address = null;
 
-        if ($request->order_type == 'dine_in') {
+        // if ($request->order_type == 'dine_in') {
 
-            $address = UserAddress::where('user_id', Auth::id())
-                ->where('is_default', 1)
-                ->first();
+        //     $address = UserAddress::where('user_id', Auth::id())
+        //         ->where('is_default', 1)
+        //         ->first();
 
-            if (!$address) {
-                $address = UserAddress::where('user_id', Auth::id())
-                    ->latest()
-                    ->first();
-            }
+        //     if (!$address) {
+        //         $address = UserAddress::where('user_id', Auth::id())
+        //             ->latest()
+        //             ->first();
+        //     }
 
-            if (!$address) {
-                return redirect()
-                    ->route('profile') // change to your profile route
-                    ->with('error', 'Please Complete your profile before making a payment.');
-            }
-        }
+        //     if (!$address) {
+        //         return redirect()
+        //             ->route('profile') // change to your profile route
+        //             ->with('error', 'Please Complete your profile before making a payment.');
+        //     }
+        // }
 
         $restaurant = Restaurant::findOrFail(
             $request->restaurant_id
@@ -124,19 +126,19 @@ class PaymentController extends Controller
 
                     // 'country' => Auth::user()->country,
                     'address' => $request->order_type == 'dine_in'
-                        ? $address->address
+                        ? $restaurant->address
                         : ($request->address ?? Auth::user()->address),
 
                     'postcode' => $request->order_type == 'dine_in'
-                        ? $address->postcode
+                        ? $restaurant->postcode
                         : ($request->postcode ?? Auth::user()->postcode),
 
                     'state' => $request->order_type == 'dine_in'
-                        ? $address->state
+                        ? $restaurant->state
                         : Auth::user()->state,
 
                     'country' => $request->order_type == 'dine_in'
-                        ? $address->country
+                        ? $restaurant->country
                         : Auth::user()->country,
 
 
@@ -215,7 +217,10 @@ class PaymentController extends Controller
         if ($result['status'] === 'PROCESSED_SUCCESSFUL') {
 
             $payment->update([
-                'payment_status' => 'paid'
+                'payment_status' => 'paid',
+                'payment_transaction_id' => $result['transaction']['transactionId'] ?? null,
+                'secondary_transaction_id' => $result['transaction']['secondaryTransactionId'] ?? null,
+                'payment_method' => $result['transaction']['paymentMethod'] ?? null,
             ]);
 
             $data = json_decode(
@@ -258,6 +263,66 @@ class PaymentController extends Controller
     public function callfailed()
     {
         return view('front.checkout-failed');
+    }
+
+
+    
+
+    public function refundPayment(Request $request, Order $order)
+    {
+        
+        $request->validate([
+            'refund_amount' => [
+                'required',
+                'numeric',
+                'min:0.01'
+            ],
+        ]);
+
+        $payment = $order->payment;
+
+        if (!$payment) {
+            return back()->with('error', 'Payment not found.');
+        }
+
+        if (empty($payment->payment_transaction_id)) {
+            return back()->with('error', 'Transaction ID not found.');
+        }
+
+        try {
+
+            $restaurant = $order->restaurant;
+
+            $token = $this->worldpay->login($restaurant);
+
+            $response = $this->worldpay->refundPayment(
+                $restaurant,
+                $token,
+                $payment->payment_transaction_id,
+                $request->refund_amount,
+                "Refund for Order #{$order->id}"
+            );
+
+            DB::transaction(function () use ($payment, $request) {
+
+                $payment->refunded_amount += $request->refund_amount;
+
+                if ($payment->refunded_amount >= $payment->amount) {
+                    $payment->payment_status = 'refunded';
+                } else {
+                    $payment->payment_status = 'partially_refunded';
+                }
+
+                $payment->save();
+            });
+
+            return back()->with('success', 'Refund processed successfully.');
+
+        } catch (\Exception $e) {
+
+            return back()->with('error', $e->getMessage());
+
+        }
     }
     
 

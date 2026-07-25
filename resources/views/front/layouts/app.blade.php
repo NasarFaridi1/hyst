@@ -334,6 +334,8 @@
             display: none;
         }
 
+        
+
         .mobile-menu {
             display: none;
         }
@@ -342,6 +344,8 @@
             .desktop-nav {
                 display: none !important;
             }
+
+            
 
             .mobile-toggle {
                 display: flex !important;

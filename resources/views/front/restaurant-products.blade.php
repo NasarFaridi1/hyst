@@ -321,9 +321,9 @@
 @endphp
 
         {{-- bottom bar --}}
-        <div>
+        {{-- <div>
             @include('front.layouts.bottombars')
-        </div>
+        </div> --}}
         
     {{-- ======== RESTAURANT HEADER ======== --}}
     <section style="position:relative;  border-bottom:3px solid #C25A2A; overflow:hidden;">

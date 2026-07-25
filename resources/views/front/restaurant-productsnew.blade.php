@@ -1137,9 +1137,9 @@
 @endphp
 
 {{-- ── BOTTOM BAR (existing) ── --}}
-<div>
+{{-- <div>
     @include('front.layouts.bottombars')
-</div>
+</div> --}}
 
 
 <section style="position:relative; height:240px; overflow:hidden; flex-shrink:0;">
@@ -1220,6 +1220,141 @@
         });
     </script>
 </section>
+
+@if($restaurant->coupons->count())
+
+<div style="padding:24px 32px;background:#fff;border-bottom:1px solid #eee;">
+
+    <h3 style="
+        font-size:22px;
+        font-weight:700;
+        margin-bottom:18px;
+    ">
+        🎉 Available Offers
+    </h3>
+
+    <div style="
+        display:flex;
+        gap:16px;
+        overflow-x:auto;
+        padding-bottom:6px;
+    ">
+
+        @foreach($restaurant->coupons as $coupon)
+
+            <div style="
+                min-width:320px;
+                border:2px dashed #C25A2A;
+                border-radius:18px;
+                background:#FFF8F4;
+                padding:18px;
+                flex-shrink:0;
+            ">
+
+                <div style="
+                    display:flex;
+                    justify-content:space-between;
+                    align-items:center;
+                    margin-bottom:12px;
+                ">
+
+                    <span style="
+                        background:#C25A2A;
+                        color:white;
+                        padding:6px 12px;
+                        border-radius:999px;
+                        font-size:12px;
+                        font-weight:700;
+                    ">
+                        {{ strtoupper($coupon->code) }}
+                    </span>
+
+                    <button
+                        type="button"
+                        class="copy-coupon-btn"
+                        onclick="copyCoupon(this,'{{ $coupon->code }}')"
+                        style="
+                            border:none;
+                            background:#111;
+                            color:white;
+                            padding:6px 14px;
+                            border-radius:10px;
+                            cursor:pointer;
+                            min-width:80px;
+                            transition:.3s;
+                        ">
+                        Copy
+                    </button>
+
+                </div>
+
+                <h4 style="
+                    font-size:18px;
+                    font-weight:700;
+                    margin-bottom:6px;
+                ">
+
+                    @if($coupon->type=='percentage')
+
+                        {{ $coupon->value }}% OFF
+
+                    @else
+
+                        £{{ number_format($coupon->value,2) }} OFF
+
+                    @endif
+
+                </h4>
+
+                <p style="
+                    color:#666;
+                    font-size:14px;
+                    margin-bottom:10px;
+                ">
+                    Minimum order £{{ number_format($coupon->min_order_amount,2) }}
+                </p>
+
+                @if($coupon->expires_at)
+
+                    <div style="
+                        font-size:12px;
+                        color:#888;
+                    ">
+                        Valid until
+                        {{ $coupon->expires_at->format('d M Y') }}
+                    </div>
+
+                @endif
+
+            </div>
+
+        @endforeach
+
+    </div>
+
+</div>
+
+<script>
+function copyCoupon(button, code) {
+
+    navigator.clipboard.writeText(code).then(() => {
+
+        const originalText = button.innerHTML;
+
+        button.innerHTML = "✓ Copied";
+        button.style.background = "#16A34A";
+
+        setTimeout(() => {
+            button.innerHTML = originalText;
+            button.style.background = "#111";
+        }, 2000);
+
+    });
+
+}
+</script>
+
+@endif
 
 {{-- ════════════════════════════════════════════
      PROMO BANNER
@@ -1354,10 +1489,10 @@
                     <span>Subtotal</span>
                     <span id="cartSubtotal">£0.00</span>
                 </div>
-                <div class="cart-footer-row">
+                {{-- <div class="cart-footer-row">
                     <span>Delivery</span>
                     <span>£{{ number_format($restaurant->delivery_fee ?? 0) }}</span>
-                </div>
+                </div> --}}
                 <a href="{{ route('cart.index') }}" class="btn-checkout">
                     <span>Go to checkout</span>
                     <span id="cartTotal">£0.00</span>

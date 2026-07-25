@@ -18,16 +18,23 @@ use App\Http\Controllers\Auth\UserRegisterController;
 use App\Http\Controllers\Admin\VendorController;
 use App\Http\Controllers\RestaurantAdmin\DashboardController as RestaurantDashboardController;
 use App\Http\Controllers\RestaurantAdmin\OrderController as RestaurantOrderController;
+use App\Http\Controllers\RestaurantAdmin\ComplaintController as RestaurantComplaintController;
+use App\Http\Controllers\Ambassador\CategoryController as AmbassadorCategoryController;
+use App\Http\Controllers\Ambassador\ProductController as AmbassadorProductController;
+use App\Http\Controllers\Ambassador\ProfileController as AmbassadorProfileController;
+
 
 use App\Http\Controllers\RestaurantAdmin\ProfileController;
 use App\Http\Controllers\Front\UserDashboardController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\GiftCardController;
 use App\Http\Controllers\Admin\MarketingBannerCategoryController;
 use App\Http\Controllers\Admin\MarketingBannerController;
 use App\Http\Controllers\RestaurantAdmin\CategoryController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\RestaurantController;
 use App\Http\Controllers\Admin\OrdersController;
+use App\Http\Controllers\Admin\ComplaintController as AdminComplaintController;
 use App\Http\Controllers\RestaurantAdmin\ProductController as RestaurantProductController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ComplaintController;
@@ -49,13 +56,40 @@ use App\Http\Controllers\RestaurantAdmin\RestaurantBannerController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
+use App\Http\Controllers\Ambassador\DashboardController as AmbassadorDashboardController;
+use App\Http\Controllers\Ambassador\RestaurantController as AmbassadorRestaurantController;
+
 use Illuminate\Http\JsonResponse;
 
 use App\Http\Controllers\RestaurantAdmin\ProductAddonController;
 use App\Http\Controllers\RestaurantAdmin\CustomerController;
 use App\Http\Controllers\RestaurantAdmin\MarketingController;
 use App\Http\Controllers\RestaurantAdmin\LoyaltyRewardController;
+use App\Http\Controllers\Auth\SocialAuthController;
+use App\Http\Controllers\Auth\AmbassadorRegisterController;
 
+
+
+Route::get('/auth/{provider}/redirect', [SocialAuthController::class, 'redirect'])->name('social.redirect');
+Route::get('/auth/{provider}/callback', [SocialAuthController::class, 'callback'])->name('social.callback');
+
+
+
+
+Route::get('/ambassador/register', [AmbassadorRegisterController::class, 'showRegister'])
+    ->name('ambassador.register');
+
+Route::post('/ambassador/register', [AmbassadorRegisterController::class, 'register'])
+    ->name('ambassador.register.store');
+
+Route::get('/ambassador/verify-email', [AmbassadorRegisterController::class,'verifyEmailLink'])
+    ->name('ambassador.verify.email');
+
+Route::post('/ambassador/verify-otp', [AmbassadorRegisterController::class,'verifyOtp'])
+    ->name('ambassador.verify.otp');
+
+Route::post('/ambassador/resend-otp', [AmbassadorRegisterController::class,'resendOtp'])
+    ->name('ambassador.resend.otp');
 
 
 // ---use when migrate image db to drive-----
@@ -389,6 +423,12 @@ Route::middleware(['auth', 'super_admin'])
     ->name('admin.')
     ->group(function () {
 
+		 // Admin Send Message
+        Route::post(
+            'orders/{id}/message',
+            [OrdersController::class, 'sendMessage']
+        )->name('orders.message');
+				
         Route::get('/dashboard', [DashboardController::class, 'index']);
 
         Route::resource('restaurants', RestaurantController::class);
@@ -401,6 +441,24 @@ Route::middleware(['auth', 'super_admin'])
             RestaurantCategoryController::class
         );
         Route::resource('orders', OrdersController::class);
+        Route::resource('complaint', AdminComplaintController::class);
+
+
+    Route::get('/complaint/{order}', [AdminComplaintController::class, 'show'])
+            ->name('complaint.show');
+
+        Route::post('/complaints/{id}/reply', [AdminComplaintController::class, 'complaintReply'])
+            ->name('complaints.reply');
+
+        Route::post('/complaints/{id}/status', [AdminComplaintController::class, 'changeStatus'])
+            ->name('complaints.status');
+
+        Route::post('/complaints/{id}/resolve', [AdminComplaintController::class, 'resolve'])
+            ->name('complaints.resolve');
+
+        Route::post('/complaints/{id}/reject', [AdminComplaintController::class, 'reject'])
+            ->name('complaints.reject');
+
         Route::resource('vendor', VendorController::class);
 		Route::get(
 
@@ -471,6 +529,7 @@ Route::middleware(['auth', 'super_admin'])
             [RestaurantRefundPolicyController::class, 'update']
         )->name('restaurant.refund-policy.update');
 
+        Route::resource('gift-cards', GiftCardController::class);
 
 
     });
@@ -589,6 +648,31 @@ Route::middleware(['auth', 'restaurant_admin'])
             [RestaurantOrderController::class, 'updateStatus']
         )->name('orders.status');
 
+         Route::get(
+            '/complaint',
+            [RestaurantComplaintController::class, 'index']
+        );
+        
+        Route::get(
+            '/complaint/{id}',
+            [RestaurantComplaintController::class, 'show']
+        )->name('complaint.show');
+
+        
+
+        Route::post('/complaint/{id}/reply',
+        [RestaurantComplaintController::class,'complaintReply'])
+        ->name('complaint.reply');
+
+        Route::post('/complaint/{id}/status',
+        [RestaurantComplaintController::class,'updateComplaintStatus'])
+        ->name('complaint.status');
+
+        Route::post(
+            '/restaurant/complaint/{id}/message',
+            [RestaurantComplaintController::class, 'sendMessage']
+        )->name('restaurant.complaint.message');
+
         Route::get(
             '/profile',
             [ProfileController::class, 'index']
@@ -605,8 +689,8 @@ Route::middleware(['auth', 'restaurant_admin'])
         )->name('orders.payment.status');
 
         Route::post(
-            '/orders/{id}/refund',
-            [RestaurantOrderController::class, 'refundPayment']
+            '/orders/{order}/refund',
+            [PaymentController::class, 'refundPayment']
         )->name('orders.refund');
 
         Route::post(
@@ -634,6 +718,8 @@ Route::middleware(['auth', 'restaurant_admin'])
 
         Route::resource('coupons', \App\Http\Controllers\RestaurantAdmin\CouponController::class);    
 
+        Route::post('/self-delivery', [RestaurantBannerController::class, 'updateSelfDelivery'])
+        ->name('self-delivery');
 
 
 });
@@ -641,6 +727,9 @@ Route::middleware(['auth', 'restaurant_admin'])
 
 Route::post('/coupon/apply', [\App\Http\Controllers\RestaurantAdmin\CouponController::class, 'apply'])
     ->name('coupon.apply');
+
+Route::post('/gift-card/apply', [GiftCardController::class, 'apply'])
+    ->name('gift-card.apply');    
 
 Route::middleware(['auth', 'restaurant_admin'])
     ->prefix('restaurant/products/{product}')
@@ -669,18 +758,16 @@ Route::middleware(['auth', 'restaurant_admin'])
         [AdminLoginController::class, 'showLogin']
     );
 
-Route::post('/admin/login',[AdminLoginController::class, 'login'])->name('admin.login');
+    Route::post('/admin/login',[AdminLoginController::class, 'login'])->name('admin.login');
 
 
-Route::get('/cart-count', function () {
+    Route::get('/cart-count', function () {
 
     return response()->json([
         'count' => collect(session('cart', []))->sum('quantity')
     ]);
 
 });
-
-
 
 
 
@@ -804,3 +891,86 @@ Route::post('/logout', function (Request $request) {
 
     return redirect('/');
 })->name('logout');
+
+Route::middleware(['auth','ambassador'])
+->prefix('ambassador')
+->name('ambassador.')
+->group(function(){
+
+    Route::get('/dashboard',[AmbassadorDashboardController::class,'index'])->name('dashboard');
+    Route::resource('restaurants',AmbassadorRestaurantController::class);
+    
+        Route::get(
+            'restaurants/{restaurant}/categories',
+            [AmbassadorCategoryController::class,'index']
+        )->name('categories.index');
+
+        Route::get(
+            'restaurants/{restaurant}/categories/create',
+            [AmbassadorCategoryController::class,'create']
+        )->name('categories.create');
+
+        Route::post(
+            'restaurants/{restaurant}/categories',
+            [AmbassadorCategoryController::class,'store']
+        )->name('categories.store');
+
+        Route::get(
+            'restaurants/{restaurant}/categories/{category}/edit',
+            [AmbassadorCategoryController::class,'edit']
+        )->name('categories.edit');
+
+        Route::put(
+            'restaurants/{restaurant}/categories/{category}',
+            [AmbassadorCategoryController::class,'update']
+        )->name('categories.update');
+
+        Route::delete(
+            'restaurants/{restaurant}/categories/{category}',
+            [AmbassadorCategoryController::class,'destroy']
+        )->name('categories.destroy');
+
+
+
+        Route::get(
+            'restaurants/{restaurant}/products',
+            [AmbassadorProductController::class,'index']
+        )->name('products.index');
+
+        Route::get(
+            'restaurants/{restaurant}/products/create',
+            [AmbassadorProductController::class,'create']
+        )->name('products.create');
+
+        Route::post(
+            'restaurants/{restaurant}/products',
+            [AmbassadorProductController::class,'store']
+        )->name('products.store');
+
+        Route::get(
+            'restaurants/{restaurant}/products/{product}/edit',
+            [AmbassadorProductController::class,'edit']
+        )->name('products.edit');
+
+        Route::put(
+            'restaurants/{restaurant}/products/{product}',
+            [AmbassadorProductController::class,'update']
+        )->name('products.update');
+
+        Route::delete(
+            'restaurants/{restaurant}/products/{product}',
+            [AmbassadorProductController::class,'destroy']
+        )->name('products.destroy');
+
+        Route::get('/profile', [AmbassadorProfileController::class,'index'])
+            ->name('profile.index');
+
+        Route::get('/profile/edit', [AmbassadorProfileController::class,'edit'])
+            ->name('profile.edit');
+
+        Route::put('/profile', [AmbassadorProfileController::class,'update'])
+            ->name('profile.update');
+
+});
+
+

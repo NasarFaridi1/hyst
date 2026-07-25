@@ -244,14 +244,14 @@
                         </div>
                     </div>
 
-                    <a href="https://business.hyst.uk/" class="btn-primary"
+                    {{-- <a href="https://business.hyst.uk/" class="btn-primary"
                             style="padding:9px 18px; font-size:13px; display:flex; align-items:center; gap:7px; text-decoration:none;">
                             <i data-lucide="building-2" style="width:15px; height:15px;"></i> Main Website
                     </a>
                     <a href="{{ route('front.banners.index') }}" class="btn-primary"
                             style="padding:9px 18px; font-size:13px; display:flex; align-items:center; gap:7px; text-decoration:none;">
                             <i data-lucide="building-2" style="width:15px; height:15px;"></i> Business
-                    </a>
+                    </a> --}}
                 @endauth
 
                 @guest
@@ -288,21 +288,89 @@
                         style="padding:9px 18px; font-size:13px; display:flex; align-items:center; gap:7px; text-decoration:none;">
                         <i data-lucide="user-plus" style="width:15px; height:15px;"></i> Register
                     </a> --}}
-                    <a href="https://business.hyst.uk/" class="btn-primary"
+                    {{-- <a href="https://business.hyst.uk/" class="btn-primary"
                         style="padding:9px 18px; font-size:13px; display:flex; align-items:center; gap:7px; text-decoration:none;">
                         <i data-lucide="building-2" style="width:15px; height:15px;"></i> Main Website
                     </a>
                     <a href="{{ route('front.banners.index') }}" class="btn-primary"
                         style="padding:9px 18px; font-size:13px; display:flex; align-items:center; gap:7px; text-decoration:none;">
                         <i data-lucide="building-2" style="width:15px; height:15px;"></i> Business
-                    </a>
+                    </a> --}}
                 @endguest
             </nav>
 
+            @php
+                $cartCount = collect(session('cart', []))->sum('quantity');
+            @endphp
+            <style>
+                .mob-nav-item svg { width: 22px; height: 22px; stroke: currentColor; stroke-width: 1.8; fill: none; }
+                .mob-nav-item.active { color: #E63946; }
+                .mob-nav-item .mob-dot {
+                    width: 5px; height: 5px;
+                    border-radius: 50%;
+                    background: #E63946;
+                    display: none;
+                }
+                .mobile-toggle-nav {
+                    display: none;
+                }
+
+                .mob-nav-item {
+                    display: none;
+                }
+                @media(max-width:992px) {
+                    .mobile-toggle-nav {
+                        display: flex !important;
+                        align-items:center; gap:4px;
+                    }
+                    .mob-nav-item {
+                        display: flex;
+                        align-items:center; gap:4px;
+                    }
+                }
+            </style>
+
             <!-- MOBILE TOGGLE -->
+            <div  class="mobile-toggle-nav">
+                <a href="/cart" class="mob-nav-item {{ request()->is('cart') ? 'active' : '' }}">
+    
+                    <span style="position:relative; display:inline-block;">
+                        <svg viewBox="0 0 24 24">
+                            <circle cx="9" cy="21" r="1"/>
+                            <circle cx="20" cy="21" r="1"/>
+                            <path d="M1 1h4l2.68 13.39a2 2 0 001.98 1.61h9.72a2 2 0 001.95-1.56L23 6H6"/>
+                        </svg>
+
+                        @if($cartCount > 0)
+                            <span id="cartCount"
+                                style="
+                                    position:absolute;
+                                    top:-8px;
+                                    right:-10px;
+                                    min-width:18px;
+                                    height:18px;
+                                    background:#C25A2A;
+                                    color:#fff;
+                                    border-radius:50%;
+                                    display:flex;
+                                    align-items:center;
+                                    justify-content:center;
+                                    font-size:10px;
+                                    font-weight:700;
+                                    line-height:1;
+                                    padding:0 4px;
+                                    border:2px solid #fff;
+                                ">
+                                {{ collect(session('cart', []))->sum('quantity') }}
+                            </span>
+                        @endif
+                    </span>
+
+                </a>
             <button class="mobile-toggle" onclick="toggleMobileMenu()" aria-label="Menu">
                 <i data-lucide="menu" style="width:22px; height:22px;"></i>
             </button>
+            </div>
         </div>
     </div>
 
@@ -374,8 +442,8 @@
                     <a href="/dashboard"><i data-lucide="layout-dashboard" style="width:18px; height:18px; color:#C25A2A;"></i>
                         Dashboard</a>
                     <a href="/profile"><i data-lucide="user" style="width:18px; height:18px; color:#C25A2A;"></i> My Profile</a>
-                    <a href="https://business.hyst.uk/"><i data-lucide="building-2" style="width:18px; height:18px; color:#C25A2A;"></i>Main Website</a>
-                    <a href="{{ route('front.banners.index') }}"><i data-lucide="building-2" style="width:18px; height:18px; color:#C25A2A;"></i>Business</a>
+                    {{-- <a href="https://business.hyst.uk/"><i data-lucide="building-2" style="width:18px; height:18px; color:#C25A2A;"></i>Main Website</a>
+                    <a href="{{ route('front.banners.index') }}"><i data-lucide="building-2" style="width:18px; height:18px; color:#C25A2A;"></i>Business</a> --}}
 
 
                     <form method="POST" action="/logout" style="border-bottom:none;">
@@ -391,9 +459,9 @@
         @guest
             <a href="/login"><i data-lucide="log-in" style="width:18px; height:18px; color:#C25A2A;"></i> Login/Register</a>
             {{-- <a href="/register"><i data-lucide="user-plus" style="width:18px; height:18px; color:#C25A2A;"></i> Register</a> --}}
-            <a href="https://business.hyst.uk/"><i data-lucide="building-2" style="width:18px; height:18px; color:#C25A2A;"></i>Main Website</a>
+            {{-- <a href="https://business.hyst.uk/"><i data-lucide="building-2" style="width:18px; height:18px; color:#C25A2A;"></i>Main Website</a>
             <a href="{{ route('front.banners.index') }}"><i data-lucide="building-2" style="width:18px; height:18px; color:#C25A2A;"></i>Business</a>
-
+ --}}
 
         @endguest
     </div>

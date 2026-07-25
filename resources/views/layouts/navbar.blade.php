@@ -184,15 +184,44 @@
             <div style="width:1px; height:28px; background:#F0F0EC;"></div>
 
             <!-- User Info -->
-            <div style="display:flex; align-items:center; gap:10px; background:#F5F5F0; padding:7px 14px 7px 7px; border-radius:12px;">
-                <div style="width:34px; height:34px; background:#C25A2A; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-family:'Poppins',sans-serif; font-weight:800; font-size:14px; color:#fff;">
-                    {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-                </div>
-                <div style="display:none;" class="user-info-text">
-                    <p style="font-size:13px; font-weight:700; color:#0D0D0D; margin:0; line-height:1.3;">{{ auth()->user()->name }}</p>
-                    <p style="font-size:11px; color:#6B7280; margin:0; text-transform:capitalize;">{{ str_replace('_', ' ', auth()->user()->role) }}</p>
-                </div>
-            </div>
+           <!-- User Dropdown -->
+<div style="position:relative;">
+
+    <div onclick="toggleUserDropdown()"
+        style="display:flex; align-items:center; gap:10px; background:#F5F5F0; padding:7px 14px 7px 7px; border-radius:12px; cursor:pointer;">
+
+        <div style="width:34px;height:34px;background:#C25A2A;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#fff;">
+            {{ strtoupper(substr(auth()->user()->name,0,1)) }}
+        </div>
+
+        <div class="user-info-text" style="display:none;">
+            <p style="font-size:13px;font-weight:700;margin:0;">
+                {{ auth()->user()->name }}
+            </p>
+            <p style="font-size:11px;color:#6B7280;margin:0;text-transform:capitalize;">
+                {{ str_replace('_',' ',auth()->user()->role) }}
+            </p>
+        </div>
+
+        <i data-lucide="chevron-down" style="width:16px;height:16px;"></i>
+    </div>
+
+    <div id="userDropdown"
+        style="display:none;position:absolute;top:55px;right:0;background:#fff;width:180px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.15);overflow:hidden;z-index:9999;">
+
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+
+            <button type="submit"
+                style="width:100%;border:none;background:none;padding:14px 16px;text-align:left;cursor:pointer;display:flex;align-items:center;gap:10px;font-size:14px;">
+                <i data-lucide="log-out"></i>
+                Logout
+            </button>
+        </form>
+
+    </div>
+
+</div>
         </div>
     @endauth
 
@@ -438,6 +467,27 @@ fetchNotifications();
 
 setInterval(fetchNotifications, 10000);
 
+</script>
+<script>
+function toggleUserDropdown() {
+    let dropdown = document.getElementById('userDropdown');
+
+    dropdown.style.display =
+        dropdown.style.display === 'block'
+        ? 'none'
+        : 'block';
+}
+
+document.addEventListener('click', function(e){
+
+    if(
+        !e.target.closest('#userDropdown') &&
+        !e.target.closest('[onclick="toggleUserDropdown()"]')
+    ){
+        document.getElementById('userDropdown').style.display='none';
+    }
+
+});
 </script>
 
 <style>

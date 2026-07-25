@@ -275,9 +275,9 @@
 @endphp
 
         {{-- bottom bar --}}
-        <div>
+        {{-- <div>
             @include('front.layouts.bottombars')
-        </div>
+        </div> --}}
         
     {{-- ======== RESTAURANT HEADER ======== --}}
     <section

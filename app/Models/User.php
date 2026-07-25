@@ -35,6 +35,9 @@ class User extends Authenticatable
         'state',
         'country',
         'postcode',
+        'provider',      
+        'provider_id',   
+
         
     ];
 
@@ -62,6 +65,20 @@ class User extends Authenticatable
     public function orders()
     {
         return $this->hasMany(Order::class);
+    }
+    public function ambassadorRestaurants()
+    {
+        return $this->hasMany(Restaurant::class,'ambassador_id');
+    }
+
+    public function ambassadorCategories()
+    {
+        return $this->hasMany(Category::class,'ambassador_id');
+    }
+
+    public function ambassadorProducts()
+    {
+        return $this->hasMany(Product::class,'ambassador_id');
     }
 
     protected static function booted()
@@ -95,6 +112,11 @@ class User extends Authenticatable
     public function couponUsages()
     {
         return $this->hasMany(CouponUsage::class);
+    }
+
+    public function giftCardTransactions()
+    {
+        return $this->hasMany(GiftCardTransaction::class);
     }
     
 }

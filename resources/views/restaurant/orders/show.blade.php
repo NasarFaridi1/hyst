@@ -248,13 +248,51 @@
   .od-tbl-row span { padding: 13px 0; font-size: 13px; color: var(--ink2); }
   .od-tbl-row .col-name { font-weight: 600; color: var(--ink); }
   .od-tbl-row .col-total { font-weight: 700; color: var(--terra-d); font-family: 'Courier New', monospace; }
-  .od-tbl-footer {
-    display: flex; justify-content: flex-end; align-items: center; gap: 12px;
-    padding: 14px 22px; background: var(--cream2); border-top: 1px solid var(--border);
+  .od-tbl-footer{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:12px 22px;
+      border-top:1px solid var(--border);
+      background:#fff;
   }
-  .od-tbl-footer .total-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
-  .od-tbl-footer .total-val {
-    font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: var(--terra-d);
+
+  .od-tbl-footer .total-label{
+      font-size:14px;
+      font-weight:600;
+      color:#666;
+  }
+
+  .od-tbl-footer .total-val{
+      font-size:16px;
+      font-weight:700;
+      color:#222;
+  }
+
+  .od-tbl-footer .discount{
+      color:#16a34a;
+  }
+
+  .od-tbl-footer.grand-total{
+      margin-top:8px;
+      padding:18px 22px;
+      background:var(--cream2);
+      border-top:2px solid var(--terra);
+  }
+
+  .od-tbl-footer.grand-total .total-label{
+      font-size:15px;
+      font-weight:700;
+      color:#222;
+      text-transform:uppercase;
+      letter-spacing:.05em;
+  }
+
+  .od-tbl-footer.grand-total .total-val{
+      font-size:24px;
+      font-weight:700;
+      color:var(--terra-d);
+      font-family:'Playfair Display', serif;
   }
 
   /* ── FAB ── */
@@ -457,25 +495,7 @@
     </div>
     @endif
 
-    @if($complaints->count())
-
-      <div class="od-card" style="margin-bottom:16px;">
-
-          <div class="card-eyebrow">
-              Customer Complaints
-          </div>
-
-          <button
-              onclick="openComplaintsModal()"
-              class="od-btn btn-pickup">
-
-              View Complaints ({{ $complaints->count() }})
-
-          </button>
-
-      </div>
-
-    @endif
+    
 
 
     <div class="od-card">
@@ -578,94 +598,10 @@
 
       @endif
     </div>
+	  
+	  
 
-    @if($order->status === 'completed')
-
-    <div class="od-card">
-
-        <div class="card-eyebrow">
-            Completion Proof
-        </div>
-
-        @if(!$restaurantEvidence)
-
-            <form
-                method="POST"
-                action="{{ route('restaurant.orders.evidence',$order->id) }}"
-                enctype="multipart/form-data">
-
-                @csrf
-
-                <input
-                    type="file"
-                    name="photo"
-                    required
-                    class="pay-select mb-3">
-
-                <textarea
-                    name="description"
-                    rows="4"
-                    required
-                    placeholder="Describe what was served..."
-                    style="
-                        width:100%;
-                        border:1px solid #ddd;
-                        border-radius:12px;
-                        padding:12px;
-                        margin-bottom:12px;
-                    "></textarea>
-
-                <button
-                    type="submit"
-                    class="od-btn btn-pickup">
-
-                    Upload Proof
-
-                </button>
-
-            </form>
-
-        @else
-
-            <div style="
-                border:1px solid #eee;
-                border-radius:14px;
-                overflow:hidden;
-            ">
-
-                <img
-                    src="{{ asset($restaurantEvidence->photo) }}"
-                    style="
-                        width:100%;
-                        height:220px;
-                        object-fit:cover;
-                    ">
-
-                <div style="padding:15px;">
-
-                    <p style="
-                        font-weight:600;
-                        margin-bottom:8px;
-                    ">
-                        Restaurant Submission
-                    </p>
-
-                    <p style="
-                        color:#666;
-                        line-height:1.7;
-                    ">
-                        {{ $restaurantEvidence->description }}
-                    </p>
-
-                </div>
-
-            </div>
-
-        @endif
-
-    </div>
-
-    @endif
+   
 
     {{-- Payment --}}
     <div class="od-card">
@@ -695,57 +631,95 @@
             </option>
           @endforeach
         </select>
-        <button type="submit" class="od-btn btn-pay-update">
+        {{-- <button type="submit" class="od-btn btn-pay-update">
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           Update Payment
-        </button>
+        </button> --}}
       </form>
 
-      {{-- @if($order->status === 'cancelled' && optional($order->payment)->payment_status === 'paid')
-        <form method="POST" action="{{ route('restaurant.orders.refund', $order->id) }}" style="margin-top:8px">
-          @csrf
-          <button type="submit" class="od-btn btn-refund" onclick="return confirm('Issue a refund for this payment?')">
+      @if($order->status === 'cancelled' && optional($order->payment)->payment_status === 'paid')
+        {{-- <form method="POST" action="{{ route('restaurant.orders.refund', $order->id) }}" style="margin-top:8px">
+          @csrf --}}
+          <button disabled type="submit" class="od-btn btn-refund" onclick="return confirm('Issue a refund for this payment?')">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
             Refund Payment
           </button>
-        </form>
-      @endif --}}
+        {{-- </form> --}}
+      @endif
       @if(
           $order->status === 'cancelled' &&
-          optional($order->payment)->payment_status !== 'refunded'
+          optional($order->payment)
       )
 
-        <form method="POST"
-              action="{{ route('restaurant.orders.refund', $order->id) }}"
-              style="margin-top:8px">
+          @php
+              $payment = $order->payment;
 
-            @csrf
+              $refunded = $payment->refunded_amount ?? 0;
+              $remaining = $payment->amount - $refunded;
+          @endphp
 
-            <input
-                type="number"
-                name="refund_amount"
-                step="0.01"
-                min="0.01"
-                max="{{ $order->total_amount - ($order->payment->refunded_amount ?? 0) }}"
-                placeholder="Refund Amount"
-                required
-                style="
-                    width:140px;
-                    padding:8px;
-                    border:1px solid #ddd;
-                    border-radius:8px;
-                    margin-bottom:8px;
-                ">
+          @if($remaining > 0)
 
-            <button
-                type="submit"
-                class="od-btn btn-refund">
+              <div style="margin-top:15px;padding:12px;border:1px solid #ddd;border-radius:10px;">
 
-                Refund
+                  <p style="margin-bottom:10px;">
+                      <strong>Paid Amount:</strong> £{{ number_format($payment->amount,2) }}<br>
 
-            </button>
+                      <strong>Already Refunded:</strong>
+                      £{{ number_format($refunded,2) }}<br>
 
-        </form>
+                      <strong>Available Refund:</strong>
+                      £{{ number_format($remaining,2) }}
+                  </p>
+
+                  <form method="POST"
+                        action="{{ route('restaurant.orders.refund',$order->id) }}">
+
+                      @csrf
+
+                      <input
+                          type="number"
+                          name="refund_amount"
+                          step="0.01"
+                          min="0.01"
+                          max="{{ $remaining }}"
+                          value="{{ $remaining }}"
+                          required
+                          style="
+                              width:180px;
+                              padding:8px;
+                              border:1px solid #ddd;
+                              border-radius:8px;
+                          ">
+
+                      <br><br>
+
+                      <button
+                          type="submit"
+                          class="od-btn btn-refund"
+                          onclick="return confirm('Are you sure you want to refund this payment?')">
+
+                          Refund £{{ number_format($remaining,2) }}
+
+                      </button>
+
+                  </form>
+
+              </div>
+
+          @else
+
+              <div style="
+                  margin-top:15px;
+                  padding:12px;
+                  background:#d4edda;
+                  color:#155724;
+                  border-radius:8px;
+              ">
+                  ✅ Payment has already been fully refunded.
+              </div>
+
+          @endif
 
       @endif
 
@@ -1239,54 +1213,54 @@
 
 <script>
 
-function openCancelModal(){
-    document.getElementById('cancelOrderModal').classList.add('show');
-}
+  function openCancelModal(){
+      document.getElementById('cancelOrderModal').classList.add('show');
+  }
 
-function closeCancelModal(){
-    document.getElementById('cancelOrderModal').classList.remove('show');
-}
+  function closeCancelModal(){
+      document.getElementById('cancelOrderModal').classList.remove('show');
+  }
 
-window.onclick = function(event){
+  window.onclick = function(event){
 
-    let modal = document.getElementById('cancelOrderModal');
+      let modal = document.getElementById('cancelOrderModal');
 
-    if(event.target === modal){
-        closeCancelModal();
-    }
+      if(event.target === modal){
+          closeCancelModal();
+      }
 
-}
+  }
 
-function toggleOtherReason(){
+  function toggleOtherReason(){
 
-    let select = document.getElementById('cancelReasonSelect');
-    let textarea = document.getElementById('otherReason');
-    let box = document.getElementById('otherReasonBox');
+      let select = document.getElementById('cancelReasonSelect');
+      let textarea = document.getElementById('otherReason');
+      let box = document.getElementById('otherReasonBox');
 
-    if(select.value === "Other"){
+      if(select.value === "Other"){
 
-        box.style.display = "block";
+          box.style.display = "block";
 
-        textarea.required = true;
+          textarea.required = true;
 
-        textarea.setAttribute("name","cancel_reason");
+          textarea.setAttribute("name","cancel_reason");
 
-        select.removeAttribute("name");
+          select.removeAttribute("name");
 
-    }else{
+      }else{
 
-        box.style.display = "none";
+          box.style.display = "none";
 
-        textarea.required = false;
-        textarea.value = "";
+          textarea.required = false;
+          textarea.value = "";
 
-        textarea.removeAttribute("name");
+          textarea.removeAttribute("name");
 
-        select.setAttribute("name","cancel_reason");
+          select.setAttribute("name","cancel_reason");
 
-    }
+      }
 
-}
+  }
 
 </script>
   {{-- ── Row 2: Status Workflow · Payment ── --}}
@@ -1529,10 +1503,39 @@ function toggleOtherReason(){
       <span class="col-total">£{{ number_format($item->total, 2) }}</span>
     </div>
     @endforeach
+    @if($order->delivery_charge > 0)
     <div class="od-tbl-footer">
-      <span class="total-label">Order Total</span>
-      <span class="total-val">£{{ number_format($order->total_amount, 2) }}</span>
+        <span class="total-label">Delivery Fee</span>
+        <span class="total-val">£{{ number_format($order->delivery_charge, 2) }}</span>
     </div>
+    @endif
+
+    @if($order->hyst_charge > 0)
+    <div class="od-tbl-footer">
+        <span class="total-label">Hyst Charge</span>
+        <span class="total-val">£{{ number_format($order->hyst_charge, 2) }}</span>
+    </div>
+    @endif
+
+    @if($order->coupon_discount > 0)
+    <div class="od-tbl-footer">
+        <span class="total-label">Coupon Discount</span>
+        <span class="total-val discount">-£{{ number_format($order->coupon_discount, 2) }}</span>
+    </div>
+    @endif
+
+    @if($order->gift_card_amount > 0)
+    <div class="od-tbl-footer">
+        <span class="total-label">Gift Card</span>
+        <span class="total-val discount">-£{{ number_format($order->gift_card_amount, 2) }}</span>
+    </div>
+    @endif
+
+    <div class="od-tbl-footer grand-total">
+        <span class="total-label">Order Total</span>
+        <span class="total-val">£{{ number_format($order->total_amount, 2) }}</span>
+    </div>
+    
   </div>
 
 </div>

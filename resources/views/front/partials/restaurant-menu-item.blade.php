@@ -148,7 +148,7 @@
             </div>
 
             @if(!($isAdmin ?? false))
-                @auth
+                {{-- @auth --}}
                     {{--
                         IMPORTANT: data-product, data-variants, data-addons
                         match exactly what the old JS expects.
@@ -170,13 +170,13 @@
                                 onclick="event.stopPropagation()"
                                 title="Add to order">+</button>
                     </form>
-                @else
+                {{-- @else
                     <a href="{{ route('login') }}"
                        onclick="event.stopPropagation()"
                        class="menu-card-add-btn"
                        style="text-decoration:none;display:flex;align-items:center;justify-content:center;"
                        title="Login to order">+</a>
-                @endauth
+                @endauth --}}
             @endif
         </div>
 

@@ -84,246 +84,45 @@
         }
     </style>
 
-    <!-- ══════════════════════════════════════
-         HERO SECTION
-    ══════════════════════════════════════ -->
-    {{-- <section style="position:relative; background:#0D0D0D; color:#fff; overflow:hidden;max-height:20rem;">
-        <div style="max-width:1280px; margin:0 auto; padding:64px 24px 0;">
-            <div class="hero-grid" style="display:grid; grid-template-columns:1.05fr 0.95fr; gap:48px; align-items:center;">
+    
+    <section style="position:relative; min-height:250px; display:flex; align-items:flex-end; overflow:hidden; border-radius:12px;">
 
-                <div>
-                    <div
-                        style="display:inline-flex; align-items:center; gap:8px; background:rgba(232,55,14,0.18); border:1px solid rgba(232,55,14,0.4); padding:7px 16px; border-radius:999px; margin-bottom:22px;">
-                        <i data-lucide="zap" style="width:14px; height:14px; color:#fff; flex-shrink:0;"></i>
-                        <span
-                            style="font-size:14px; font-weight:600; color:#fff; font-family:'Poppins',sans-serif; letter-spacing:.04em;">0% Commission. Always.</span>
-                    </div>
+        <img src="images/Hanover.png" class="desktop-banner" alt="Desktop Banner">
 
-                    <h1 class="hero-title"
-                        style="font-family:'Poppins',sans-serif; font-size:50px; font-weight:800; line-height:1.14; margin:0 0 18px; letter-spacing:-.5px;">
-                        Great Food.<br><span style="color:#C25A2A;">Fair Prices.</span><br>Zero Commission.
-                    </h1>
+        <img src="images/FoodMenu.png" class="mobile-banner" alt="Mobile Banner">
 
-                    <p
-                        style="font-size:16px; color:#D1D5DB; line-height:1.8; margin:0 0 32px; max-width:460px; font-weight:400;">
-                        Order from restaurants near you — without the 20-30% commission that other apps quietly add to your bill.
-                    </p>
-
-                    <div class="hero-stats" style="display:flex; gap:36px; flex-wrap:wrap;">
-                        <div>
-                            <p style="font-family:'Poppins',sans-serif; font-size:26px; font-weight:800; margin:0;">500+</p>
-                            <p style="font-size:12px; color:#9CA3AF; margin:4px 0 0; font-weight:500;">Menu Items</p>
-                        </div>
-                        <div style="width:1px; background:rgba(255,255,255,0.15);"></div>
-                        <div>
-                            <p style="font-family:'Poppins',sans-serif; font-size:26px; font-weight:800; margin:0;">4.9★</p>
-                            <p style="font-size:12px; color:#9CA3AF; margin:4px 0 0; font-weight:500;">Avg Rating</p>
-                        </div>
-                        <div style="width:1px; background:rgba(255,255,255,0.15);"></div>
-                        <div>
-                            <p style="font-family:'Poppins',sans-serif; font-size:26px; font-weight:800; margin:0;">10K+</p>
-                            <p style="font-size:12px; color:#9CA3AF; margin:4px 0 0; font-weight:500;">Happy Customers</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="hero-img-wrap" style="position:relative;">
-                    <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=2070"
-                        style="width:100%; height:520px; object-fit:cover; border-radius:24px; display:block; box-shadow:0 30px 70px rgba(0,0,0,.5);">
-
-                    <div
-                        style="position:absolute; top:24px; left:-20px; background:#fff; color:#0D0D0D; padding:14px 18px; border-radius:16px; box-shadow:0 12px 30px rgba(0,0,0,.25); display:flex; align-items:center; gap:12px;">
-                        <div style="width:38px; height:38px; background:#FFF2EE; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-                            <i data-lucide="timer" style="width:18px; height:18px; color:#C25A2A;"></i>
-                        </div>
-                        <div>
-                            <p style="margin:0; font-size:13px; font-weight:700; font-family:'Poppins',sans-serif;">25-30 min</p>
-                            <p style="margin:0; font-size:11px; color:#6B7280;">Avg delivery time</p>
-                        </div>
-                    </div>
-
-                    <div
-                        style="position:absolute; bottom:24px; right:-20px; background:#0D0D0D; color:#fff; padding:16px 20px; border-radius:16px; box-shadow:0 12px 30px rgba(0,0,0,.35); border:1px solid rgba(232,55,14,.4);">
-                        <p style="margin:0 0 4px; font-size:11px; color:#9CA3AF; font-weight:600; letter-spacing:.04em;">RESTAURANT KEEPS</p>
-                        <p style="margin:0; font-size:22px; font-weight:800; font-family:'Poppins',sans-serif; color:#C25A2A;">100% of every order</p>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-        <div style="height:48px;"></div>
-    </section> --}}
-
-
-     <section class="hero-banner" style="position:relative; min-height:230px; display:flex; align-items:center; overflow:hidden; background:#0D0D0D;">
- 
-        <img class="hero-banner-img"
-            src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=2070"
-            style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;">
- 
-        <div style="position:absolute; inset:0; "></div>
- 
-        <div style="position:relative; max-width:1280px; margin:0 auto; padding:7px 0px; width:100%;">
-            <div class="hero-banner-content" style="color:#fff;">
- 
-                {{-- <div
-                    style="display:inline-flex; align-items:center; gap:8px; background:rgba(232,55,14,0.18); border:1px solid rgba(232,55,14,0.4); padding:6px 14px; border-radius:999px; margin-bottom:18px;">
-                    <i data-lucide="zap" style="width:13px; height:13px; color:#fff; flex-shrink:0;"></i>
-                    <span
-                        style="font-size:13px; font-weight:600; color:#fff; font-family:'Poppins',sans-serif; letter-spacing:.04em;">0% Commission. Always.</span>
-                </div>
- 
-                <h1 class="hero-title"
-                    style="font-family:'Poppins',sans-serif; font-size:45px; font-weight:800; line-height:1.18; margin:0 0 14px; letter-spacing:-.4px;">
-                    Great Food. <span style="color:#C25A2A;">Fair Prices.</span> Zero Commission.
-                </h1> --}}
- 
-                {{-- <p
-                    style="font-size:15px; color:#D1D5DB; line-height:1.7; margin:0 0 26px;font-weight:400;">
-                   Enjoy your favourite meals at the restaurant's actual menu prices—no inflated delivery markups, no hidden costs, just honest pricing.
-                </p> --}}
-                <!-- STATS -->
-                {{-- <div class="hero-stats" style="display:flex; gap:32px; flex-wrap:wrap;">
-                    <div>
-                        <p style="font-family:'Poppins',sans-serif; font-size:22px; font-weight:800; margin:0;">500+</p>
-                        <p style="font-size:11px; color:#9CA3AF; margin:3px 0 0; font-weight:500;">Menu Items</p>
-                    </div>
-                    <div style="width:1px; background:rgba(255,255,255,0.15);"></div>
-                    <div>
-                        <p style="font-family:'Poppins',sans-serif; font-size:22px; font-weight:800; margin:0;">4.9★</p>
-                        <p style="font-size:11px; color:#9CA3AF; margin:3px 0 0; font-weight:500;">Avg Rating</p>
-                    </div>
-                    <div style="width:1px; background:rgba(255,255,255,0.15);"></div>
-                    <div>
-                        <p style="font-family:'Poppins',sans-serif; font-size:22px; font-weight:800; margin:0;">10K+</p>
-                        <p style="font-size:11px; color:#9CA3AF; margin:3px 0 0; font-weight:500;">Happy Customers</p>
-                    </div>
-                </div> --}}
- 
-            </div>
-        </div>
     </section>
-    <!-- ══════════════════════════════════════
-         ZERO COMMISSION COMPARISON (SIGNATURE)
-    ══════════════════════════════════════ -->
-    {{-- <section style="background:#FAF7F2; padding:72px 0;">
-        <div style="max-width:1280px; margin:0 auto; padding:0 24px;">
-            <div class="comparison-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:56px; align-items:center;">
 
-                <div>
-                    <p
-                        style="color:#C25A2A; font-family:'Poppins',sans-serif; font-weight:700; font-size:12px; letter-spacing:.1em; text-transform:uppercase; margin:0 0 8px;">
-                        The HYST Difference</p>
-                    <h2 class="section-title"
-                        style="font-family:'Poppins',sans-serif; font-size:34px; font-weight:800; margin:0 0 16px; letter-spacing:-.4px; line-height:1.25;">
-                        Other apps charge restaurants up to 30%. We charge nothing.
-                    </h2>
-                    <p style="color:#6B7280; font-size:15px; line-height:1.8; margin:0 0 24px; max-width:460px;">
-                        That commission usually shows up in your final bill anyway, as higher menu prices and inflated
-                        delivery fees. HYST connects you directly with restaurants, so the price you see is the price
-                        they actually charge.
-                    </p>
-                    <a href="/restaurants" class="btn-primary"
-                        style="padding:13px 26px; font-size:14px; display:inline-flex; align-items:center; gap:8px; text-decoration:none;">
-                        Order Without the Markup <i data-lucide="arrow-right" style="width:16px; height:16px;"></i>
-                    </a>
-                </div>
+    <style>
+        .desktop-banner,
+        .mobile-banner {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
 
-                <!-- bar comparison card -->
-                <div
-                    style="background:#fff; border-radius:24px; padding:36px; border:1px solid #F0F0EC; box-shadow:0 20px 50px rgba(0,0,0,.06);">
-                    <div style="margin-bottom:26px;">
-                        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-                            <span style="font-family:'Poppins',sans-serif; font-size:13px; font-weight:600; color:#6B7280;">Typical Delivery Apps</span>
-                            <span style="font-family:'Poppins',sans-serif; font-size:13px; font-weight:700; color:#0D0D0D;">~28%</span>
-                        </div>
-                        <div style="height:14px; background:#F3F1ED; border-radius:999px; overflow:hidden;">
-                            <div style="height:100%; width:80%; background:#D1D5DB; border-radius:999px;"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-                            <span style="font-family:'Poppins',sans-serif; font-size:13px; font-weight:600; color:#0D0D0D;">HYST</span>
-                            <span style="font-family:'Poppins',sans-serif; font-size:13px; font-weight:800; color:#C25A2A;">0%</span>
-                        </div>
-                        <div style="height:14px; background:#F3F1ED; border-radius:999px; overflow:hidden;">
-                            <div style="height:100%; width:4%; background:#C25A2A; border-radius:999px;"></div>
-                        </div>
-                    </div>
-                    <p style="margin:24px 0 0; font-size:12px; color:#9CA3AF; line-height:1.6;">
-                        Industry commission figures are widely cited averages for context, not a claim about any single competitor.
-                    </p>
-                </div>
+        .mobile-banner {
+            display: none;
+            object-fit: fill !important;
+        }
 
-            </div>
-        </div>
-    </section> --}}
+        @media (max-width: 768px) {
+            .desktop-banner {
+                display: none;
+                
+            }
 
-    {{-- ══════════════════════════════════════
-         QR CODE SECTION (kept as-is, disabled)
-    ══════════════════════════════════════ --}}
-    {{-- <section style="padding:80px 0; background:rgba(245, 240, 232, 0.95);">
-        <div style="max-width:1280px; margin:auto; padding:0 24px;">
-            <div class="qr-wrapper" style="display:grid; grid-template-columns:1.2fr 0.8fr; gap:56px; align-items:center;">
-                <div>
-                    <span
-                        style="background:#FFE7E0; color:#C25A2A; padding:7px 18px; border-radius:50px; font-size:12px; font-weight:700; display:inline-block; margin-bottom:18px; font-family:'Poppins',sans-serif; letter-spacing:.04em;">
-                        Scan & Order
-                    </span>
-                    <h2 class="qr-title section-title"
-                        style="font-size:38px; line-height:1.2; font-weight:800; margin-bottom:18px; font-family:'Poppins',sans-serif; color:#111827; letter-spacing:-.5px;">
-                        Scan QR Code<br>For Restaurant Menu
-                    </h2>
-                    <p style="color:#6B7280; font-size:16px; line-height:1.8; margin-bottom:32px; max-width:500px;">
-                        Explore delicious meals, discover restaurants, and order food instantly by scanning the QR code.
-                    </p>
-                    <div style="display:flex; gap:20px; flex-wrap:wrap;">
-                        <div style="display:flex; align-items:center; gap:12px;">
-                            <div
-                                style="width:46px; height:46px; background:#C25A2A; border-radius:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-                                <i data-lucide="utensils" style="width:20px; height:20px; color:#fff;"></i>
-                            </div>
-                            <div>
-                                <h4 style="margin:0; font-size:15px; font-weight:700;">Premium Restaurants</h4>
-                                <p style="margin:0; color:#6B7280; font-size:13px;">Top quality food</p>
-                            </div>
-                        </div>
-                        <div style="display:flex; align-items:center; gap:12px;">
-                            <div
-                                style="width:46px; height:46px; background:#111827; border-radius:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-                                <i data-lucide="clock-3" style="width:20px; height:20px; color:#fff;"></i>
-                            </div>
-                            <div>
-                                <h4 style="margin:0; font-size:15px; font-weight:700;">Fast Ordering</h4>
-                                <p style="margin:0; color:#6B7280; font-size:13px;">Instant menu access</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div style="display:flex; justify-content:center;">
-                    <div
-                        style="background:#fff; padding:36px; border-radius:28px; box-shadow:0 20px 60px rgba(0,0,0,.09); text-align:center; border:1px solid #F1F1F1; max-width:340px; width:100%;">
-                        <div
-                            style="width:88px; height:88px; background:#FFF2EE; border-radius:22px; margin:0 auto 22px; display:flex; align-items:center; justify-content:center;">
-                            <i data-lucide="qr-code" style="width:42px; height:42px; color:#C25A2A;"></i>
-                        </div>
-                        <h3
-                            style="font-size:24px; font-weight:800; margin-bottom:8px; font-family:'Poppins',sans-serif; color:#0D0D0D;">
-                            Scan Me</h3>
-                        <p style="color:#6B7280; font-size:14px; margin-bottom:24px;">Open restaurant menu instantly</p>
-                        <div
-                            style="background:#FAFAF8; padding:18px; border-radius:18px; display:inline-block; border:1px solid #F0F0EC;">
-                            {!! $qrCode !!}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section> --}}
+            .mobile-banner {
+                display: block;
+                  object-fit: fill !important;
+            }
+        }
+    </style>
 
-    <!-- ══════════════════════════════════════
-         RESTAURANTS (search + categories + listing,
-         already rendered by this partial)
-    ══════════════════════════════════════ -->
+
+   
     @include('front.restaurants')
 
     <!-- ══════════════════════════════════════

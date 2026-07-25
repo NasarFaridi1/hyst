@@ -40,4 +40,8 @@ class Category extends Model
     {
         return $this->hasMany(Product::class);
     }
+            public function ambassador()
+        {
+            return $this->belongsTo(User::class,'ambassador_id');
+        }
 }

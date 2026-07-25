@@ -92,7 +92,7 @@ class ProfileController extends Controller
     public function updateStatus(Request $request)
     {
         $request->validate([
-            'restaurant_status' => 'required|in:0,1',
+            'restaurant_status' => 'required|in:Open,Closed',
         ]);
 
         $restaurant = Restaurant::findOrFail(auth()->user()->restaurant_id);

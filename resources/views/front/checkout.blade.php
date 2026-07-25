@@ -563,9 +563,10 @@
     @media (max-width: 900px) {
         .co-wrap    { grid-template-columns: 1fr; }
         .co-right   { position: static; }
-        .co-summary { display: none; }           /* Summary shown in sticky footer on mobile */
+                  /* Summary shown in sticky footer on mobile */
         .mobile-footer { display: block; }
         .co-page    { padding-bottom: 120px; }   /* Make room for sticky footer */
+        
     }
 
     /* Small tablet */
@@ -656,7 +657,7 @@
                         </span>
                     </div>
 
-                    @forelse($cart as $item)
+                    @forelse($cart as $cartKey => $item)
                     @php
                         $offer    = $item['offer'];
                         // $subtotal = $item['subtotal'] ?? ($item['price'] * $item['quantity']);
@@ -786,9 +787,9 @@
 
                             <!-- QTY CONTROLS -->
                             <div class="qty-controls">
-                                <a href="/cart/decrease/{{ $item['id'] }}" class="qty-btn minus" aria-label="Decrease quantity">−</a>
+                                <a href="{{ url('/cart/decrease/'.$cartKey) }}" class="qty-btn minus" aria-label="Decrease quantity">−</a>
                                 <span class="qty-num" aria-label="Quantity">{{ $item['quantity'] }}</span>
-                                <a href="/cart/increase/{{ $item['id'] }}" class="qty-btn plus" aria-label="Increase quantity">+</a>
+                                <a href="{{ url('/cart/increase/'.$cartKey) }}" class="qty-btn plus" aria-label="Increase quantity">+</a>
                             </div>
                         </div>
 
@@ -798,7 +799,7 @@
                                 <div class="subtotal-label">Subtotal</div>
                                 <div class="subtotal-val">£{{ number_format($subtotal, 2) }}</div>
                             </div>
-                            <a href="/cart/remove/{{ $item['id'] }}" class="co-remove-btn">Remove ✕</a>
+                            <a href="{{ url('/cart/remove/'.$cartKey) }}" class="co-remove-btn">Remove ✕</a>
                         </div>
                     </div>
 
@@ -821,7 +822,7 @@
                     <div class="ot-grid">
                         @if($restaurant->dine_in)
                         <label class="ot-label" id="ot-dinein">
-                            <input type="radio" name="order_type" value="dine_in" required>
+                            <input type="radio" name="order_type" value="dine_in">
                             <div class="ot-icon">🍽️</div>
                             <div>
                                 <div class="ot-title">Dine In</div>
@@ -833,7 +834,7 @@
 
                         @if($restaurant->takeaway)
                             <label class="ot-label" id="ot-takeaway">
-                                <input type="radio" name="order_type" value="takeaway" required>
+                                <input type="radio" name="order_type" value="takeaway">
                                 <div class="ot-icon">🥡</div>
                                 <div>
                                     <div class="ot-title">Takeaway</div>
@@ -845,7 +846,7 @@
 
                         @if($restaurant->home_delivery)
                         <label class="ot-label" id="ot-delivery">
-                            <input type="radio" name="order_type" value="delivery" required>
+                            <input type="radio" name="order_type" value="delivery">
                             <div class="ot-icon">🚚</div>
                             <div>
                                 <div class="ot-title">Home Delivery</div>
@@ -857,22 +858,7 @@
                     </div>
 
                     <!-- DELIVERY FIELDS -->
-                    {{-- <div id="deliveryFields" class="delivery-fields co-hidden">
-                        <div class="section-label">Delivery Details</div>
-                        <div class="co-input-group">
-                            <label for="address">Full Delivery Address</label>
-                            <textarea id="address" name="address" class="co-textarea"
-                                placeholder="House no., Street, Area, City..."></textarea>
-                        </div>
-                        <div class="co-input-group">
-                            <label for="pincode">Pin Code</label>
-                            <input type="text" id="pincode" name="pincode" class="co-input"
-                                placeholder="e.g. SW1A 1AA"
-                                inputmode="text"
-                                autocomplete="postal-code">
-                        </div>
-                    </div> --}}
-
+                    
                         @auth
                         @include('front.address.index')
                         @endauth
@@ -883,15 +869,15 @@
 
                 <!-- ── STEP 3: PAYMENT ── -->
                 <div class="co-card">
-                    <div class="co-card-title">
+                    {{-- <div class="co-card-title">
                         <span class="step-num">3</span>
                         Payment Method
-                    </div>
+                    </div> --}}
 
                     <div class="pm-grid">
                         @if($paymentEnabled)
                             <label class="pm-label" id="pm-online">
-                                <input type="radio" name="payment_method" value="online" required>
+                                <input type="radio" name="payment_method"  value="online" required>
                                 <input
                                     type="hidden"
                                     name="restaurant_id"
@@ -959,15 +945,7 @@
                     margin-bottom:16px;
                 ">
 
-                    <div style="
-                        font-size:12px;
-                        font-weight:700;
-                        color:#C25A2A;
-                        text-transform:uppercase;
-                        margin-bottom:6px;
-                    ">
-                        Returning Customer Offer
-                    </div>
+                    
 
                     <div style="
                         font-size:15px;
@@ -1016,16 +994,37 @@
                         <div id="couponMessage" style="margin-top:12px;"></div>
 
                     </div>
-                    <div class="summary-title">Order Summary</div>
+                    <div class="co-card mb-4">
 
-                    <!-- Item list -->
-                    {{-- @foreach($cart as $item)
-                    @php $subtotal = $item['subtotal'] ?? ($item['price'] * $item['quantity']); @endphp
-                    <div class="summary-item">
-                        <span class="si-name">{{ $item['name'] }} <span class="si-qty">× {{ $item['quantity'] }}</span></span>
-                        <span class="si-price">£{{ number_format($subtotal, 2) }}</span>
+                        <div class="co-card-title">
+                            <span class="step-num">🎁</span>
+                            Apply Gift Card
+                        </div>
+
+                        <div style="display:flex;gap:10px;">
+
+                            <input
+                                type="text"
+                                id="gift_card_code"
+                                class="co-input"
+                                placeholder="Enter Gift Card Code">
+
+                            <button
+                                type="button"
+                                id="applyGiftCard"
+                                class="co-place-btn"
+                                style="width:160px;padding:12px;">
+
+                                Apply
+
+                            </button>
+
+                        </div>
+
+                        <div id="giftCardMessage" style="margin-top:12px;"></div>
+
                     </div>
-                    @endforeach --}}
+                    <div class="summary-title">Order Summary</div>
 
                     @foreach($cart as $item)
 
@@ -1084,9 +1083,6 @@
                         <span class="sr-value">£{{ number_format($originalTotal, 2) }}</span>
                     </div>
 
-                    
-
-
                     @if(isset($orderOffer) && $orderOffer)
 
                         <div class="summary-row">
@@ -1107,39 +1103,12 @@
 
                     @endif
 
-                    {{-- @if($discount > 0)
-                    <div class="summary-row">
-                        <span class="sr-label" style="color:#16A34A;">🏷️ Discount Saved</span>
-                        <span class="sr-value green">− £{{ number_format($discount, 2) }}</span>
-                    </div>
-                    @endif --}}
-
-                    {{-- <div class="summary-row">
-                        <span class="sr-label">Delivery</span>
-                        <span class="sr-value free">Free</span>
-                    </div> --}}
-                    {{-- <div class="summary-row">
-                        <span class="sr-label">Service Charge</span>
-                        <span class="sr-value">
-                            £{{ number_format($serviceCharge, 2) }}
-                        </span>
-                    </div> --}}
-
-                    {{-- <div class="summary-row">
-                        <span class="sr-label">Delivery Charge</span>
-                        <span class="sr-value">
-                            £{{ number_format($deliveryCharge, 2) }}
-                        </span>
-                    </div> --}}
-                    <div class="summary-row">
+                    <div class="summary-row" id="deliveryChargeRow">
                         <span class="sr-label">Delivery Charge</span>
                         <span class="sr-value" id="deliveryChargeText">
                             £0.00
                         </span>
                     </div>
-
-                    
-
 
                     <input type="hidden" id="delivery_charge" name="delivery_charge" value="0">
 
@@ -1161,37 +1130,47 @@
                         id="cartSubtotal"
                         value="{{ $finalTotal }}"
                     >
+                    <input type="hidden" id="couponIdHidden" name="coupon_id">
+                    <input type="hidden" id="couponCodeHidden" name="coupon_code">
+                    <input type="hidden" id="couponDiscountHidden" name="coupon_discount" value="0">
+                    <input type="hidden" id="giftCardIdHidden" name="gift_card_id">
 
-                    
+                    <input type="hidden" id="giftCardCodeHidden" name="gift_card_code">
 
-                    {{-- <div class="summary-row">
-                        <span class="sr-label">Hyst Charge</span>
-                        <span class="sr-value">
-                            £{{ number_format($hystCharge, 2) }}
-                        </span>
-                    </div> --}}
+                    <input type="hidden" id="giftCardAmountHidden" name="gift_card_amount" value="0">
 
                     <div class="summary-row">
-                        <span class="sr-label">Hyst Charge</span>
+                        <span class="sr-label">Operation Charge</span>
                         <span class="sr-value" id="hystChargeText">
                             £0.00
                         </span>
                     </div>
 
-                    @if($couponDiscount>0)
-                    <hr class="summary-divider">
-
-                    <div class="summary-row">
+                    <div class="summary-row" id="couponRow" style="display:none;">
                         <span class="sr-label">
                             Coupon Discount
                         </span>
 
-                        <span class="sr-value green">
-                            -£{{ number_format($couponDiscount,2) }}
+                        <span class="sr-value green" id="couponDiscountText">
+                            -£0.00
                         </span>
                     </div>
 
-                    @endif
+                    <div class="summary-row" id="giftCardRow" style="display:none;">
+
+                        <span class="sr-label">
+                            Gift Card
+                        </span>
+
+                        <span
+                            class="sr-value green"
+                            id="giftCardDiscountText">
+
+                            -£0.00
+
+                        </span>
+
+                    </div>
 
                     <hr class="summary-divider">
                     
@@ -1207,11 +1186,6 @@
                         </div>
                     </div>
 
-                    {{-- @if($discount > 0)
-                    <div class="saving-banner">
-                        🎉 You're saving £{{ number_format($discount, 2) }} on this order!
-                    </div>
-                    @endif --}}
                     @if(isset($orderOffer) && $orderOffer)
                     <div class="saving-banner">
                         🎉 You're saving £{{ number_format($orderOfferDiscount ?? 0, 2) }} on this order!
@@ -1255,110 +1229,276 @@
 </div>
 
 <script>
-(function () {
-    /* ── ORDER TYPE ── */
-    document.querySelectorAll('input[name="order_type"]').forEach(function(radio) {
-        radio.addEventListener('change', function () {
-            document.querySelectorAll('.ot-label').forEach(function(l) { l.classList.remove('checked'); });
-            this.closest('.ot-label').classList.add('checked');
+    (function () {
+        /* ── ORDER TYPE ── */
+        document.querySelectorAll('input[name="order_type"]').forEach(function(radio) {
+            radio.addEventListener('change', function () {
+                document.querySelectorAll('.ot-label').forEach(function(l) { l.classList.remove('checked'); });
+                this.closest('.ot-label').classList.add('checked');
 
-            var df   = document.getElementById('deliveryFields');
-            var addr = document.getElementById('address');
-            var pin  = document.getElementById('pincode');
+                var df   = document.getElementById('deliveryFields');
+                var addr = document.getElementById('address');
+                var pin  = document.getElementById('pincode');
+                var deliveryRow = document.getElementById('deliveryChargeRow');
 
-            if (this.value === 'delivery') {
-                df.classList.remove('co-hidden');
-                addr.required = true;
-                pin.required  = true;
+                if (this.value === 'delivery') {
+                    df.classList.remove('co-hidden');
+                    deliveryRow.style.display = "flex";
+                    addr.required = true;
+                    pin.required  = true;
+                } else {
+                    df.classList.add('co-hidden');
+                    deliveryRow.style.display = "none";
+                    addr.required = false;
+                    pin.required  = false;
+                }
+            });
+        });
+
+        /* ── PAYMENT METHOD ── */
+        document.querySelectorAll('input[name="payment_method"]').forEach(function(radio) {
+            radio.addEventListener('change', function () {
+                document.querySelectorAll('.pm-label').forEach(function(l) { l.classList.remove('checked'); });
+                this.closest('.pm-label').classList.add('checked');
+
+                var pf    = document.getElementById('phoneField');
+                var phone = document.getElementById('phone');
+
+                if (this.value === 'Cash On Delivery') {
+                    pf.classList.remove('co-hidden');
+                    phone.required = true;
+                } else {
+                    pf.classList.add('co-hidden');
+                    phone.required = false;
+                }
+            });
+        });
+
+        /* ── FORM SUBMIT: route based on payment ── */
+        document.getElementById('checkoutForm').addEventListener('submit', function (e) {
+
+            const orderType = document.querySelector('input[name="order_type"]:checked');
+            const uberQuoteId = document.getElementById('uber_quote_id').value;
+
+            if (!orderType) {
+                e.preventDefault();
+
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Order Type Required',
+                    text: 'Please select an order type.',
+                    confirmButtonColor: '#E63946',
+                    confirmButtonText: 'OK'
+                });
+
+                return;
+            }
+
+            if (orderType.value === 'delivery' && !uberQuoteId && !document.getElementById('address').value) {
+                e.preventDefault();
+
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Delivery Address Required',
+                    text: 'Please select or add a valid delivery address.',
+                    confirmButtonColor: '#E63946',
+                    confirmButtonText: 'OK'
+                });
+
+                return;
+            }
+
+            var pm = document.querySelector('input[name="payment_method"]:checked');
+            if (pm && pm.value === 'online') {
+                e.preventDefault();
+                this.action = "{{ route('payment.pay') }}";
+                this.submit();
             } else {
-                df.classList.add('co-hidden');
-                addr.required = false;
-                pin.required  = false;
+                this.action = '/place-order';
             }
         });
-    });
 
-    /* ── PAYMENT METHOD ── */
-    document.querySelectorAll('input[name="payment_method"]').forEach(function(radio) {
-        radio.addEventListener('change', function () {
-            document.querySelectorAll('.pm-label').forEach(function(l) { l.classList.remove('checked'); });
-            this.closest('.pm-label').classList.add('checked');
+        // Select Online Payment by default
+        const defaultPayment = document.querySelector(
+            'input[name="payment_method"][value="online"]'
+        );
 
-            var pf    = document.getElementById('phoneField');
-            var phone = document.getElementById('phone');
-
-            if (this.value === 'Cash On Delivery') {
-                pf.classList.remove('co-hidden');
-                phone.required = true;
-            } else {
-                pf.classList.add('co-hidden');
-                phone.required = false;
-            }
-        });
-    });
-
-    /* ── FORM SUBMIT: route based on payment ── */
-    document.getElementById('checkoutForm').addEventListener('submit', function (e) {
-        var pm = document.querySelector('input[name="payment_method"]:checked');
-        if (pm && pm.value === 'online') {
-            e.preventDefault();
-            this.action = "{{ route('payment.pay') }}";
-            this.submit();
-        } else {
-            this.action = '/place-order';
+        if (defaultPayment) {
+            defaultPayment.checked = true;
+            defaultPayment.dispatchEvent(new Event('change'));
         }
-    });
 
-    /* ── HIDE MOBILE FOOTER when no cart items ── */
-    @if(count($cart) === 0)
-    var mf = document.getElementById('mobileFooter');
-    if (mf) mf.style.display = 'none';
-    @endif
-})();
+        /* ── HIDE MOBILE FOOTER when no cart items ── */
+        @if(count($cart) === 0)
+        var mf = document.getElementById('mobileFooter');
+        if (mf) mf.style.display = 'none';
+        @endif
+    })();
 </script>
 
 <script>
 
-document.getElementById('applyCoupon').onclick=function(){
+    let couponDiscount = 0;
 
-    fetch("{{ route('coupon.apply') }}",{
+    document.getElementById('applyCoupon').onclick = function () {
 
-        method:"POST",
+        fetch("{{ route('coupon.apply') }}", {
 
-        headers:{
-            "Content-Type":"application/json",
-            "X-CSRF-TOKEN":"{{ csrf_token() }}"
-        },
+            method: "POST",
 
-        body:JSON.stringify({
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+            },
 
-            code:document.getElementById("coupon_code").value
+            body: JSON.stringify({
+
+                code: document.getElementById('coupon_code').value,
+                restaurant_id: "{{ $restaurant->id }}"
+
+            })
 
         })
 
-    })
+        .then(r => r.json())
 
-    .then(r=>r.json())
+        .then(res => {
 
-    .then(res=>{
+            if (!res.success) {
 
-        if(res.success){
+                couponDiscount = 0;
 
-            document.getElementById("couponMessage").innerHTML=
-                "<span style='color:green'>Coupon Applied</span>";
+                document.getElementById('couponMessage').innerHTML =
+                    "<span style='color:red'>" + res.message + "</span>";
 
-            location.reload();
+                document.getElementById("couponRow").style.display = "none";
 
-        }else{
+                updateGrandTotal();
 
-            document.getElementById("couponMessage").innerHTML=
-                "<span style='color:red'>"+res.message+"</span>";
+                return;
+            }
 
-        }
+            couponDiscount = parseFloat(res.discount);
 
-    });
+            document.getElementById('couponMessage').innerHTML =
+                "<span style='color:green'>Coupon Applied Successfully</span>";
 
-};
+            document.getElementById("couponRow").style.display = "flex";
+
+            document.getElementById("couponDiscountText").innerHTML =
+                "-£" + couponDiscount.toFixed(2);
+
+            document.getElementById("couponCodeHidden").value =
+                res.coupon;
+
+            document.getElementById("couponIdHidden").value = res.coupon_id;
+
+            document.getElementById("couponDiscountHidden").value =
+                couponDiscount;
+
+            updateGrandTotal();
+
+        });
+
+    };
+
+    let giftCardDiscount = 0;
+
+    document.getElementById("applyGiftCard").onclick = function () {
+
+        fetch("{{ route('gift-card.apply') }}", {
+
+            method: "POST",
+
+            headers: {
+
+                "Content-Type":"application/json",
+
+                "X-CSRF-TOKEN":"{{ csrf_token() }}"
+
+            },
+
+            body: JSON.stringify({
+
+                code: document.getElementById("gift_card_code").value
+
+            })
+
+        })
+
+        .then(r=>r.json())
+
+        .then(res=>{
+
+            if(!res.success){
+
+                giftCardDiscount = 0;
+
+                document.getElementById("giftCardRow").style.display="none";
+
+                document.getElementById("giftCardMessage").innerHTML =
+                    "<span style='color:red'>"+res.message+"</span>";
+
+                updateGrandTotal();
+
+                return;
+            }
+
+            giftCardDiscount = parseFloat(res.discount);
+
+            document.getElementById("giftCardMessage").innerHTML =
+                "<span style='color:green'>Gift Card Applied Successfully</span>";
+
+            document.getElementById("giftCardRow").style.display="flex";
+
+            document.getElementById("giftCardDiscountText").innerHTML =
+                "-£"+giftCardDiscount.toFixed(2);
+
+            document.getElementById("giftCardIdHidden").value =
+                res.gift_card_id;
+
+            document.getElementById("giftCardCodeHidden").value =
+                res.gift_card;
+
+            document.getElementById("giftCardAmountHidden").value =
+                giftCardDiscount;
+
+            updateGrandTotal();
+
+        });
+
+    };
+
+    function updateGrandTotal() {
+
+        let subtotal = parseFloat(document.getElementById("cartSubtotal").value);
+
+        let delivery = parseFloat(document.getElementById("delivery_charge").value || 0);
+
+        let hyst = parseFloat(document.getElementById("hyst_charge").value || 0);
+
+        // Coupon applies BEFORE delivery charge
+        let total = subtotal - couponDiscount;
+
+        
+
+        total -= giftCardDiscount;
+
+        if (total < 0)
+            total = 0;
+
+        // Add charges after coupon
+        total += delivery + hyst;
+
+        document.getElementById("finalTotalText").innerHTML =
+            "£" + total.toFixed(2);
+
+        document.getElementById("mobileFinalTotalText").innerHTML =
+            "£" + total.toFixed(2);
+
+        document.querySelector("input[name='amount']").value =
+            total.toFixed(2);
+    }
 
 </script>
 

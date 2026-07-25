@@ -216,6 +216,17 @@
                 <span>Users</span>
             </a>
 
+            <a href="/admin/gift-cards"
+                class="sidebar-item {{ str_contains($current,'admin/gift-cards') ? 'active' : '' }}">
+
+                    <div class="sidebar-icon">
+                        <i data-lucide="layers-3"></i>
+                    </div>
+
+                    <span>Gift Cards</span>
+
+            </a>
+
             <a href="/admin/marketing-banner-categories"
                 class="sidebar-item {{ str_contains($current,'admin/marketing-banner-categories') ? 'active' : '' }}">
 
@@ -270,6 +281,14 @@
 
 
         </a>
+
+         <a href="/admin/complaint"
+            class="sidebar-item {{ str_contains($current,'admin/complaint') ? 'active' : '' }}">
+                <div class="sidebar-icon">
+                    <i data-lucide="clipboard-list"></i>
+                </div>
+                <span>Complaints</span>
+            </a>
 
             
 
@@ -388,6 +407,14 @@
 
 
         </a>
+
+        <a href="/restaurant/complaint"
+            class="sidebar-item {{ str_contains($current,'restaurant/complaint') ? 'active' : '' }}">
+                <div class="sidebar-icon">
+                    <i data-lucide="clipboard-list"></i>
+                </div>
+                <span>Complaints</span>
+            </a>
        
 
             {{-- <a href="/restaurant/privacy-policy"
@@ -434,6 +461,56 @@
                 </div>
                 <span>Products</span>
             </a>
+
+        @endif
+
+        @if(auth()->user()->role=='ambassador')
+
+                <a href="/ambassador/dashboard"
+                class="sidebar-item {{ str_contains($current,'ambassador/dashboard') ? 'active' : '' }}">
+
+                <div class="sidebar-icon">
+
+                <i data-lucide="layout-dashboard"></i>
+
+                </div>
+
+                <span>Dashboard</span>
+
+                </a>
+
+                <a href="/ambassador/restaurants"
+                class="sidebar-item">
+
+                <div class="sidebar-icon">
+
+                <i data-lucide="store"></i>
+
+                </div>
+
+                <span>Restaurants</span>
+
+                </a>
+
+
+                <a href="/ambassador/profile"
+                class="sidebar-item">
+
+                <div class="sidebar-icon">
+
+                <i data-lucide="user"></i>
+
+                </div>
+
+                <span>My Profile</span>
+
+                </a>
+                {{-- <a href="{{ route('ambassador.profile.index') }}"  class="sidebar-item">
+                    <i class="fas fa-user"></i>
+                    <span>My Profile</span>
+                </a> --}}
+
+                
 
         @endif
 

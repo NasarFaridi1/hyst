@@ -149,7 +149,8 @@ class CouponController extends Controller
     public function apply(Request $request)
     {
         $request->validate([
-            'code' => 'required'
+            'code' => 'required',
+            'restaurant_id' => 'required'
         ]);
 
         $cart = session('cart', []);
@@ -161,64 +162,52 @@ class CouponController extends Controller
             ]);
         }
 
-        $restaurantId = Product::find(reset($cart)['id'])->restaurant_id;
-
         $subtotal = collect($cart)->sum(function ($item) {
             return ($item['base_price'] + ($item['addon_total'] ?? 0))
                 * $item['quantity'];
         });
 
-        $coupon = Coupon::where('restaurant_id', $restaurantId)
-            ->where('code', strtoupper($request->code))
-            ->where('status',1)
+        $coupon = Coupon::active()
+            ->where('restaurant_id', $request->restaurant_id)
+            ->where('code', strtoupper(trim($request->code)))
             ->first();
 
         if (!$coupon) {
             return response()->json([
-                'success'=>false,
-                'message'=>'Invalid coupon.'
-            ]);
-        }
-
-        if ($coupon->expires_at && now()->gt($coupon->expires_at)) {
-            return response()->json([
-                'success'=>false,
-                'message'=>'Coupon expired.'
+                'success' => false,
+                'message' => 'Invalid coupon.'
             ]);
         }
 
         if ($subtotal < $coupon->min_order_amount) {
             return response()->json([
-                'success'=>false,
-                'message'=>'Minimum order amount is £'.$coupon->min_order_amount
+                'success' => false,
+                'message' => 'Minimum order amount is £'.number_format($coupon->min_order_amount,2)
             ]);
         }
 
-        if ($coupon->type=='percentage') {
+        if ($coupon->type == 'percentage') {
 
-            $discount = ($subtotal * $coupon->value)/100;
+            $discount = ($subtotal * $coupon->value) / 100;
 
-            if($coupon->max_discount){
-                $discount=min($discount,$coupon->max_discount);
+            if ($coupon->max_discount) {
+                $discount = min($discount, $coupon->max_discount);
             }
 
         } else {
 
-            $discount=$coupon->value;
-
+            $discount = $coupon->value;
         }
 
-        session([
-            'coupon'=>[
-                'id'=>$coupon->id,
-                'discount'=>$discount
-            ]
-        ]);
+        $discount = min($discount, $subtotal);
 
         return response()->json([
-            'success'=>true,
-            'discount'=>$discount,
-            'final'=>$subtotal-$discount
+            'success' => true,
+            'coupon_id' => $coupon->id,
+            'discount' => number_format(floor($discount * 100) / 100, 2, '.', ''),
+            'subtotal' => number_format(floor($subtotal * 100) / 100, 2, '.', ''),
+            'coupon' => $coupon->code,
+            'type' => $coupon->type
         ]);
     }
 }

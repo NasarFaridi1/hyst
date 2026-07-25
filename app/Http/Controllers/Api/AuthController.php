@@ -39,7 +39,7 @@ class AuthController extends Controller
         if (str_ends_with($email, '@hyst.uk')) {
             return response()->json([
                 'status' => false,
-                'message' => 'Registration with @hyst.uk email addresses is not allowed.'
+                'message' => 'Registration with email addresses is not allowed.'
             ], 422);
         }
 
@@ -258,6 +258,7 @@ class AuthController extends Controller
     }
 
 
+
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -301,17 +302,14 @@ class AuthController extends Controller
             ], 401);
         }
 
-        // Optional: remove previous tokens
-        // Generate API Token
         $plainToken = bin2hex(random_bytes(32));
 
-        // Store hashed token
         $user->api_token = hash('sha256', $plainToken);
         $user->save();
 
         return response()->json([
             'status' => true,
-            'message' => 'Login successful.',
+            'message' => 'Login successful. Welcome back! Enjoy your delicious food.',
             'token' => $plainToken,
             'token_type' => 'Bearer',
             'user' => $user,

@@ -30,7 +30,7 @@ class MarketingBannerController extends Controller
 
         return response()->json([
             'status' => true,
-            'message' => 'Marketing banners fetched successfully.',
+            'message' => 'Marketing Banners fetched successfully.',
             'data' => [
                 'categories' => $categories,
                 'banners' => $banners

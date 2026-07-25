@@ -587,7 +587,7 @@
 
     .map-search-results{
         position:absolute;left:0;right:0;top:100%;background:#fff;border:1px solid #F0F0EC;
-        border-radius:10px;margin-top:4px;max-height:220px;overflow-y:auto;z-index:20;
+        border-radius:10px;margin-top:4px;max-height:220px;overflow-y:auto;z-index:999;
         box-shadow:0 6px 18px rgba(0,0,0,.12);display:none;
     }
     .map-search-results.open{display:block;}

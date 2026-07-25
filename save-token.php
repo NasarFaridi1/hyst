@@ -16,7 +16,7 @@ $client->setRedirectUri('https://hyst.uk/oauth2callback');
 $client->addScope(Drive::DRIVE);
 
 $token = $client->fetchAccessTokenWithAuthCode(
-    '4/0AXEQxIBjlrWv6Xt3t6slqI6R_GrAxNrbDMlV936BUUP8Hf_AQ4VMq0ujW5HCR22psIJ8Rw'
+    '4/0AXEQxIBxKnjpnYWBHYdN8_HzdMPV-qGU5dZn9KXBtX21MXPhyRXGeIlTHlANGpvC2gh35Q'
 );
 
 echo "<pre>";

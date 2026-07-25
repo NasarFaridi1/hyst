@@ -69,7 +69,10 @@ class Order extends Model
         'guest_latitude',
         'guest_longitude',
         'coupon_id',
-        'coupon_discount'
+        'coupon_discount',
+        'gift_card_id',
+        'gift_card_code',
+        'gift_card_amount',
         
     ];
 
@@ -105,4 +108,14 @@ class Order extends Model
     {
         return $this->belongsTo(Coupon::class);
     }
+
+    public function giftCard()
+    {
+        return $this->belongsTo(GiftCard::class);
+    }
+    // Order.php
+public function complaints()
+{
+    return $this->hasMany(Complaint::class);
+}
 }

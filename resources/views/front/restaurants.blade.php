@@ -390,7 +390,7 @@
                 <i data-lucide="star" style="width:14px; height:14px;"></i> Top Rated 4.5+
             </div>
             <div class="filter-chip" data-filter="offers">
-                <i data-lucide="tag" style="width:14px; height:14px;"></i> Has Offers
+                <i data-lucide="tag" style="width:14px; height:14px;"></i> Offers
             </div>
         </div>
 

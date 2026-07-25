@@ -563,28 +563,16 @@
         <div>
 
             {{-- HEADER --}}
-            <div class="od-card">
+            <div class="">
                 <div class="od-header">
                     <div>
-                        <div class="od-title">Order Details</div>
-                        <div class="od-sub">ORDER #{{ $order->id }}</div>
+                        {{-- <div class="od-title">Order Details</div> --}}
+                        <div class="od-title">ORDER #{{ $order->id }}</div>
                     </div>
                     {{-- <a href="/my-orders" class="back-btn">← Back</a> --}}
                     <div style="display:flex;gap:10px;flex-wrap:wrap;">
 
-                        @if($order->invoice)
-
-                            <a href="{{ route('user.invoice.show',$order->id) }}"
-                                class="back-btn"
-                                style="
-                                    background:#2563EB;
-                                ">
-
-                                👁 Invoice
-
-                            </a>
-
-                        @endif
+                        
 
                         <a href="/my-orders"
                             class="back-btn">
@@ -596,6 +584,119 @@
                     </div>
                 </div>
             </div>
+
+            {{-- ORDER MESSAGES --}}
+            @if($messages->count())
+                <div class="od-card" style="margin-bottom:20px;">
+
+                    <div class="items-header"
+                        style="
+                            display:flex;
+                            justify-content:space-between;
+                            align-items:center;
+                        ">
+
+                        <h2>Messages</h2>
+
+                        
+                            <span style="
+                                background:#EFF6FF;
+                                color:#2563EB;
+                                padding:6px 12px;
+                                border-radius:999px;
+                                font-size:12px;
+                                font-weight:700;
+                            ">
+                                {{ $messages->count() }} Messages
+                            </span>
+                        
+
+                    </div>
+
+                    <div style="padding:22px;">
+
+                        @forelse($messages as $message)
+
+                            <div style="
+                                margin-bottom:18px;
+                                display:flex;
+                                {{ $message->sender_id == auth()->id() ? 'justify-content:flex-end;' : 'justify-content:flex-start;' }}
+                            ">
+
+                                <div style="
+                                    max-width:80%;
+                                    padding:14px 16px;
+                                    border-radius:18px;
+                                    {{ $message->sender_id == auth()->id()
+                                        ? 'background:#2563EB; color:#fff; border-bottom-right-radius:4px;'
+                                        : 'background:#F3F4F6; color:#111827; border-bottom-left-radius:4px;'
+                                    }}
+                                ">
+
+                                    <div style="
+                                        font-size:13px;
+                                        line-height:1.7;
+                                        margin-bottom:8px;
+                                        word-break:break-word;
+                                    ">
+
+                                        {{ $message->message }}
+
+                                    </div>
+
+                                    <div style="
+                                        font-size:11px;
+                                        opacity:.7;
+                                        text-align:right;
+                                    ">
+
+                                        {{ $message->created_at->format('d M Y h:i A') }}
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        @empty
+
+                            <div style="
+                                text-align:center;
+                                padding:30px 20px;
+                            ">
+
+                                <div style="
+                                    font-size:42px;
+                                    margin-bottom:10px;
+                                ">
+                                    💬
+                                </div>
+
+                                <h3 style="
+                                    font-size:16px;
+                                    font-weight:700;
+                                    color:#111827;
+                                    margin-bottom:6px;
+                                ">
+                                    No Messages Yet
+                                </h3>
+
+                                <p style="
+                                    color:#6B7280;
+                                    font-size:13px;
+                                    margin:0;
+                                ">
+                                    Restaurant messages about your order will appear here.
+                                </p>
+
+                            </div>
+
+                        @endforelse
+
+                    </div>
+
+                </div>
+            @endif
 
             {{-- TRACKING --}}
             {{-- @php
@@ -676,10 +777,32 @@
             
             
  
-            @if ($order->order_type == 'delivery')
+            @if ($order->order_type == 'delivery' && $order->delivery_provider == 'uber')
                 <div class="od-card">
                     <div class="od-tracking">
-                        <h2>Delivery Tracking</h2>
+                        <div style="
+                            display:flex;
+                            justify-content:space-between;
+                            align-items:center;
+                            margin-bottom:20px;
+                            
+                            ">
+                            <h2>Delivery Tracking</h2>
+                            @if($order->invoice)
+
+                                <a href="{{ route('user.invoice.show',$order->id) }}"
+                                    class="back-btn"
+                                    style="
+                                        background:#2563EB;
+                                    ">
+
+                                    👁 Invoice
+
+                                </a>
+
+                            @endif
+                        </div>
+                        
 
                         <div class="track-bar-wrap">
                             <div class="track-line-bg"></div>
@@ -783,9 +906,30 @@
             @else
                 <div class="order-flow-card">
 
-                    <h3 class="order-flow-title">
-                        Order Progress
-                    </h3>
+                    <div style="
+                        display:flex;
+                        justify-content:space-between;
+                        align-items:center;
+                        margin-bottom:20px;
+                        
+                        ">
+                        <h3 class="order-flow-title" style="margin:0;">
+                            Order Progress
+                        </h3>
+                        @if($order->invoice)
+
+                            <a href="{{ route('user.invoice.show',$order->id) }}"
+                                class="back-btn"
+                                style="
+                                    background:#2563EB;
+                                ">
+
+                                👁 Invoice
+
+                            </a>
+
+                        @endif
+                    </div>
 
                     <div class="order-flow-wrapper">
 
@@ -843,6 +987,7 @@
                         if(document.getElementById('flowStatusBadge'))
                         {
                             updateOrderFlow(data.status);
+                            updateCancelSection(data);
                         }
 
                         if(document.querySelector('.od-tracking'))
@@ -1060,6 +1205,62 @@
                     badgeWrap.innerHTML = badge;
                 }
 
+
+                function updateCancelSection(data)
+                {
+                    const container = document.getElementById('cancelOrderContainer');
+
+                    if (!container) return;
+
+                    // Hide completely after completion
+                    if (data.status === 'completed') {
+                        container.innerHTML = '';
+                        return;
+                    }
+
+                    // Show cancelled card
+                    if (data.status === 'cancelled') {
+
+                        container.innerHTML = `
+                            <div class="od-card" style="margin-bottom:20px;">
+                                <div class="od-info-body">
+
+                                    <h3 style="font-size:18px;font-weight:700;color:#DC2626;margin-bottom:8px;">
+                                        Order Cancelled
+                                    </h3>
+
+                                    <p style="font-size:13px;color:#6B7280;margin-bottom:18px;">
+                                        This order has been cancelled.
+                                    </p>
+
+                                    <div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:12px;padding:16px;">
+                                        <div style="font-size:13px;font-weight:700;color:#991B1B;margin-bottom:8px;">
+                                            Cancellation Reason
+                                        </div>
+
+                                        <div style="font-size:14px;color:#374151;">
+                                            ${data.cancel_reason ?? 'No reason provided.'}
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        `;
+
+                        return;
+                    }
+
+                    // Hide cancel button once pickup starts
+                    if (
+                        data.uber_delivery_status === 'pickup' ||
+                        data.uber_delivery_status === 'pickup_complete' ||
+                        data.uber_delivery_status === 'dropoff' ||
+                        data.uber_delivery_status === 'delivered'
+                    ) {
+                        container.innerHTML = '';
+                    }
+                }
+
                 /*
                 |--------------------------------------------------------------------------
                 | INITIAL LOAD
@@ -1075,6 +1276,10 @@
                 */
 
                 setInterval(fetchOrderStatus, 5000);
+
+
+
+
 
             </script>
 
@@ -1593,147 +1798,150 @@
             </div>
 
             {{-- CANCEL ORDER --}}
-            @if(
-                $order->status !== 'completed' &&
-                $order->status !== 'cancelled'
-            )
+            <div id="cancelOrderContainer">
+                @if(
+                    $order->status !== 'completed' &&
+                    $order->status !== 'cancelled'
+                )
 
-                <div class="od-card" style="margin-bottom:20px;">
+                    <div class="od-card" style="margin-bottom:20px;">
 
-                    <div class="od-info-body">
+                        <div class="od-info-body">
 
-                        <div style="
-                            display:flex;
-                            justify-content:space-between;
-                            align-items:center;
-                            gap:20px;
-                            flex-wrap:wrap;
-                        ">
+                            <div style="
+                                display:flex;
+                                justify-content:space-between;
+                                align-items:center;
+                                gap:20px;
+                                flex-wrap:wrap;
+                            ">
+
+                                <div>
+
+                                    <h3 style="
+                                        font-size:18px;
+                                        font-weight:700;
+                                        color:#111827;
+                                        margin-bottom:8px;
+                                    ">
+                                        Cancel Order
+                                    </h3>
+
+                                    <p style="
+                                        font-size:13px;
+                                        color:#6B7280;
+                                        line-height:1.7;
+                                        margin:0 0 14px;
+                                        max-width:620px;
+                                    ">
+
+                                        You can cancel this order only before pickup starts.
+                                        Once the driver picks up your order from the restaurant,
+                                        cancellation will no longer be available.
+
+                                    </p>
+
+                                    <div style="
+                                        background:#FEF2F2;
+                                        border:1px solid #FECACA;
+                                        color:#B91C1C;
+                                        padding:12px 14px;
+                                        border-radius:14px;
+                                        font-size:13px;
+                                        font-weight:600;
+                                        line-height:1.6;
+                                    ">
+
+                                        ⚠️ Cancellation is allowed only before pickup stage.
+
+                                    </div>
+
+                                </div>
+
+                                <form method="POST"
+                                    action="/order/cancel/{{ $order->id }}"
+                                    onsubmit="return confirm('Are you sure you want to cancel this order?')">
+
+                                    @csrf
+
+                                    <button type="submit"
+                                        style="
+                                            background:#DC2626;
+                                            color:#fff;
+                                            border:none;
+                                            padding:14px 24px;
+                                            border-radius:14px;
+                                            font-size:14px;
+                                            font-weight:700;
+                                            cursor:pointer;
+                                            white-space:nowrap;
+                                            transition:.2s;
+                                        "
+                                        onmouseover="this.style.background='#B91C1C'"
+                                        onmouseout="this.style.background='#DC2626'">
+
+                                        Cancel Order
+
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                @elseif($order->status === 'cancelled' && $order->cancel_reason !== null)
+
+                    <div class="od-card" style="margin-bottom:20px;">
+
+                        <div class="od-info-body">
 
                             <div>
 
                                 <h3 style="
                                     font-size:18px;
                                     font-weight:700;
-                                    color:#111827;
+                                    color:#DC2626;
                                     margin-bottom:8px;
                                 ">
-                                    Cancel Order
+                                    Order Cancelled
                                 </h3>
 
                                 <p style="
                                     font-size:13px;
                                     color:#6B7280;
                                     line-height:1.7;
-                                    margin:0 0 14px;
-                                    max-width:620px;
+                                    margin-bottom:18px;
                                 ">
-
-                                    You can cancel this order only before pickup starts.
-                                    Once the driver picks up your order from the restaurant,
-                                    cancellation will no longer be available.
-
+                                    This order has been cancelled.
                                 </p>
 
                                 <div style="
                                     background:#FEF2F2;
                                     border:1px solid #FECACA;
-                                    color:#B91C1C;
-                                    padding:12px 14px;
-                                    border-radius:14px;
-                                    font-size:13px;
-                                    font-weight:600;
-                                    line-height:1.6;
+                                    border-radius:12px;
+                                    padding:16px;
                                 ">
 
-                                    ⚠️ Cancellation is allowed only before pickup stage.
-
-                                </div>
-
-                            </div>
-
-                            <form method="POST"
-                                action="/order/cancel/{{ $order->id }}"
-                                onsubmit="return confirm('Are you sure you want to cancel this order?')">
-
-                                @csrf
-
-                                <button type="submit"
-                                    style="
-                                        background:#DC2626;
-                                        color:#fff;
-                                        border:none;
-                                        padding:14px 24px;
-                                        border-radius:14px;
-                                        font-size:14px;
+                                    <div style="
+                                        font-size:13px;
                                         font-weight:700;
-                                        cursor:pointer;
-                                        white-space:nowrap;
-                                        transition:.2s;
-                                    "
-                                    onmouseover="this.style.background='#B91C1C'"
-                                    onmouseout="this.style.background='#DC2626'">
+                                        color:#991B1B;
+                                        margin-bottom:8px;
+                                    ">
+                                        Cancellation Reason
+                                    </div>
 
-                                    Cancel Order
+                                    <div style="
+                                        font-size:14px;
+                                        color:#374151;
+                                        line-height:1.7;
+                                    ">
+                                        {{ $order->cancel_reason ?? 'No reason provided.' }}
+                                    </div>
 
-                                </button>
-
-                            </form>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            @elseif($order->status === 'cancelled' && $order->cancel_reason !== null)
-
-                <div class="od-card" style="margin-bottom:20px;">
-
-                    <div class="od-info-body">
-
-                        <div>
-
-                            <h3 style="
-                                font-size:18px;
-                                font-weight:700;
-                                color:#DC2626;
-                                margin-bottom:8px;
-                            ">
-                                Order Cancelled
-                            </h3>
-
-                            <p style="
-                                font-size:13px;
-                                color:#6B7280;
-                                line-height:1.7;
-                                margin-bottom:18px;
-                            ">
-                                This order has been cancelled.
-                            </p>
-
-                            <div style="
-                                background:#FEF2F2;
-                                border:1px solid #FECACA;
-                                border-radius:12px;
-                                padding:16px;
-                            ">
-
-                                <div style="
-                                    font-size:13px;
-                                    font-weight:700;
-                                    color:#991B1B;
-                                    margin-bottom:8px;
-                                ">
-                                    Cancellation Reason
-                                </div>
-
-                                <div style="
-                                    font-size:14px;
-                                    color:#374151;
-                                    line-height:1.7;
-                                ">
-                                    {{ $order->cancel_reason ?? 'No reason provided.' }}
                                 </div>
 
                             </div>
@@ -1741,9 +1949,9 @@
                         </div>
 
                     </div>
+                @endif
 
-                </div>
-            @endif
+            </div>
 
             {{-- PAYMENT + DELIVERY --}}
             <div class="od-info-grid" style="margin-bottom:20px;">
@@ -1897,118 +2105,74 @@
             </div>
 
             @endif
+					
+				@if($restaurantEvidence)
 
-            {{-- ORDER MESSAGES --}}
-            <div class="od-card" style="margin-bottom:20px;">
+                    <div class="od-card" style="margin-bottom:20px; overflow:hidden;">
 
-                <div class="items-header"
-                    style="
-                        display:flex;
-                        justify-content:space-between;
-                        align-items:center;
-                    ">
+                        <div class="items-header">
+                            <h2> Restaurant Completion Proof</h2>
+                        </div>
 
-                    <h2>Messages</h2>
+                        <div style="padding:20px;">
 
-                    @if($messages->count())
-                        <span style="
-                            background:#EFF6FF;
-                            color:#2563EB;
-                            padding:6px 12px;
-                            border-radius:999px;
-                            font-size:12px;
-                            font-weight:700;
-                        ">
-                            {{ $messages->count() }} Messages
-                        </span>
-                    @endif
-
-                </div>
-
-                <div style="padding:22px;">
-
-                    @forelse($messages as $message)
-
-                        <div style="
-                            margin-bottom:18px;
-                            display:flex;
-                            {{ $message->sender_id == auth()->id() ? 'justify-content:flex-end;' : 'justify-content:flex-start;' }}
-                        ">
-
+                            <!-- Image Box -->
                             <div style="
-                                max-width:80%;
-                                padding:14px 16px;
-                                border-radius:18px;
-                                {{ $message->sender_id == auth()->id()
-                                    ? 'background:#2563EB; color:#fff; border-bottom-right-radius:4px;'
-                                    : 'background:#F3F4F6; color:#111827; border-bottom-left-radius:4px;'
-                                }}
+                                width:100%;
+                                height:320px;
+                                border-radius:16px;
+                                overflow:hidden;
+                                
+                                
                             ">
 
-                                <div style="
-                                    font-size:13px;
-                                    line-height:1.7;
-                                    margin-bottom:8px;
-                                    word-break:break-word;
+                                <img
+                                    src="{{ asset($restaurantEvidence->photo) }}"
+                                    alt="Restaurant Proof"
+                                    style="
+                                        width:100%;
+                                        height:100%;
+                                        object-fit:cover;
+                                        display:block;
+                                    ">
+
+                            </div>
+
+                            <!-- Description -->
+                            <div style="
+                                margin-top:20px;
+                                background:#F9FAFB;
+                                border:1px solid #E5E7EB;
+                                border-radius:16px;
+                                padding:18px;
+                            ">
+
+                                <h4 style="
+                                    margin:0 0 10px;
+                                    font-size:16px;
+                                    font-weight:700;
+                                    color:#111827;
                                 ">
+                                    Description
+                                </h4>
 
-                                    {{ $message->message }}
-
-                                </div>
-
-                                <div style="
-                                    font-size:11px;
-                                    opacity:.7;
-                                    text-align:right;
+                                <p style="
+                                    margin:0;
+                                    color:#4B5563;
+                                    line-height:1.8;
+                                    font-size:15px;
                                 ">
-
-                                    {{ $message->created_at->format('d M Y h:i A') }}
-
-                                </div>
+                                    {{ $restaurantEvidence->description }}
+                                </p>
 
                             </div>
 
                         </div>
 
-                    @empty
+                    </div>
 
-                        <div style="
-                            text-align:center;
-                            padding:30px 20px;
-                        ">
-
-                            <div style="
-                                font-size:42px;
-                                margin-bottom:10px;
-                            ">
-                                💬
-                            </div>
-
-                            <h3 style="
-                                font-size:16px;
-                                font-weight:700;
-                                color:#111827;
-                                margin-bottom:6px;
-                            ">
-                                No Messages Yet
-                            </h3>
-
-                            <p style="
-                                color:#6B7280;
-                                font-size:13px;
-                                margin:0;
-                            ">
-                                Restaurant messages about your order will appear here.
-                            </p>
-
-                        </div>
-
-                    @endforelse
-
-                </div>
-
-            </div>
-
+				@endif
+					
             {{-- ORDERED ITEMS --}}
             <div class="od-card">
                 <div class="items-header">
@@ -2125,90 +2289,91 @@
 
 {{-- REVIEW MODAL --}}
 @if($order->delivery_status == 'delivered' || $order->status === 'completed' && !$order->review)
-<div id="reviewModal" class="review-modal-bg">
-    <div class="review-modal">
-        <div class="rmodal-header">
-            <div>
-                <h2>Rate Your Restaurant Order</h2>
-                <p>Your feedback helps improve service.</p>
+    <div id="reviewModal" class="review-modal-bg">
+        <div class="review-modal">
+            <div class="rmodal-header">
+                <div>
+                    <h2>Rate Your Restaurant Order</h2>
+                    <p>Your feedback helps improve service.</p>
+                </div>
+                <button onclick="closeReviewModal()" class="rmodal-close">✕</button>
             </div>
-            <button onclick="closeReviewModal()" class="rmodal-close">✕</button>
-        </div>
-        <div class="rmodal-body">
-            <form method="POST" action="/submit-review/{{ $order->id }}">
-                @csrf
-                <div style="margin-bottom:24px;">
-                    <label class="r-label" style="text-align:center; display:block; margin-bottom:16px;">Select Rating</label>
-                    <div class="star-rating">
-                        @for($i = 5; $i >= 1; $i--)
-                            <input type="radio" id="star{{ $i }}" name="rating" value="{{ $i }}" required>
-                            <label for="star{{ $i }}" class="star">★</label>
-                        @endfor
+            <div class="rmodal-body">
+                <form method="POST" action="/submit-review/{{ $order->id }}">
+                    @csrf
+                    <div style="margin-bottom:24px;">
+                        <label class="r-label" style="text-align:center; display:block; margin-bottom:16px;">Select Rating</label>
+                        <div class="star-rating">
+                            @for($i = 5; $i >= 1; $i--)
+                                <input type="radio" id="star{{ $i }}" name="rating" value="{{ $i }}" required>
+                                <label for="star{{ $i }}" class="star">★</label>
+                            @endfor
+                        </div>
+                        <p class="rating-text" id="ratingText">Tap a star to rate</p>
                     </div>
-                    <p class="rating-text" id="ratingText">Tap a star to rate</p>
-                </div>
-                <div style="margin-bottom:20px;">
-                    <label class="r-label">Write Review</label>
-                    <textarea name="review" rows="4" class="r-textarea" placeholder="Tell us about food quality, delivery, packaging..."></textarea>
-                </div>
-                <div class="rmodal-footer">
-                    <button type="button" onclick="closeReviewModal()" class="rmodal-cancel">Cancel</button>
-                    <button type="submit" class="rmodal-submit">Submit Review</button>
-                </div>
-            </form>
+                    <div style="margin-bottom:20px;">
+                        <label class="r-label">Write Review</label>
+                        <textarea name="review" rows="4" class="r-textarea" placeholder="Tell us about food quality, delivery, packaging..."></textarea>
+                    </div>
+                    <div class="rmodal-footer">
+                        <button type="button" onclick="closeReviewModal()" class="rmodal-cancel">Cancel</button>
+                        <button type="submit" class="rmodal-submit">Submit Review</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-</div>
 @endif
 
 <script>
-function openReviewModal() {
-    document.getElementById('reviewModal').style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-}
-function closeReviewModal() {
-    document.getElementById('reviewModal').style.display = 'none';
-    document.body.style.overflow = '';
-}
-
-@if($order->tracking_url)
-function openTracking() {
-    var c = document.getElementById('trackingContainer');
-    var f = document.getElementById('trackingFrame');
-    c.style.display = c.style.display === 'none' ? 'block' : 'none';
-    if(f.src === '') f.src = "{{ $order->tracking_url }}";
-}
-@endif
-
-// Star rating text
-document.addEventListener('DOMContentLoaded', function() {
-    var labels = ['','😞 Poor','🙂 Average','😊 Good','😍 Very Good','🔥 Excellent'];
-    var inputs = document.querySelectorAll('.star-rating input');
-    var text   = document.getElementById('ratingText');
-    if(inputs && text) {
-        inputs.forEach(function(input) {
-            input.addEventListener('change', function() {
-                text.textContent = labels[this.value] || '';
-            });
-        });
+    function openReviewModal() {
+        document.getElementById('reviewModal').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
     }
-});
+    function closeReviewModal() {
+        document.getElementById('reviewModal').style.display = 'none';
+        document.body.style.overflow = '';
+    }
+
+    @if($order->tracking_url)
+    function openTracking() {
+        var c = document.getElementById('trackingContainer');
+        var f = document.getElementById('trackingFrame');
+        c.style.display = c.style.display === 'none' ? 'block' : 'none';
+        if(f.src === '') f.src = "{{ $order->tracking_url }}";
+    }
+    @endif
+
+    // Star rating text
+    document.addEventListener('DOMContentLoaded', function() {
+        var labels = ['','😞 Poor','🙂 Average','😊 Good','😍 Very Good','🔥 Excellent'];
+        var inputs = document.querySelectorAll('.star-rating input');
+        var text   = document.getElementById('ratingText');
+        if(inputs && text) {
+            inputs.forEach(function(input) {
+                input.addEventListener('change', function() {
+                    text.textContent = labels[this.value] || '';
+                });
+            });
+        }
+    });
 </script>
 
 <script>
-function openComplaintsModal()
-{
-    document.getElementById(
-        'complaintsHistoryModal'
-    ).style.display = 'flex';
-}
+    function openComplaintsModal()
+    {
+        document.getElementById(
+            'complaintsHistoryModal'
+        ).style.display = 'flex';
+    }
 
-function closeComplaintsModal()
-{
-    document.getElementById(
-        'complaintsHistoryModal'
-    ).style.display = 'none';
-}
+    function closeComplaintsModal()
+    {
+        document.getElementById(
+            'complaintsHistoryModal'
+        ).style.display = 'none';
+    }
+    
 </script>
 
 @endsection

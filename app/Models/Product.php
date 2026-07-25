@@ -46,6 +46,10 @@ class Product extends Model
             'offer_products'
         );
     }
+        public function ambassador()
+    {
+        return $this->belongsTo(User::class,'ambassador_id');
+    }
      public function allergies()
     {
         return $this->hasMany(ProductAllergy::class);

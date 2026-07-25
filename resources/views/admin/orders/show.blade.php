@@ -48,14 +48,14 @@
             <p class="mb-3">
 
                 <strong>Name:</strong>
-                {{ $order->user->name }}
+                {{ $order->user->name ?? 'N/A' }}
 
             </p>
 
             <p class="mb-3">
 
                 <strong>Email:</strong>
-                {{ $order->user->email }}
+                {{ $order->user->email ?? 'N/A' }}
 
             </p>
 
@@ -76,7 +76,7 @@
             <p class="mb-3">
 
                 <strong>Name:</strong>
-                {{ $order->restaurant->name }}
+                {{ $order->restaurant->name ?? 'N/A' }}
 
             </p>
 
@@ -84,6 +84,8 @@
 
 
 
+		
+		
 
 
         <div class="bg-white rounded-2xl shadow p-8">
@@ -142,7 +144,10 @@
 
     </div>
 
+	
 
+	
+	
 
 
 

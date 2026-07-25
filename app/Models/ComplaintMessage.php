@@ -22,4 +22,8 @@ class ComplaintMessage extends Model
     {
         return $this->belongsTo(User::class,'sender_id');
     }
+    public function restaurant()
+{
+    return $this->belongsTo(Restaurant::class,'sender_id');
+}
 }

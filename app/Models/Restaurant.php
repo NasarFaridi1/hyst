@@ -10,7 +10,7 @@ class Restaurant extends Model
     use HasFactory;
 
     protected $fillable = [
-
+  'ambassador_id',
         'name',
         'email',
         'slug',
@@ -54,7 +54,9 @@ class Restaurant extends Model
 
         'worldpay_username',
 
-        'worldpay_password'
+        'worldpay_password',
+
+        'self_delivery'
 
 
 
@@ -76,7 +78,10 @@ class Restaurant extends Model
         return $this->hasMany(RestaurantBanner::class, 'restaurant_id', 'id');
     }
 
-
+    public function ambassador()
+    {
+        return $this->belongsTo(User::class,'ambassador_id');
+    }
     public function products()
     {
         return $this->hasMany(Product::class);

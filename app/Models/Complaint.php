@@ -9,21 +9,39 @@ class Complaint extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'user_id',
-        'restaurant_id',
-        'order_id',
-        'product_id',
-        'subject',
-        'complaint',
-        'status',
-        'restaurant_reply',
-        'replied_at',
-        'category'
-    ];
+   protected $fillable = [
+
+'user_id',
+
+'restaurant_id',
+
+'order_id',
+
+'product_id',
+
+'subject',
+
+'complaint',
+
+'status',
+
+'restaurant_reply',
+
+'replied_at',
+
+'category',
+
+'resolved_by',
+
+'resolved_at',
+
+'resolution_note'
+
+];
 
     protected $casts = [
         'replied_at' => 'datetime',
+        'resolved_at'=>'datetime',
     ];
 
     /*
@@ -32,6 +50,10 @@ class Complaint extends Model
     |--------------------------------------------------------------------------
     */
 
+    public function resolver()
+{
+    return $this->belongsTo(User::class,'resolved_by');
+}
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -58,4 +80,29 @@ class Complaint extends Model
         return $this->hasMany(ComplaintMessage::class)
                     ->orderBy('created_at', 'asc');
     }
+
+    public function getStatusBadgeAttribute()
+{
+    return match($this->status){
+
+        'open'=>'warning',
+
+        'restaurant_replied'=>'info',
+
+        'admin_replied'=>'primary',
+
+        'waiting_customer'=>'secondary',
+
+        'waiting_restaurant'=>'secondary',
+
+        'resolved'=>'success',
+
+        'closed'=>'dark',
+
+        'rejected'=>'danger',
+
+        default=>'secondary'
+
+    };
+}
 }

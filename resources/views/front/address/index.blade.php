@@ -64,6 +64,24 @@
                     </span>
                     <span class="address-option-line">{{ $addr->address }}, {{ $addr->city }}, {{ $addr->postcode }}</span>
                 </span>
+                
+                <a
+                    href="{{ route('profile') }}"
+                    class="address-edit-btn"
+                    onclick="event.stopPropagation();"
+                    title="Edit Address">
+
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                        <path d="M4 20h4l10.5-10.5a2.1 2.1 0 0 0-4-4L4 16v4z"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"/>
+                    </svg>
+
+                </a>
+                    
+                    
             </button>
         @empty
             <div class="no-saved-addresses" id="noSavedAddresses">No saved addresses yet. Add one below.</div>
@@ -79,18 +97,18 @@
     <div id="uberQuoteStatus" class="uber-quote-status" style="display:none;"></div>
 
     {{-- These are the fields that actually get submitted with the checkout form --}}
-    <input type="hidden" id="address_id"    name="address_id">
-    <input type="hidden" id="address"       name="address">
-    <input type="hidden" id="pincode"       name="postcode">
-    <input type="hidden" id="city"          name="city">
-    <input type="hidden" id="state"         name="state">
-    <input type="hidden" id="country"       name="country" value="United Kingdom">
-    <input type="hidden" id="latitude"      name="latitude">
-    <input type="hidden" id="longitude"     name="longitude">
-    <input type="hidden" id="building_type" name="building_type">
-    <input type="hidden" id="landmark"      name="landmark">
-    <input type="hidden" id="label"         name="label">
-</div>
+        <input type="hidden" id="address_id"    name="address_id">
+        <input type="hidden" id="address"       name="address">
+        <input type="hidden" id="pincode"       name="postcode">
+        <input type="hidden" id="city"          name="city">
+        <input type="hidden" id="state"         name="state">
+        <input type="hidden" id="country"       name="country" value="United Kingdom">
+        <input type="hidden" id="latitude"      name="latitude">
+        <input type="hidden" id="longitude"     name="longitude">
+        <input type="hidden" id="building_type" name="building_type">
+        <input type="hidden" id="landmark"      name="landmark">
+        <input type="hidden" id="label"         name="label">
+    </div>
 
 {{-- ============================ STEP 1 : CHOOSE BUILDING ============================ --}}
 <div class="co-modal-overlay" id="buildingTypeModal">
@@ -316,7 +334,7 @@
 
     .map-search-results{
         position:absolute;left:0;right:0;top:100%;background:#fff;border:1px solid #e5e5e5;
-        border-radius:10px;margin-top:4px;max-height:220px;overflow-y:auto;z-index:20;
+        border-radius:10px;margin-top:4px;max-height:220px;overflow-y:auto;z-index:999;
         box-shadow:0 6px 18px rgba(0,0,0,.12);display:none;
     }
     .map-search-results.open{display:block;}
@@ -325,6 +343,9 @@
     .map-search-result-item:hover{background:#f7f7f7;}
 
     .map-wrapper{position:relative;width:100%;height:220px;border-radius:12px;overflow:hidden;margin-bottom:10px;border:1px solid #e5e5e5;}
+    .map-wrapper {
+        display: none !important;
+    }
     #addressMap{width:100%;height:100%;}
     .map-center-pin{
         position:absolute;left:50%;top:50%;transform:translate(-50%,-100%);
@@ -395,7 +416,13 @@
             $('landmark').value      = row.dataset.landmark || '';
             $('label').value         = row.dataset.label || '';
 
-            fetchUberQuote();
+            // fetchUberQuote();
+            // Only fetch Uber quote when Self Delivery is disabled
+            const selfDelivery = "{{ $restaurant->self_delivery }}";
+
+            if (selfDelivery != 1) {
+                fetchUberQuote();
+            }
         }
 
         // Auto-select if there's exactly one saved address already.
@@ -430,11 +457,27 @@
                     },
                     body: JSON.stringify({ restaurant_id: restaurantId,finalTotal: "{{ $finalTotal }}", selectedAddress_id: $('address_id').value })
                 });
+                
                 const data = await res.json();
 
                 if (!res.ok || !data.success) {
                     throw new Error(data.message || 'Could not fetch a delivery quote.');
                 }
+
+                // Uber returned an error even though API request succeeded
+                if (data.data?.kind === 'error') {
+                    document.getElementById('uber_quote_id').value = '';
+                    document.getElementById('delivery_charge').value = 0;
+                    throw new Error(
+                        data.data.metadata?.details ||
+                        data.data.message ||
+                        'Delivery is unavailable for this address.'
+                    );
+                }
+
+                
+                
+
                 if (data.success) {
 
                     console.log('Uber quote response:', data.data);
@@ -760,6 +803,52 @@
             addressesList.prepend(row);
             wireAddressRow(row);
             return row;
+        }
+
+        function deleteAddress(event, button) {
+
+            event.stopPropagation();
+
+            if (!confirm("Delete this address?")) {
+                return;
+            }
+
+            const id = button.dataset.id;
+
+            fetch(`/addresses/${id}`, {
+
+                method: "DELETE",
+
+                headers: {
+                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
+                    "Accept": "application/json"
+                }
+
+            })
+            .then(res => res.json())
+            .then(res => {
+
+                if (!res.success) {
+                    alert(res.message || "Unable to delete address.");
+                    return;
+                }
+
+                // remove address row
+                button.closest(".address-option-row").remove();
+
+                // if no addresses remain
+                if (!document.querySelector(".address-option-row")) {
+
+                    document.getElementById("savedAddressesList").innerHTML =
+                        '<div class="no-saved-addresses">No saved addresses yet. Add one below.</div>';
+
+                }
+
+            })
+            .catch(() => {
+                alert("Something went wrong.");
+            });
+
         }
     })();
 </script>

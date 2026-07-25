@@ -141,6 +141,11 @@ class UsersController extends Controller
             if ($user->role == 'vendor') {
                 return redirect('/vendor/dashboard');
             }
+            if ($user->role == 'ambassador') {
+
+                return redirect('/ambassador/dashboard');
+
+            }
 
             // $redirect = urldecode($request->redirect ?? '/');
             $redirect = session()->pull('login_redirect', '/');
@@ -167,7 +172,7 @@ class UsersController extends Controller
             // );
             return redirect($redirect)
                 ->with([
-                    'message' => 'Login Successfully!',
+                    'message' => 'Login successful. Welcome back! Enjoy your delicious food!',
                     'type' => 'success'
                 ]);
         }

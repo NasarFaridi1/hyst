@@ -101,4 +101,22 @@ class RestaurantBannerController extends Controller
 
         return back()->with('success', 'Banner Deleted Successfully');
     }
+
+    public function updateSelfDelivery(Request $request)
+    {
+        $request->validate([
+            'self_delivery' => 'required|boolean',
+        ]);
+
+        $restaurant = Restaurant::where('id', $request->restaurant_id)->firstOrFail();
+
+        $restaurant->self_delivery = $request->self_delivery;
+        $restaurant->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Self delivery updated successfully.',
+            'self_delivery' => $restaurant->self_delivery,
+        ]);
+    }
 }

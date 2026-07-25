@@ -58,18 +58,6 @@ class UserRegisterController extends Controller
                 ->with('type', 'error');
         }
 
-        // $user = User::create([
-        //     'name'     => $request->name,
-        //     'email'    => $request->email,
-        //     'password' => Hash::make($request->password),
-        //     'role'     => 'user',
-        // ]);
-
-        // Auth::login($user);
-
-        // return redirect('/')
-        //     ->with('message', 'Registration Successful!')
-        //     ->with('type', 'success');
 
         $otp = rand(100000,999999);
 
@@ -89,9 +77,6 @@ class UserRegisterController extends Controller
         $verifyUrl = url('/verify-email?token=' . $verifyToken);
         Mail::to($user->email)->send(new VerifyOtpMail($otp ,$verifyUrl));
 
-        // session([
-        //     'verify_user'=>$user->id
-        // ]);
 
         return redirect('/verify-email?token=' . $verifyToken)
             ->with('message','Verification email sent successfully. Please check your inbox or spam and follow the instructions to verify your email.')
@@ -100,48 +85,6 @@ class UserRegisterController extends Controller
     }
 
 
-    // public function verifyEmail(Request $request)
-    // {
-    //     $request->validate([
-    //         'otp'=>'required'
-    //     ]);
-
-    //     $user = User::find(session('verify_user'));
-
-    //     if(!$user){
-
-    //         return redirect('/register');
-    //     }
-
-    //     if($user->email_otp != $request->otp){
-
-    //         return back()
-    //             ->with('message','Invalid OTP')
-    //             ->with('type','error');
-    //     }
-
-    //     if(now()->gt($user->otp_expire_at)){
-
-    //         return back()
-    //             ->with('message','OTP Expired')
-    //             ->with('type','error');
-    //     }
-
-    //     $user->update([
-    //         'email_verified'=>1,
-    //         'email_verified_at'=>now(),
-    //         'email_otp'=>null,
-    //         'otp_expire_at'=>null,
-    //     ]);
-
-    //     Auth::login($user);
-
-    //     session()->forget('verify_user');
-
-    //     return redirect('/')
-    //         ->with('message','Email Verified Successfully.')
-    //         ->with('type','success');
-    // }
 
 
     public function verifyEmailLink(Request $request)

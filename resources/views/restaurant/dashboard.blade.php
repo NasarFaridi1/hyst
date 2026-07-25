@@ -518,11 +518,6 @@
 
     <div class="page-body">
 
-      {{-- Flash --}}
-      {{-- @if(session('success'))
-        <div class="alert-success">✅ {{ session('success') }}</div>
-      @endif --}}
-
       {{-- Page header --}}
       <div class="pg-header">
         <div class="pg-eyebrow">Overview</div>
@@ -556,12 +551,12 @@
                       onchange="this.form.submit()"
                       class="rounded-xl border px-5 py-3 font-semibold">
 
-                      <option value="1" {{ $restaurant->restaurant_status ? 'selected' : '' }}>
-                          🟢 Open
+                      <option value="Open" {{ $restaurant->restaurant_status == 'Open' ? 'selected' : '' }}>
+                        🟢 Open
                       </option>
 
-                      <option value="0" {{ !$restaurant->restaurant_status ? 'selected' : '' }}>
-                          🔴 Closed
+                      <option value="Closed" {{ $restaurant->restaurant_status == 'Closed' ? 'selected' : '' }}>
+                        🔴 Closed
                       </option>
 
                   </select>
@@ -570,7 +565,7 @@
 
           </div>
 
-          <div class="border-t mt-5 pt-5">
+          <div class="border-t mt-5 mb-4 pt-5">
 
               <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
 
@@ -646,7 +641,43 @@
 
           </div>
 
+          <div class="bg-white rounded-2xl shadow border border-gray-200 p-5 mb-6">
+
+            <div class="flex items-center justify-between">
+
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800">
+                        Self Delivery
+                    </h3>
+
+                    <p class="text-sm text-gray-500">
+                        Enable if you deliver orders using your own drivers.
+                    </p>
+                </div>
+
+                <label class="relative inline-flex items-center cursor-pointer">
+
+                    <input
+                        type="checkbox"
+                        id="selfDeliveryToggle"
+                        class="sr-only peer"
+                        {{ $restaurant->self_delivery ? 'checked' : '' }}
+                    >
+
+                    <div class="w-14 h-8 bg-gray-300 rounded-full peer peer-checked:bg-green-600
+                        after:content-[''] after:absolute after:top-1 after:left-1
+                        after:w-6 after:h-6 after:bg-white after:rounded-full
+                        after:transition-all peer-checked:after:translate-x-6">
+                    </div>
+
+                </label>
+
+            </div>
+
+        </div>
+          
       </div>
+      
 
       {{-- Stat Cards --}}
       <div class="stat-grid">
@@ -1033,6 +1064,63 @@ new Chart(document.getElementById('donutChart').getContext('2d'), {
     }
   }
 });
+
+</script>
+
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+
+      const toggle = document.getElementById("selfDeliveryToggle");
+
+      if (!toggle) return;
+
+      toggle.addEventListener("change", function () {
+
+          const enabled = this.checked;
+          this.disabled = true;
+
+          fetch("{{ route('restaurant.self-delivery') }}", {
+              method: "POST",
+              headers: {
+                  "Content-Type": "application/json",
+                  "Accept": "application/json",
+                  "X-CSRF-TOKEN": document
+                      .querySelector('meta[name="csrf-token"]')
+                      .getAttribute("content")
+              },
+              body: JSON.stringify({
+                  self_delivery: enabled ? 1 : 0,
+                  restaurant_id: "{{ $restaurant->id }}"
+              })
+          })
+          .then(async response => {
+              const data = await response.json();
+
+              if (!response.ok) {
+                  throw data;
+              }
+
+              alert(data.message);
+          })
+          .catch(error => {
+
+              // Restore previous state if API fails
+              toggle.checked = !enabled;
+
+              alert(error.message || "Unable to update self delivery.");
+
+              console.error(error);
+
+          })
+          .finally(() => {
+              toggle.disabled = false;
+          });
+
+      });
+
+  });
 </script>
 
 @endsection

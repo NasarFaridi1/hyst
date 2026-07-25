@@ -17,7 +17,9 @@ class Payment extends Model
         'payment_status',
         'refunded_amount',
         'refund_reason',
-        'checkout_data'
+        'checkout_data',
+        'payment_transaction_id',
+        'secondary_transaction_id'
 
     ];
 

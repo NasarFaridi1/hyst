@@ -305,9 +305,9 @@ class OrderController extends Controller
         !empty($restaurant->worldpay_username) &&
         !empty($restaurant->worldpay_password);
 
-        $serviceCharge = 0.12;
-        $deliveryCharge = 0.12;
-        $hystCharge = 0.25;
+        $serviceCharge = 0;
+        $deliveryCharge = 0;
+        $hystCharge = 0;
 
         $finalTotal +=
             // $serviceCharge +
@@ -321,15 +321,7 @@ class OrderController extends Controller
 
 
 
-        $couponDiscount = 0;
-
-        if(session()->has('coupon')){
-
-            $couponDiscount=session('coupon.discount');
-
-            $finalTotal -= $couponDiscount;
-
-        }
+        
 
         return view(
 
@@ -349,7 +341,7 @@ class OrderController extends Controller
                 'deliveryCharge',
                 'hystCharge',
                 'addresses',
-                'couponDiscount'
+              
                 
             )
         );
@@ -437,6 +429,8 @@ class OrderController extends Controller
             $firstItem = reset($cart);
 
             $restaurantId = Product::find($firstItem['id'])->restaurant_id;
+
+            $restaurant = Restaurant::where('id', $restaurantId)->first();
 
             
             
@@ -632,22 +626,68 @@ class OrderController extends Controller
             $deliveryCharge = (float) $request->delivery_charge;
             $hystCharge = (float) $request->hyst_charge;
 
+            // $finalTotal =
+            //     ($originalTotal - $discount)
+            //     + $deliveryCharge
+            //     + $hystCharge;
+
+            // $finalTotal = max($finalTotal, 0);
+
+
+            $couponDiscount = 0;
+            $coupon = null;
+
+            if ($request->filled('coupon_id')) {
+
+                $coupon = Coupon::active()
+                    ->where('id', $request->coupon_id)
+                    ->where('restaurant_id', $restaurantId)
+                    ->first();
+
+                if ($coupon) {
+
+                    // Total after offers but BEFORE delivery/hyst
+                    $couponBaseAmount = max($originalTotal - $discount, 0);
+
+                    if ($couponBaseAmount >= $coupon->min_order_amount) {
+
+                        if ($coupon->type == 'percentage') {
+
+                            $couponDiscount = ($couponBaseAmount * $coupon->value) / 100;
+
+                            if (!empty($coupon->max_discount)) {
+                                $couponDiscount = min(
+                                    $couponDiscount,
+                                    $coupon->max_discount
+                                );
+                            }
+
+                        } else {
+
+                            $couponDiscount = $coupon->value;
+                        }
+
+                        $couponDiscount = min(
+                            $couponDiscount,
+                            $couponBaseAmount
+                        );
+                    }
+                }
+            }
+
+
+            $subtotalAfterOffers = max($originalTotal - $discount, 0);
+
+            $subtotalAfterCoupon = max(
+                $subtotalAfterOffers - $couponDiscount,
+                0
+            );
+
             $finalTotal =
-                ($originalTotal - $discount)
+                $subtotalAfterCoupon
                 + $deliveryCharge
                 + $hystCharge;
-
-            $finalTotal = max($finalTotal, 0);
-
-
-                
-            
-
-            /*
-            |--------------------------------------------------------------------------
-            | CREATE ORDER
-            |--------------------------------------------------------------------------
-            */
+    
 
             /*
             |--------------------------------------------------------------------------
@@ -656,8 +696,7 @@ class OrderController extends Controller
             */
 
             // 1. Fetch coupon details from session
-            $couponId = session('coupon.id');
-            $discountAmount = session('coupon.discount', 0);
+           
 
             $order = Order::create([
 
@@ -712,20 +751,12 @@ class OrderController extends Controller
                 'status' =>
                     'pending',
 
-                'coupon_id' => $couponId,
-                'coupon_discount' => $discountAmount   
+                'coupon_id' => $coupon?->id,
+                'coupon_discount' => $couponDiscount,  
+                'delivery_provider' => $restaurant->self_delivery ? 'self' : 'uber',
             ]);
 
-            if(session()->has('coupon')){
-
-                Coupon::where(
-                    'id',
-                    session('coupon.id')
-                )->increment('used_count');
-
-                session()->forget('coupon');
-
-            }
+            
             savePageVisit(
                 $request,
                 'Place Order',
@@ -1099,7 +1130,8 @@ class OrderController extends Controller
 
             if (
                 $request->order_type
-                == 'delivery'
+                == 'delivery' &&
+                $restaurant->self_delivery != 1
             ) {
 
                 $restaurant = Restaurant::find(
@@ -1440,9 +1472,9 @@ class OrderController extends Controller
         ]);
     }
 
-   public function myOrders(Request $request)
-{
-    savePageVisit($request, 'My Orders');
+    public function myOrders(Request $request)
+    {
+        savePageVisit($request, 'My Orders');
         $orders = Order::where(
             'user_id',
             auth()->id()
@@ -1469,12 +1501,12 @@ class OrderController extends Controller
             ->where('user_id', auth()->id())
             ->findOrFail($id);
             savePageVisit(
-    $request,
-    'Order Details',
-    $order->restaurant_id,
-    optional($order->restaurant)->name,
-    $order->id
-);
+                $request,
+                'Order Details',
+                $order->restaurant_id,
+                optional($order->restaurant)->name,
+                $order->id
+            );
          
         $messages = Message::where('order_id', $order->id)
         ->where(function($q){
@@ -1498,10 +1530,18 @@ class OrderController extends Controller
             'uploader_type',
             'customer'
         )->first();
+		
+		$restaurantEvidence = OrderCompletionEvidence::where(
+			'order_id',
+			$order->id
+		)->where(
+			'uploader_type',
+			'restaurant'
+		)->first();
 
         return view(
             'front.order-details',
-            compact('order', 'messages', 'complaints', 'customerEvidence')
+            compact('order', 'messages', 'complaints', 'customerEvidence' , 'restaurantEvidence')
         );
     }
 
@@ -1515,12 +1555,14 @@ class OrderController extends Controller
         return response()->json([
             'status'          => $order->status,
             'delivery_status' => $order->delivery_status,
+            'cancel_reason' => $order->cancel_reason,
+            
         ]);
     }
 
     public function transactions(Request $request)
-{
-    savePageVisit($request, 'Transactions');
+    {
+        savePageVisit($request, 'Transactions');
         $payments = Payment::with([
 
             'restaurant',

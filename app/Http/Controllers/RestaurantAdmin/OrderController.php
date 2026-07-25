@@ -208,10 +208,18 @@ class OrderController extends Controller
             'uploader_type',
             'restaurant'
         )->first();
+		
+		$customerEvidence = OrderCompletionEvidence::where(
+			'order_id',
+			$order->id
+		)->where(
+			'uploader_type',
+			'customer'
+		)->first();
 
         return view(
             'restaurant.orders.show',
-            compact('order','complaints','restaurantEvidence')
+            compact('order','complaints','restaurantEvidence' , 'customerEvidence')
         );
     }
 

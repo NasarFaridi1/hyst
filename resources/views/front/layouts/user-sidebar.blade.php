@@ -202,11 +202,11 @@ $favoriteCount = auth()->check()
             Orders
             <span class="mob-dot"></span>
         </a>
-        <a href="/cart" class="mob-nav-item {{ request()->is('cart') ? 'active' : '' }}">
+        {{-- <a href="/cart" class="mob-nav-item {{ request()->is('cart') ? 'active' : '' }}">
             <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 001.98 1.61h9.72a2 2 0 001.95-1.56L23 6H6"/></svg>
             Cart
             <span class="mob-dot"></span>
-        </a>
+        </a> --}}
 
         <a href="{{ route('favorite.restaurants') }}"
         class="mob-nav-item {{ request()->routeIs('favorite.restaurants') ? 'active' : '' }}">
