@@ -120,13 +120,7 @@
         const loaderSubtext = document.getElementById('global-loader-subtext');
         let hideTimer = null;
 
-        window.showGlobalLoader = function (message, subtext, autoHideMs = 3000) {
-            // Check if current page is login or register
-            const currentPath = window.location.pathname.toLowerCase();
-            if (currentPath.includes('/login') || currentPath.includes('/register')) {
-                return;
-            }
-
+        window.showGlobalLoader = function (message, subtext, autoHideMs = 3500) {
             if (loaderText) loaderText.textContent = message || 'Loading...';
             if (loaderSubtext) loaderSubtext.textContent = subtext || 'Please wait a moment';
             if (loader) loader.classList.add('active');
@@ -156,7 +150,7 @@
             }
         });
 
-        // Show loader on form submission unless data-no-loader is set or is login/register form
+        // Show loader on form submission
         document.addEventListener('submit', function (e) {
             const form = e.target;
             if (!form || form.hasAttribute('data-no-loader')) return;
@@ -164,14 +158,17 @@
             const action = (form.getAttribute('action') || '').toLowerCase();
             const currentPath = window.location.pathname.toLowerCase();
 
-            if (action.includes('/login') || action.includes('/register') || currentPath.includes('/login') || currentPath.includes('/register')) {
-                return;
+            let msg = 'Processing Request...';
+            if (action.includes('/login') || currentPath.includes('/login')) {
+                msg = 'Logging In...';
+            } else if (action.includes('/register') || currentPath.includes('/register')) {
+                msg = 'Creating Account...';
             }
 
-            window.showGlobalLoader('Processing Request...', 'Please wait', 3000);
+            window.showGlobalLoader(msg, 'Please wait', 4000);
         });
 
-        // Auto show loader when clicking restaurant links, home link, or menu items
+        // Auto show loader when clicking links
         document.addEventListener('click', function (e) {
             const link = e.target.closest('a[href]');
             if (!link) return;
@@ -181,13 +178,12 @@
                 return;
             }
 
-            // Exclude login & register links
-            if (href.includes('/login') || href.includes('/register') || href.includes('login') || href.includes('register')) {
-                return;
-            }
-
             let msg = 'Loading...';
-            if (href.includes('/restaurant/')) {
+            if (href.includes('/login')) {
+                msg = 'Opening Login...';
+            } else if (href.includes('/register')) {
+                msg = 'Opening Register...';
+            } else if (href.includes('/restaurant/')) {
                 msg = 'Opening Restaurant Menu...';
             } else if (href === '/' || href.includes('/home')) {
                 msg = 'Loading Home...';
@@ -195,6 +191,10 @@
                 msg = 'Opening Checkout...';
             } else if (href.includes('/restaurants')) {
                 msg = 'Loading Restaurants...';
+            } else if (href.includes('/become-ambassador')) {
+                msg = 'Opening Ambassador Programme...';
+            } else if (href.includes('/become-a-partner')) {
+                msg = 'Opening Restaurant Partner...';
             }
 
             window.showGlobalLoader(msg, 'Please wait', 4000);
