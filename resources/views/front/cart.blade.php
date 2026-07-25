@@ -391,7 +391,7 @@
                     $subtotal += $itemTotal;
                     @endphp
 
-                    <div class="cart-item">
+                    <div class="cart-item" id="cart-item-row-{{ $cartKey }}">
                         <div style="display:flex; align-items:start; gap:14px; flex:1; min-width:0;">
                             <div class="cart-item-img-wrap">
                                 <img
@@ -530,29 +530,21 @@
 
                                
                                 <div class="qty-row">
-                                    {{-- <a href="/cart/decrease/{{ $item['id'] }}" class="qty-btn minus">−</a> --}}
-                                    <a href="{{ url('/cart/decrease/'.$cartKey) }}" class="qty-btn minus">
-                                        −
-                                    </a>
-                                    <span class="qty-num">{{ $item['quantity'] }}</span>
-                                    {{-- <a href="/cart/increase/{{ $item['id'] }}" class="qty-btn plus">+</a> --}}
-                                    <a href="{{ url('/cart/increase/'.$cartKey) }}" class="qty-btn plus">
-                                        +
-                                    </a>
+                                    <a href="{{ url('/cart/decrease/'.$cartKey) }}" class="qty-btn minus" data-cart-action="decrease" data-cart-key="{{ $cartKey }}">−</a>
+                                    <span class="qty-num" id="qty-val-{{ $cartKey }}">{{ $item['quantity'] }}</span>
+                                    <a href="{{ url('/cart/increase/'.$cartKey) }}" class="qty-btn plus" data-cart-action="increase" data-cart-key="{{ $cartKey }}">+</a>
                                 </div>
                             </div>
                         </div>
                         <div style="text-align:right; flex-shrink:0;">
                             {{-- <div class="cart-item-price">£{{ number_format($item['price'] * $item['quantity'], 2) }}</div> --}}
-                            <div class="cart-item-price">
+                            <div class="cart-item-price" id="item-subtotal-val-{{ $cartKey }}">
                                 £{{ number_format($itemTotal,2) }}
                             </div>
-                            {{-- <div class="cart-item-each">£{{ number_format($item['price'],2) }} each</div> --}}
                             <div class="cart-item-each">
                                 £{{ number_format($item['base_price'] + ($item['addon_total'] ?? 0),2) }} each
                             </div>
-                            {{-- <a href="/cart/remove/{{ $item['id'] }}" class="cart-remove"> --}}
-                            <a href="{{ url('/cart/remove/'.$cartKey) }}" class="cart-remove">
+                            <a href="{{ url('/cart/remove/'.$cartKey) }}" class="cart-remove" data-cart-action="remove" data-cart-key="{{ $cartKey }}">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" d="M18 6L6 18M6 6l12 12"/></svg>
                                 Remove
                             </a>
@@ -587,9 +579,7 @@
 
                 <div class="summary-row">
                     <span>Subtotal</span>
-                    {{-- <span>£{{ number_format($total, 2) }}</span> --}}
-                    <span>£{{ number_format($subtotal,2) }}</span>
-                    
+                    <span id="summary-subtotal-val">£{{ number_format($subtotal,2) }}</span>
                 </div>
                 
 
@@ -597,8 +587,7 @@
 
                 <div class="summary-total-row">
                     <span class="summary-total-label">Total</span>
-                    {{-- <span class="summary-total-value">£{{ number_format($total, 2) }}</span> --}}
-                    <span class="summary-total-value">
+                    <span class="summary-total-value" id="summary-total-val">
                         £{{ number_format($subtotal + $delivery,2) }}
                     </span>
                 </div>
@@ -832,18 +821,81 @@
 </style>
 
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('click', function(e) {
+        let btn = e.target.closest('[data-cart-action]');
+        if (!btn) return;
 
-function openGuestModal() {
-    document.getElementById('guestModal').style.display='flex';
-}
+        e.preventDefault();
+        let action = btn.getAttribute('data-cart-action');
+        let key = btn.getAttribute('data-cart-key');
+        if (!action || !key) return;
 
-function closeGuestModal() {
-    document.getElementById('guestModal').style.display='none';
-}
+        if (typeof window.showGlobalLoader === 'function') {
+            let msg = action === 'remove' ? 'Removing Item...' : 'Updating Cart...';
+            window.showGlobalLoader(msg, 'Please wait', 2000);
+        }
 
-</script>
-<script>
-    if (window.lucide) { lucide.createIcons(); }
+        btn.style.pointerEvents = 'none';
+        btn.style.opacity = '0.5';
+
+        let url = '/cart/' + action + '/' + encodeURIComponent(key);
+
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        })
+        .then(res => res.json())
+        .then(res => {
+            btn.style.pointerEvents = '';
+            btn.style.opacity = '';
+
+            if (typeof window.hideGlobalLoader === 'function') {
+                window.hideGlobalLoader();
+            }
+
+            if (!res.success) return;
+
+            if (res.cart_empty) {
+                window.location.reload();
+                return;
+            }
+
+            if (action === 'remove' || res.quantity === 0) {
+                let row = document.getElementById('cart-item-row-' + key);
+                if (row) row.remove();
+            } else {
+                let qtyEl = document.getElementById('qty-val-' + key);
+                if (qtyEl) qtyEl.textContent = res.quantity;
+
+                let itemSubtotalEl = document.getElementById('item-subtotal-val-' + key);
+                if (itemSubtotalEl) itemSubtotalEl.textContent = '£' + res.item_subtotal;
+            }
+
+            let subtotalEl = document.getElementById('summary-subtotal-val');
+            if (subtotalEl) subtotalEl.textContent = '£' + res.original_total;
+
+            let totalEl = document.getElementById('summary-total-val');
+            if (totalEl) totalEl.textContent = '£' + res.original_total;
+
+            let headerCount = document.getElementById('cartCount');
+            if (headerCount) headerCount.textContent = res.cart_count;
+        })
+        .catch(err => {
+            btn.style.pointerEvents = '';
+            btn.style.opacity = '';
+            if (typeof window.hideGlobalLoader === 'function') {
+                window.hideGlobalLoader();
+            }
+        });
+    });
+});
+
+if (window.lucide) { lucide.createIcons(); }
 </script>
 
 @endsection
