@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\VerifyOtpMail;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\RateLimiter;
 
 class AmbassadorRegisterController extends Controller
 {
@@ -22,6 +23,16 @@ class AmbassadorRegisterController extends Controller
 
     public function register(Request $request)
     {
+        // IP Rate Limiting (Max 3 attempts per minute per IP against automated/bot signups)
+        $ipKey = 'register-ip:' . $request->ip();
+        if (RateLimiter::tooManyAttempts($ipKey, 3)) {
+            $seconds = RateLimiter::availableIn($ipKey);
+            return back()
+                ->withInput()
+                ->with('message', "Automated or repeated registration attempts detected from your IP. Please wait {$seconds} seconds before trying again.")
+                ->with('type', 'error');
+        }
+        RateLimiter::hit($ipKey, 60);
         $validator = Validator::make($request->all(), [
 
             'name' => 'required|max:255',

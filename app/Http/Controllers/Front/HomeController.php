@@ -782,6 +782,17 @@ class HomeController extends Controller
 
     public function becomePartner(Request $request)
     {
+        // IP Rate Limiting (Max 3 partner requests per minute per IP)
+        $ipKey = 'partner-ip:' . $request->ip();
+        if (\Illuminate\Support\Facades\RateLimiter::tooManyAttempts($ipKey, 3)) {
+            $seconds = \Illuminate\Support\Facades\RateLimiter::availableIn($ipKey);
+            return response()->json([
+                'success' => false,
+                'message' => "Too many partner requests detected from your IP. Please wait {$seconds} seconds before trying again.",
+            ], 429);
+        }
+        \Illuminate\Support\Facades\RateLimiter::hit($ipKey, 60);
+
         $validated = $request->validate([
             'partner_type' => 'required|string|in:Become Restaurant Partner,Become an Ambassador,Restaurant Partner,Ambassador',
             'name'         => 'required|string|max:255',

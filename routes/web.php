@@ -849,7 +849,7 @@ Route::middleware('guest')->group(function () {
     Route::post(
         '/register-user',
         [UserRegisterController::class, 'register']
-    );
+    )->middleware('throttle:5,1');
 
     Route::get('/verify-email', function () {
         return view('auth.verify-email');
