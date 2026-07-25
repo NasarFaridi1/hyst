@@ -16,29 +16,34 @@ class CategoryController extends Controller
     /**
      * Category List
      */
-    public function index($restaurantId)
-    {
 
-        $restaurant = Restaurant::where(
-            'ambassador_id',
-            Auth::id()
-        )->findOrFail($restaurantId);
+public function index(Request $request, $restaurantId)
+{
+    $restaurant = Restaurant::where('ambassador_id', Auth::id())
+        ->findOrFail($restaurantId);
 
-        $categories = Category::where(
-            'restaurant_id',
-            $restaurant->id
-        )
-        ->latest()
-        ->paginate(10);
+    $categories = Category::where('restaurant_id', $restaurant->id);
 
-        return view(
-            'ambassador.categories.index',
-            compact(
-                'restaurant',
-                'categories'
-            )
-        );
+    // Search
+    if ($request->filled('search')) {
+        $search = $request->search;
+
+        $categories->where(function ($query) use ($search) {
+            $query->where('name', 'LIKE', "%{$search}%")
+                  ->orWhere('slug', 'LIKE', "%{$search}%");
+        });
     }
+
+    $categories = $categories
+        ->latest()
+        ->paginate(10)
+        ->withQueryString();
+
+    return view(
+        'ambassador.categories.index',
+        compact('restaurant', 'categories')
+    );
+}
 
     /**
      * Create Category

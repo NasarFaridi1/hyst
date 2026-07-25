@@ -255,11 +255,11 @@
                         Already have an account? <span style="text-decoration:underline;">Log in</span>
                     </a>
                 </div>
-                {{-- <div class="text-center mt-5">
+                <div class="text-center mt-5">
                     <a href="/ambassador/register" style="color:#C25A2A; font-weight:600; font-size:13px; text-decoration:none;">
-                        Are you an ambassador? <span style="text-decoration:underline;">ambassador register</span>
+                        Are you an ambassador? <span style="text-decoration:underline;">Ambassador Sign up</span>
                     </a>
-                </div> --}}
+                </div>
 
                 <p style="text-align:center; font-size:11.5px; color:#BBB; margin-top:1rem; line-height:1.6;">
                     By creating an account you agree to our

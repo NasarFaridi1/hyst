@@ -12,14 +12,27 @@ use Laravel\Socialite\Facades\Socialite;
 class SocialAuthController extends Controller
 {
     // Step 1: User ko Google/Facebook pe bhejna
-    public function redirect($provider)
-    {
-        if (!in_array($provider, ['google', 'facebook'])) {
-            abort(404);
-        }
+    // public function redirect($provider)
+    // {
+    //     if (!in_array($provider, ['google', 'facebook'])) {
+    //         abort(404);
+    //     }
 
-        return Socialite::driver($provider)->redirect();
+    //     return Socialite::driver($provider)->redirect();
+    // }
+
+    public function redirect(Request $request, $provider)
+{
+    if (!in_array($provider, ['google', 'facebook'])) {
+        abort(404);
     }
+
+    session([
+        'social_role' => $request->get('role', 'user')
+    ]);
+
+    return Socialite::driver($provider)->redirect();
+}
 
     // Step 2: Google/Facebook se wapas aane ke baad
     public function callback($provider)
@@ -35,6 +48,7 @@ class SocialAuthController extends Controller
                 ->with('message', 'Login failed. Please try again.')
                 ->with('type', 'error');
         }
+        $role = session('social_role', 'user');
 
         $email = strtolower(trim($socialUser->getEmail() ?? ''));
 
@@ -78,7 +92,7 @@ class SocialAuthController extends Controller
                 'name'              => $socialUser->getName() ?: $socialUser->getNickname() ?: 'User',
                 'email'             => $email,
                 'password'          => bcrypt(Str::random(24)),
-                'role'              => 'user',
+                'role'              => $role,
                 'provider'          => $provider,
                 'provider_id'       => $socialUser->getId(),
                 'email_verified'    => 1,
@@ -88,12 +102,18 @@ class SocialAuthController extends Controller
 
         Auth::login($user, true);
 
-        // Sirf normal user flow hai -> hamesha home pe bhejna
+        if ($user->role === 'ambassador') {
+
+            return redirect()->route('ambassador.dashboard')
+                ->with('message', 'Welcome Ambassador!')
+                ->with('type', 'success');
+        }
+
         return redirect('/')
             ->with([
                 'message' => $isNewUser
                     ? 'Account created and logged in successfully!'
-                    : 'Login successful. Welcome back! Enjoy your delicious food.',
+                    : 'Login successful. Welcome back!',
                 'type' => 'success',
             ]);
     }
