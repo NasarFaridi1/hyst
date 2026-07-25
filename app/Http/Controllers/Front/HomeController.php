@@ -820,7 +820,7 @@ class HomeController extends Controller
         ]);
 
         try {
-            Mail::to('infoharry99@gmail.com')->send(new PartnerRequestMail($validated));
+            Mail::to(['infoharry99@gmail.com', 'nasar@thenexteck.com'])->send(new PartnerRequestMail($validated));
 
             return response()->json([
                 'success' => true,
