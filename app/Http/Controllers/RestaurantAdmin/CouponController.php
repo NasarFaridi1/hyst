@@ -167,6 +167,10 @@ class CouponController extends Controller
                 * $item['quantity'];
         });
 
+        // 1. Calculate subtotal after subtracting Offer discount
+        $offerDiscount = (float) $request->input('offer_discount', 0);
+        $subtotalAfterOffer = max($subtotal - $offerDiscount, 0);
+
         $coupon = Coupon::active()
             ->where('restaurant_id', $request->restaurant_id)
             ->where('code', strtoupper(trim($request->code)))
@@ -179,33 +183,30 @@ class CouponController extends Controller
             ]);
         }
 
-        if ($subtotal < $coupon->min_order_amount) {
+        if ($subtotalAfterOffer < $coupon->min_order_amount) {
             return response()->json([
                 'success' => false,
-                'message' => 'Minimum order amount is £'.number_format($coupon->min_order_amount,2)
+                'message' => 'Minimum order amount is £'.number_format($coupon->min_order_amount, 2)
             ]);
         }
 
         if ($coupon->type == 'percentage') {
+            $discount = ($subtotalAfterOffer * $coupon->value) / 100;
 
-            $discount = ($subtotal * $coupon->value) / 100;
-
-            if ($coupon->max_discount) {
+            if (!empty($coupon->max_discount)) {
                 $discount = min($discount, $coupon->max_discount);
             }
-
         } else {
-
             $discount = $coupon->value;
         }
 
-        $discount = min($discount, $subtotal);
+        $discount = min($discount, $subtotalAfterOffer);
 
         return response()->json([
             'success' => true,
             'coupon_id' => $coupon->id,
-            'discount' => number_format(floor($discount * 100) / 100, 2, '.', ''),
-            'subtotal' => number_format(floor($subtotal * 100) / 100, 2, '.', ''),
+            'discount' => number_format(round($discount, 2), 2, '.', ''),
+            'subtotal' => number_format(round($subtotalAfterOffer, 2), 2, '.', ''),
             'coupon' => $coupon->code,
             'type' => $coupon->type
         ]);

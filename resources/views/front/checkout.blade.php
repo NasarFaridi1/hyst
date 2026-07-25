@@ -1079,76 +1079,35 @@
                     <hr class="summary-divider">
 
                     <div class="summary-row">
-                        <span class="sr-label">Original Total</span>
+                        <span class="sr-label">Cart Subtotal</span>
                         <span class="sr-value">£{{ number_format($originalTotal, 2) }}</span>
                     </div>
 
-                    @if(isset($orderOffer) && $orderOffer)
-
+                    @if(isset($discount) && $discount > 0)
                         <div class="summary-row">
                             <span class="sr-label" style="color:#C25A2A;">
-                                🎉 {{ $orderOffer->title }}
+                                🎉 Offer Discount
+                                @if(isset($orderOffer) && $orderOffer)
+                                    ({{ $orderOffer->title }})
+                                @endif
                             </span>
 
                             <span class="sr-value green">
-
-                                @if($orderOffer->value_type == 'percentage')
-                                    -{{ $orderOffer->value }}%
-                                @else
-                                    -£{{ number_format($orderOffer->value,2) }}
-                                @endif
-
+                                -£{{ number_format($discount, 2) }}
                             </span>
                         </div>
 
+                        <div class="summary-row" id="subtotalAfterOfferRow">
+                            <span class="sr-label" style="font-weight:600; color:#374151;">Subtotal After Offer</span>
+                            <span class="sr-value" id="subtotalAfterOfferText" style="font-weight:600; color:#374151;">
+                                £{{ number_format(max($originalTotal - $discount, 0), 2) }}
+                            </span>
+                        </div>
                     @endif
 
-                    <div class="summary-row" id="deliveryChargeRow">
-                        <span class="sr-label">Delivery Charge</span>
-                        <span class="sr-value" id="deliveryChargeText">
-                            £0.00
-                        </span>
-                    </div>
-
-                    <input type="hidden" id="delivery_charge" name="delivery_charge" value="0">
-
-                    <input
-                        type="hidden"
-                        id="hyst_charge"
-                        name="hyst_charge"
-                        value="0"
-                    >
-                    <input
-                        type="hidden"
-                        id="uber_quote_id"
-                        name="uber_quote_id"
-                        value=""
-                    >
-
-                    <input
-                        type="hidden"
-                        id="cartSubtotal"
-                        value="{{ $finalTotal }}"
-                    >
-                    <input type="hidden" id="couponIdHidden" name="coupon_id">
-                    <input type="hidden" id="couponCodeHidden" name="coupon_code">
-                    <input type="hidden" id="couponDiscountHidden" name="coupon_discount" value="0">
-                    <input type="hidden" id="giftCardIdHidden" name="gift_card_id">
-
-                    <input type="hidden" id="giftCardCodeHidden" name="gift_card_code">
-
-                    <input type="hidden" id="giftCardAmountHidden" name="gift_card_amount" value="0">
-
-                    <div class="summary-row">
-                        <span class="sr-label">Operation Charge</span>
-                        <span class="sr-value" id="hystChargeText">
-                            £0.00
-                        </span>
-                    </div>
-
                     <div class="summary-row" id="couponRow" style="display:none;">
-                        <span class="sr-label">
-                            Coupon Discount
+                        <span class="sr-label" style="color:#25D366;">
+                            🏷️ Coupon Discount
                         </span>
 
                         <span class="sr-value green" id="couponDiscountText">
@@ -1157,20 +1116,41 @@
                     </div>
 
                     <div class="summary-row" id="giftCardRow" style="display:none;">
-
-                        <span class="sr-label">
-                            Gift Card
+                        <span class="sr-label" style="color:#25D366;">
+                            💳 Gift Card
                         </span>
 
-                        <span
-                            class="sr-value green"
-                            id="giftCardDiscountText">
-
+                        <span class="sr-value green" id="giftCardDiscountText">
                             -£0.00
-
                         </span>
-
                     </div>
+
+                    <div class="summary-row" id="deliveryChargeRow">
+                        <span class="sr-label">Delivery Charge</span>
+                        <span class="sr-value" id="deliveryChargeText">
+                            £0.00
+                        </span>
+                    </div>
+
+                    <div class="summary-row">
+                        <span class="sr-label">Operation Charge</span>
+                        <span class="sr-value" id="hystChargeText">
+                            £0.00
+                        </span>
+                    </div>
+
+                    <input type="hidden" id="raw_cart_subtotal" value="{{ $originalTotal }}">
+                    <input type="hidden" id="offer_discount" value="{{ $discount }}">
+                    <input type="hidden" id="delivery_charge" name="delivery_charge" value="0">
+                    <input type="hidden" id="hyst_charge" name="hyst_charge" value="0">
+                    <input type="hidden" id="uber_quote_id" name="uber_quote_id" value="">
+                    <input type="hidden" id="cartSubtotal" value="{{ max($originalTotal - $discount, 0) }}">
+                    <input type="hidden" id="couponIdHidden" name="coupon_id">
+                    <input type="hidden" id="couponCodeHidden" name="coupon_code">
+                    <input type="hidden" id="couponDiscountHidden" name="coupon_discount" value="0">
+                    <input type="hidden" id="giftCardIdHidden" name="gift_card_id">
+                    <input type="hidden" id="giftCardCodeHidden" name="gift_card_code">
+                    <input type="hidden" id="giftCardAmountHidden" name="gift_card_amount" value="0">
 
                     <hr class="summary-divider">
                     
@@ -1341,163 +1321,107 @@
     let couponDiscount = 0;
 
     document.getElementById('applyCoupon').onclick = function () {
-
         fetch("{{ route('coupon.apply') }}", {
-
             method: "POST",
-
             headers: {
                 "Content-Type": "application/json",
                 "X-CSRF-TOKEN": "{{ csrf_token() }}"
             },
-
             body: JSON.stringify({
-
                 code: document.getElementById('coupon_code').value,
-                restaurant_id: "{{ $restaurant->id }}"
-
+                restaurant_id: "{{ $restaurant->id }}",
+                offer_discount: parseFloat(document.getElementById('offer_discount').value || 0)
             })
-
         })
-
         .then(r => r.json())
-
         .then(res => {
-
             if (!res.success) {
-
                 couponDiscount = 0;
-
                 document.getElementById('couponMessage').innerHTML =
                     "<span style='color:red'>" + res.message + "</span>";
-
                 document.getElementById("couponRow").style.display = "none";
-
+                document.getElementById("couponDiscountHidden").value = 0;
                 updateGrandTotal();
-
                 return;
             }
 
             couponDiscount = parseFloat(res.discount);
-
             document.getElementById('couponMessage').innerHTML =
                 "<span style='color:green'>Coupon Applied Successfully</span>";
-
             document.getElementById("couponRow").style.display = "flex";
-
             document.getElementById("couponDiscountText").innerHTML =
                 "-£" + couponDiscount.toFixed(2);
-
-            document.getElementById("couponCodeHidden").value =
-                res.coupon;
-
+            document.getElementById("couponCodeHidden").value = res.coupon;
             document.getElementById("couponIdHidden").value = res.coupon_id;
-
-            document.getElementById("couponDiscountHidden").value =
-                couponDiscount;
-
+            document.getElementById("couponDiscountHidden").value = couponDiscount;
             updateGrandTotal();
-
         });
-
     };
 
     let giftCardDiscount = 0;
 
     document.getElementById("applyGiftCard").onclick = function () {
-
         fetch("{{ route('gift-card.apply') }}", {
-
             method: "POST",
-
             headers: {
-
                 "Content-Type":"application/json",
-
                 "X-CSRF-TOKEN":"{{ csrf_token() }}"
-
             },
-
             body: JSON.stringify({
-
-                code: document.getElementById("gift_card_code").value
-
+                code: document.getElementById("gift_card_code").value,
+                offer_discount: parseFloat(document.getElementById('offer_discount').value || 0),
+                coupon_discount: couponDiscount
             })
-
         })
-
         .then(r=>r.json())
-
         .then(res=>{
-
             if(!res.success){
-
                 giftCardDiscount = 0;
-
                 document.getElementById("giftCardRow").style.display="none";
-
+                document.getElementById("giftCardAmountHidden").value = 0;
                 document.getElementById("giftCardMessage").innerHTML =
                     "<span style='color:red'>"+res.message+"</span>";
-
                 updateGrandTotal();
-
                 return;
             }
 
             giftCardDiscount = parseFloat(res.discount);
-
             document.getElementById("giftCardMessage").innerHTML =
                 "<span style='color:green'>Gift Card Applied Successfully</span>";
-
             document.getElementById("giftCardRow").style.display="flex";
-
             document.getElementById("giftCardDiscountText").innerHTML =
                 "-£"+giftCardDiscount.toFixed(2);
-
-            document.getElementById("giftCardIdHidden").value =
-                res.gift_card_id;
-
-            document.getElementById("giftCardCodeHidden").value =
-                res.gift_card;
-
-            document.getElementById("giftCardAmountHidden").value =
-                giftCardDiscount;
-
+            document.getElementById("giftCardIdHidden").value = res.gift_card_id;
+            document.getElementById("giftCardCodeHidden").value = res.gift_card;
+            document.getElementById("giftCardAmountHidden").value = giftCardDiscount;
             updateGrandTotal();
-
         });
-
     };
 
     function updateGrandTotal() {
-
-        let subtotal = parseFloat(document.getElementById("cartSubtotal").value);
-
+        let rawSubtotal = parseFloat(document.getElementById("raw_cart_subtotal").value || 0);
+        let offerDiscount = parseFloat(document.getElementById("offer_discount").value || 0);
         let delivery = parseFloat(document.getElementById("delivery_charge").value || 0);
-
         let hyst = parseFloat(document.getElementById("hyst_charge").value || 0);
 
-        // Coupon applies BEFORE delivery charge
-        let total = subtotal - couponDiscount;
+        let subtotalAfterOffer = Math.max(rawSubtotal - offerDiscount, 0);
+        let subtotalAfterCoupon = Math.max(subtotalAfterOffer - couponDiscount, 0);
+        let finalSubtotal = Math.max(subtotalAfterCoupon - giftCardDiscount, 0);
 
-        
+        let total = finalSubtotal + delivery + hyst;
 
-        total -= giftCardDiscount;
+        if (document.getElementById("subtotalAfterOfferText")) {
+            document.getElementById("subtotalAfterOfferText").innerHTML = "£" + subtotalAfterOffer.toFixed(2);
+        }
 
-        if (total < 0)
-            total = 0;
+        document.getElementById("finalTotalText").innerHTML = "£" + total.toFixed(2);
+        if (document.getElementById("mobileFinalTotalText")) {
+            document.getElementById("mobileFinalTotalText").innerHTML = "£" + total.toFixed(2);
+        }
 
-        // Add charges after coupon
-        total += delivery + hyst;
-
-        document.getElementById("finalTotalText").innerHTML =
-            "£" + total.toFixed(2);
-
-        document.getElementById("mobileFinalTotalText").innerHTML =
-            "£" + total.toFixed(2);
-
-        document.querySelector("input[name='amount']").value =
-            total.toFixed(2);
+        if (document.querySelector("input[name='amount']")) {
+            document.querySelector("input[name='amount']").value = total.toFixed(2);
+        }
     }
 
 </script>

@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Log;
 use App\Services\FirebaseNotificationService;
 use App\Models\ActivityLog;
 use App\Models\Coupon;
+use App\Models\GiftCard;
 use App\Models\OrderItemAddon;
 use App\Models\User;
 use App\Models\UserAddress;
@@ -671,6 +672,7 @@ class OrderController extends Controller
                             $couponDiscount,
                             $couponBaseAmount
                         );
+                        $couponDiscount = round($couponDiscount, 2);
                     }
                 }
             }
@@ -678,13 +680,32 @@ class OrderController extends Controller
 
             $subtotalAfterOffers = max($originalTotal - $discount, 0);
 
-            $subtotalAfterCoupon = max(
-                $subtotalAfterOffers - $couponDiscount,
-                0
-            );
+            // Gift Card Processing
+            $giftCardDiscount = 0;
+            $giftCard = null;
+
+            if ($request->filled('gift_card_id') || $request->filled('gift_card_code')) {
+                $query = GiftCard::where('status', 'active');
+                if ($request->filled('gift_card_id')) {
+                    $query->where('id', $request->gift_card_id);
+                } else {
+                    $query->where('code', strtoupper(trim($request->gift_card_code)));
+                }
+                $giftCard = $query->first();
+
+                if ($giftCard && $giftCard->balance > 0) {
+                    $giftCardBaseAmount = max($subtotalAfterOffers - $couponDiscount, 0);
+                    if (!$giftCard->minimum_order_amount || $giftCardBaseAmount >= $giftCard->minimum_order_amount) {
+                        $giftCardDiscount = min($giftCard->balance, $giftCardBaseAmount);
+                        $giftCardDiscount = round($giftCardDiscount, 2);
+                    }
+                }
+            }
+
+            $subtotalAfterDiscounts = max($subtotalAfterOffers - $couponDiscount - $giftCardDiscount, 0);
 
             $finalTotal =
-                $subtotalAfterCoupon
+                $subtotalAfterDiscounts
                 + $deliveryCharge
                 + $hystCharge;
     
@@ -753,8 +774,15 @@ class OrderController extends Controller
 
                 'coupon_id' => $coupon?->id,
                 'coupon_discount' => $couponDiscount,  
+                'gift_card_id' => $giftCard?->id,
+                'gift_card_code' => $giftCard?->code,
+                'gift_card_amount' => $giftCardDiscount,
                 'delivery_provider' => $restaurant->self_delivery ? 'self' : 'uber',
             ]);
+
+            if ($giftCard && $giftCardDiscount > 0) {
+                $giftCard->decrement('balance', $giftCardDiscount);
+            }
 
             
             savePageVisit(

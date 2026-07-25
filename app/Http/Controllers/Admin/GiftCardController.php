@@ -109,69 +109,55 @@ class GiftCardController extends Controller
         }
 
         $subtotal = collect($cart)->sum(function($item){
-
             return ($item['base_price'] + ($item['addon_total'] ?? 0))
                 * $item['quantity'];
-
         });
+
+        $offerDiscount = (float) $request->input('offer_discount', 0);
+        $couponDiscount = (float) $request->input('coupon_discount', 0);
+        $remainingSubtotal = max($subtotal - $offerDiscount - $couponDiscount, 0);
 
         $giftCard = GiftCard::where('code', strtoupper(trim($request->code)))
             ->where('status','active')
             ->first();
 
         if(!$giftCard){
-
             return response()->json([
                 'success'=>false,
                 'message'=>'Invalid Gift Card.'
             ]);
-
         }
 
         if($giftCard->expires_at && now()->gt($giftCard->expires_at)){
-
             return response()->json([
                 'success'=>false,
                 'message'=>'Gift Card expired.'
             ]);
-
         }
 
-        if($giftCard->minimum_order_amount &&
-            $subtotal < $giftCard->minimum_order_amount){
-
+        if($giftCard->minimum_order_amount && $remainingSubtotal < $giftCard->minimum_order_amount){
             return response()->json([
                 'success'=>false,
                 'message'=>'Minimum order amount is £'.number_format($giftCard->minimum_order_amount,2)
             ]);
-
         }
 
         if($giftCard->balance <= 0){
-
             return response()->json([
                 'success'=>false,
                 'message'=>'Gift Card balance exhausted.'
             ]);
-
         }
 
-        $discount = min($giftCard->balance, $subtotal);
+        $discount = min($giftCard->balance, $remainingSubtotal);
 
         return response()->json([
-
             'success'=>true,
-
             'gift_card_id'=>$giftCard->id,
-
             'gift_card'=>$giftCard->code,
-
-            'discount'=>round($discount,2),
-
-            'subtotal'=>round($subtotal,2),
-
-            'balance'=>round($giftCard->balance,2)
-
+            'discount'=>number_format(round($discount,2), 2, '.', ''),
+            'subtotal'=>number_format(round($remainingSubtotal,2), 2, '.', ''),
+            'balance'=>number_format(round($giftCard->balance,2), 2, '.', '')
         ]);
     }
 }
