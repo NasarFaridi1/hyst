@@ -121,6 +121,12 @@
         let hideTimer = null;
 
         window.showGlobalLoader = function (message, subtext, autoHideMs = 3000) {
+            // Check if current page is login or register
+            const currentPath = window.location.pathname.toLowerCase();
+            if (currentPath.includes('/login') || currentPath.includes('/register')) {
+                return;
+            }
+
             if (loaderText) loaderText.textContent = message || 'Loading...';
             if (loaderSubtext) loaderSubtext.textContent = subtext || 'Please wait a moment';
             if (loader) loader.classList.add('active');
@@ -150,10 +156,17 @@
             }
         });
 
-        // Show loader on form submission unless data-no-loader is set
+        // Show loader on form submission unless data-no-loader is set or is login/register form
         document.addEventListener('submit', function (e) {
             const form = e.target;
             if (!form || form.hasAttribute('data-no-loader')) return;
+
+            const action = (form.getAttribute('action') || '').toLowerCase();
+            const currentPath = window.location.pathname.toLowerCase();
+
+            if (action.includes('/login') || action.includes('/register') || currentPath.includes('/login') || currentPath.includes('/register')) {
+                return;
+            }
 
             window.showGlobalLoader('Processing Request...', 'Please wait', 3000);
         });
@@ -163,8 +176,13 @@
             const link = e.target.closest('a[href]');
             if (!link) return;
 
-            const href = link.getAttribute('href');
+            const href = (link.getAttribute('href') || '').toLowerCase();
             if (!href || href.startsWith('#') || href.startsWith('javascript:') || href.startsWith('tel:') || href.startsWith('mailto:') || link.hasAttribute('data-no-loader') || link.getAttribute('target') === '_blank') {
+                return;
+            }
+
+            // Exclude login & register links
+            if (href.includes('/login') || href.includes('/register') || href.includes('login') || href.includes('register')) {
                 return;
             }
 

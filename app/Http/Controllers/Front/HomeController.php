@@ -37,21 +37,25 @@ class HomeController extends Controller
             ->generate(url('/restaurants'));
 
 
-        $ip = $request->ip();
+        $latitude = session('user_lat');
+        $longitude = session('user_lon');
 
-        Log::info('User IP: ' . $ip);
-
-        $response = Http::get("http://ip-api.com/json/" . $ip);
-
-        $data = $response->json();
-
-        Log::info('IP API Response', $data);
-
-        $latitude = $data['lat'] ?? null;
-        $longitude = $data['lon'] ?? null;
-
-        Log::info('User Latitude: ' . $latitude);
-        Log::info('User Longitude: ' . $longitude);
+        if (!$latitude || !$longitude) {
+            try {
+                $ip = $request->ip();
+                $response = Http::timeout(1)->get("http://ip-api.com/json/" . $ip);
+                if ($response->successful()) {
+                    $data = $response->json();
+                    $latitude = $data['lat'] ?? null;
+                    $longitude = $data['lon'] ?? null;
+                    if ($latitude && $longitude) {
+                        session(['user_lat' => $latitude, 'user_lon' => $longitude]);
+                    }
+                }
+            } catch (\Exception $e) {
+                Log::warning('IP API Timeout/Error: ' . $e->getMessage());
+            }
+        }
 
         /*
         |--------------------------------------------------------------------------
@@ -192,16 +196,25 @@ class HomeController extends Controller
 
     public function restaurants(Request $request)
     {
-        $ip = $request->ip();
+        $latitude = session('user_lat');
+        $longitude = session('user_lon');
 
-        Log::info('User IP: ' . $ip);
-
-        $response = Http::get("http://ip-api.com/json/" . $ip);
-
-        $data = $response->json();
-
-        $latitude = $data['lat'] ?? null;
-        $longitude = $data['lon'] ?? null;
+        if (!$latitude || !$longitude) {
+            try {
+                $ip = $request->ip();
+                $response = Http::timeout(1)->get("http://ip-api.com/json/" . $ip);
+                if ($response->successful()) {
+                    $data = $response->json();
+                    $latitude = $data['lat'] ?? null;
+                    $longitude = $data['lon'] ?? null;
+                    if ($latitude && $longitude) {
+                        session(['user_lat' => $latitude, 'user_lon' => $longitude]);
+                    }
+                }
+            } catch (\Exception $e) {
+                Log::warning('IP API Timeout/Error: ' . $e->getMessage());
+            }
+        }
 
         /*
         |--------------------------------------------------------------------------
