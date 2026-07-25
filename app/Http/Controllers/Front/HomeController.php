@@ -115,58 +115,6 @@ class HomeController extends Controller
                 END ASC
             ")
             ->get();
-		
-		$restaurants = $restaurants->map(function ($restaurant) {
-
-			// Default Closed
-			$restaurant->is_open = false;
-
-			// Agar manually Closed hai to wahi return kar do
-			if ($restaurant->restaurant_status === 'Closed') {
-				return $restaurant;
-			}
-
-			// Agar schedule nahi hai to Closed hi rahega
-			if (
-				empty($restaurant->working_days) ||
-				empty($restaurant->opening_time) ||
-				empty($restaurant->closing_time)
-			) {
-				return $restaurant;
-			}
-
-			$now = Carbon::now('Europe/London');
-			$today = $now->format('l');
-
-			$workingDays = array_map('trim', explode(',', $restaurant->working_days));
-
-			if (!in_array($today, $workingDays)) {
-				return $restaurant;
-			}
-
-			$open = Carbon::createFromFormat(
-				'H:i:s',
-				$restaurant->opening_time,
-				'Europe/London'
-			);
-
-			$close = Carbon::createFromFormat(
-				'H:i:s',
-				$restaurant->closing_time,
-				'Europe/London'
-			);
-
-			// Overnight timing (e.g. 10 PM - 2 AM)
-			if ($close->lessThan($open)) {
-				$close->addDay();
-			}
-
-			if ($now->between($open, $close)) {
-				$restaurant->is_open = true;
-			}
-
-			return $restaurant;
-		});
 
         // Log::info('Restaurants Count: ' . $restaurants->count());
 

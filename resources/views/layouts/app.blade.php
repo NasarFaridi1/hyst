@@ -212,6 +212,7 @@
 </head>
 
 <body>
+    @include('partials.global_loader')
 
     {{-- <div id="sidebar-overlay" onclick="closeSidebar()"></div> --}}
     

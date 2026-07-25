@@ -68,6 +68,43 @@ class Restaurant extends Model
         'category_ids' => 'array',
     ];
 
+    protected $appends = [
+        'is_open',
+    ];
+
+    public function getIsOpenAttribute()
+    {
+        if ($this->restaurant_status === 'Closed') {
+            return false;
+        }
+
+        if (empty($this->working_days) || empty($this->opening_time) || empty($this->closing_time)) {
+            return $this->restaurant_status === 'Open';
+        }
+
+        $now = \Carbon\Carbon::now('Europe/London');
+        $today = $now->format('l');
+
+        $workingDays = array_map('trim', explode(',', $this->working_days));
+
+        if (!in_array($today, $workingDays)) {
+            return false;
+        }
+
+        try {
+            $open = \Carbon\Carbon::parse($this->opening_time, 'Europe/London');
+            $close = \Carbon\Carbon::parse($this->closing_time, 'Europe/London');
+
+            if ($close->lessThan($open)) {
+                $close->addDay();
+            }
+
+            return $now->between($open, $close);
+        } catch (\Exception $e) {
+            return $this->restaurant_status === 'Open';
+        }
+    }
+
     public function users()
     {
         return $this->hasMany(User::class);

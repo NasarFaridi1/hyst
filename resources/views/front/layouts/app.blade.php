@@ -485,6 +485,7 @@
 </head>
 
 <body>
+    @include('partials.global_loader')
     @include('front.layouts.header')
     @yield('content')
     @include('front.layouts.footer')

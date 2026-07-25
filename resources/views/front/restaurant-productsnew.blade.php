@@ -2028,6 +2028,9 @@ function confirmVariant() {
 ══════════════════════════════════════════ */
 async function submitCart(form) {
     try {
+        if (typeof window.showGlobalLoader === 'function') {
+            window.showGlobalLoader('Adding to Cart...', 'Please wait', 3500);
+        }
         const res  = await fetch('/cart/add', {
             method: 'POST',
             headers: {
@@ -2038,6 +2041,10 @@ async function submitCart(form) {
         });
         const data = await res.json();
 
+        if (typeof window.hideGlobalLoader === 'function') {
+            window.hideGlobalLoader();
+        }
+
         if (data.different_restaurant) {
             showCartReplaceModal(data.message, form);
             return;
@@ -2046,8 +2053,23 @@ async function submitCart(form) {
             closeVariantModal();
             updateCounts(data.count);
             refreshCartSidebar();
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: 'Item added to cart',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            }
         }
-    } catch (e) { console.error(e); }
+    } catch (e) {
+        console.error(e);
+        if (typeof window.hideGlobalLoader === 'function') {
+            window.hideGlobalLoader();
+        }
+    }
 }
 
 /* ══════════════════════════════════════════
@@ -2261,31 +2283,42 @@ function renderCartSidebar(data) {
 }
 
 async function cartAdjust(cartKey, delta) {
-    await fetch(`/cart/${delta > 0 ? 'increase' : 'decrease'}/${cartKey}`, {
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-        }
-    });
-    const d = await fetch('/cart-count').then(r => r.json());
-    updateCounts(d.count);
-    refreshCartSidebar();
+    if (typeof window.showGlobalLoader === 'function') {
+        window.showGlobalLoader('Updating Cart...', 'Please wait', 2000);
+    }
+    try {
+        await fetch(`/cart/${delta > 0 ? 'increase' : 'decrease'}/${cartKey}`, {
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            }
+        });
+        const d = await fetch('/cart-count').then(r => r.json());
+        updateCounts(d.count);
+        await refreshCartSidebar();
+    } catch(e) {}
+    if (typeof window.hideGlobalLoader === 'function') {
+        window.hideGlobalLoader();
+    }
 }
 
 async function removeCartItem(cartKey) {
-
     if (!confirm('Remove this item from cart?')) {
         return;
     }
-
-    await fetch(`/cart/remove/${cartKey}`, {
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-        }
-    });
-
-    
-
-    refreshCartSidebar();
+    if (typeof window.showGlobalLoader === 'function') {
+        window.showGlobalLoader('Removing Item...', 'Please wait', 2000);
+    }
+    try {
+        await fetch(`/cart/remove/${cartKey}`, {
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            }
+        });
+        await refreshCartSidebar();
+    } catch(e) {}
+    if (typeof window.hideGlobalLoader === 'function') {
+        window.hideGlobalLoader();
+    }
 }
 
 /* ══════════════════════════════════════════

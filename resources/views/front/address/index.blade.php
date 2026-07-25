@@ -530,59 +530,15 @@
         }
 
         function updateCheckoutTotal(deliveryCharge = null) {
-
-            const foodTotal = parseFloat(
-                document.getElementById('cartSubtotal').value
-            );
-
-            if (deliveryCharge === null) {
-                deliveryCharge = parseFloat(
-                    document.getElementById('delivery_charge').value || 0
-                );
+            if (deliveryCharge !== null) {
+                const delInput = document.getElementById('delivery_charge');
+                if (delInput) delInput.value = deliveryCharge.toFixed(2);
+                const delText = document.getElementById('deliveryChargeText');
+                if (delText) delText.innerHTML = '£' + deliveryCharge.toFixed(2);
             }
 
-            let hystCharge = 0;
-
-            if (foodTotal < 20) {
-                hystCharge = 1;
-            }
-            else if (foodTotal < 50) {
-                hystCharge = 2;
-            }
-            else if (foodTotal < 100) {
-                hystCharge = 4;
-            }
-            else {
-                hystCharge = 8;
-            }
-
-            const grandTotal =
-                foodTotal +
-                deliveryCharge +
-                hystCharge;
-
-            document.getElementById('deliveryChargeText').innerHTML =
-                '£' + deliveryCharge.toFixed(2);
-
-            document.getElementById('hystChargeText').innerHTML =
-                '£' + hystCharge.toFixed(2);
-
-            document.getElementById('finalTotalText').innerHTML =
-                '£' + grandTotal.toFixed(2);
-
-            document.getElementById('mobileFinalTotalText').innerHTML =
-                '£' + grandTotal.toFixed(2);
-
-            document.getElementById('hyst_charge').value =
-                hystCharge.toFixed(2);
-
-            document.getElementById('delivery_charge').value =
-                deliveryCharge.toFixed(2);
-
-            const amountInput = document.querySelector('input[name="amount"]');
-
-            if (amountInput) {
-                amountInput.value = grandTotal.toFixed(2);
+            if (typeof updateGrandTotal === 'function') {
+                updateGrandTotal();
             }
         }
 

@@ -333,58 +333,95 @@ class CartController extends Controller
 
         return back();
     }
-    public function increase($cartKey)
+    public function increase(Request $request, $cartKey)
     {
         $cart = session()->get('cart', []);
 
         if (isset($cart[$cartKey])) {
-
             $cart[$cartKey]['quantity']++;
-
         }
 
         session()->put('cart', $cart);
 
+        if ($request->expectsJson() || $request->ajax() || $request->wantsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
+            $item = $cart[$cartKey] ?? null;
+            $itemPrice = $item ? ($item['base_price'] + ($item['addon_total'] ?? 0)) : 0;
+            $itemSubtotal = $item ? ($itemPrice * $item['quantity']) : 0;
+            $originalTotal = collect($cart)->sum(function($i) {
+                return ($i['base_price'] + ($i['addon_total'] ?? 0)) * $i['quantity'];
+            });
+
+            return response()->json([
+                'success' => true,
+                'cart_key' => $cartKey,
+                'quantity' => $item['quantity'] ?? 0,
+                'item_price' => number_format($itemPrice, 2, '.', ''),
+                'item_subtotal' => number_format($itemSubtotal, 2, '.', ''),
+                'original_total' => number_format($originalTotal, 2, '.', ''),
+                'cart_count' => collect($cart)->sum('quantity'),
+                'cart_empty' => count($cart) === 0
+            ]);
+        }
+
         return back();
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | DECREASE QTY
-    |--------------------------------------------------------------------------
-    */
-
-    public function decrease($cartKey)
+    public function decrease(Request $request, $cartKey)
     {
         $cart = session()->get('cart', []);
 
         if (isset($cart[$cartKey])) {
-
-            /*
-            |--------------------------------------------------------------------------
-            | MINIMUM 1
-            |--------------------------------------------------------------------------
-            */
-
             if ($cart[$cartKey]['quantity'] > 1) {
-
                 $cart[$cartKey]['quantity']--;
-
             }
-
         }
 
         session()->put('cart', $cart);
 
+        if ($request->expectsJson() || $request->ajax() || $request->wantsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
+            $item = $cart[$cartKey] ?? null;
+            $itemPrice = $item ? ($item['base_price'] + ($item['addon_total'] ?? 0)) : 0;
+            $itemSubtotal = $item ? ($itemPrice * $item['quantity']) : 0;
+            $originalTotal = collect($cart)->sum(function($i) {
+                return ($i['base_price'] + ($i['addon_total'] ?? 0)) * $i['quantity'];
+            });
+
+            return response()->json([
+                'success' => true,
+                'cart_key' => $cartKey,
+                'quantity' => $item['quantity'] ?? 0,
+                'item_price' => number_format($itemPrice, 2, '.', ''),
+                'item_subtotal' => number_format($itemSubtotal, 2, '.', ''),
+                'original_total' => number_format($originalTotal, 2, '.', ''),
+                'cart_count' => collect($cart)->sum('quantity'),
+                'cart_empty' => count($cart) === 0
+            ]);
+        }
+
         return back();
     }
-    public function remove($cartKey)
+
+    public function remove(Request $request, $cartKey)
     {
         $cart = session()->get('cart', []);
 
         unset($cart[$cartKey]);
 
         session()->put('cart', $cart);
+
+        if ($request->expectsJson() || $request->ajax() || $request->wantsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
+            $originalTotal = collect($cart)->sum(function($i) {
+                return ($i['base_price'] + ($i['addon_total'] ?? 0)) * $i['quantity'];
+            });
+
+            return response()->json([
+                'success' => true,
+                'cart_key' => $cartKey,
+                'original_total' => number_format($originalTotal, 2, '.', ''),
+                'cart_count' => collect($cart)->sum('quantity'),
+                'cart_empty' => count($cart) === 0
+            ]);
+        }
 
         return back();
     }
