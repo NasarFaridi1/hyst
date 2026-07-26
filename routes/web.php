@@ -18,6 +18,10 @@ use App\Http\Controllers\Auth\UserRegisterController;
 use App\Http\Controllers\Admin\VendorController;
 use App\Http\Controllers\RestaurantAdmin\DashboardController as RestaurantDashboardController;
 use App\Http\Controllers\RestaurantAdmin\OrderController as RestaurantOrderController;
+
+Route::get('/offline', function () {
+    return view('vendor.laravelpwa.offline');
+})->name('laravelpwa.offline');
 use App\Http\Controllers\RestaurantAdmin\ComplaintController as RestaurantComplaintController;
 use App\Http\Controllers\Ambassador\CategoryController as AmbassadorCategoryController;
 use App\Http\Controllers\Ambassador\ProductController as AmbassadorProductController;

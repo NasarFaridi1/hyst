@@ -904,123 +904,104 @@
                 Later
 
             </button>
-
         </div>
-
     </div>
-    <script>
 
+    <!-- iOS INSTALLATION GUIDE MODAL -->
+    <div id="iosInstallGuide" style="display:none; position:fixed; inset:0; z-index:999999; background:rgba(0,0,0,0.7); backdrop-filter:blur(6px); align-items:center; justify-content:center; padding:20px;">
+        <div style="background:#fff; border-radius:24px; padding:30px; max-width:400px; width:100%; text-align:center; position:relative; font-family:'Poppins',sans-serif; box-shadow:0 20px 50px rgba(0,0,0,0.25);">
+            <button onclick="document.getElementById('iosInstallGuide').style.display='none'" style="position:absolute; top:16px; right:16px; border:none; background:#F3F4F6; width:32px; height:32px; border-radius:50%; font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center;">✕</button>
+            <div style="font-size:42px; margin-bottom:10px;">📲</div>
+            <h3 style="font-size:20px; font-weight:800; color:#111827; margin-bottom:8px;">Install HYST App on iPhone</h3>
+            <p style="font-size:13px; color:#6B7280; margin-bottom:20px; line-height:1.5;">Install HYST on your home screen for a fast, app-like experience:</p>
+            
+            <div style="background:#FFF7F3; border:1.5px solid #FFD8C9; border-radius:16px; padding:16px; text-align:left; margin-bottom:12px; display:flex; align-items:center; gap:14px;">
+                <div style="width:36px; height:36px; border-radius:10px; background:#C25A2A; color:#fff; font-weight:800; font-size:16px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">1</div>
+                <div style="font-size:13px; color:#1F2937; line-height:1.4;">
+                    Tap the <strong>Share button</strong> <span style="font-size:18px;">⎋</span> at the bottom of Safari
+                </div>
+            </div>
+
+            <div style="background:#FFF7F3; border:1.5px solid #FFD8C9; border-radius:16px; padding:16px; text-align:left; margin-bottom:20px; display:flex; align-items:center; gap:14px;">
+                <div style="width:36px; height:36px; border-radius:10px; background:#C25A2A; color:#fff; font-weight:800; font-size:16px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">2</div>
+                <div style="font-size:13px; color:#1F2937; line-height:1.4;">
+                    Scroll down & tap <strong>"Add to Home Screen"</strong> <span style="font-size:18px;">⊕</span>
+                </div>
+            </div>
+
+            <button onclick="document.getElementById('iosInstallGuide').style.display='none'; closeInstall();" style="width:100%; background:#C25A2A; color:#fff; font-weight:700; padding:13px; border:none; border-radius:12px; font-size:15px; cursor:pointer; box-shadow:0 8px 20px rgba(194,90,42,0.35);">
+                Got It
+            </button>
+        </div>
+    </div>
+
+    <script>
         let deferredPrompt;
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
 
         function closeInstall() {
-
-         // Save current time
             localStorage.setItem('install_popup_closed', Date.now());
-
-            document
-                .getElementById(
-                    'installPopup'
-                )
-                .style.display = 'none';
-
+            const popup = document.getElementById('installPopup');
+            if (popup) popup.style.display = 'none';
         }
 
-        window.addEventListener(
-
-            'beforeinstallprompt',
-
-            (e) => {
-
-                console.log(
-                    'INSTALL READY'
-                );
-
-                e.preventDefault();
-
-                deferredPrompt = e;
-
-                // setTimeout(() => {
-
-                //     document
-                //         .getElementById(
-                //             'installPopup'
-                //         )
-                //         .style.display = 'flex';
-
-                // }, 3000);
-
-                // Check if user clicked "Later" within the last hour
-                const lastClosed = localStorage.getItem('install_popup_closed');
-
-                if (lastClosed) {
-
-                    const oneHour = 60 * 60 * 1000;
-
-                    if (Date.now() - parseInt(lastClosed) < oneHour) {
-                        return; // Don't show popup
-                    }
+        function checkShowInstallPopup() {
+            const lastClosed = localStorage.getItem('install_popup_closed');
+            if (lastClosed) {
+                const thirtyMins = 30 * 60 * 1000;
+                if (Date.now() - parseInt(lastClosed) < thirtyMins) {
+                    return false;
                 }
+            }
+            return true;
+        }
 
+        // Show installation popup on iOS Safari
+        if (isIOS && !isStandalone && checkShowInstallPopup()) {
+            setTimeout(() => {
+                const popup = document.getElementById('installPopup');
+                if (popup) popup.style.display = 'flex';
+            }, 3000);
+        }
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            console.log('INSTALL READY');
+            e.preventDefault();
+            deferredPrompt = e;
+
+            if (checkShowInstallPopup()) {
                 setTimeout(() => {
-                    document.getElementById('installPopup').style.display = 'flex';
+                    const popup = document.getElementById('installPopup');
+                    if (popup) popup.style.display = 'flex';
                 }, 3000);
-
             }
+        });
 
-        );
-
-        document
-
-            .getElementById(
-                'installBtn'
-            )
-
-            .addEventListener(
-
-                'click',
-
-                async () => {
-
-                    if (!deferredPrompt) {
-
-                        alert(
-
-                            'Install unavailable'
-
-                        );
-
-                        return;
-
-                    }
-
-                    deferredPrompt.prompt();
-
-                    await deferredPrompt.userChoice;
-
+        const installBtn = document.getElementById('installBtn');
+        if (installBtn) {
+            installBtn.addEventListener('click', async () => {
+                if (isIOS) {
+                    const guide = document.getElementById('iosInstallGuide');
+                    if (guide) guide.style.display = 'flex';
                     closeInstall();
-
+                    return;
                 }
 
-            );
+                if (!deferredPrompt) {
+                    alert('To install HYST, use Safari share menu on iOS or Chrome menu on Android.');
+                    return;
+                }
 
-        window.addEventListener(
-
-            'appinstalled',
-
-            () => {
-
-                alert(
-
-                    'App Installed'
-
-                );
-
+                deferredPrompt.prompt();
+                await deferredPrompt.userChoice;
                 closeInstall();
+            });
+        }
 
-            }
-
-        );
-
+        window.addEventListener('appinstalled', () => {
+            closeInstall();
+        });
     </script>
 
     @if(session('message'))
