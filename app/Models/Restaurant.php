@@ -74,12 +74,22 @@ class Restaurant extends Model
 
     public function getIsOpenAttribute()
     {
+        // 1. If Super Admin disabled the restaurant (status == 0), it is closed
+        if (isset($this->status) && (int)$this->status === 0) {
+            return false;
+        }
+
+        // 2. If Restaurant Admin explicitly set store status to 'Closed'
         if ($this->restaurant_status === 'Closed') {
             return false;
         }
 
+        if ($this->restaurant_status === 'Open') {
+            return true;
+        }
+
         if (empty($this->working_days) || empty($this->opening_time) || empty($this->closing_time)) {
-            return $this->restaurant_status === 'Open';
+            return true;
         }
 
         $now = \Carbon\Carbon::now('Europe/London');
@@ -101,7 +111,7 @@ class Restaurant extends Model
 
             return $now->between($open, $close);
         } catch (\Exception $e) {
-            return $this->restaurant_status === 'Open';
+            return true;
         }
     }
 

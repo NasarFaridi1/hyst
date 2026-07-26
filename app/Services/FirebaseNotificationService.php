@@ -8,23 +8,33 @@ use Kreait\Firebase\Messaging\Notification;
 
 class FirebaseNotificationService
 {
-    protected $messaging;
+    protected $messaging = null;
 
     public function __construct()
     {
-        $credentialsPath = storage_path('app/firebase/firebase.json');
+        try {
+            $credentialsPath = storage_path('app/firebase/firebase.json');
 
-        if (!file_exists($credentialsPath)) {
-            \Log::warning('Firebase service account credentials file missing at: ' . $credentialsPath);
+            if (file_exists($credentialsPath)) {
+                $factory = (new Factory)->withServiceAccount($credentialsPath);
+                $this->messaging = $factory->createMessaging();
+            } else {
+                \Log::warning('Firebase service account credentials file missing at: ' . $credentialsPath);
+            }
+        } catch (\Throwable $e) {
+            \Log::error('Firebase initialization failed: ' . $e->getMessage());
+            $this->messaging = null;
         }
-
-        $factory = (new Factory)->withServiceAccount($credentialsPath);
-        $this->messaging = $factory->createMessaging();
     }
 
     public function send($token, $title, $body, $targetUrl = '/my-orders')
     {
         try {
+            if (!$this->messaging) {
+                \Log::warning('FCM messaging client not initialized. Skipping notification.');
+                return false;
+            }
+
             if (empty($token)) {
                 \Log::error('FCM TOKEN NULL OR EMPTY');
                 return false;
@@ -77,7 +87,7 @@ class FirebaseNotificationService
             \Log::info('FCM SEND SUCCESS', ['title' => $title]);
             return true;
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             \Log::error('FCM SEND FAILED', [
                 'error' => $e->getMessage(),
                 'title' => $title

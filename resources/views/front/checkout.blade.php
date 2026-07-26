@@ -791,6 +791,58 @@
 
 <script>
     (function () {
+        /* ── PLACE ORDER BUTTON VALIDATION ── */
+        window.validateCheckoutPlaceOrderButton = function() {
+            const orderTypeInput = document.querySelector('input[name="order_type"]:checked');
+            const orderType = orderTypeInput ? orderTypeInput.value : 'delivery';
+            const placeBtns = document.querySelectorAll('.co-place-btn, .mobile-footer-btn');
+
+            // Dine In or Takeaway: No delivery address validation required
+            if (orderType === 'dine_in' || orderType === 'takeaway') {
+                placeBtns.forEach(btn => {
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                    btn.style.pointerEvents = 'auto';
+                    btn.style.cursor = 'pointer';
+                });
+                return true;
+            }
+
+            // Home Delivery: Validate delivery address deliverability
+            const addressId = document.getElementById('address_id')?.value;
+            const addressVal = document.getElementById('address')?.value;
+            const quoteStatus = document.getElementById('uberQuoteStatus');
+            const hasErrorDisplay = quoteStatus && quoteStatus.style.display !== 'none' && quoteStatus.classList.contains('uber-quote-error');
+
+            let isValid = true;
+
+            if (!addressId && !addressVal) {
+                isValid = false;
+            }
+
+            if (hasErrorDisplay) {
+                isValid = false;
+            }
+
+            if (isValid) {
+                placeBtns.forEach(btn => {
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                    btn.style.pointerEvents = 'auto';
+                    btn.style.cursor = 'pointer';
+                });
+                return true;
+            } else {
+                placeBtns.forEach(btn => {
+                    btn.disabled = true;
+                    btn.style.opacity = '0.4';
+                    btn.style.pointerEvents = 'none';
+                    btn.style.cursor = 'not-allowed';
+                });
+                return false;
+            }
+        };
+
         /* ── ORDER TYPE RADIO HIGHLIGHT & SYNC ── */
         document.querySelectorAll('.ot-label').forEach(function(label) {
             label.addEventListener('click', function () {
@@ -830,13 +882,17 @@
                 }
 
                 updateGrandTotal();
+                window.validateCheckoutPlaceOrderButton();
             });
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            window.validateCheckoutPlaceOrderButton();
         });
 
         /* ── FORM SUBMISSION ROUTING (ALWAYS ONLINE) ── */
         document.getElementById('checkoutForm').addEventListener('submit', function (e) {
             const orderType = document.querySelector('input[name="order_type"]:checked');
-            const uberQuoteId = document.getElementById('uber_quote_id').value;
 
             if (!orderType) {
                 e.preventDefault();
@@ -849,15 +905,18 @@
                 return;
             }
 
-            if (orderType.value === 'delivery' && !uberQuoteId && !document.getElementById('address').value) {
-                e.preventDefault();
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Delivery Address Required',
-                    text: 'Please select or add a valid delivery address.',
-                    confirmButtonColor: '#C25A2A'
-                });
-                return;
+            if (orderType.value === 'delivery') {
+                const isValid = window.validateCheckoutPlaceOrderButton();
+                if (!isValid) {
+                    e.preventDefault();
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Delivery Address Unavailable',
+                        text: 'The selected delivery address is outside the delivery area or unavailable. Please choose a deliverable address or select Dine In / Takeaway.',
+                        confirmButtonColor: '#C25A2A'
+                    });
+                    return;
+                }
             }
 
             e.preventDefault();

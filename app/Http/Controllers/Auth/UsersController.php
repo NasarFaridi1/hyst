@@ -61,9 +61,9 @@ class UsersController extends Controller
 {
     public function showLogin(Request $request)
     {
-        // return view('auth.login', [
-        //     'redirect' => $request->redirect
-        // ]);
+        if ($request->filled('redirect')) {
+            session(['login_redirect' => $request->redirect]);
+        }
 
         return view('auth.login');
     }
@@ -147,8 +147,7 @@ class UsersController extends Controller
 
             }
 
-            // $redirect = urldecode($request->redirect ?? '/');
-            $redirect = session()->pull('login_redirect', '/');
+            $redirect = session()->pull('login_redirect', $request->input('redirect', !empty(session('cart')) ? '/checkout' : '/'));
 
             // dd($redirect);
 

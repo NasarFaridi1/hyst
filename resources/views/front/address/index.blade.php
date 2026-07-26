@@ -422,6 +422,10 @@
 
             if (selfDelivery != 1) {
                 fetchUberQuote();
+            } else {
+                if (typeof window.validateCheckoutPlaceOrderButton === 'function') {
+                    window.validateCheckoutPlaceOrderButton();
+                }
             }
         }
 
@@ -507,9 +511,15 @@
                 box.className = 'uber-quote-status uber-quote-success';
                 box.innerHTML = renderQuote(data.data);
                 document.dispatchEvent(new CustomEvent('address:quote', { detail: data.data }));
+                if (typeof window.validateCheckoutPlaceOrderButton === 'function') {
+                    window.validateCheckoutPlaceOrderButton();
+                }
             } catch (err) {
                 box.className = 'uber-quote-status uber-quote-error';
                 box.textContent = err.message || 'Something went wrong while fetching the delivery quote.';
+                if (typeof window.validateCheckoutPlaceOrderButton === 'function') {
+                    window.validateCheckoutPlaceOrderButton();
+                }
             }
         }
 

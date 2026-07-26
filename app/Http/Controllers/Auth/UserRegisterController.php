@@ -116,8 +116,9 @@ class UserRegisterController extends Controller
 
         if ($user->email_verified) {
             Auth::login($user);
+            $redirect = session()->pull('login_redirect', !empty(session('cart')) ? '/checkout' : '/');
 
-            return redirect('/')
+            return redirect($redirect)
                 ->with('message', 'Your email is already verified.')
                 ->with('type', 'success');
         }
@@ -131,8 +132,9 @@ class UserRegisterController extends Controller
         ]);
 
         Auth::login($user);
+        $redirect = session()->pull('login_redirect', !empty(session('cart')) ? '/checkout' : '/');
 
-        return redirect('/')
+        return redirect($redirect)
             ->with('message', 'Email verified successfully.')
             ->with('type', 'success');
     }

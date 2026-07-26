@@ -607,7 +607,7 @@
                     </svg>
                 </a>
                 @else
-                <a href="/login" class="btn-primary">
+                <a href="/login?redirect=/checkout" class="btn-primary">
                     Proceed to Checkout
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
