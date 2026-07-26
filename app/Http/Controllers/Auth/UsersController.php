@@ -130,6 +130,10 @@ class UsersController extends Controller
 
             Auth::login($user);
 
+            if ($guestFcmToken = session('guest_fcm_token')) {
+                $user->update(['fcm_token' => $guestFcmToken]);
+            }
+
              if ($user->role == 'super_admin') {
                 return redirect('/admin/dashboard');
             }

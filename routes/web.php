@@ -269,12 +269,7 @@ Route::post('/offers/contact', [FrontMarketingBannerController::class, 'contact'
 Route::get('/offers', [FrontMarketingBannerController::class, 'index'])
      ->name('front.banners.index');
 
-Route::post(
-
-    '/save-fcm-token',
-    [FCMController::class, 'saveToken']
-
-)->middleware('auth');
+Route::post('/save-fcm-token', [FCMController::class, 'saveToken']);
 
  Route::get(
         '/cart',

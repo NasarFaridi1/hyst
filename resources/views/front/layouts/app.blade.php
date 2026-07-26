@@ -681,172 +681,167 @@
     <script>lucide.createIcons();</script>
 
 
+    <!-- FCM NOTIFICATION PERMISSION BANNER -->
+    <div id="fcmPermissionBanner" style="display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%); z-index:99999; background:#111827; color:#fff; padding:16px 20px; border-radius:16px; box-shadow:0 10px 35px rgba(0,0,0,0.35); max-width:440px; width:calc(100% - 32px); align-items:center; justify-content:space-between; gap:12px; font-family:'Poppins',sans-serif;">
+        <div style="display:flex; align-items:center; gap:12px;">
+            <span style="font-size:26px; line-height:1;">🔔</span>
+            <div>
+                <div style="font-size:14px; font-weight:700; color:#fff; margin-bottom:2px;">Enable Order Updates</div>
+                <div style="font-size:12px; color:#9CA3AF; line-height:1.3;">Get real-time notifications for order placement, status & delivery.</div>
+            </div>
+        </div>
+        <div style="display:flex; gap:8px; flex-shrink:0;">
+            <button id="btnAllowFcm" style="background:#C25A2A; color:#fff; font-weight:700; border:none; padding:9px 16px; border-radius:10px; font-size:13px; cursor:pointer; box-shadow:0 4px 12px rgba(194,90,42,0.4);">Enable</button>
+            <button id="btnCloseFcm" style="background:transparent; color:#9CA3AF; border:none; padding:8px; font-size:13px; cursor:pointer;">Later</button>
+        </div>
+    </div>
+
     <script type="module">
-
-        console.log('FCM START');
-
-        import { initializeApp }
-
-            from
-            "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-
-        import {
-
-            getMessaging,
-            getToken,
-            onMessage
-
-        }
-
-            from
-            "https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js";
 
         const firebaseConfig = {
-
-            apiKey:
-                "{{ config('services.firebase.api_key') }}",
-
-            authDomain:
-                "{{ config('services.firebase.auth_domain') }}",
-
-            projectId:
-                "{{ config('services.firebase.project_id') }}",
-
-            storageBucket:
-                "{{ config('services.firebase.storage_bucket') }}",
-
-            messagingSenderId:
-                "{{ config('services.firebase.sender_id') }}",
-
-            appId:
-                "{{ config('services.firebase.app_id') }}",
-
-            measurementId:
-                "{{ config('services.firebase.measurement_id') }}"
-
+            apiKey: "{{ config('services.firebase.api_key') }}",
+            authDomain: "{{ config('services.firebase.auth_domain') }}",
+            projectId: "{{ config('services.firebase.project_id') }}",
+            storageBucket: "{{ config('services.firebase.storage_bucket') }}",
+            messagingSenderId: "{{ config('services.firebase.sender_id') }}",
+            appId: "{{ config('services.firebase.app_id') }}",
+            measurementId: "{{ config('services.firebase.measurement_id') }}"
         };
 
-        const app =
-            initializeApp(firebaseConfig);
+        const app = initializeApp(firebaseConfig);
+        const messaging = getMessaging(app);
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
-        console.log('FIREBASE INITIALIZED');
-
-        const messaging =
-            getMessaging(app);
-
-        Notification.requestPermission()
-
-            .then(async (permission) => {
-
-                console.log('PERMISSION:', permission);
-
-                if (permission === 'granted') {
-
-                    console.log('PERMISSION GRANTED');
-
-                    const registration =
-                        await navigator.serviceWorker.register(
-                            '/firebase-messaging-sw.js'
-                        );
-
-                    console.log(
-                        'SERVICE WORKER REGISTERED'
-                    );
-
-                    const token =
-                        await getToken(
-
-                            messaging,
-
-                            {
-
-                                vapidKey: "{{ config('services.firebase.vapid_key') }}",
-
-                                serviceWorkerRegistration:
-                                    registration
-                            }
-
-                        );
-
-                    console.log(
-                        'FCM TOKEN:',
-                        token
-                    );
-
-                    if (token) {
-
-                        fetch('/save-fcm-token', {
-
-                            method: 'POST',
-
-                            headers: {
-
-                                'Content-Type':
-                                    'application/json',
-
-                                'X-CSRF-TOKEN':
-
-                                    document.querySelector(
-                                        'meta[name="csrf-token"]'
-                                    ).content
-                            },
-
-                            body: JSON.stringify({
-
-                                token: token
-
-                            })
-                        });
-
-                        console.log(
-                            'TOKEN SAVED'
-                        );
-                    }
+        function checkShouldPromptPermission() {
+            const lastClosed = localStorage.getItem('fcm_permission_closed');
+            if (lastClosed) {
+                const thirtyMins = 30 * 60 * 1000;
+                if (Date.now() - parseInt(lastClosed) < thirtyMins) {
+                    return false;
                 }
+            }
+            return true;
+        }
 
-            }).catch((error) => {
+        function snoozePermissionPrompt() {
+            localStorage.setItem('fcm_permission_closed', Date.now());
+            const banner = document.getElementById('fcmPermissionBanner');
+            if (banner) banner.style.display = 'none';
+        }
 
-                console.log(
-                    'FCM ERROR:',
-                    error
-                );
+        async function registerAndSaveToken() {
+            try {
+                const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', { scope: '/' });
+                const token = await getToken(messaging, {
+                    vapidKey: "{{ config('services.firebase.vapid_key') }}",
+                    serviceWorkerRegistration: registration
+                });
 
+                if (token) {
+                    console.log('FCM TOKEN OBTAINED:', token);
+                    fetch('/save-fcm-token', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: JSON.stringify({ token: token })
+                    });
+                }
+            } catch (err) {
+                console.error('FCM Token Generation Error:', err);
+            }
+        }
+
+        // Initialize Notification logic
+        if ('Notification' in window) {
+            if (Notification.permission === 'granted') {
+                registerAndSaveToken();
+            } else if (Notification.permission === 'default') {
+                if (checkShouldPromptPermission()) {
+                    setTimeout(() => {
+                        const banner = document.getElementById('fcmPermissionBanner');
+                        if (banner) banner.style.display = 'flex';
+                    }, 3000);
+                }
+            } else {
+                // If denied/blocked, respect 30 minute re-asking rule
+                if (checkShouldPromptPermission()) {
+                    setTimeout(() => {
+                        const banner = document.getElementById('fcmPermissionBanner');
+                        if (banner) banner.style.display = 'flex';
+                    }, 3000);
+                }
+            }
+        } else if (isIOS) {
+            // iOS Safari outside standalone PWA mode
+            if (checkShouldPromptPermission()) {
+                setTimeout(() => {
+                    const banner = document.getElementById('fcmPermissionBanner');
+                    if (banner) banner.style.display = 'flex';
+                }, 3000);
+            }
+        }
+
+        // Handle Allow button click (Required explicit user gesture for iOS Safari)
+        const btnAllow = document.getElementById('btnAllowFcm');
+        if (btnAllow) {
+            btnAllow.addEventListener('click', async () => {
+                const banner = document.getElementById('fcmPermissionBanner');
+                if (banner) banner.style.display = 'none';
+
+                if ('Notification' in window) {
+                    try {
+                        const permission = await Notification.requestPermission();
+                        if (permission === 'granted') {
+                            registerAndSaveToken();
+                        } else {
+                            snoozePermissionPrompt();
+                        }
+                    } catch (e) {
+                        console.error('Error requesting notification permission:', e);
+                        snoozePermissionPrompt();
+                    }
+                } else if (isIOS) {
+                    alert('To enable notifications on iPhone/iPad:\n1. Tap Share (⎋) at bottom of Safari\n2. Select "Add to Home Screen" (⊕)\n3. Open HYST from Home Screen');
+                    snoozePermissionPrompt();
+                }
             });
+        }
+
+        // Handle Later button click
+        const btnClose = document.getElementById('btnCloseFcm');
+        if (btnClose) {
+            btnClose.addEventListener('click', () => {
+                snoozePermissionPrompt();
+            });
+        }
 
         onMessage(messaging, (payload) => {
+            console.log('FCM FOREGROUND NOTIFICATION:', payload);
+            const title = payload.notification?.title || payload.data?.title || 'HYST Order Update';
+            const body = payload.notification?.body || payload.data?.body || '';
 
-            console.log(
-                'NOTIFICATION',
-                payload
-            );
-
-            alert(
-
-                payload.notification.title
-
-                + '\n\n'
-
-                +
-
-                payload.notification.body
-
-            );
-
-            new Notification(
-
-                payload.notification.title,
-
-                {
-
-                    body:
-                        payload.notification.body
-
-                }
-
-            );
-
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'info',
+                    title: title,
+                    text: body,
+                    showConfirmButton: true,
+                    confirmButtonText: 'View',
+                    confirmButtonColor: '#C25A2A',
+                    timer: 8000
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = '/my-orders';
+                    }
+                });
+            }
         });
-
     </script>
 
     <!-- INSTALL POPUP -->
