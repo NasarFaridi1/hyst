@@ -12,111 +12,76 @@ class FirebaseNotificationService
 
     public function __construct()
     {
-        $factory =
-            (new Factory)
+        $credentialsPath = storage_path('app/firebase/firebase.json');
 
-            ->withServiceAccount(
+        if (!file_exists($credentialsPath)) {
+            \Log::warning('Firebase service account credentials file missing at: ' . $credentialsPath);
+        }
 
-                storage_path(
-                    'app/firebase/firebase.json'
-                )
-
-            );
-
-        $this->messaging =
-            $factory->createMessaging();
+        $factory = (new Factory)->withServiceAccount($credentialsPath);
+        $this->messaging = $factory->createMessaging();
     }
 
-    public function send(
-        $token,
-        $title,
-        $body
-    ) {
-
+    public function send($token, $title, $body, $targetUrl = '/my-orders')
+    {
         try {
-
-            /*
-            -----------------------
-            TOKEN CHECK
-            -----------------------
-            */
-
-            if (
-                empty($token)
-            ) {
-
-                \Log::error(
-                    'FCM TOKEN NULL'
-                );
-
+            if (empty($token)) {
+                \Log::error('FCM TOKEN NULL OR EMPTY');
                 return false;
             }
 
-            \Log::info(
-                'FCM SEND START',
-                [
+            \Log::info('FCM SEND START', [
+                'token' => substr($token, 0, 20) . '...',
+                'title' => $title,
+                'body'  => $body,
+            ]);
 
-                    'token' =>
-                        substr(
-                            $token,
-                            0,
-                            20
-                        ),
+            $url = url($targetUrl);
 
-                    'title' =>
-                        $title
-                ]
-            );
+            $message = CloudMessage::withTarget('token', (string)$token)
+                ->withNotification(Notification::create($title, $body))
+                ->withData([
+                    'title' => (string)$title,
+                    'body'  => (string)$body,
+                    'click_action' => $url,
+                ])
+                ->withWebPushConfig([
+                    'notification' => [
+                        'title' => (string)$title,
+                        'body'  => (string)$body,
+                        'icon'  => asset('/images/icons/icon-192x192.png'),
+                        'badge' => asset('/images/icons/icon-72x72.png'),
+                    ],
+                    'fcm_options' => [
+                        'link' => $url,
+                    ],
+                ])
+                ->withApnsConfig([
+                    'headers' => [
+                        'apns-priority' => '10',
+                    ],
+                    'payload' => [
+                        'aps' => [
+                            'alert' => [
+                                'title' => (string)$title,
+                                'body'  => (string)$body,
+                            ],
+                            'sound' => 'default',
+                            'badge' => 1,
+                        ],
+                    ],
+                ]);
 
-            $message =
-                CloudMessage::withTarget(
+            $this->messaging->send($message);
 
-                    'token',
-
-                    (string)$token
-
-                )
-
-                ->withNotification(
-
-                    Notification::create(
-
-                        $title,
-
-                        $body
-                    )
-                );
-
-            $this->messaging
-                ->send(
-                    $message
-                );
-
-            \Log::info(
-                'FCM SEND SUCCESS'
-            );
-
+            \Log::info('FCM SEND SUCCESS', ['title' => $title]);
             return true;
 
-        }
-
-        catch (
-            \Exception $e
-        ) {
-
-            \Log::error(
-
-                'FCM SEND FAILED',
-
-                [
-
-                    'message' =>
-                        $e->getMessage()
-
-                ]
-
-            );
-
+        } catch (\Exception $e) {
+            \Log::error('FCM SEND FAILED', [
+                'error' => $e->getMessage(),
+                'title' => $title
+            ]);
             return false;
         }
     }

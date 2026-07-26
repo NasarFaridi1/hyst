@@ -1,54 +1,52 @@
-importScripts(
+importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js');
 
-'https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js'
-
-);
-
-importScripts(
-
-'https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js'
-
-);
-
+// Initialize Firebase in Service Worker
 firebase.initializeApp({
-
-    apiKey:
-    "AIzaSyCZiAT9MHsByPZXwiNN05bdQm3J_T6dLOY",
-
-    authDomain:
-    "food-app-67243.firebaseapp.com",
-
-    projectId:
-    "food-app-67243",
-
-    storageBucket:
-    "food-app-67243.firebasestorage.app",
-
-    messagingSenderId:
-    "27556705584",
-
-    appId:
-    "1:27556705584:web:c5a44d5b5b9e241b0a84f5",
-
-    measurementId:
-    "G-B191S3TCSD"
+    apiKey: "AIzaSyDummyKey",
+    authDomain: "hyst-app.firebaseapp.com",
+    projectId: "hyst-app",
+    storageBucket: "hyst-app.appspot.com",
+    messagingSenderId: "100000000000",
+    appId: "1:100000000000:web:dummy"
 });
 
-const messaging =
-    firebase.messaging();
+const messaging = firebase.messaging();
 
-messaging.onBackgroundMessage(
+messaging.onBackgroundMessage(function(payload) {
+    console.log('[firebase-messaging-sw.js] Received background message ', payload);
 
-function(payload) {
+    const notificationTitle = payload.notification ? payload.notification.title : (payload.data ? payload.data.title : 'HYST Order Update');
+    const notificationOptions = {
+        body: payload.notification ? payload.notification.body : (payload.data ? payload.data.body : 'You have a new order update.'),
+        icon: '/images/icons/icon-192x192.png',
+        badge: '/images/icons/icon-72x72.png',
+        data: payload.data || {},
+        actions: [
+            { action: 'open', title: 'View Order' }
+        ]
+    };
 
-    self.registration.showNotification(
+    self.registration.showNotification(notificationTitle, notificationOptions);
+});
 
-        payload.notification.title,
+self.addEventListener('notificationclick', function(event) {
+    event.notification.close();
+    const urlToOpen = event.notification.data && event.notification.data.click_action 
+        ? event.notification.data.click_action 
+        : '/my-orders';
 
-        {
-
-            body:
-            payload.notification.body
-        }
+    event.waitUntil(
+        clients.matchAll({ type: 'window', includeUncontrolled: true }).then(windowClients => {
+            for (let i = 0; i < windowClients.length; i++) {
+                const client = windowClients[i];
+                if (client.url.includes(urlToOpen) && 'focus' in client) {
+                    return client.focus();
+                }
+            }
+            if (clients.openWindow) {
+                return clients.openWindow(urlToOpen);
+            }
+        })
     );
 });

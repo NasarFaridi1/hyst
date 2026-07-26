@@ -1120,31 +1120,27 @@ class OrderController extends Controller
                 );
             }
 
-            if (
+            $firebase = new FirebaseNotificationService();
 
-                $restaurantAdmin
-
-                &&
-
-                !empty(
-                $restaurantAdmin->fcm_token
-            )
-
-            ) {
-
-                $firebase =
-                    new FirebaseNotificationService();
-
+            // Send FCM to Restaurant Admin
+            if ($restaurantAdmin && !empty($restaurantAdmin->fcm_token)) {
                 $firebase->send(
-
                     $restaurantAdmin->fcm_token,
-
-                    'New Order',
-
-                    'You received a new order.'
-
+                    'New Order Received! 🛍️',
+                    'You received a new order #' . $order->id . ' for £' . number_format($order->amount, 2) . '.',
+                    '/restaurant/orders'
                 );
+            }
 
+            // Send FCM to Customer
+            $user = auth()->user();
+            if ($user && !empty($user->fcm_token)) {
+                $firebase->send(
+                    $user->fcm_token,
+                    'Order Placed Successfully! 🎉',
+                    'Your order #' . $order->id . ' has been placed successfully. Track your status in My Orders.',
+                    '/my-orders'
+                );
             }
             Log::info('PAYMENT CREATED');
 

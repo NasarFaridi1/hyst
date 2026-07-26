@@ -364,36 +364,25 @@ class OrderController extends Controller
             $order->id
         );
 
-        if (
+        if ($order->user && !empty($order->user->fcm_token)) {
+            \Log::info('SEND ORDER STATUS FCM TO USER', ['user_id' => $order->user_id, 'status' => $request->status]);
 
-            $order->user
+            $title = 'Order Status Update';
+            $body = 'Your order #' . $order->id . ' status is now ' . strtoupper($request->status) . '.';
 
-            &&
+            if (in_array(strtolower($request->status), ['accepted', 'preparing'])) {
+                $title = 'Order Accepted! 🍳';
+                $body = 'Your order #' . $order->id . ' has been accepted by the restaurant and is now being prepared!';
+            } elseif (in_array(strtolower($request->status), ['completed', 'delivered'])) {
+                $title = 'Order Received! 🍽️';
+                $body = 'Your order #' . $order->id . ' has been delivered. Enjoy your meal!';
+            } elseif (strtolower($request->status) == 'cancelled') {
+                $title = 'Order Cancelled';
+                $body = 'Your order #' . $order->id . ' was cancelled by the restaurant.';
+            }
 
-            $order->user->fcm_token
-
-        ) {
-
-            \Log::info('SEND ORDER STATUS TO USER');
-
-            $firebase =
-                new FirebaseNotificationService();
-
-            $firebase->send(
-
-                $order->user->fcm_token,
-
-                'Order Updated',
-
-                'Order #'
-                . $order->id
-                . ' is now '
-                . strtoupper(
-                    $request->status
-                )
-
-            );
-
+            $firebase = new FirebaseNotificationService();
+            $firebase->send($order->user->fcm_token, $title, $body, '/my-orders');
         }
         /*
         |--------------------------------------------------------------------------
