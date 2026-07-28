@@ -611,9 +611,14 @@
                     </div>
 
                     <!-- DELIVERY ADDRESS INCLUSION -->
+                    <div id="addressContainer">
                     @auth
+                    
                         @include('front.address.index')
+                      
                     @endauth
+                    
+                    </div>  
                 </div>
 
                 <!-- Hidden Payment Method (Always Online) -->
@@ -741,6 +746,9 @@
                     <input type="hidden" id="giftCardIdHidden" name="gift_card_id">
                     <input type="hidden" id="giftCardCodeHidden" name="gift_card_code">
                     <input type="hidden" id="giftCardAmountHidden" name="gift_card_amount" value="0">
+                    <input type="hidden" name="is_scheduled" id="is_scheduled" value="0">
+
+                    <input type="hidden" name="scheduled_for" id="scheduled_for">
 
                     <hr class="summary-divider">
 
@@ -868,22 +876,101 @@
                 if (this.value === 'delivery') {
                     if (df) df.classList.remove('co-hidden');
                     if (deliveryRow) deliveryRow.style.display = "flex";
+                    
                     if (addr) addr.required = true;
                     if (pin)  pin.required  = true;
+                    const addressId = document.getElementById('address_id')?.value;
+                    document
+                        .getElementById('deliveryScheduleContainer')
+                        .style.display = 'block';
 
                     if (typeof window.fetchUberQuote === 'function') {
                         window.fetchUberQuote();
                     }
+
+                    
+
                 } else {
+
                     if (df) df.classList.add('co-hidden');
                     if (deliveryRow) deliveryRow.style.display = "none";
                     if (addr) addr.required = false;
-                    if (pin)  pin.required  = false;
+                    if (pin) pin.required = false;
+
+                    document
+                        .getElementById('deliveryScheduleContainer')
+                        .style.display = 'none';
+
+                    // Clear selected address UI
+                    document.querySelectorAll('.address-option-row').forEach(row => {
+                        row.classList.remove('selected');
+                    });
+
+                    // Clear hidden address fields
+                    document.getElementById('address_id').value = "";
+                    document.getElementById('address').value = "";
+                    document.getElementById('pincode').value = "";
+                    document.getElementById('city').value = "";
+                    document.getElementById('state').value = "";
+                    document.getElementById('country').value = "";
+                    document.getElementById('latitude').value = "";
+                    document.getElementById('longitude').value = "";
+                    document.getElementById('building_type').value = "";
+                    document.getElementById('landmark').value = "";
+                    document.getElementById('label').value = "";
+
+                    // Clear delivery charge
+                    document.getElementById("delivery_charge").value = 0;
+                    document.getElementById("deliveryChargeText").innerHTML = "£0.00";
+                    document.getElementById("uber_quote_id").value = "";
+
+                    // Hide quote message
+                    const quoteBox = document.getElementById("uberQuoteStatus");
+                    if (quoteBox) {
+                        quoteBox.style.display = "none";
+                        quoteBox.innerHTML = "";
+                    }
                 }
 
                 updateGrandTotal();
                 window.validateCheckoutPlaceOrderButton();
             });
+        });
+
+        document.querySelectorAll('input[name="delivery_time_type"]').forEach(radio => {
+
+            radio.addEventListener('change', function () {
+
+                document
+                    .querySelectorAll('input[name="delivery_time_type"]')
+                    .forEach(r => {
+
+                        r.closest('.ot-label').classList.remove('checked');
+
+                    });
+
+                this.closest('.ot-label').classList.add('checked');
+
+                const fields = document.getElementById('scheduleFields');
+
+                if (this.value === 'schedule') {
+
+                    fields.classList.remove('co-hidden');
+
+                    document.getElementById('scheduled_date').required = true;
+                    document.getElementById('scheduled_time').required = true;
+
+                } else {
+
+                    fields.classList.add('co-hidden');
+
+                    document.getElementById('scheduled_date').required = false;
+                    document.getElementById('scheduled_time').required = false;
+
+                }
+
+            });
+
         });
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -917,6 +1004,27 @@
                     });
                     return;
                 }
+            }
+
+            const type = document.querySelector(
+                'input[name="delivery_time_type"]:checked'
+            ).value;
+
+            if (type === 'schedule') {
+
+                document.getElementById('is_scheduled').value = 1;
+
+                document.getElementById('scheduled_for').value =
+                    document.getElementById('scheduled_date').value +
+                    ' ' +
+                    document.getElementById('scheduled_time').value +
+                    ':00';
+
+            } else {
+
+                document.getElementById('is_scheduled').value = 0;
+                document.getElementById('scheduled_for').value = '';
+
             }
 
             e.preventDefault();

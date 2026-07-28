@@ -56,7 +56,9 @@ class Restaurant extends Model
 
         'worldpay_password',
 
-        'self_delivery'
+        'self_delivery',
+
+        
 
 
 
@@ -156,5 +158,11 @@ class Restaurant extends Model
     public function coupons()
     {
         return $this->hasMany(Coupon::class);
+    }
+
+    public function deliveryCharges()
+    {
+        return $this->hasMany(RestaurantDeliveryCharge::class)
+                    ->orderBy('from_distance');
     }
 }

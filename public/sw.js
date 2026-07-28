@@ -1,23 +1,13 @@
-self.addEventListener('install', () => {
+self.addEventListener("install", () => {
+    console.log("PWA Installed");
 
-console.log('PWA Installed');
-
-self.skipWaiting();
-
+    self.skipWaiting();
 });
 
-self.addEventListener('activate', () => {
-
-console.log('PWA Active');
-
+self.addEventListener("activate", () => {
+    console.log("PWA Active");
 });
 
-self.addEventListener('fetch', (event) => {
-
-event.respondWith(
-
-fetch(event.request)
-
-);
-
+self.addEventListener("fetch", (event) => {
+    event.respondWith(fetch(event.request));
 });

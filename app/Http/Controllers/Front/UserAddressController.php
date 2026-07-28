@@ -11,6 +11,9 @@ use App\Models\Restaurant;
 use App\Services\UberService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
+use App\Services\SelfDeliveryService;
+
+use App\Models\Address;
 
 class UserAddressController extends Controller
 {
@@ -223,5 +226,88 @@ class UserAddressController extends Controller
             'success' => true,
             'data' => $address
         ]);
+    }
+
+
+
+    public function selfDeliveryQuote(
+        Request $request,
+        SelfDeliveryService $selfDeliveryService
+    )
+    {
+
+        $request->validate([
+            'restaurant_id' => 'required|exists:restaurants,id',
+            'selectedAddress_id' => 'required',
+            'finalTotal' => 'required|numeric|min:0',
+        ]);
+
+        // return response()->json([
+        //     'success' => true,
+        //     'data' => [
+        //         'restaurant_id' => $request->restaurant_id,
+        //         'selectedAddress_id' => $request->selectedAddress_id,
+        //         'finalTotal' => $request->finalTotal,
+        //     ]
+        // ]);
+            
+
+        $restaurant = Restaurant::findOrFail(
+            $request->restaurant_id
+        );
+
+        $address = UserAddress::findOrFail(
+            $request->selectedAddress_id
+        );
+
+
+        if (!$restaurant->self_delivery) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Restaurant does not support self delivery.',
+            ], 422);
+
+        }
+
+        $result = $selfDeliveryService->calculate(
+
+            $restaurant,
+
+            (float)$address->latitude,
+
+            (float)$address->longitude,
+
+            (float)$request->finalTotal
+
+        );
+
+        if (!$result['success']) {
+
+            return response()->json([
+                'success' => false,
+                'message' => $result['message'],
+            ], 422);
+
+        }
+
+        return response()->json([
+
+            'success' => true,
+
+            'data' => [
+
+                'distance' => $result['distance'],
+
+                'delivery_charge' => $result['delivery_charge'],
+
+                'free_delivery' => $result['free_delivery'],
+
+                'slab' => $result['slab'],
+
+            ]
+
+        ]);
+
     }
 }

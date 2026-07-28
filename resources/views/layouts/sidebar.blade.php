@@ -262,27 +262,27 @@
                 <span>Privacy Policy</span>
             </a>
 	
-	       <a href="{{ route('admin.page-visits.index') }}"
+	        <a href="{{ route('admin.page-visits.index') }}"
 
-            class="sidebar-item {{ str_contains($current,'admin/page-visits') ? 'active' : '' }}">
-
-
-
-            <div class="sidebar-icon">
-
-                <i data-lucide="activity"></i>
-
-            </div>
+                class="sidebar-item {{ str_contains($current,'admin/page-visits') ? 'active' : '' }}">
 
 
 
-            <span>Analytics Integration</span>
+                <div class="sidebar-icon">
+
+                    <i data-lucide="activity"></i>
+
+                </div>
 
 
 
-        </a>
+                <span>Analytics Integration</span>
 
-         <a href="/admin/complaint"
+
+
+            </a>
+
+            <a href="/admin/complaint"
             class="sidebar-item {{ str_contains($current,'admin/complaint') ? 'active' : '' }}">
                 <div class="sidebar-icon">
                     <i data-lucide="clipboard-list"></i>
@@ -329,12 +329,21 @@
                 <span>Products</span>
             </a>
 
+
             <a href="/restaurant/categories"
             class="sidebar-item {{ str_contains($current,'restaurant/categories') ? 'active' : '' }}">
                 <div class="sidebar-icon">
                     <i data-lucide="grid-2x2"></i>
                 </div>
                 <span>Categories</span>
+            </a>
+
+            <a href="{{ route('restaurant.delivery-charges.index') }}"
+            class="sidebar-item {{ str_contains($current,'restaurant/delivery-charges') ? 'active' : '' }}">
+                <div class="sidebar-icon">
+                    <i data-lucide="truck"></i>
+                </div>
+                <span>Delivery Charges</span>
             </a>
 
             <a href="/restaurant/coupons"

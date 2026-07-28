@@ -69,6 +69,7 @@ use App\Http\Controllers\RestaurantAdmin\ProductAddonController;
 use App\Http\Controllers\RestaurantAdmin\CustomerController;
 use App\Http\Controllers\RestaurantAdmin\MarketingController;
 use App\Http\Controllers\RestaurantAdmin\LoyaltyRewardController;
+use App\Http\Controllers\RestaurantAdmin\RestaurantDeliveryChargeController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\Auth\AmbassadorRegisterController;
 
@@ -128,6 +129,11 @@ use App\Http\Controllers\RestaurantAdmin\PageVisitController as RestaurantAdminP
 
 Route::post('/checkout/uber/quote', [UserAddressController::class, 'generateUberQuote'])
     ->name('checkout.uber.quote');
+
+Route::post(
+    '/checkout/self-delivery-quote',
+    [UserAddressController::class, 'selfDeliveryQuote']
+)->name('checkout.self.delivery.quote');    
 
 Route::middleware('auth')->group(function () {
     Route::get('/addresses/{id}', [UserAddressController::class, 'show'])->name('addresses.show');
@@ -661,8 +667,6 @@ Route::middleware(['auth', 'restaurant_admin'])
             [RestaurantComplaintController::class, 'show']
         )->name('complaint.show');
 
-        
-
         Route::post('/complaint/{id}/reply',
         [RestaurantComplaintController::class,'complaintReply'])
         ->name('complaint.reply');
@@ -706,9 +710,6 @@ Route::middleware(['auth', 'restaurant_admin'])
             [RestaurantPaymentController::class, 'allPayments']
         );
 
-
-        
-
         Route::post(
             '/orders/{id}/evidence',
             [RestaurantOrderController::class, 'uploadEvidence']
@@ -723,6 +724,8 @@ Route::middleware(['auth', 'restaurant_admin'])
 
         Route::post('/self-delivery', [RestaurantBannerController::class, 'updateSelfDelivery'])
         ->name('self-delivery');
+
+        Route::resource('delivery-charges', RestaurantDeliveryChargeController::class);
 
 
 });
@@ -975,5 +978,3 @@ Route::middleware(['auth','ambassador'])
             ->name('profile.update');
 
 });
-
-

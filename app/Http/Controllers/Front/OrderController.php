@@ -79,11 +79,6 @@ class OrderController extends Controller
                 );
         }
 
-
-        // $restaurantId = Product::find(
-        //     array_key_first($cart)
-        // )->restaurant_id;
-
         $firstItem = reset($cart);
 
         $restaurantId = Product::find(
@@ -94,13 +89,9 @@ class OrderController extends Controller
             $restaurantId
         );
 
-
-
         $cartProductIds = collect($cart)
             ->pluck('id')
             ->toArray();
-
-
 
         $originalTotal = 0;
 
@@ -108,13 +99,7 @@ class OrderController extends Controller
 
         $finalTotal = 0;
 
-
-
         foreach ($cart as $item) {
-
-            // $originalTotal +=
-            //     $item['price']
-            //     * $item['quantity'];
 
             $itemPrice =
                 $item['base_price']
@@ -168,8 +153,6 @@ class OrderController extends Controller
                     ->pluck('id')
                     ->toArray();
 
-
-
             $allMatched = !array_diff(
 
                 $offerProductIds,
@@ -179,7 +162,6 @@ class OrderController extends Controller
 
 
             if ($allMatched) {
-
 
                 $offerProductsTotal = 0;
 
@@ -191,10 +173,6 @@ class OrderController extends Controller
                             $offerProductIds
                         )
                     ) {
-
-                        // $offerProductsTotal +=
-                        //     $item['price']
-                        //     * $item['quantity'];
 
                         $itemPrice =
                             $item['base_price']
@@ -210,9 +188,6 @@ class OrderController extends Controller
                         ] = $offer;
                     }
                 }
-
-
-
                 if (
                     $offer->value_type
                     == 'percent'
@@ -230,8 +205,6 @@ class OrderController extends Controller
                 }
             }
         }
-
-
 
         $finalTotal =
             max(
@@ -284,13 +257,6 @@ class OrderController extends Controller
                 $cartItemOffer[$item['id']]
                 ?? null;
 
-            // $cart[$key]['final_price'] =
-            //     $item['price'];
-
-            // $cart[$key]['subtotal'] =
-            //     $item['price']
-            //     * $item['quantity'];
-
             $itemPrice =
                 $item['base_price']
                 + ($item['addon_total'] ?? 0);
@@ -311,7 +277,6 @@ class OrderController extends Controller
         $hystCharge = 0;
 
         $finalTotal +=
-            // $serviceCharge +
             $deliveryCharge +
             $hystCharge;
 
@@ -319,10 +284,6 @@ class OrderController extends Controller
         ->orderByDesc('is_default')
         ->latest()
         ->get();
-
-
-
-        
 
         return view(
 
@@ -342,17 +303,12 @@ class OrderController extends Controller
                 'deliveryCharge',
                 'hystCharge',
                 'addresses',
-              
-                
             )
         );
     }
 
     public function placeOrder(Request $request, Payment $payment = null)
     {
-        
-
-       
         
             Log::info('PLACE ORDER START');
 
@@ -362,13 +318,7 @@ class OrderController extends Controller
             |--------------------------------------------------------------------------
             */
             $guest = session('guest_checkout');
-
-            
-
             $userId = auth()->check() ? auth()->id() : null;
-
-           
-
             $request->validate([
 
                 'order_type' =>
@@ -380,21 +330,11 @@ class OrderController extends Controller
                 'phone' =>
                     'required_if:payment_method,Cash On Delivery',
 
-                // 'address' =>
-                //     'required_if:order_type,delivery|required_if:payment_method,Cash On Delivery',
-
-                // 'pincode' =>
-                //     'required_if:order_type,delivery|required_if:payment_method,Cash On Delivery',
                 'address' => 'nullable|required_if:order_type,delivery',
 
                 'pincode' => 'nullable',
 
             ]);
-
-            
-
-
-           
 
             Log::info('VALIDATION SUCCESS');
 
@@ -412,29 +352,17 @@ class OrderController extends Controller
                 return back();
             }
 
-
-            
-            
-
-
             /*
             |--------------------------------------------------------------------------
             | RESTAURANT
             |--------------------------------------------------------------------------
             */
 
-            // $restaurantId = Product::find(
-            //     array_key_first($cart)
-            // )->restaurant_id;
-
             $firstItem = reset($cart);
 
             $restaurantId = Product::find($firstItem['id'])->restaurant_id;
 
             $restaurant = Restaurant::where('id', $restaurantId)->first();
-
-            
-            
 
             /*
             |--------------------------------------------------------------------------
@@ -445,8 +373,6 @@ class OrderController extends Controller
             $cartProductIds = collect($cart)
                 ->pluck('id')
                 ->toArray();
-
-                
 
             /*
             |--------------------------------------------------------------------------
@@ -465,10 +391,6 @@ class OrderController extends Controller
             */
 
             foreach ($cart as $item) {
-
-                // $originalTotal +=
-                //     $item['price']
-                //     * $item['quantity'];
                 $itemPrice =
                     $item['base_price']
                     + ($item['addon_total'] ?? 0);
@@ -483,10 +405,6 @@ class OrderController extends Controller
             | ACTIVE OFFERS
             |--------------------------------------------------------------------------
             */
-
-
-            
-
             $offers = \App\Models\Offer::with('products')
 
                 ->where('is_active', 1)
@@ -556,10 +474,6 @@ class OrderController extends Controller
 
                     } else {
 
-                        /*
-                        FLAT DISCOUNT
-                        SIRF EK BAR
-                        */
 
                         $discount +=
                             $offer->value;
@@ -584,13 +498,8 @@ class OrderController extends Controller
                 0
             );
 
-            
-
             $orderOffer = null;
             $completedOrder = false;
-
-
-           
 
             if ($userId) {
                 $completedOrder = Order::where('user_id', auth()->id())
@@ -598,8 +507,6 @@ class OrderController extends Controller
                     ->whereIn('status', ['completed', 'delivered'])
                     ->exists();
             }   
-            
-            
 
             if($completedOrder) {
 
@@ -626,14 +533,6 @@ class OrderController extends Controller
             $serviceCharge = (float) $request->service_charge;
             $deliveryCharge = (float) $request->delivery_charge;
             $hystCharge = (float) $request->hyst_charge;
-
-            // $finalTotal =
-            //     ($originalTotal - $discount)
-            //     + $deliveryCharge
-            //     + $hystCharge;
-
-            // $finalTotal = max($finalTotal, 0);
-
 
             $couponDiscount = 0;
             $coupon = null;
@@ -717,15 +616,11 @@ class OrderController extends Controller
             */
 
             // 1. Fetch coupon details from session
-           
 
             $order = Order::create([
 
                 'user_id' =>
                     $userId,
-
-
-                    
 
                 'is_guest' => !$userId,
 
@@ -767,8 +662,6 @@ class OrderController extends Controller
                 'payment_method' =>
                     $request->payment_method,
 
-
-
                 'status' =>
                     'pending',
 
@@ -792,8 +685,6 @@ class OrderController extends Controller
                 Restaurant::find($restaurantId)?->name,
                 $order->id
             );
-
-            
 
             Log::info('ORDER CREATED', [
 
@@ -819,9 +710,6 @@ class OrderController extends Controller
                 );
             }
 
-            
-
-
             /*
             |--------------------------------------------------------------------------
             | ORDER ITEMS
@@ -831,36 +719,6 @@ class OrderController extends Controller
             | OFFER SIRF ORDER TOTAL PAR LAGEGA
             |
             */
-
-            // foreach ($cart as $item) {
-
-            //     OrderItem::create([
-
-            //         'order_id' =>
-            //             $order->id,
-
-            //         'product_id' =>
-            //             $item['id'],
-
-            //         'variant_id' => $item['variant_id'] ?? null,
-            //         'variant_name' => $item['variant_name'] ?? null,
-
-            //         'quantity' =>
-            //             $item['quantity'],
-
-            //         'price' =>
-            //             $item['price'],
-
-            //         'total' =>
-
-            //             $item['price']
-            //             *
-            //             $item['quantity']
-
-            //     ]);
-
-            // }
-
 
             foreach ($cart as $item) {
 
@@ -916,9 +774,6 @@ class OrderController extends Controller
 
             }
 
-
-            
-
             Log::info('ORDER ITEMS SAVED');
 
 
@@ -928,21 +783,9 @@ class OrderController extends Controller
             |--------------------------------------------------------------------------
             */
 
-            
-
             $order->update([
 
                 'total_amount' =>$finalTotal
-
-                    // max(
-
-                    //     $originalTotal
-                    //     -
-                    //     $discount,
-
-                    //     0
-
-                    // )
 
             ]);
 
@@ -966,34 +809,6 @@ class OrderController extends Controller
             | PAYMENT ENTRY
             |--------------------------------------------------------------------------
             */
-
-            // $payment = Payment::create([
-
-            //     'order_id' =>
-            //         $order->id,
-
-            //     'restaurant_id' =>
-            //         $restaurantId,
-
-            //     'user_id' =>
-            //         auth()->id(),
-
-            //     'payment_method' =>
-            //         $request->payment_method,
-
-            //     'amount' =>
-            //         $order->total_amount,
-
-            //     'payment_status' =>
-
-            //         $request->payment_method
-            //         == 'Cash On Delivery'
-
-            //         ? 'pending'
-
-            //         : 'paid'
-
-            // ]);
 
             if($payment){
 
@@ -1025,9 +840,6 @@ class OrderController extends Controller
 
             }
 
-           
-
-
             $invoice = Invoice::create([
 
                 'order_id'        => $order->id,
@@ -1055,9 +867,6 @@ class OrderController extends Controller
                 'invoice_date'    => now()
 
             ]);
-
-           
-
 
             $restaurantAdmin =
                 User::where(
@@ -1093,8 +902,6 @@ class OrderController extends Controller
 
             );
 
-
-
             if($restaurantAdmin){
 
                 sendNotification(
@@ -1105,9 +912,6 @@ class OrderController extends Controller
 
                     'New Order Received',
 
-                    // auth()->user()->name .
-                    // ' placed order #' .
-                    // $order->id,
                     ($userId
                         ? auth()->user()->name
                         : $guest['name']
@@ -1169,13 +973,6 @@ class OrderController extends Controller
                     $order->load('user');
                 }
 
-                // $delivery = $stuart->createDelivery(
-                //     $order,
-                //     $restaurant
-                // );
-
-                
-
                 try {
 
                     Log::info('Uber delivery process started', [
@@ -1184,26 +981,14 @@ class OrderController extends Controller
 
                     $uber = new UberService();
 
-                    // Log::info('Generating Uber quote...');
-
-                    
-
-                    // $quote = $uber->quote(
-                    //     $restaurant,
-                    //     $order
-                    // );
-
-                    // Log::info('Uber quote generated', [
-                    //     'quote' => $quote,
-                    // ]);
-
-
                     Log::info('Creating Uber delivery...');
 
                     Log::info('Uber quote generated',[
                         'quote'=>$request->uber_quote_id,
                         'longitude'=>(float) $restaurant->longitude,
                     ]);
+
+                    //later we will get the quote id from the request and use it to create the delivery
 
                     // if(!isset($quote['id'])){
 
@@ -1212,8 +997,6 @@ class OrderController extends Controller
                     //     );
 
                     // }
-
-                    
 
                     // $uberdelivery = $uber->createDelivery(
                     //     $order,
@@ -1321,9 +1104,7 @@ class OrderController extends Controller
 
                 'Order Placed Successfully'
             );
-            
-         
-               
+                    
     }
 
     public function driverwebhook(Request $request)
@@ -1886,8 +1667,6 @@ class OrderController extends Controller
                 $order->id
             );
         }
-
-        
 
         return back()->with(
 

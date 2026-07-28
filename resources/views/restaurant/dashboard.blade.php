@@ -643,38 +643,48 @@
 
           <div class="bg-white rounded-2xl shadow border border-gray-200 p-5 mb-6">
 
-            <div class="flex items-center justify-between">
+              <div class="flex items-center justify-between">
 
-                <div>
-                    <h3 class="text-lg font-semibold text-gray-800">
-                        Self Delivery
-                    </h3>
+                  <div>
+                      <h3 class="text-lg font-semibold text-gray-800">
+                          Self Delivery
+                      </h3>
 
-                    <p class="text-sm text-gray-500">
-                        Enable if you deliver orders using your own drivers.
-                    </p>
-                </div>
+                      <p class="text-sm text-gray-500">
+                          Enable if you deliver orders using your own drivers.
+                      </p>
+                  </div>
 
-                <label class="relative inline-flex items-center cursor-pointer">
+                  <label class="relative inline-flex items-center cursor-pointer">
 
-                    <input
-                        type="checkbox"
-                        id="selfDeliveryToggle"
-                        class="sr-only peer"
-                        {{ $restaurant->self_delivery ? 'checked' : '' }}
-                    >
+                      <input
+                          type="checkbox"
+                          id="selfDeliveryToggle"
+                          class="sr-only peer"
+                          {{ $restaurant->self_delivery ? 'checked' : '' }}
+                      >
 
-                    <div class="w-14 h-8 bg-gray-300 rounded-full peer peer-checked:bg-green-600
-                        after:content-[''] after:absolute after:top-1 after:left-1
-                        after:w-6 after:h-6 after:bg-white after:rounded-full
-                        after:transition-all peer-checked:after:translate-x-6">
-                    </div>
+                      <div class="w-14 h-8 bg-gray-300 rounded-full peer peer-checked:bg-green-600
+                          after:content-[''] after:absolute after:top-1 after:left-1
+                          after:w-6 after:h-6 after:bg-white after:rounded-full
+                          after:transition-all peer-checked:after:translate-x-6">
+                      </div>
 
-                </label>
+                  </label>
 
-            </div>
+              </div>
 
-        </div>
+              @if($restaurant->self_delivery)
+                  <div class="mt-5 pt-5 border-t border-gray-200 flex justify-end">
+                      <a href="{{ route('restaurant.delivery-charges.index') }}"
+                        class="inline-flex items-center px-4 py-2 bg-[#C25A2A] text-white rounded-lg hover:bg-blue-700 transition">
+                          <i data-lucide="truck" class="w-4 h-4 mr-2"></i>
+                          Manage Delivery Charges
+                      </a>
+                  </div>
+              @endif
+
+          </div>
           
       </div>
       

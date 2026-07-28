@@ -92,11 +92,12 @@
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
         Add Delivery Address
     </button>
+    
 
     {{-- ---------- Live Uber quote result / error ---------- --}}
     <div id="uberQuoteStatus" class="uber-quote-status" style="display:none;"></div>
 
-    {{-- These are the fields that actually get submitted with the checkout form --}}
+        {{-- These are the fields that actually get submitted with the checkout form --}}
         <input type="hidden" id="address_id"    name="address_id">
         <input type="hidden" id="address"       name="address">
         <input type="hidden" id="pincode"       name="postcode">
@@ -108,7 +109,107 @@
         <input type="hidden" id="building_type" name="building_type">
         <input type="hidden" id="landmark"      name="landmark">
         <input type="hidden" id="label"         name="label">
-    </div>
+</div>
+
+                    <div id="deliveryScheduleContainer" style="margin-top:20px;">
+
+                        <div class="co-card">
+
+                            <div class="co-card-title" style="margin-bottom:15px;">
+                                <span>🕒 Delivery Time</span>
+                            </div>
+
+                            <div class="ot-grid">
+
+                                <label class="ot-label checked">
+
+                                    <input
+                                        type="radio"
+                                        name="delivery_time_type"
+                                        value="now"
+                                        checked
+                                    >
+
+                                    <div class="ot-icon">⚡</div>
+
+                                    <div>
+
+                                        <div class="ot-title">
+                                            As Soon As Possible
+                                        </div>
+
+                                        <div class="ot-sub">
+                                            Deliver immediately
+                                        </div>
+
+                                    </div>
+
+                                </label>
+
+                                <label class="ot-label">
+
+                                    <input
+                                        type="radio"
+                                        name="delivery_time_type"
+                                        value="schedule"
+                                    >
+
+                                    <div class="ot-icon">📅</div>
+
+                                    <div>
+
+                                        <div class="ot-title">
+                                            Schedule Delivery
+                                        </div>
+
+                                        <div class="ot-sub">
+                                            Choose date & time
+                                        </div>
+
+                                    </div>
+
+                                </label>
+
+                            </div>
+
+                            <div
+                                id="scheduleFields"
+                                class="co-hidden"
+                                style="margin-top:20px;"
+                            >
+
+                                <div class="co-input-group">
+
+                                    <label>Delivery Date</label>
+
+                                    <input
+                                        type="date"
+                                        class="co-input"
+                                        name="scheduled_date"
+                                        id="scheduled_date"
+                                        min="{{ now()->format('Y-m-d') }}"
+                                    >
+
+                                </div>
+
+                                <div class="co-input-group">
+
+                                    <label>Delivery Time</label>
+
+                                    <input
+                                        type="time"
+                                        class="co-input"
+                                        name="scheduled_time"
+                                        id="scheduled_time"
+                                    >
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
 
 {{-- ============================ STEP 1 : CHOOSE BUILDING ============================ --}}
 <div class="co-modal-overlay" id="buildingTypeModal">
@@ -371,6 +472,7 @@
         const CSRF_TOKEN     = document.querySelector('meta[name="csrf-token"]')?.content || '';
         const STORE_URL      = "{{ route('addresses.store') }}";
         const UBER_QUOTE_URL = "{{ route('checkout.uber.quote') }}";
+        const SELF_DELIVERY_URL = "{{ route('checkout.self.delivery.quote') }}";
         const UK_BOUNDS      = [[49.5, -8.7], [61.0, 2.1]]; // rough UK bounding box for map + search bias
 
         let map, moveDebounce, searchDebounce;
@@ -420,12 +522,22 @@
             // Only fetch Uber quote when Self Delivery is disabled
             const selfDelivery = "{{ $restaurant->self_delivery }}";
 
-            if (selfDelivery != 1) {
-                fetchUberQuote();
+            // if (selfDelivery != 1) {
+            //     fetchUberQuote();
+            // } else {
+            //     if (typeof window.validateCheckoutPlaceOrderButton === 'function') {
+            //         window.validateCheckoutPlaceOrderButton();
+            //     }
+            // }
+
+            if (selfDelivery == 1) {
+
+                fetchSelfDeliveryQuote();
+
             } else {
-                if (typeof window.validateCheckoutPlaceOrderButton === 'function') {
-                    window.validateCheckoutPlaceOrderButton();
-                }
+
+                fetchUberQuote();
+
             }
         }
 
@@ -521,6 +633,112 @@
                     window.validateCheckoutPlaceOrderButton();
                 }
             }
+        }
+
+        async function fetchSelfDeliveryQuote() {
+
+            const box = $('uberQuoteStatus');
+
+            const restaurantId = "{{ $restaurant->id }}";
+
+            box.style.display = 'block';
+            box.className = 'uber-quote-status uber-quote-loading';
+            box.textContent = 'Calculating delivery charge...';
+
+            try {
+
+                const res = await fetch(SELF_DELIVERY_URL, {
+
+                    method: 'POST',
+
+                    headers: {
+
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': CSRF_TOKEN
+
+                    },
+
+                    body: JSON.stringify({
+
+                        restaurant_id: restaurantId,
+
+                        selectedAddress_id: $('address_id').value,
+
+                        finalTotal: "{{ $finalTotal }}"
+
+                    })
+
+                });
+
+                const data = await res.json();
+
+                if (!res.ok || !data.success) {
+
+                    throw new Error(
+                        data.message ||
+                        'Delivery unavailable.'
+                    );
+
+                }
+
+                const delivery = parseFloat(
+                    data.data.delivery_charge
+                );
+
+                document.getElementById('delivery_charge').value =
+                    delivery.toFixed(2);
+
+                updateCheckoutTotal(delivery);
+
+                let html = '';
+
+                html += '<div class="uber-quote-row"><strong>Self Delivery Available</strong></div>';
+
+                html += `<div class="uber-quote-row">Distance : ${data.data.distance} Miles</div>`;
+
+                if (data.data.free_delivery) {
+
+                    html += '<div class="uber-quote-row">Delivery Charge : FREE</div>';
+
+                } else {
+
+                    html += `<div class="uber-quote-row">Delivery Charge : £${delivery.toFixed(2)}</div>`;
+
+                }
+
+                box.className =
+                    'uber-quote-status uber-quote-success';
+
+                box.innerHTML = html;
+
+                if (typeof window.validateCheckoutPlaceOrderButton === 'function') {
+
+                    window.validateCheckoutPlaceOrderButton();
+
+                }
+
+            }
+            catch (err) {
+
+                document.getElementById('delivery_charge').value = 0;
+
+                updateCheckoutTotal(0);
+
+                box.className =
+                    'uber-quote-status uber-quote-error';
+
+                box.textContent =
+                    err.message;
+
+                if (typeof window.validateCheckoutPlaceOrderButton === 'function') {
+
+                    window.validateCheckoutPlaceOrderButton();
+
+                }
+
+            }
+
         }
 
         // NOTE: adjust these field names to match whatever UberService::quote()

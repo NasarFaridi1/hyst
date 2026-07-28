@@ -73,6 +73,10 @@ class Order extends Model
         'gift_card_id',
         'gift_card_code',
         'gift_card_amount',
+
+        'is_scheduled',
+        'scheduled_for',
+        'preparation_minutes'
         
     ];
 

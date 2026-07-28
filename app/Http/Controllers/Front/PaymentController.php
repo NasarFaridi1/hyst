@@ -37,9 +37,6 @@ class PaymentController extends Controller
     public function pay(Request $request)
     {
 
-       
-        
-
         $request->validate([
 
             'restaurant_id' => 'required',
