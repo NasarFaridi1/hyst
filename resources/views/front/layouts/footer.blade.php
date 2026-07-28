@@ -18,17 +18,17 @@
                     Premium food delivery from the best restaurants. Fresh, fast, and always delicious.
                 </p>
                 <div style="display:flex; gap:10px;">
-                    <a href="https://www.instagram.com/hyst722" target="_blank"
+                    <a href="https://www.instagram.com/hyst722/" target="_blank" rel="noopener noreferrer"
                     style="width:38px;height:38px;border:1px solid #2A2A2A;border-radius:10px;display:flex;align-items:center;justify-content:center;">
                         <i class="fa-brands fa-instagram" style="color:#9CA3AF;font-size:16px;"></i>
                     </a>
 
-                    <a href="https://tiktok.com target="_blank"
+                    <a href="https://www.tiktok.com/@hyst829" target="_blank" rel="noopener noreferrer"
                     style="width:38px;height:38px;border:1px solid #2A2A2A;border-radius:10px;display:flex;align-items:center;justify-content:center;">
                         <i class="fa-brands fa-tiktok" style="color:#9CA3AF;font-size:16px;"></i>
                     </a>
 
-                    <a href="https://facebook.com" target="_blank"
+                    <a href="https://www.facebook.com/profile.php?id=61592088563196" target="_blank"
                     style="width:38px;height:38px;border:1px solid #2A2A2A;border-radius:10px;display:flex;align-items:center;justify-content:center;">
                         <i class="fa-brands fa-facebook-f" style="color:#9CA3AF;font-size:16px;"></i>
                     </a>

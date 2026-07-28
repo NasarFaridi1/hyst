@@ -26,7 +26,7 @@
         <tr class="border-b border-gray-50 hover:bg-gray-50 transition">
           <td class="px-4 py-3">
             @if($category->image)
-            <img src="{{ asset('storage/'.$category->image) }}" class="w-11 h-11 object-cover rounded-lg border border-gray-100">
+            <img src="{{ asset($category->image) }}" class="w-11 h-11 object-cover rounded-lg border border-gray-100">
             @else
             <div class="w-11 h-11 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400 text-xs">None</div>
             @endif

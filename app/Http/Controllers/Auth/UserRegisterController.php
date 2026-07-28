@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\VerifyOtpMail;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\RateLimiter;
 
@@ -23,6 +24,26 @@ class UserRegisterController extends Controller
 
     public function register(Request $request)
     {
+
+        $response = Http::asForm()->post(
+            'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+            [
+                'secret'   => env('TURNSTILE_SECRET_KEY'),
+                'response' => $request->input('cf-turnstile-response'),
+                'remoteip' => $request->ip(),
+            ]
+        );
+
+        $result = $response->json();
+
+        if (!($result['success'] ?? false)) {
+
+            return redirect('/register')
+                ->withInput()
+                ->with('message', 'Please verify that you are human.')
+                ->with('type', 'error');
+        }
+
         // IP Rate Limiting (Max 3 attempts per minute per IP against automated/bot signups)
         $ipKey = 'register-ip:' . $request->ip();
         if (RateLimiter::tooManyAttempts($ipKey, 3)) {
@@ -33,6 +54,16 @@ class UserRegisterController extends Controller
                 ->with('type', 'error');
         }
         RateLimiter::hit($ipKey, 60);
+
+        // Email limit
+        $emailKey = 'register-email:' . sha1(strtolower($request->email));
+
+        if (RateLimiter::tooManyAttempts($emailKey, 2)) {
+            return back()->with('message', 'Please wait before trying this email again.');
+        }
+
+        RateLimiter::hit($emailKey, 300);
+        
         $validator = Validator::make($request->all(), [
             'name'     => 'required',
             'email'    => 'required|email',

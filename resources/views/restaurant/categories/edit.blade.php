@@ -47,7 +47,7 @@
         <label class="block text-xs uppercase tracking-wide text-gray-400 font-medium mb-2">Category image</label>
         @if($category->image)
         <div class="flex items-center gap-3 mb-3">
-          <img src="{{ asset('storage/'.$category->image) }}" class="w-14 h-14 object-cover rounded-lg border border-gray-100">
+          <img src="{{ asset($category->image) }}" class="w-14 h-14 object-cover rounded-lg border border-gray-100">
           <span class="text-xs text-gray-400">Current image · Upload new to replace</span>
         </div>
         @endif

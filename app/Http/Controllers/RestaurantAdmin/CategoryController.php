@@ -40,23 +40,24 @@ class CategoryController extends Controller
 
         $image = null;
 
-        if($request->hasFile('image')){
+        if ($request->hasFile('image')) {
 
-            $image = $request->file('image')
-                ->store('categories', 'public');
+            $file = $request->file('image');
+            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
 
+            $file->move(public_path('categories'), $filename);
+
+            $image = 'categories/' . $filename;
         }
 
         Category::create([
-
             'restaurant_id' => $restaurantId,
             'name' => $request->name,
             'slug' => Str::slug($request->name),
             'parent_id' => $request->parent_id,
             'image' => $image,
-             'display_order' => $request->display_order,
+            'display_order' => $request->display_order,
             'status' => 1
-
         ]);
 
         return redirect()
@@ -91,20 +92,26 @@ class CategoryController extends Controller
 
         $image = $category->image;
 
-        if($request->hasFile('image')){
+        if ($request->hasFile('image')) {
 
-            $image = $request->file('image')
-                ->store('categories', 'public');
+            // Delete old image
+            if ($image && file_exists(public_path($image))) {
+                unlink(public_path($image));
+            }
 
+            $file = $request->file('image');
+            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+
+            $file->move(public_path('categories'), $filename);
+
+            $image = 'categories/' . $filename;
         }
 
         $category->update([
-
             'name' => $request->name,
             'parent_id' => $request->parent_id,
             'image' => $image,
-             'display_order' => $request->display_order,
-
+            'display_order' => $request->display_order,
         ]);
 
         return redirect()

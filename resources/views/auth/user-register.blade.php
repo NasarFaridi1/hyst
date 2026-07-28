@@ -10,7 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <style>
         body { font-family: 'Poppins', sans-serif; }
 
@@ -218,6 +218,31 @@
                             <span id="bar3"></span>
                             <span id="bar4"></span>
                         </div>
+                        <div class="pw-strength-bar" id="pw-strength">
+                            <span id="bar1"></span>
+                            <span id="bar2"></span>
+                            <span id="bar3"></span>
+                            <span id="bar4"></span>
+                        </div>
+
+                        <p id="password-error"
+                        style="font-size:12px;color:#E24B4A;margin-top:8px;display:none;">
+                        </p>
+
+                        <ul id="password-rules"
+                            style="font-size:12px;color:#777;margin-top:8px;padding-left:18px;">
+                            <li id="rule-length">Minimum 8 characters</li>
+                            <li id="rule-upper">One uppercase letter (A-Z)</li>
+                            <li id="rule-lower">One lowercase letter (a-z)</li>
+                            <li id="rule-number">One number (0-9)</li>
+                            <li id="rule-special">One special character (@$!%*?&)</li>
+                        </ul>
+                    </div>
+                    <div class="mb-5 flex justify-center">
+                        <div
+                            class="cf-turnstile"
+                            data-sitekey="{{ env('TURNSTILE_SITE_KEY') }}">
+                        </div>
                     </div>
 
                     {{-- Submit --}}
@@ -288,6 +313,70 @@
     <script>
         lucide.createIcons();
 
+        const passwordField = document.getElementById("pw-field");
+        const passwordError = document.getElementById("password-error");
+
+        passwordField.addEventListener("input", function () {
+
+            let password = this.value;
+
+            const hasLength  = password.length >= 8;
+            const hasUpper   = /[A-Z]/.test(password);
+            const hasLower   = /[a-z]/.test(password);
+            const hasNumber  = /\d/.test(password);
+            const hasSpecial = /[@$!%*?&]/.test(password);
+
+            updateRule("rule-length", hasLength);
+            updateRule("rule-upper", hasUpper);
+            updateRule("rule-lower", hasLower);
+            updateRule("rule-number", hasNumber);
+            updateRule("rule-special", hasSpecial);
+
+            let score = 0;
+            if (hasLength) score++;
+            if (hasUpper) score++;
+            if (hasNumber) score++;
+            if (hasSpecial) score++;
+
+            const colors = [
+                "#EBE5DE",
+                "#E24B4A",
+                "#F09527",
+                "#4CAF50",
+                "#2E9E6B"
+            ];
+
+            for (let i = 1; i <= 4; i++) {
+                document.getElementById("bar" + i).style.background =
+                    i <= score ? colors[score] : "#EBE5DE";
+            }
+
+            if (
+                password.length &&
+                !(hasLength && hasUpper && hasLower && hasNumber && hasSpecial)
+            ) {
+                passwordError.style.display = "block";
+                passwordError.innerHTML =
+                    "Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number and one special character.";
+            } else {
+                passwordError.style.display = "none";
+            }
+
+        });
+
+        function updateRule(id, valid) {
+            const item = document.getElementById(id);
+
+            if (valid) {
+                item.style.color = "#2E9E6B";
+                item.style.fontWeight = "600";
+                item.innerHTML = "✓ " + item.textContent.replace(/^✓ |^✗ /, "");
+            } else {
+                item.style.color = "#E24B4A";
+                item.style.fontWeight = "400";
+                item.innerHTML = "✗ " + item.textContent.replace(/^✓ |^✗ /, "");
+            }
+        }
         function togglePassword() {
             var field = document.getElementById('pw-field');
             var icon = document.getElementById('pw-eye-icon');

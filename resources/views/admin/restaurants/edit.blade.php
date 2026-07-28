@@ -25,6 +25,7 @@
 
                 <input type="text"
                 name="name"
+                required
                 value="{{ $restaurant->name }}"
                 class="w-full border p-3 rounded">
 
@@ -36,6 +37,7 @@
 
                 <input type="email"
                 name="email"
+                required
                 value="{{ $restaurant->email }}"
                 class="w-full border p-3 rounded">
 
@@ -47,6 +49,7 @@
 
                 <input type="text"
                 name="phone"
+                required
                 value="{{ $restaurant->phone }}"
                 class="w-full border p-3 rounded">
 
@@ -58,6 +61,7 @@
 
                 <input type="text"
                 name="city"
+                required
                 value="{{ $restaurant->city }}"
                 class="w-full border p-3 rounded">
 
@@ -68,6 +72,7 @@
 
                 <input type="text"
                 name="state"
+                required
                 value="{{ $restaurant->state }}"
                 class="w-full border p-3 rounded">
 
@@ -78,6 +83,7 @@
 
                 <input type="text"
                 name="country"
+                required
                 value="{{ $restaurant->country }}"
                 class="w-full border p-3 rounded">
 
@@ -89,6 +95,7 @@
 
                 <input type="text"
                 name="postcode"
+                required
                 value="{{ $restaurant->postcode }}"
                 class="w-full border p-3 rounded">
 
@@ -100,6 +107,7 @@
 
                 <input type="text"
                 name="latitude"
+                required
                 value="{{ $restaurant->latitude }}"
                 class="w-full border p-3 rounded">
 
@@ -110,6 +118,7 @@
 
                 <input type="text"
                 name="longitude"
+                required
                 value="{{ $restaurant->longitude }}"
                 class="w-full border p-3 rounded">
 
@@ -120,6 +129,7 @@
 
                 <input type="text"
                 name="location"
+                required
                 value="{{ $restaurant->location }}"
                 class="w-full border p-3 rounded">
 
@@ -162,6 +172,7 @@
             <select
                 name="category_ids[]"
                 multiple
+                required
                 class="w-full border border-gray-300 rounded-xl p-4">
 
                 @foreach($categories as $category)
@@ -186,6 +197,7 @@
 
             <textarea
             name="description"
+            required
             rows="5"
             class="w-full border p-3 rounded">{{ $restaurant->description }}</textarea>
 
@@ -196,6 +208,7 @@
             <input
                 type="number"
                 name="hygiene_rating"
+                required
                 step="0.1"
                 min="0"
                 max="5"
@@ -204,44 +217,80 @@
         </div>
 
         
+<div class="mt-5">
 
-        <div class="mt-5">
-
-            @if($restaurant->image)
-
-            <img
+    @if($restaurant->image)
+        <img
             src="{{ asset('storage/'.$restaurant->image) }}"
-            class="w-32 h-32 rounded object-cover mb-5">
+            class="w-32 h-32 rounded object-cover mb-5"
+            id="image-preview">
+    @endif
 
-            @endif
+    <input
+        type="file"
+        id="image"
+        name="image"
+       
+        accept=".jpg,.jpeg,.png,.webp"
+        onchange="validateFileSize(this,'image-error',2)">
 
-            <input type="file" name="image">
+    <p id="image-error" class="text-red-500 text-sm mt-2"></p>
 
+</div>
+
+<div class="mt-5">
+
+    <label class="block mb-2">
+        Hygiene Certificate
+    </label>
+
+    @if($restaurant->hygiene_certificate)
+        <div class="mb-3">
+            <a href="{{ asset('storage/'.$restaurant->hygiene_certificate) }}"
+               target="_blank"
+               class="text-blue-600 underline">
+                View Current Certificate
+            </a>
         </div>
+    @endif
 
-        <div class="mt-5">
+    <input
+        type="file"
+        id="hygiene_certificate"
+        name="hygiene_certificate"
+        
+        accept=".pdf,.jpg,.jpeg,.png"
+        class="w-full border p-3 rounded"
+        onchange="validateFileSize(this,'certificate-error',2)">
 
-            <label class="block mb-2">
-                Hygiene Certificate
-            </label>
+    <p id="certificate-error" class="text-red-500 text-sm mt-2"></p>
 
-            @if($restaurant->hygiene_certificate)
-                <div class="mb-3">
-                    <a href="{{ asset('storage/'.$restaurant->hygiene_certificate) }}"
-                    target="_blank"
-                    class="text-blue-600 underline">
-                        View Current Certificate
-                    </a>
-                </div>
-            @endif
+</div>
 
-            <input
-                type="file"
-                name="hygiene_certificate"
-                accept=".pdf,.jpg,.jpeg,.png"
-                class="w-full border p-3 rounded">
+<script>
+function validateFileSize(input, errorId, maxSizeMB) {
+    const error = document.getElementById(errorId);
+    error.textContent = '';
 
-        </div>
+    if (!input.files.length) return;
+
+    const file = input.files[0];
+    const maxSize = maxSizeMB * 1024 * 1024;
+
+    if (file.size > maxSize) {
+        error.textContent = `File size must not exceed ${maxSizeMB} MB.`;
+        input.value = '';
+
+        // Hide image preview if image input is cleared
+        if (input.name === 'image') {
+            const preview = document.getElementById('image-preview');
+            if (preview) {
+                preview.style.display = 'none';
+            }
+        }
+    }
+}
+</script>
 
         
 
