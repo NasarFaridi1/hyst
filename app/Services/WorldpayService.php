@@ -174,13 +174,18 @@ class WorldpayService
         string $accessToken,
         string $transactionId,
         float $amount,
+        string $paymentType,
         string $description = 'Order Refund'
     ): array {
+
+        $endpoint = strtolower($paymentType) === 'card'
+            ? 'card-payments'
+            : 'bank-payments';
 
         $curl = curl_init();
 
         curl_setopt_array($curl, [
-            CURLOPT_URL => "https://sandbox.auth.paymentsapi.io/businesses/{$restaurant->worldpay_business_id}/transactions/bank-payments/{$transactionId}/refunds",
+            CURLOPT_URL => "https://sandbox.auth.paymentsapi.io/businesses/{$restaurant->worldpay_business_id}/transactions/{$endpoint}/{$transactionId}/refunds",
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_POST => true,
             CURLOPT_POSTFIELDS => json_encode([
@@ -195,9 +200,9 @@ class WorldpayService
                 ],
             ]),
             CURLOPT_HTTPHEADER => [
-                'Authorization: Bearer ' . $accessToken,
-                'Content-Type: application/json',
-                'Accept: application/json',
+                "Authorization: Bearer {$accessToken}",
+                "Content-Type: application/json",
+                "Accept: application/json",
             ],
         ]);
 

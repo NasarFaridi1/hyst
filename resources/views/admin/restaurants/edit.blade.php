@@ -2,7 +2,7 @@
 
 @section('content')
 
-<div class="bg-white rounded shadow p-8">
+<div class="max-w-5xl mx-auto bg-white rounded shadow p-8">
 
     <h1 class="text-3xl font-bold mb-8">
 

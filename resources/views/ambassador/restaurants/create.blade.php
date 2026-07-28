@@ -132,7 +132,7 @@
                             <span class="field-icon">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/></svg>
                             </span>
-                            <input type="text" name="name" value="{{ old('name') }}" placeholder="Enter restaurant name" class="field-input">
+                            <input type="text" required name="name" value="{{ old('name') }}" placeholder="Enter restaurant name" class="field-input">
                         </div>
                     </div>
 
@@ -143,7 +143,7 @@
                             <span class="field-icon">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M22 6l-10 7L2 6"/></svg>
                             </span>
-                            <input type="email" name="email" value="{{ old('email') }}" placeholder="Enter email" class="field-input">
+                            <input type="email" required name="email" value="{{ old('email') }}" placeholder="Enter email" class="field-input">
                         </div>
                     </div>
 
@@ -154,7 +154,7 @@
                             <span class="field-icon">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                             </span>
-                            <input type="password" name="password" placeholder="Enter password" class="field-input">
+                            <input type="password" required name="password" placeholder="Enter password" class="field-input">
                         </div>
                     </div>
 
@@ -165,7 +165,7 @@
                             <span class="field-icon">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.68 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.32 1.85.55 2.81.68A2 2 0 0 1 22 16.92z"/></svg>
                             </span>
-                            <input type="text" name="phone" value="{{ old('phone') }}" placeholder="Enter phone number" class="field-input">
+                            <input type="text" required name="phone" value="{{ old('phone') }}" placeholder="Enter phone number" class="field-input">
                         </div>
                     </div>
 
@@ -176,7 +176,7 @@
                             <span class="field-icon">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M9 8h1M9 12h1M9 16h1M14 8h1M14 12h1M14 16h1"/><path d="M5 21V5a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v16"/><path d="M13 21v-9a1 1 0 0 1 1-1h5a1 1 0 0 1 1 1v9"/></svg>
                             </span>
-                            <input type="text" name="city" value="{{ old('city') }}" placeholder="Enter city" class="field-input">
+                            <input type="text" required name="city" value="{{ old('city') }}" placeholder="Enter city" class="field-input">
                         </div>
                     </div>
 
@@ -187,7 +187,7 @@
                             <span class="field-icon">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6v16l7-4 8 4 7-4V2l-7 4-8-4-7 4z"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
                             </span>
-                            <input type="text" name="state" value="{{ old('state') }}" placeholder="Enter state" class="field-input">
+                            <input type="text" required name="state" value="{{ old('state') }}" placeholder="Enter state" class="field-input">
                         </div>
                     </div>
 
@@ -198,7 +198,7 @@
                             <span class="field-icon">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
                             </span>
-                            <input type="text" name="country" value="{{ old('country') }}" placeholder="Enter country" class="field-input">
+                            <input type="text" required name="country" value="{{ old('country') }}" placeholder="Enter country" class="field-input">
                         </div>
                     </div>
 
@@ -209,7 +209,7 @@
                             <span class="field-icon">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="2" x2="12" y2="22"/></svg>
                             </span>
-                            <input type="text" name="longitude" value="{{ old('longitude') }}" placeholder="Enter longitude" class="field-input">
+                            <input type="text" required name="longitude" value="{{ old('longitude') }}" placeholder="Enter longitude" class="field-input">
                         </div>
                     </div>
 
@@ -220,7 +220,7 @@
                             <span class="field-icon">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
                             </span>
-                            <input type="text" name="latitude" value="{{ old('latitude') }}" placeholder="Enter latitude" class="field-input">
+                            <input type="text" required  name="latitude" value="{{ old('latitude') }}" placeholder="Enter latitude" class="field-input">
                         </div>
                     </div>
 
@@ -231,7 +231,7 @@
                             <span class="field-icon">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                             </span>
-                            <input type="text" name="postcode" value="{{ old('postcode') }}" placeholder="Enter postal code" class="field-input">
+                            <input type="text" required name="postcode" value="{{ old('postcode') }}" placeholder="Enter postal code" class="field-input">
                         </div>
                     </div>
 
@@ -242,7 +242,7 @@
                             <span class="field-icon">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                             </span>
-                            <input type="number" step="0.1" min="0" max="5" name="hygiene_rating" value="{{ old('hygiene_rating') }}" placeholder="0.0 - 5.0" class="field-input">
+                            <input type="number" required step="0.1" min="0" max="5" name="hygiene_rating" value="{{ old('hygiene_rating') }}" placeholder="0.0 - 5.0" class="field-input">
                         </div>
                     </div>
 
@@ -255,7 +255,7 @@
                             <span class="field-icon-top">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
                             </span>
-                            <textarea name="location" rows="3" placeholder="Enter address" class="field-textarea">{{ old('location') }}</textarea>
+                            <textarea name="location" required rows="3" placeholder="Enter address" class="field-textarea">{{ old('location') }}</textarea>
                         </div>
                     </div>
 
@@ -266,7 +266,7 @@
                             <span class="field-icon-top">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
                             </span>
-                            <select name="category_ids[]" multiple class="field-select">
+                            <select name="category_ids[]" required multiple class="field-select">
                                 @foreach($categories as $category)
                                     <option value="{{ $category->id }}">
                                         {{ $category->name }}
@@ -284,39 +284,76 @@
                             <span class="field-icon-top">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="17" y1="18" x2="3" y2="18"/></svg>
                             </span>
-                            <textarea name="description" rows="5" placeholder="Restaurant description…" class="field-textarea">{{ old('description') }}</textarea>
+                            <textarea name="description" required rows="5" placeholder="Restaurant description…" class="field-textarea">{{ old('description') }}</textarea>
                         </div>
                     </div>
 
                     {{-- Restaurant Image --}}
+                    {{-- Restaurant Image --}}
                     <div class="form-group full">
                         <label class="field-label">Restaurant Image</label>
                         <label class="file-zone">
-                            <input type="file" name="image" accept="image/*" onchange="previewFile(this,'img-preview-create')">
+                            <input
+                                type="file"
+                                id="image"
+                                name="image"
+                                required
+                                accept="image/*"
+                                onchange="validateFileSize(this, 'image-error', 2); previewFile(this, 'img-preview-create');">
+
                             <div class="file-zone-icon">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                                    <polyline points="21 15 16 10 5 21"/>
+                                </svg>
                             </div>
+
                             <div class="file-zone-text">
                                 <span>Choose file</span> or drag &amp; drop here
                                 <small>PNG, JPG, WEBP — max 2MB</small>
                             </div>
-                            <img id="img-preview-create" src="" alt="" style="display:none; width:56px; height:56px; border-radius:10px; object-fit:cover; border:1.5px solid #EBE5DE; margin-left:auto; flex-shrink:0;">
+
+                            <img id="img-preview-create"
+                                src=""
+                                alt=""
+                                style="display:none;width:56px;height:56px;border-radius:10px;object-fit:cover;border:1.5px solid #EBE5DE;margin-left:auto;flex-shrink:0;">
                         </label>
+
+                        <small id="image-error" style="color: red; "></small>
                     </div>
 
                     {{-- Hygiene Certificate --}}
                     <div class="form-group full">
                         <label class="field-label">Hygiene Certificate</label>
+
                         <label class="file-zone">
-                            <input type="file" name="hygiene_certificate" accept=".pdf,.jpg,.jpeg,.png">
+                            <input
+                                type="file"
+                                id="hygiene_certificate"
+                                name="hygiene_certificate"
+                                required
+                                accept=".pdf,.jpg,.jpeg,.png"
+                                onchange="validateFileSize(this, 'certificate-error', 2);previewFile(this, 'img-preview-create2');">
+
                             <div class="file-zone-icon">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                    <polyline points="14 2 14 8 20 8"/>
+                                </svg>
                             </div>
+
                             <div class="file-zone-text">
                                 <span>Choose file</span> or drag &amp; drop here
-                                <small>PDF, JPG, PNG</small>
+                                <small>PDF, JPG, PNG — max 2MB</small>
                             </div>
+                            <img id="img-preview-create2"
+                                src=""
+                                alt=""
+                                style="display:none;width:56px;height:56px;border-radius:10px;object-fit:cover;border:1.5px solid #EBE5DE;margin-left:auto;flex-shrink:0;">
                         </label>
+
+                        <small id="certificate-error" style="color: red;"></small>
                     </div>
 
                 </div>
@@ -334,6 +371,32 @@
     </div>
 </div>
 </div>
+
+<script>
+function validateFileSize(input, errorId, maxSizeMB) {
+    const error = document.getElementById(errorId);
+    error.textContent = '';
+
+    if (!input.files.length) return;
+
+    const file = input.files[0];
+    const maxSize = maxSizeMB * 1024 * 1024;
+
+    if (file.size > maxSize) {
+        error.textContent = `File size must not exceed ${maxSizeMB} MB.`;
+        input.value = '';
+
+        // Hide preview if image was cleared
+        if (input.name === 'image') {
+            const preview = document.getElementById('img-preview-create');
+            if (preview) {
+                preview.src = '';
+                preview.style.display = 'none';
+            }
+        }
+    }
+}
+</script>
 
 <script>
 function previewFile(input, previewId) {

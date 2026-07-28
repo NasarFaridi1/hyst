@@ -54,6 +54,7 @@
                     <input
                     type="text"
                     name="name"
+                    required
                     placeholder="Enter restaurant name"
                     class="w-full border border-gray-300 rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
 
@@ -72,6 +73,7 @@
                     <input
                     type="email"
                     name="email"
+                    required
                     placeholder="Enter email"
                     class="w-full border border-gray-300 rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
 
@@ -87,6 +89,7 @@
                     <input
                     type="password"
                     name="password"
+                    required
                     placeholder="Enter password"
                     class="w-full border border-gray-300 rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
 
@@ -105,6 +108,7 @@
                     <input
                     type="text"
                     name="phone"
+                    required
                     placeholder="Enter phone number"
                     class="w-full border border-gray-300 rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
 
@@ -123,6 +127,7 @@
                     <input
                     type="text"
                     name="city"
+                    required
                     placeholder="Enter city"
                     class="w-full border border-gray-300 rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
 
@@ -141,6 +146,7 @@
                     <input
                     type="text"
                     name="state"
+                    required
                     placeholder="Enter state"
                     class="w-full border border-gray-300 rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
 
@@ -160,6 +166,7 @@
                     <input
                     type="text"
                     name="country"
+                    required
                     placeholder="Enter country"
                     class="w-full border border-gray-300 rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
 
@@ -179,6 +186,7 @@
                     <input
                     type="text"
                     name="longitude"
+                    required
                     placeholder="Enter longitude"
                     class="w-full border border-gray-300 rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
 
@@ -197,6 +205,7 @@
                     <input
                     type="text"
                     name="latitude"
+                    required
                     placeholder="Enter latitude"
                     class="w-full border border-gray-300 rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
 
@@ -216,6 +225,7 @@
                     <input
                     type="text"
                     name="postcode"
+                    required
                     placeholder="Enter Postal Code"
                     class="w-full border border-gray-300 rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
 
@@ -238,6 +248,7 @@
                     name="location"
                     rows="4"
                     placeholder="Enter address"
+                    required
                     class="w-full border border-gray-300 rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"></textarea>
             </div>
 
@@ -251,6 +262,7 @@
 
                 <select
                     name="category_ids[]"
+                    required
                     multiple
                     class="w-full border border-gray-300 rounded-xl p-4">
 
@@ -285,6 +297,7 @@
                 <textarea
                 name="description"
                 rows="5"
+                required
                 placeholder="Restaurant description..."
                 class="w-full border border-gray-300 rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
 
@@ -293,19 +306,34 @@
             <!-- Image -->
 
             <div class="mt-4">
-
                 <label class="font-semibold block mb-2">
-
                     Restaurant Image
-
                 </label>
 
                 <input
-                type="file"
-                name="image"
-                class="w-full border border-gray-300 rounded-xl p-4">
+                    type="file"
+                    id="image"
+                    name="image"
+                    required
+                    accept=".jpg,.jpeg,.png,.webp"
+                    class="w-full border border-gray-300 rounded-xl p-4">
 
+                <p id="image-error" class="text-red-500 text-sm mt-1"></p>
             </div>
+
+            <script>
+            document.getElementById('image').addEventListener('change', function () {
+                const file = this.files[0];
+                const error = document.getElementById('image-error');
+
+                error.textContent = '';
+
+                if (file && file.size > 2 * 1024 * 1024) { // 2 MB
+                    error.textContent = 'Image size must not exceed 2 MB.';
+                    this.value = '';
+                }
+            });
+            </script>
 
             <div class="mt-4">
                 <label class="font-semibold block mb-2">
@@ -315,6 +343,7 @@
                 <input
                     type="number"
                     name="hygiene_rating"
+                    required
                     step="0.1"
                     min="0"
                     max="5"
@@ -328,10 +357,28 @@
 
                 <input
                     type="file"
+                    id="hygiene_certificate"
                     name="hygiene_certificate"
-                    accept=".pdf,.jpg,.jpeg,.png"
+                    required
+                    accept=".jpg,.jpeg,.png"
                     class="w-full border border-gray-300 rounded-xl p-4">
+
+                <p id="certificate-error" class="text-red-500 text-sm mt-1"></p>
             </div>
+
+            <script>
+            document.getElementById('hygiene_certificate').addEventListener('change', function () {
+                const file = this.files[0];
+                const error = document.getElementById('certificate-error');
+
+                error.textContent = '';
+
+                if (file && file.size > 2 * 1024 * 1024) { // 2 MB
+                    error.textContent = 'File size must not exceed 2 MB.';
+                    this.value = '';
+                }
+            });
+            </script>
 
             <!-- Status -->
 

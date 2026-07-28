@@ -36,6 +36,7 @@ class PaymentController extends Controller
 
     public function pay(Request $request)
     {
+        
 
         $request->validate([
 
@@ -213,11 +214,16 @@ class PaymentController extends Controller
 
         if ($result['status'] === 'PROCESSED_SUCCESSFUL') {
 
+            $paymentType = !empty($result['transaction']['card'])
+            ? 'card'
+            : (!empty($result['transaction']['bankAccount']) ? 'bank' : null);
+
             $payment->update([
                 'payment_status' => 'paid',
                 'payment_transaction_id' => $result['transaction']['transactionId'] ?? null,
                 'secondary_transaction_id' => $result['transaction']['secondaryTransactionId'] ?? null,
                 'payment_method' => $result['transaction']['paymentMethod'] ?? null,
+                'payment_type' => $paymentType
             ]);
 
             $data = json_decode(
@@ -297,6 +303,7 @@ class PaymentController extends Controller
                 $token,
                 $payment->payment_transaction_id,
                 $request->refund_amount,
+                $payment->payment_type,
                 "Refund for Order #{$order->id}"
             );
 

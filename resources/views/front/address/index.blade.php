@@ -121,7 +121,7 @@
 
                             <div class="ot-grid">
 
-                                <label class="ot-label checked">
+                                <label class="dt-label checked">
 
                                     <input
                                         type="radio"
@@ -146,7 +146,7 @@
 
                                 </label>
 
-                                <label class="ot-label">
+                                <label class="dt-label">
 
                                     <input
                                         type="radio"
@@ -465,6 +465,39 @@
         font-size:13px;font-weight:600;cursor:pointer;
     }
     .label-chip.selected{background:#111;color:#fff;border-color:#111;}
+
+    .dt-label {
+        border: 2px solid var(--border);
+        border-radius: 12px;
+        padding: 10px 12px;
+        cursor: pointer;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: #fff;
+        position: relative;
+    }
+    .dt-label input[type=radio] { display: none; }
+    .dt-label:hover { border-color: var(--primary-border); background: var(--primary-light); transform: translateY(-1px); }
+    
+    .dt-label.checked {
+        border-color: var(--primary);
+        background: linear-gradient(135deg, #FFF7F3 0%, #FFEFE6 100%);
+        box-shadow: 0 0 0 2px var(--primary), 0 4px 12px rgba(194, 90, 42, 0.12);
+    }
+    .dt-label .selected-badge {
+        display: none;
+        margin-left: auto;
+        background: var(--primary);
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 3px 8px;
+        border-radius: 20px;
+    }
+    .dt-label.checked .selected-badge { display: inline-block; }
+    .dt-label.checked .ot-icon { background: #FFD8C9; }
 </style>
 
 <script>

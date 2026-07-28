@@ -310,6 +310,7 @@ class OrderController extends Controller
     public function placeOrder(Request $request, Payment $payment = null)
     {
         
+        
             Log::info('PLACE ORDER START');
 
             /*
@@ -671,6 +672,9 @@ class OrderController extends Controller
                 'gift_card_code' => $giftCard?->code,
                 'gift_card_amount' => $giftCardDiscount,
                 'delivery_provider' => $restaurant->self_delivery ? 'self' : 'uber',
+                'is_scheduled' => $request->boolean('is_scheduled'),
+                'scheduled_for' => $request->scheduled_for,
+                
             ]);
 
             if ($giftCard && $giftCardDiscount > 0) {

@@ -372,33 +372,33 @@
 
     <script>
 
-function toggleSidebar() {
+    function toggleSidebar() {
 
-    document
-        .getElementById('sidebar')
-        .classList.toggle('open');
+        document
+            .getElementById('sidebar')
+            .classList.toggle('open');
 
-}
-
-document.addEventListener('click', function(e){
-
-    const sidebar =
-        document.getElementById('sidebar');
-
-    const button =
-        document.getElementById('menuToggle');
-
-    if(
-        !sidebar.contains(e.target)
-        &&
-        !button.contains(e.target)
-    ){
-        sidebar.classList.remove('open');
     }
 
-});
+    document.addEventListener('click', function(e){
 
-</script>
+        const sidebar =
+            document.getElementById('sidebar');
+
+        const button =
+            document.getElementById('menuToggle');
+
+        if(
+            !sidebar.contains(e.target)
+            &&
+            !button.contains(e.target)
+        ){
+            sidebar.classList.remove('open');
+        }
+
+    });
+
+    </script>
 
     <!-- INSTALL POPUP -->
 

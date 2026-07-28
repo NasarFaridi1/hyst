@@ -937,41 +937,29 @@
             });
         });
 
-        document.querySelectorAll('input[name="delivery_time_type"]').forEach(radio => {
+       function updateDeliveryTimeUI() {
 
-            radio.addEventListener('change', function () {
-
-                document
-                    .querySelectorAll('input[name="delivery_time_type"]')
-                    .forEach(r => {
-
-                        r.closest('.ot-label').classList.remove('checked');
-
-                    });
-
-                this.closest('.ot-label').classList.add('checked');
-
-                const fields = document.getElementById('scheduleFields');
-
-                if (this.value === 'schedule') {
-
-                    fields.classList.remove('co-hidden');
-
-                    document.getElementById('scheduled_date').required = true;
-                    document.getElementById('scheduled_time').required = true;
-
-                } else {
-
-                    fields.classList.add('co-hidden');
-
-                    document.getElementById('scheduled_date').required = false;
-                    document.getElementById('scheduled_time').required = false;
-
-                }
-
+            document.querySelectorAll('input[name="delivery_time_type"]').forEach(r => {
+                r.closest('.dt-label').classList.toggle('checked', r.checked);
             });
 
+            const isSchedule = document.querySelector(
+                'input[name="delivery_time_type"][value="schedule"]'
+            ).checked;
+
+            document
+                .getElementById('scheduleFields')
+                .classList.toggle('co-hidden', !isSchedule);
+
+            document.getElementById('scheduled_date').required = isSchedule;
+            document.getElementById('scheduled_time').required = isSchedule;
+        }
+
+        document.querySelectorAll('input[name="delivery_time_type"]').forEach(radio => {
+            radio.addEventListener('change', updateDeliveryTimeUI);
         });
+
+        document.addEventListener('DOMContentLoaded', updateDeliveryTimeUI);
 
         document.addEventListener('DOMContentLoaded', function() {
             window.validateCheckoutPlaceOrderButton();

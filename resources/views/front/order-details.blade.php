@@ -1962,13 +1962,15 @@
                         <div style="display:flex; flex-direction:column; gap:14px;">
                             <div class="od-info-item">
                                 <label>Method</label>
-                                <span>{{ ucfirst($order->payment_method) }}</span>
+                                <span>{{ ucfirst($order->payment->payment_type ?? 'N/A') }}({{ $order->payment->payment_method ?? 'N/A' }})</span>
                             </div>
                             <div class="od-info-item">
                                 <label>Status</label>
                                 @php $pStatus = $order->payment->payment_status ?? 'pending'; @endphp
                                 <span class="pay-{{ strtolower($pStatus) }}">{{ ucfirst($pStatus) }}</span>
                             </div>
+                            
+                            
                         </div>
                     </div>
                 </div>
@@ -1981,6 +1983,18 @@
                                 <label>Type</label>
                                 <span>{{ ucfirst(str_replace('_', ' ', $order->order_type)) }}</span>
                             </div>
+                            @if($order->order_type == 'delivery' && $order->delivery_provider == 'self')
+                            <div class="od-info-item">
+                                <label>Delivery Time</label>
+                                <span>
+                                    @if($order->is_scheduled && $order->scheduled_for)
+                                        📅 Scheduled • {{ \Carbon\Carbon::parse($order->scheduled_for)->format('d M Y, h:i A') }}
+                                    @else
+                                        ⚡ As Soon As Possible
+                                    @endif
+                                </span>
+                            </div>
+                            @endif
                             <div class="od-info-item">
                                 <label>Phone</label>
                                 <span>{{ $order->phone ?? '—' }}</span>
@@ -1989,6 +2003,7 @@
                                 <label>Address</label>
                                 <span>{{ $order->address ?? '—' }}</span>
                             </div>
+                            
                         </div>
                     </div>
                 </div>
@@ -2277,9 +2292,68 @@
                         </div>
                     @endforeach
                 </div>
-                <div class="items-total-row">
+                {{-- <div class="items-total-row">
                     <span class="items-total-label">Total Amount</span>
                     <span class="items-total-amount">£{{ number_format($grandTotal, 2) }}</span>
+                </div> --}}
+                {{-- Sub Total --}}
+                <div class="items-total-row ">
+                    <span class="items-total-label">Subtotal</span>
+                    <span class="item-total">£{{ number_format($grandTotal, 2) }}</span>
+                </div>
+
+                {{-- Delivery Fee --}}
+                @if($order->delivery_charge > 0)
+                <div class="items-total-row">
+                    <span class="items-total-label">Delivery Fee</span>
+                    <span class="item-total">
+                        £{{ number_format($order->delivery_charge, 2) }}
+                    </span>
+                </div>
+                @endif
+
+                {{-- Hyst Charge --}}
+                @if($order->hyst_charge > 0)
+                <div class="items-total-row">
+                    <span class="items-total-label">Hyst Charge</span>
+                    <span class="item-total">
+                        £{{ number_format($order->hyst_charge, 2) }}
+                    </span>
+                </div>
+                @endif
+
+                {{-- Coupon Discount --}}
+                @if($order->coupon_discount > 0)
+                <div class="items-total-row">
+                    <span class="items-total-label">Coupon Discount</span>
+                    <span class="item-total" style="color:#DC2626;">
+                        -£{{ number_format($order->coupon_discount, 2) }}
+                    </span>
+                </div>
+                @endif
+
+                {{-- Gift Card --}}
+                @if($order->gift_card_amount > 0)
+                <div class="items-total-row">
+                    <span class="items-total-label">Gift Card</span>
+                    <span class="item-total" style="color:#DC2626;">
+                        -£{{ number_format($order->gift_card_amount, 2) }}
+                    </span>
+                </div>
+                @endif
+
+                {{-- Grand Total --}}
+                <div class="items-total-row" style="
+                    margin-top:8px;
+                    padding-top:12px;
+                    border-top:2px solid #E5E7EB;
+                    font-weight:700;
+                    font-size:16px;
+                ">
+                    <span class="items-total-label">Order Total</span>
+                    <span class="items-total-amount" style="color:#C25A2A;">
+                        £{{ number_format($order->total_amount, 2) }}
+                    </span>
                 </div>
             </div>
 

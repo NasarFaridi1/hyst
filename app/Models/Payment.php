@@ -19,7 +19,8 @@ class Payment extends Model
         'refund_reason',
         'checkout_data',
         'payment_transaction_id',
-        'secondary_transaction_id'
+        'secondary_transaction_id',
+        'payment_type'
 
     ];
 

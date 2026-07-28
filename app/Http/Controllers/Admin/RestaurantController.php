@@ -12,6 +12,7 @@ use App\Models\RestaurantFavorite;
 use Illuminate\Support\Facades\DB;
 use App\Models\RestaurantCategory;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 class RestaurantController extends Controller
 {
@@ -115,49 +116,47 @@ class RestaurantController extends Controller
 
     public function store(Request $request)
     {
-
-        // dd($request->all());
-
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email',
-            'phone' => 'required',
-            'password' => 'required|min:6',
-            'location' => 'required',
-            'city' => 'required',
-            'state' => 'required',
-            'country' => 'required',
-            'postcode' => 'required',
-            
-            'longitude' => 'required',
-            'latitude' => 'required',
-            'description' => 'required',
-            'category_ids' => 'required|array|min:1',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp',
-            'hygiene_certificate' => 'required|image|mimes:jpeg,png,jpg,gif,svg',
-            'hygiene_rating' => 'required',
-
-            
-            
-        ]);
-
-
-        // dd($request->all());
-
-      
-
-       
-
-
-        $emailExist = User::where('email', $request->email)->first();
-
-        if ($emailExist) {
-            return back()->with('error', 'Email already exist');
-        }
-
         DB::beginTransaction();
 
         try {
+
+            $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|email',
+                'phone' => 'required|string|max:20',
+                'password' => 'required|string|min:6',
+                'location' => 'required|string',
+                'city' => 'required|string',
+                'state' => 'required|string',
+                'country' => 'required|string',
+                'postcode' => 'required|string',
+                'latitude' => 'required|numeric',
+                'longitude' => 'required|numeric',
+                'description' => 'required|string',
+                'category_ids' => 'required|array|min:1',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp',
+                'hygiene_certificate' => 'required|image|mimes:jpeg,png,jpg,gif,svg,webp',
+                'hygiene_rating' => 'required|integer|between:1,5',
+            ]);
+
+
+
+            // dump($request->all());
+        
+
+
+            $emailExist = User::where(
+                'email_hash',
+                hash('sha256', $request->email)
+            )->first();
+
+            // dd($emailExist);
+
+            if ($emailExist) {
+                return back()->with('error', 'Email already exist');
+            }
+
+        
 
 
             $image = null;
@@ -222,16 +221,21 @@ class RestaurantController extends Controller
                 ->route('admin.restaurants.index')
                 ->with('success', 'Restaurant Added Successfully');
 
-        } catch (\Exception $e) {
-
-            dd($e);
+        } catch (ValidationException $e) {
 
             DB::rollBack();
 
-            Log::error($e->getMessage());
+            return back()->with('error', $e->errors()); // See validation errors
 
-            return back()
-                ->with('error', $e->getMessage());
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+           
+
+            Log::error($e);
+
+            return back()->with('error', $e->getMessage());
         }
     }
 

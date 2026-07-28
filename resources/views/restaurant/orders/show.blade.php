@@ -445,6 +445,18 @@
           <span class="info-label">Order type</span>
           <span class="info-val">{{ ucfirst($order->order_type ?? 'Delivery') }}</span>
         </div>
+        @if($order->order_type == 'delivery' && $order->delivery_provider == 'self')
+        <div class="info-item">
+            <span class="info-label">Delivery Time</span>
+            <span class="info-val">
+                @if($order->is_scheduled && $order->scheduled_for)
+                    📅 {{ \Carbon\Carbon::parse($order->scheduled_for)->format('d M Y, h:i A') }}
+                @else
+                    ⚡ As Soon As Possible
+                @endif
+            </span>
+        </div>
+        @endif
         <div class="info-item">
           <span class="info-label">Status</span>
           <span class="badge badge-{{ $order->status }}">{{ ucfirst($order->status) }}</span>
@@ -609,8 +621,9 @@
       <div class="info-row" style="margin-bottom:16px">
         <div class="info-item">
           <span class="info-label">Method</span>
-          <span class="info-val">{{ $order->payment->payment_method ?? 'N/A' }}</span>
+          <span class="info-val">{{ $order->payment->payment_type ?? 'N/A' }}({{ $order->payment->payment_method ?? 'N/A' }})</span>
         </div>
+        
         <div class="info-item">
           <span class="info-label">Status</span>
           <span class="badge badge-{{ optional($order->payment)->payment_status ?? 'pending' }}">
