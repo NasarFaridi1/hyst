@@ -48,6 +48,8 @@
         }
         .field-input::placeholder { color: #BFBAB3; }
         .field-input:focus { border-color: #C25A2A; background: #fff; }
+        .field-input.field-error { border-color: #E24B4A; background: #FFF8F8; }
+        .field-input.field-ok    { border-color: #2E9E6B; background: #F6FDF9; }
 
         .pw-toggle {
             position: absolute;
@@ -90,9 +92,15 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
-            transition: background 0.16s, transform 0.12s;
+            transition: background 0.16s, transform 0.12s, opacity 0.2s;
         }
-        .btn-primary:hover { background: #A84B22; transform: scale(1.01); }
+        .btn-primary:not(:disabled):hover { background: #A84B22; transform: scale(1.01); }
+        .btn-primary:disabled {
+            background: #D9C9BF;
+            cursor: not-allowed;
+            transform: none;
+            opacity: 0.75;
+        }
 
         .divider {
             display: flex;
@@ -102,7 +110,6 @@
         }
         .divider-line { flex: 1; height: 1px; background: #EBE5DE; }
         .divider-text { font-size: 12px; color: #BBB; font-weight: 500; }
-
 
         .btn-social {
             border: 1.5px solid #EBE5DE;
@@ -131,6 +138,17 @@
             letter-spacing: 0.06em;
             text-transform: uppercase;
         }
+
+        .inline-error {
+            font-size: 12px;
+            color: #E24B4A;
+            margin-top: 5px;
+            display: none;
+        }
+
+        /* Password rule list */
+        #password-rules { font-size: 12px; color: #777; margin-top: 8px; padding-left: 18px; }
+        #password-rules li { transition: color 0.15s; }
     </style>
 </head>
 
@@ -143,8 +161,6 @@
             <div class="card-top-bar"></div>
 
             <div class="p-9">
-
-                {{-- Logo --}}
                 <a href="/" style="display:flex; align-items:center; gap:9px; text-decoration:none; margin-bottom:1.5rem;">
                     <div style="width:36px; height:36px; background:#C25A2A; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
                         <i data-lucide="utensils" style="color:#fff; width:18px; height:18px;"></i>
@@ -152,7 +168,6 @@
                     <span style="font-weight:800; font-size:19px; color:#0D0D0D; letter-spacing:-0.4px;">HYST</span>
                 </a>
 
-                {{-- Heading --}}
                 <h1 style="font-size:22px; font-weight:700; color:#0D0D0D; margin:0 0 4px; line-height:1.25;">
                     Create your account
                 </h1>
@@ -160,8 +175,7 @@
                     Join thousands ordering zero-commission food with HYST
                 </p>
 
-                {{-- Form --}}
-                <form method="POST" action="/register-user">
+                <form method="POST" action="/register-user" id="register-form" novalidate>
                     @csrf
 
                     {{-- Full Name --}}
@@ -174,9 +188,12 @@
                             <input
                                 type="text"
                                 name="name"
+                                id="name-field"
                                 placeholder="Jane Smith"
-                                class="field-input">
+                                class="field-input"
+                                autocomplete="name">
                         </div>
+                        <p class="inline-error" id="name-error">Name can only contain letters and spaces.</p>
                     </div>
 
                     {{-- Email --}}
@@ -189,9 +206,12 @@
                             <input
                                 type="email"
                                 name="email"
+                                id="email-field"
                                 placeholder="jane@example.com"
-                                class="field-input">
+                                class="field-input"
+                                autocomplete="email">
                         </div>
+                        <p class="inline-error" id="email-error">Please enter a valid email address.</p>
                     </div>
 
                     {{-- Password --}}
@@ -207,54 +227,44 @@
                                 id="pw-field"
                                 placeholder="Create a strong password"
                                 class="field-input"
-                                style="padding-right: 42px;">
+                                style="padding-right: 42px;"
+                                autocomplete="new-password">
                             <button type="button" class="pw-toggle" onclick="togglePassword()" aria-label="Toggle password visibility">
                                 <i data-lucide="eye" id="pw-eye-icon" style="width:17px; height:17px;"></i>
                             </button>
                         </div>
-                        <div class="pw-strength-bar" id="pw-strength">
-                            <span id="bar1"></span>
-                            <span id="bar2"></span>
-                            <span id="bar3"></span>
-                            <span id="bar4"></span>
-                        </div>
-                        <div class="pw-strength-bar" id="pw-strength">
+
+                        {{-- Strength bar --}}
+                        <div class="pw-strength-bar">
                             <span id="bar1"></span>
                             <span id="bar2"></span>
                             <span id="bar3"></span>
                             <span id="bar4"></span>
                         </div>
 
-                        <p id="password-error"
-                        style="font-size:12px;color:#E24B4A;margin-top:8px;display:none;">
-                        </p>
-
-                        <ul id="password-rules"
-                            style="font-size:12px;color:#777;margin-top:8px;padding-left:18px;">
+                        {{-- Rule checklist --}}
+                        <ul id="password-rules">
                             <li id="rule-length">Minimum 8 characters</li>
-                            <li id="rule-upper">One uppercase letter (A-Z)</li>
-                            <li id="rule-lower">One lowercase letter (a-z)</li>
-                            <li id="rule-number">One number (0-9)</li>
-                            <li id="rule-special">One special character (@$!%*?&)</li>
+                            <li id="rule-upper">One uppercase letter (A–Z)</li>
+                            <li id="rule-lower">One lowercase letter (a–z)</li>
+                            <li id="rule-number">One number (0–9)</li>
+                            <li id="rule-special">One special character (@$!%*?&amp;)</li>
                         </ul>
                     </div>
+
+                    {{-- Turnstile --}}
                     <div class="mb-5 flex justify-center">
-                        <div
-                            class="cf-turnstile"
-                            data-sitekey="{{ env('TURNSTILE_SITE_KEY') }}">
-                        </div>
+                        <div class="cf-turnstile" data-sitekey="{{ env('TURNSTILE_SITE_KEY') }}"></div>
                     </div>
 
-                    {{-- Submit --}}
-                    <button type="submit" class="btn-primary">
+                    {{-- Submit (disabled by default) --}}
+                    <button type="submit" class="btn-primary" id="submit-btn" disabled>
                         <i data-lucide="check" style="width:17px; height:17px;"></i>
                         Create account
                     </button>
 
                 </form>
 
-                {{-- Divider --}}
-                {{-- Divider --}}
                 <div class="divider">
                     <div class="divider-line"></div>
                     <span class="divider-text">or sign up with</span>
@@ -271,10 +281,8 @@
                         </svg>
                         Google
                     </a>
-                    
                 </div>
 
-                {{-- Login link --}}
                 <div class="text-center mt-5">
                     <a href="/login" style="color:#C25A2A; font-weight:600; font-size:13px; text-decoration:none;">
                         Already have an account? <span style="text-decoration:underline;">Log in</span>
@@ -296,7 +304,6 @@
         </div>
     </div>
 
-    {{-- Session Alert --}}
     @if(session('message'))
     <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -313,98 +320,153 @@
     <script>
         lucide.createIcons();
 
-        const passwordField = document.getElementById("pw-field");
-        const passwordError = document.getElementById("password-error");
+        /* ─── Element refs ─── */
+        const nameField   = document.getElementById('name-field');
+        const emailField  = document.getElementById('email-field');
+        const pwField     = document.getElementById('pw-field');
+        const nameError   = document.getElementById('name-error');
+        const emailError  = document.getElementById('email-error');
+        const submitBtn   = document.getElementById('submit-btn');
 
-        passwordField.addEventListener("input", function () {
+        const bars   = [1,2,3,4].map(i => document.getElementById('bar' + i));
+        const rules  = {
+            length:  document.getElementById('rule-length'),
+            upper:   document.getElementById('rule-upper'),
+            lower:   document.getElementById('rule-lower'),
+            number:  document.getElementById('rule-number'),
+            special: document.getElementById('rule-special'),
+        };
 
-            let password = this.value;
+        /* ─── Validation state ─── */
+        const state = { name: false, email: false, password: false };
 
-            const hasLength  = password.length >= 8;
-            const hasUpper   = /[A-Z]/.test(password);
-            const hasLower   = /[a-z]/.test(password);
-            const hasNumber  = /\d/.test(password);
-            const hasSpecial = /[@$!%*?&]/.test(password);
+        function updateSubmit() {
+            submitBtn.disabled = !(state.name && state.email && state.password);
+        }
 
-            updateRule("rule-length", hasLength);
-            updateRule("rule-upper", hasUpper);
-            updateRule("rule-lower", hasLower);
-            updateRule("rule-number", hasNumber);
-            updateRule("rule-special", hasSpecial);
-
-            let score = 0;
-            if (hasLength) score++;
-            if (hasUpper) score++;
-            if (hasNumber) score++;
-            if (hasSpecial) score++;
-
-            const colors = [
-                "#EBE5DE",
-                "#E24B4A",
-                "#F09527",
-                "#4CAF50",
-                "#2E9E6B"
-            ];
-
-            for (let i = 1; i <= 4; i++) {
-                document.getElementById("bar" + i).style.background =
-                    i <= score ? colors[score] : "#EBE5DE";
+        /* ─── Name validation ─── */
+        // Block number/special key input in real-time
+        nameField.addEventListener('keypress', function (e) {
+            // Allow control keys (backspace, arrows etc.) via keydown; keypress fires only for printable chars
+            if (!/^[A-Za-z\s]$/.test(e.key)) {
+                e.preventDefault();
             }
-
-            if (
-                password.length &&
-                !(hasLength && hasUpper && hasLower && hasNumber && hasSpecial)
-            ) {
-                passwordError.style.display = "block";
-                passwordError.innerHTML =
-                    "Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number and one special character.";
-            } else {
-                passwordError.style.display = "none";
-            }
-
         });
 
-        function updateRule(id, valid) {
-            const item = document.getElementById(id);
+        // Also handle paste
+        nameField.addEventListener('paste', function (e) {
+            e.preventDefault();
+            const pasted = (e.clipboardData || window.clipboardData).getData('text');
+            const cleaned = pasted.replace(/[^A-Za-z\s]/g, '');
+            document.execCommand('insertText', false, cleaned);
+        });
 
-            if (valid) {
-                item.style.color = "#2E9E6B";
-                item.style.fontWeight = "600";
-                item.innerHTML = "✓ " + item.textContent.replace(/^✓ |^✗ /, "");
+        nameField.addEventListener('input', function () {
+            const val = this.value;
+            const valid = val.trim().length >= 2 && /^[A-Za-z\s]+$/.test(val);
+
+            if (!val.trim()) {
+                // Empty — neutral state
+                this.classList.remove('field-error', 'field-ok');
+                nameError.style.display = 'none';
+                state.name = false;
+            } else if (valid) {
+                this.classList.remove('field-error');
+                this.classList.add('field-ok');
+                nameError.style.display = 'none';
+                state.name = true;
             } else {
-                item.style.color = "#E24B4A";
-                item.style.fontWeight = "400";
-                item.innerHTML = "✗ " + item.textContent.replace(/^✓ |^✗ /, "");
+                this.classList.remove('field-ok');
+                this.classList.add('field-error');
+                nameError.textContent = /\d/.test(val)
+                    ? 'Name cannot contain numbers.'
+                    : 'Name can only contain letters and spaces.';
+                nameError.style.display = 'block';
+                state.name = false;
             }
-        }
+            updateSubmit();
+        });
+
+        /* ─── Email validation ─── */
+        emailField.addEventListener('input', function () {
+            const val = this.value.trim();
+            const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+
+            if (!val) {
+                this.classList.remove('field-error', 'field-ok');
+                emailError.style.display = 'none';
+                state.email = false;
+            } else if (valid) {
+                this.classList.remove('field-error');
+                this.classList.add('field-ok');
+                emailError.style.display = 'none';
+                state.email = true;
+            } else {
+                this.classList.remove('field-ok');
+                this.classList.add('field-error');
+                emailError.style.display = 'block';
+                state.email = false;
+            }
+            updateSubmit();
+        });
+
+        /* ─── Password validation (single handler) ─── */
+        const strengthColors = ['#EBE5DE', '#E24B4A', '#F09527', '#4CAF50', '#2E9E6B'];
+
+        pwField.addEventListener('input', function () {
+            const v = this.value;
+
+            const checks = {
+                length:  v.length >= 8,
+                upper:   /[A-Z]/.test(v),
+                lower:   /[a-z]/.test(v),
+                number:  /\d/.test(v),
+                special: /[@$!%*?&]/.test(v),
+            };
+
+            // Update rule list
+            Object.entries(checks).forEach(([key, pass]) => {
+                const el = rules[key];
+                const text = el.textContent.replace(/^[✓✗] /, '');
+                el.textContent = (pass ? '✓ ' : '✗ ') + text;
+                el.style.color      = pass ? '#2E9E6B' : '#E24B4A';
+                el.style.fontWeight = pass ? '600' : '400';
+            });
+
+            // Strength score (0–4)
+            const score = Object.values(checks).filter(Boolean).length - (checks.length ? 0 : 1);
+            // Simpler: count how many of the 4 non-length rules pass + length
+            const barScore = [checks.length, checks.upper || checks.lower, checks.number, checks.special]
+                             .filter(Boolean).length;
+
+            const activeColor = v.length ? strengthColors[barScore] : '#EBE5DE';
+            bars.forEach((bar, i) => {
+                bar.style.background = i < barScore ? activeColor : '#EBE5DE';
+            });
+
+            // Password input border state
+            const allPass = Object.values(checks).every(Boolean);
+            if (!v) {
+                this.classList.remove('field-error', 'field-ok');
+            } else if (allPass) {
+                this.classList.remove('field-error');
+                this.classList.add('field-ok');
+            } else {
+                this.classList.remove('field-ok');
+                this.classList.add('field-error');
+            }
+
+            state.password = allPass;
+            updateSubmit();
+        });
+
+        /* ─── Toggle password visibility ─── */
         function togglePassword() {
-            var field = document.getElementById('pw-field');
-            var icon = document.getElementById('pw-eye-icon');
-            if (field.type === 'password') {
-                field.type = 'text';
-                icon.setAttribute('data-lucide', 'eye-off');
-            } else {
-                field.type = 'password';
-                icon.setAttribute('data-lucide', 'eye');
-            }
+            const isPassword = pwField.type === 'password';
+            pwField.type = isPassword ? 'text' : 'password';
+            document.getElementById('pw-eye-icon').setAttribute('data-lucide', isPassword ? 'eye-off' : 'eye');
             lucide.createIcons();
         }
-
-        document.getElementById('pw-field').addEventListener('input', function () {
-            var v = this.value;
-            var score = 0;
-            if (v.length >= 8) score++;
-            if (/[A-Z]/.test(v)) score++;
-            if (/[0-9]/.test(v)) score++;
-            if (/[^A-Za-z0-9]/.test(v)) score++;
-
-            var colors = ['#E24B4A', '#F09527', '#2E9E6B', '#C25A2A'];
-            var active = v.length > 0 ? colors[score - 1] || '#EBE5DE' : '#EBE5DE';
-
-            for (var i = 1; i <= 4; i++) {
-                document.getElementById('bar' + i).style.background = i <= score ? active : '#EBE5DE';
-            }
-        });
     </script>
 
 </body>

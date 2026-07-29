@@ -445,230 +445,568 @@
         }
     });
 
-    function openPartnerModal() {
-        const modal = document.getElementById('partnerModal');
-        if (modal) {
-            modal.style.display = 'flex';
-            if (window.lucide) lucide.createIcons();
-        }
-    }
-
-    function closePartnerModal() {
-        const modal = document.getElementById('partnerModal');
-        if (modal) {
-            modal.style.display = 'none';
-            document.getElementById('partnerForm').reset();
-            selectPartnerType('Become Restaurant Partner');
-            const alertBox = document.getElementById('partnerAlert');
-            if (alertBox) alertBox.style.display = 'none';
-        }
-    }
-
-    function selectPartnerType(type) {
-        document.getElementById('partnerTypeInput').value = type;
-        const btnRest = document.getElementById('btnTypeRestaurant');
-        const btnAmb = document.getElementById('btnTypeAmbassador');
-
-        if (type === 'Become Restaurant Partner' || type === 'Restaurant Partner') {
-            btnRest.style.border = '2px solid #C25A2A';
-            btnRest.style.background = '#FFF5F0';
-            btnRest.style.color = '#C25A2A';
-
-            btnAmb.style.border = '2px solid #E5E7EB';
-            btnAmb.style.background = '#fff';
-            btnAmb.style.color = '#4B5563';
-        } else {
-            btnAmb.style.border = '2px solid #C25A2A';
-            btnAmb.style.background = '#FFF5F0';
-            btnAmb.style.color = '#C25A2A';
-
-            btnRest.style.border = '2px solid #E5E7EB';
-            btnRest.style.background = '#fff';
-            btnRest.style.color = '#4B5563';
-        }
-    }
-
-    function submitPartnerForm(event) {
-        event.preventDefault();
-        const form = document.getElementById('partnerForm');
-        const alertBox = document.getElementById('partnerAlert');
-        const submitBtn = document.getElementById('btnSubmitPartner');
-        const formData = new FormData(form);
-
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span>Submitting...</span>';
-
-        fetch('/become-a-partner', {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Accept': 'application/json'
-            },
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = '<span>Send Partner Request</span><i data-lucide="send" style="width:16px; height:16px;"></i>';
-            if (window.lucide) lucide.createIcons();
-
-            alertBox.style.display = 'block';
-            if (data.success) {
-                alertBox.style.background = '#DEF7EC';
-                alertBox.style.color = '#03543F';
-                alertBox.style.border = '1px solid #BCF0DA';
-                alertBox.innerText = data.message;
-                form.reset();
-                selectPartnerType('Become Restaurant Partner');
-                setTimeout(() => {
-                    closePartnerModal();
-                }, 3000);
-            } else {
-                alertBox.style.background = '#FDE8E8';
-                alertBox.style.color = '#9B1C1C';
-                alertBox.style.border = '1px solid #FBD5D5';
-                alertBox.innerText = data.message || 'An error occurred. Please check your inputs.';
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = '<span>Send Partner Request</span><i data-lucide="send" style="width:16px; height:16px;"></i>';
-            if (window.lucide) lucide.createIcons();
-
-            alertBox.style.display = 'block';
-            alertBox.style.background = '#FDE8E8';
-            alertBox.style.color = '#9B1C1C';
-            alertBox.style.border = '1px solid #FBD5D5';
-            alertBox.innerText = 'Failed to submit request. Please try again.';
-        });
-    }
-
-    function sendViaWhatsApp(phone) {
-        const form = document.getElementById('partnerForm');
-        const partnerType = document.getElementById('partnerTypeInput').value;
-        const name = form.elements['name'] ? form.elements['name'].value.trim() : '';
-        const email = form.elements['email'] ? form.elements['email'].value.trim() : '';
-        const phoneNum = form.elements['phone_number'] ? form.elements['phone_number'].value.trim() : '';
-        const location = form.elements['location'] ? form.elements['location'].value.trim() : '';
-
-        let text = `*HYST Partner Request*\n`;
-        text += `• *Type:* ${partnerType}\n`;
-        if (name) text += `• *Name:* ${name}\n`;
-        if (email) text += `• *Email:* ${email}\n`;
-        if (phoneNum) text += `• *Phone:* ${phoneNum}\n`;
-        if (location) text += `• *Location:* ${location}\n`;
-
-        const url = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
-        window.open(url, '_blank');
-    }
-
-    window.addEventListener('click', function(event) {
-        const modal = document.getElementById('partnerModal');
-        if (modal && event.target === modal) {
-            closePartnerModal();
-        }
-    });
+   
 </script>
 
-<!-- BECOME A PARTNER MODAL -->
-<div id="partnerModal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.55); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:16px;">
-    <div style="background:#fff; border-radius:20px; width:100%; max-width:480px; box-shadow:0 20px 50px rgba(0,0,0,0.2); overflow:hidden; position:relative; animation: modalFadeIn 0.25s ease-out;">
-        
-        <!-- Modal Header -->
-        <div style="display:flex; align-items:center; justify-content:space-between; padding:20px 24px; border-bottom:1px solid #F0F0EC; background:#FAF9F6;">
+
+<style>
+    @keyframes modalFadeIn {
+        from { opacity:0; transform:scale(0.96) translateY(8px); }
+        to   { opacity:1; transform:scale(1)    translateY(0);   }
+    }
+    
+    /* ── Modal overlay ── */
+    #partnerModal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        background: rgba(0,0,0,0.55);
+        backdrop-filter: blur(4px);
+        align-items: center;
+        justify-content: center;
+        padding: 12px;
+        overflow-y: auto;
+    }
+    
+    /* ── Modal card ── */
+    .pm-card {
+        background: #fff;
+        border-radius: 20px;
+        width: 100%;
+        max-width: 480px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.22);
+        overflow: hidden;
+        position: relative;
+        animation: modalFadeIn 0.25s ease-out;
+        margin: auto;           /* centres when scrollable */
+        font-family: 'Poppins', sans-serif;
+    }
+    
+    /* ── Header ── */
+    .pm-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 18px 20px;
+        border-bottom: 1px solid #F0F0EC;
+        background: #FAF9F6;
+    }
+    .pm-header h3 {
+        font-size: 17px;
+        font-weight: 700;
+        color: #0D0D0D;
+        margin: 0;
+    }
+    .pm-header p  {
+        font-size: 12px;
+        color: #6B7280;
+        margin: 2px 0 0;
+    }
+    .pm-close-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #6B7280;
+        padding: 6px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: color .15s, background .15s;
+        flex-shrink: 0;
+    }
+    .pm-close-btn:hover { color:#0D0D0D; background:#F0F0EC; }
+    
+    /* ── Body / form ── */
+    .pm-body { padding: 20px; }
+    
+    /* ── Alert banner ── */
+    .pm-alert {
+        display: none;
+        padding: 11px 15px;
+        border-radius: 10px;
+        font-size: 13px;
+        margin-bottom: 16px;
+    }
+    
+    /* ── Partner type toggle ── */
+    .pm-type-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 18px;
+    }
+    .pm-type-btn {
+        padding: 11px 8px;
+        border-radius: 12px;
+        border: 2px solid #E5E7EB;
+        background: #fff;
+        color: #4B5563;
+        font-weight: 600;
+        font-size: 13px;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        transition: all .18s;
+        font-family: 'Poppins', sans-serif;
+        line-height: 1.3;
+        text-align: center;
+    }
+    .pm-type-btn.active {
+        border-color: #C25A2A;
+        background: #FFF5F0;
+        color: #C25A2A;
+    }
+    .pm-type-btn:hover:not(.active) {
+        border-color: #C25A2A;
+        background: #FFF5F0;
+        color: #C25A2A;
+    }
+    
+    /* ── Field group ── */
+    .pm-field { margin-bottom: 13px; }
+    .pm-label {
+        display: block;
+        font-size: 11.5px;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 5px;
+        letter-spacing: .04em;
+    }
+    .pm-input {
+        width: 100%;
+        padding: 10px 14px;
+        border-radius: 10px;
+        border: 1.5px solid #D1D5DB;
+        font-size: 14px;
+        font-family: 'Poppins', sans-serif;
+        outline: none;
+        box-sizing: border-box;
+        transition: border-color .18s, background .18s;
+        background: #FDFAF7;
+        color: #0D0D0D;
+    }
+    .pm-input::placeholder { color: #BFBAB3; }
+    .pm-input:focus   { border-color: #C25A2A; background: #fff; }
+    .pm-input.pm-ok   { border-color: #2E9E6B; background: #F6FDF9; }
+    .pm-input.pm-err  { border-color: #E24B4A; background: #FFF8F8; }
+    
+    .pm-field-error {
+        font-size: 11.5px;
+        color: #E24B4A;
+        margin-top: 4px;
+        display: none;
+    }
+    
+    /* ── Submit button ── */
+    .pm-submit {
+        width: 100%;
+        padding: 12px;
+        border-radius: 12px;
+        background: #C25A2A;
+        color: #fff;
+        border: none;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        font-family: 'Poppins', sans-serif;
+        transition: background .18s, opacity .2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    .pm-submit:hover:not(:disabled) { background: #A84B22; }
+    .pm-submit:disabled {
+        background: #D9C9BF;
+        cursor: not-allowed;
+        opacity: .75;
+    }
+    
+    /* ── WhatsApp strip ── */
+    .pm-wa-wrap {
+        margin-top: 14px;
+        padding-top: 14px;
+        border-top: 1px solid #F0F0EC;
+        text-align: center;
+    }
+    .pm-wa-label { font-size: 12px; color: #6B7280; margin: 0 0 9px; }
+    .pm-wa-btn {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 11px 14px;
+        border-radius: 12px;
+        background: #25D366;
+        color: #fff;
+        font-weight: 700;
+        font-size: 13px;
+        border: none;
+        cursor: pointer;
+        transition: background .18s;
+        font-family: 'Poppins', sans-serif;
+        box-sizing: border-box;
+    }
+    .pm-wa-btn:hover { background: #20BA5A; }
+    
+    /* ── Responsive tweaks ── */
+    @media (max-width: 480px) {
+        .pm-card          { border-radius: 16px; }
+        .pm-body          { padding: 16px; }
+        .pm-header        { padding: 14px 16px; }
+        .pm-header h3     { font-size: 15px; }
+        .pm-type-btn      { font-size: 12px; padding: 10px 6px; }
+        .pm-wa-btn span   { font-size: 12px; }
+    }
+    
+    @media (max-width: 360px) {
+        .pm-type-grid     { grid-template-columns: 1fr; }
+    }
+</style>
+ 
+
+
+<!-- ═══════ MODAL ═══════ -->
+<div id="partnerModal">
+    <div class="pm-card">
+ 
+        <!-- Header -->
+        <div class="pm-header">
             <div>
-                <h3 style="font-family:'Poppins',sans-serif; font-size:18px; font-weight:700; color:#0D0D0D; margin:0;">Become a Partner</h3>
-                <p style="font-size:12px; color:#6B7280; margin:2px 0 0 0;">Register your request with HYST</p>
+                <h3>Become a Partner</h3>
+                <p>Register your request with HYST</p>
             </div>
-            <button onclick="closePartnerModal()" type="button" style="background:none; border:none; cursor:pointer; color:#6B7280; padding:4px; border-radius:8px; display:flex; align-items:center; justify-content:center;" onmouseover="this.style.color='#0D0D0D'" onmouseout="this.style.color='#6B7280'">
+            <button class="pm-close-btn" onclick="closePartnerModal()" type="button" aria-label="Close">
                 <i data-lucide="x" style="width:20px; height:20px;"></i>
             </button>
         </div>
-
-        <!-- Modal Body -->
-        <form id="partnerForm" onsubmit="submitPartnerForm(event)" style="padding:24px;">
+ 
+        <!-- Form -->
+        <form id="partnerForm" onsubmit="submitPartnerForm(event)" class="pm-body" novalidate>
             @csrf
-            
-            <!-- Alert Message Container -->
-            <div id="partnerAlert" style="display:none; padding:12px 16px; border-radius:12px; font-size:13px; margin-bottom:16px; font-family:'Poppins',sans-serif;"></div>
-
-            <!-- Partner Type Selection Buttons -->
-            <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:8px;">Choose Partner Type *</label>
+ 
+            <!-- Alert -->
+            <div id="partnerAlert" class="pm-alert"></div>
+ 
+            <!-- Partner Type -->
+            <label class="pm-label" style="margin-bottom:8px;">Choose Partner Type *</label>
             <input type="hidden" name="partner_type" id="partnerTypeInput" value="Become Restaurant Partner">
-            
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px;">
-                <button type="button" id="btnTypeRestaurant" onclick="selectPartnerType('Become Restaurant Partner')"
-                    style="padding:12px 10px; border-radius:12px; border:2px solid #C25A2A; background:#FFF5F0; color:#C25A2A; font-weight:600; font-size:13px; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:6px; transition:all .18s; font-family:'Poppins',sans-serif;">
+ 
+            <div class="pm-type-grid">
+                <button type="button" id="btnTypeRestaurant" class="pm-type-btn active"
+                    onclick="selectPartnerType('Become Restaurant Partner')">
                     <i data-lucide="store" style="width:20px; height:20px;"></i>
-                    <span>Become Restaurant Partner</span>
+                    <span>Restaurant Partner</span>
                 </button>
-                
-                <button type="button" id="btnTypeAmbassador" onclick="selectPartnerType('Become an Ambassador')"
-                    style="padding:12px 10px; border-radius:12px; border:2px solid #E5E7EB; background:#fff; color:#4B5563; font-weight:600; font-size:13px; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:6px; transition:all .18s; font-family:'Poppins',sans-serif;">
+                <button type="button" id="btnTypeAmbassador" class="pm-type-btn"
+                    onclick="selectPartnerType('Become an Ambassador')">
                     <i data-lucide="award" style="width:20px; height:20px;"></i>
                     <span>Become an Ambassador</span>
                 </button>
             </div>
-
-            <!-- Form Inputs -->
-            <div style="margin-bottom:14px;">
-                <label style="display:block; font-size:12px; font-weight:600; color:#374151; margin-bottom:5px;">Full Name *</label>
-                <input type="text" name="name" required placeholder="Enter your full name"
-                    style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid #D1D5DB; font-size:14px; font-family:'Poppins',sans-serif; outline:none; box-sizing:border-box; transition:border .18s;"
-                    onfocus="this.style.borderColor='#C25A2A'" onblur="this.style.borderColor='#D1D5DB'">
+ 
+            <!-- Full Name -->
+            <div class="pm-field">
+                <label class="pm-label">Full Name *</label>
+                <input type="text" name="name" id="pm-name"
+                    class="pm-input"
+                    placeholder="Enter your full name"
+                    autocomplete="name">
+                <p class="pm-field-error" id="pm-name-err">Name can only contain letters and spaces.</p>
             </div>
-
-            <div style="margin-bottom:14px;">
-                <label style="display:block; font-size:12px; font-weight:600; color:#374151; margin-bottom:5px;">Email Address *</label>
-                <input type="email" name="email" required placeholder="name@example.com"
-                    style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid #D1D5DB; font-size:14px; font-family:'Poppins',sans-serif; outline:none; box-sizing:border-box; transition:border .18s;"
-                    onfocus="this.style.borderColor='#C25A2A'" onblur="this.style.borderColor='#D1D5DB'">
+ 
+            <!-- Email -->
+            <div class="pm-field">
+                <label class="pm-label">Email Address *</label>
+                <input type="email" name="email" id="pm-email"
+                    class="pm-input"
+                    placeholder="name@example.com"
+                    autocomplete="email">
+                <p class="pm-field-error" id="pm-email-err">Please enter a valid email address.</p>
             </div>
-
-            <div style="margin-bottom:14px;">
-                <label style="display:block; font-size:12px; font-weight:600; color:#374151; margin-bottom:5px;">Phone Number *</label>
-                <input type="tel" name="phone_number" required placeholder="e.g. +44 7123 456789"
-                    style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid #D1D5DB; font-size:14px; font-family:'Poppins',sans-serif; outline:none; box-sizing:border-box; transition:border .18s;"
-                    onfocus="this.style.borderColor='#C25A2A'" onblur="this.style.borderColor='#D1D5DB'">
+ 
+            <!-- Phone -->
+            <div class="pm-field">
+                <label class="pm-label">Phone Number *</label>
+                <input type="tel" name="phone_number" id="pm-phone"
+                    class="pm-input"
+                    placeholder="e.g. +44 7123 456789"
+                    autocomplete="tel">
+                <p class="pm-field-error" id="pm-phone-err">Enter a valid phone number (digits, spaces, +, -).</p>
             </div>
-
-            <div style="margin-bottom:20px;">
-                <label style="display:block; font-size:12px; font-weight:600; color:#374151; margin-bottom:5px;">Location / City *</label>
-                <input type="text" name="location" required placeholder="Enter your city or area"
-                    style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid #D1D5DB; font-size:14px; font-family:'Poppins',sans-serif; outline:none; box-sizing:border-box; transition:border .18s;"
-                    onfocus="this.style.borderColor='#C25A2A'" onblur="this.style.borderColor='#D1D5DB'">
+ 
+            <!-- Location -->
+            <div class="pm-field" style="margin-bottom:18px;">
+                <label class="pm-label">Location / City *</label>
+                <input type="text" name="location" id="pm-location"
+                    class="pm-input"
+                    placeholder="Enter your city or area">
+                <p class="pm-field-error" id="pm-location-err">Please enter your location (min 2 characters).</p>
             </div>
-
-            <!-- Submit Button -->
-            <button type="submit" id="btnSubmitPartner"
-                style="width:100%; padding:12px; border-radius:12px; background:#C25A2A; color:#fff; border:none; font-size:14px; font-weight:700; cursor:pointer; font-family:'Poppins',sans-serif; transition:background .18s; display:flex; align-items:center; justify-content:center; gap:8px;"
-                onmouseover="this.style.background='#a84b20'" onmouseout="this.style.background='#C25A2A'">
+ 
+            <!-- Submit -->
+            <button type="submit" id="btnSubmitPartner" class="pm-submit" disabled>
                 <span>Send Request via Email</span>
                 <i data-lucide="send" style="width:16px; height:16px;"></i>
             </button>
-
-            <!-- WhatsApp Quick Connect -->
-            <div style="margin-top:16px; padding-top:16px; border-top:1px solid #F0F0EC; text-align:center;">
-                <p style="font-size:12px; color:#6B7280; margin:0 0 10px 0; font-family:'Poppins',sans-serif;">Or send your request directly via WhatsApp:</p>
-                
-                <button type="button" onclick="sendViaWhatsApp('447879175585')"
-                   style="width:100%; display:flex; align-items:center; justify-content:center; gap:8px; padding:11px 16px; border-radius:12px; background:#25D366; color:#fff; font-weight:700; font-size:13px; border:none; cursor:pointer; transition:background .18s; font-family:'Poppins',sans-serif;"
-                   onmouseover="this.style.background='#20ba5a'"
-                   onmouseout="this.style.background='#25D366'">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+ 
+            <!-- WhatsApp -->
+            <div class="pm-wa-wrap">
+                <p class="pm-wa-label">Or send your request directly via WhatsApp:</p>
+                <button type="button" class="pm-wa-btn" onclick="sendViaWhatsApp('447879175585')">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.74.949 3.699 1.45 5.71 1.45h.005c6.554 0 11.89-5.335 11.893-11.893 0-3.18-1.238-6.167-3.487-8.414"/>
                     </svg>
                     <span>Connect on WhatsApp (+44 7879 175585)</span>
                 </button>
-            </div>        </form>
+            </div>
+        </form>
     </div>
 </div>
-
-<style>
-@keyframes modalFadeIn {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
+ 
+ 
+<script>
+(function () {
+    /* ── refs ── */
+    const nameInput     = document.getElementById('pm-name');
+    const emailInput    = document.getElementById('pm-email');
+    const phoneInput    = document.getElementById('pm-phone');
+    const locationInput = document.getElementById('pm-location');
+    const submitBtn     = document.getElementById('btnSubmitPartner');
+ 
+    const nameErr     = document.getElementById('pm-name-err');
+    const emailErr    = document.getElementById('pm-email-err');
+    const phoneErr    = document.getElementById('pm-phone-err');
+    const locationErr = document.getElementById('pm-location-err');
+ 
+    /* ── validation state ── */
+    const valid = { name: false, email: false, phone: false, location: false };
+ 
+    function refreshSubmit() {
+        submitBtn.disabled = !Object.values(valid).every(Boolean);
+    }
+ 
+    /* ── helpers ── */
+    function setOk(input, errEl) {
+        input.classList.remove('pm-err');
+        input.classList.add('pm-ok');
+        errEl.style.display = 'none';
+    }
+    function setErr(input, errEl, msg) {
+        input.classList.remove('pm-ok');
+        input.classList.add('pm-err');
+        if (msg) errEl.textContent = msg;
+        errEl.style.display = 'block';
+    }
+    function setNeutral(input, errEl) {
+        input.classList.remove('pm-ok', 'pm-err');
+        errEl.style.display = 'none';
+    }
+ 
+    /* ── NAME ── only letters + spaces ── */
+    nameInput.addEventListener('keypress', function (e) {
+        if (!/^[A-Za-z\s]$/.test(e.key)) e.preventDefault();
+    });
+    nameInput.addEventListener('paste', function (e) {
+        e.preventDefault();
+        const clean = (e.clipboardData || window.clipboardData)
+                        .getData('text').replace(/[^A-Za-z\s]/g, '');
+        document.execCommand('insertText', false, clean);
+    });
+    nameInput.addEventListener('input', function () {
+        const v = this.value;
+        if (!v.trim()) { setNeutral(this, nameErr); valid.name = false; }
+        else if (v.trim().length >= 2 && /^[A-Za-z\s]+$/.test(v)) {
+            setOk(this, nameErr); valid.name = true;
+        } else {
+            const msg = /\d/.test(v)
+                ? 'Name cannot contain numbers.'
+                : 'Name can only contain letters and spaces.';
+            setErr(this, nameErr, msg); valid.name = false;
+        }
+        refreshSubmit();
+    });
+ 
+    /* ── EMAIL ── */
+    emailInput.addEventListener('input', function () {
+        const v = this.value.trim();
+        if (!v) { setNeutral(this, emailErr); valid.email = false; }
+        else if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) {
+            setOk(this, emailErr); valid.email = true;
+        } else {
+            setErr(this, emailErr, null); valid.email = false;
+        }
+        refreshSubmit();
+    });
+ 
+    /* ── PHONE ── digits, spaces, +, -, (), min 7 digits ── */
+    phoneInput.addEventListener('keypress', function (e) {
+        // allow digits, +, -, space, (, )
+        if (!/[\d\s+\-()]/.test(e.key)) e.preventDefault();
+    });
+    phoneInput.addEventListener('input', function () {
+        const v = this.value.trim();
+        const digits = v.replace(/\D/g, '');
+        if (!v) { setNeutral(this, phoneErr); valid.phone = false; }
+        else if (/^[+\d][\d\s\-()]{5,}$/.test(v) && digits.length >= 7) {
+            setOk(this, phoneErr); valid.phone = true;
+        } else {
+            setErr(this, phoneErr, null); valid.phone = false;
+        }
+        refreshSubmit();
+    });
+ 
+    /* ── LOCATION ── */
+    locationInput.addEventListener('input', function () {
+        const v = this.value.trim();
+        if (!v) { setNeutral(this, locationErr); valid.location = false; }
+        else if (v.length >= 2) { setOk(this, locationErr); valid.location = true; }
+        else { setErr(this, locationErr, null); valid.location = false; }
+        refreshSubmit();
+    });
+ 
+    /* expose to global for inline onclick handlers */
+    window._pmRefreshSubmit = refreshSubmit;
+})();
+ 
+/* ══════════════════════════════════════
+   Modal open / close
+══════════════════════════════════════ */
+function openPartnerModal() {
+    const modal = document.getElementById('partnerModal');
+    if (!modal) return;
+    modal.style.display = 'flex';
+    if (window.lucide) lucide.createIcons();
 }
-</style>
+ 
+function closePartnerModal() {
+    const modal = document.getElementById('partnerModal');
+    if (!modal) return;
+    modal.style.display = 'none';
+ 
+    /* reset form */
+    document.getElementById('partnerForm').reset();
+    selectPartnerType('Become Restaurant Partner');
+ 
+    /* clear field states */
+    ['pm-name','pm-email','pm-phone','pm-location'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove('pm-ok','pm-err');
+    });
+    ['pm-name-err','pm-email-err','pm-phone-err','pm-location-err'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+    });
+ 
+    const alert = document.getElementById('partnerAlert');
+    if (alert) alert.style.display = 'none';
+ 
+    document.getElementById('btnSubmitPartner').disabled = true;
+}
+ 
+/* close on backdrop click */
+window.addEventListener('click', function (e) {
+    const modal = document.getElementById('partnerModal');
+    if (modal && e.target === modal) closePartnerModal();
+});
+ 
+/* ══════════════════════════════════════
+   Partner type toggle
+══════════════════════════════════════ */
+function selectPartnerType(type) {
+    document.getElementById('partnerTypeInput').value = type;
+    const btnRest = document.getElementById('btnTypeRestaurant');
+    const btnAmb  = document.getElementById('btnTypeAmbassador');
+ 
+    if (type === 'Become Restaurant Partner') {
+        btnRest.classList.add('active');
+        btnAmb.classList.remove('active');
+    } else {
+        btnAmb.classList.add('active');
+        btnRest.classList.remove('active');
+    }
+}
+ 
+/* ══════════════════════════════════════
+   Form submit (AJAX)
+══════════════════════════════════════ */
+function submitPartnerForm(event) {
+    event.preventDefault();
+ 
+    const form      = document.getElementById('partnerForm');
+    const alertBox  = document.getElementById('partnerAlert');
+    const submitBtn = document.getElementById('btnSubmitPartner');
+ 
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span>Submitting…</span>';
+ 
+    fetch('/become-a-partner', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/json'
+        },
+        body: new FormData(form)
+    })
+    .then(r => r.json())
+    .then(data => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<span>Send Request via Email</span><i data-lucide="send" style="width:16px;height:16px;"></i>';
+        if (window.lucide) lucide.createIcons();
+ 
+        alertBox.style.display = 'block';
+        if (data.success) {
+            Object.assign(alertBox.style, {
+                background: '#DEF7EC', color: '#03543F', border: '1px solid #BCF0DA'
+            });
+            alertBox.textContent = data.message;
+            form.reset();
+            selectPartnerType('Become Restaurant Partner');
+            setTimeout(closePartnerModal, 3000);
+        } else {
+            Object.assign(alertBox.style, {
+                background: '#FDE8E8', color: '#9B1C1C', border: '1px solid #FBD5D5'
+            });
+            alertBox.textContent = data.message || 'An error occurred. Please check your inputs.';
+        }
+    })
+    .catch(() => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<span>Send Request via Email</span><i data-lucide="send" style="width:16px;height:16px;"></i>';
+        if (window.lucide) lucide.createIcons();
+ 
+        alertBox.style.display = 'block';
+        Object.assign(alertBox.style, {
+            background: '#FDE8E8', color: '#9B1C1C', border: '1px solid #FBD5D5'
+        });
+        alertBox.textContent = 'Failed to submit request. Please try again.';
+    });
+}
+ 
+/* ══════════════════════════════════════
+   WhatsApp prefill
+══════════════════════════════════════ */
+function sendViaWhatsApp(phone) {
+    const form        = document.getElementById('partnerForm');
+    const partnerType = document.getElementById('partnerTypeInput').value;
+    const name        = (form.elements['name']?.value         || '').trim();
+    const email       = (form.elements['email']?.value        || '').trim();
+    const phoneNum    = (form.elements['phone_number']?.value || '').trim();
+    const location    = (form.elements['location']?.value     || '').trim();
+ 
+    let text = `*HYST Partner Request*\n`;
+    text += `• *Type:* ${partnerType}\n`;
+    if (name)     text += `• *Name:* ${name}\n`;
+    if (email)    text += `• *Email:* ${email}\n`;
+    if (phoneNum) text += `• *Phone:* ${phoneNum}\n`;
+    if (location) text += `• *Location:* ${location}\n`;
+ 
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
+}
+</script>
 
