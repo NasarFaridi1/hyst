@@ -76,20 +76,39 @@ use App\Http\Controllers\MarketingPageController;
 
 
 
-Route::get('/{slug}', [MarketingPageController::class, 'show'])
-    ->where('slug', implode('|', [
-        'hyst-vs-deliveroo',
-        'hyst-vs-just-eat',
-        'why-food-is-more-expensive-on-marketplaces',
-        'commission-free-restaurant-ordering',
-        'restaurant-ordering-platform-uk',
-        'restaurant-marketing-guide',
-        'restaurant-loyalty-programme',
-        'restaurant-qr-ordering',
-        'direct-online-ordering-for-restaurants',
-        'restaurant-pos-integration',
-    ]));
+Route::controller(MarketingPageController::class)->group(function () {
 
+    Route::get('/hyst-vs-deliveroo', 'hystVsDeliveroo')
+        ->name('marketing.hyst-vs-deliveroo');
+
+    Route::get('/hyst-vs-just-eat', 'hystVsJustEat')
+        ->name('marketing.hyst-vs-just-eat');
+
+    Route::get('/why-food-is-more-expensive-on-marketplaces', 'whyFoodIsMoreExpensive')
+        ->name('marketing.why-food-is-more-expensive');
+
+    Route::get('/commission-free-restaurant-ordering', 'commissionFreeRestaurantOrdering')
+        ->name('marketing.commission-free-restaurant-ordering');
+
+    Route::get('/restaurant-ordering-platform-uk', 'restaurantOrderingPlatformUk')
+        ->name('marketing.restaurant-ordering-platform-uk');
+
+    Route::get('/restaurant-marketing-guide', 'restaurantMarketingGuide')
+        ->name('marketing.restaurant-marketing-guide');
+
+    Route::get('/restaurant-loyalty-programme', 'restaurantLoyaltyProgramme')
+        ->name('marketing.restaurant-loyalty-programme');
+
+    Route::get('/restaurant-qr-ordering', 'restaurantQrOrdering')
+        ->name('marketing.restaurant-qr-ordering');
+
+    Route::get('/direct-online-ordering-for-restaurants', 'directOnlineOrderingForRestaurants')
+        ->name('marketing.direct-online-ordering');
+
+    Route::get('/restaurant-pos-integration', 'restaurantPosIntegration')
+        ->name('marketing.restaurant-pos-integration');
+
+});
 Route::get('/auth/{provider}/redirect', [SocialAuthController::class, 'redirect'])->name('social.redirect');
 Route::get('/auth/{provider}/callback', [SocialAuthController::class, 'callback'])->name('social.callback');
 
