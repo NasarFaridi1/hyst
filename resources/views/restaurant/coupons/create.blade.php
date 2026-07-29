@@ -106,6 +106,33 @@
 
                     </div>
 
+                    {{-- Coupon Category / Purpose --}}
+                    <div>
+
+                        <label class="block mb-2 text-sm font-medium text-gray-700">
+                            Coupon Category
+                        </label>
+
+                        <select
+                            name="coupon_type"
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('coupon_type') border-red-500 @enderror">
+
+                            <option value="normal" {{ old('coupon_type', 'normal')=='normal' ? 'selected' : '' }}>
+                                Normal Coupon (General)
+                            </option>
+
+                            <option value="loyalty_reward" {{ old('coupon_type')=='loyalty_reward' ? 'selected' : '' }}>
+                                Loyalty & Reward Campaign
+                            </option>
+
+                        </select>
+
+                        @error('coupon_type')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+
+                    </div>
+
                     {{-- Discount Value --}}
                     <div>
 

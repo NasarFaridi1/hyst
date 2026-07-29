@@ -490,14 +490,14 @@
 
 
 
-                {{-- OFFERS --}}
+                {{-- COUPONS / OFFERS --}}
 
                 <div>
 
                     <div class="lr-section-heading">
 
                         <label class="lr-label">
-                            Select Offers
+                            Select Coupons / Rewards
                         </label>
 
                         <label class="lr-select-all">
@@ -519,7 +519,7 @@
                         type="text"
                         id="offerSearch"
                         class="lr-search"
-                        placeholder="Search offer..."
+                        placeholder="Search coupon by title or code..."
                     >
 
 
@@ -541,35 +541,47 @@
 
                                 <div>
 
-                                    <div class="lr-name">
+                                    <div class="lr-name" style="display:flex; align-items:center; gap:8px;">
 
-                                        {{ $offer->title }}
-
-                                    </div>
-
-
-                                    <div class="lr-info">
-
-                                        @if($offer->value_type === 'percentage')
-
-                                            {{ $offer->value }}% OFF
-
-                                        @else
-
-                                            £{{ $offer->value }} OFF
-
+                                        <span>{{ $offer->title }}</span>
+                                        <span style="font-size:12px; font-weight:700; color:#4F46E5; background:#EEF2FF; padding:2px 8px; border-radius:6px;">
+                                            {{ $offer->code }}
+                                        </span>
+                                        @if(($offer->coupon_type ?? 'normal') === 'loyalty_reward')
+                                            <span style="font-size:11px; font-weight:700; color:#92400E; background:#FEF3C7; padding:2px 6px; border-radius:6px;">
+                                                🎁 Loyalty Reward
+                                            </span>
                                         @endif
 
                                     </div>
 
 
-                                    @if($offer->end_date)
+                                    <div class="lr-info" style="margin-top:2px;">
+
+                                        @if(($offer->type ?? '') === 'percentage')
+
+                                            {{ $offer->value }}% OFF
+
+                                        @else
+
+                                            £{{ number_format($offer->value ?? 0, 2) }} OFF
+
+                                        @endif
+
+                                        @if(!empty($offer->min_order_amount) && $offer->min_order_amount > 0)
+                                            · Min Order: £{{ number_format($offer->min_order_amount, 2) }}
+                                        @endif
+
+                                    </div>
+
+
+                                    @if(!empty($offer->expires_at) || !empty($offer->end_date))
 
                                         <div class="lr-info">
 
                                             Valid Until:
 
-                                            {{ \Carbon\Carbon::parse($offer->end_date)->format('d M Y') }}
+                                            {{ \Carbon\Carbon::parse($offer->expires_at ?? $offer->end_date)->format('d M Y') }}
 
                                         </div>
 
@@ -581,9 +593,12 @@
 
                         @empty
 
-                            <div class="lr-empty">
+                            <div class="lr-empty" style="text-align:center; padding:24px 12px; color:#6B7280;">
 
-                                No Active Offers Found
+                                <div>No Coupons Found</div>
+                                <a href="{{ route('restaurant.coupons.create') }}" style="display:inline-block; margin-top:8px; color:#C25A2A; font-weight:600; font-size:13px; text-decoration:underline;">
+                                    + Create Loyalty Reward Coupon
+                                </a>
 
                             </div>
 

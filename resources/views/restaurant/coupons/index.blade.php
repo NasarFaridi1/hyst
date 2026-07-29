@@ -49,6 +49,10 @@
                     </th>
 
                     <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-600">
+                        Category
+                    </th>
+
+                    <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-600">
                         Value
                     </th>
 
@@ -102,6 +106,18 @@
                                 Fixed
                             @endif
 
+                        </td>
+
+                        <td class="px-4 py-3">
+                            @if(($coupon->coupon_type ?? 'normal') === 'loyalty_reward')
+                                <span class="px-2.5 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-semibold">
+                                    🎁 Loyalty & Reward
+                                </span>
+                            @else
+                                <span class="px-2.5 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                                    Normal Coupon
+                                </span>
+                            @endif
                         </td>
 
                         <td class="px-4 py-3">

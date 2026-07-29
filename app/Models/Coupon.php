@@ -16,6 +16,7 @@ class Coupon extends Model
         'title',
         'description',
         'type',
+        'coupon_type',
         'value',
         'min_order_amount',
         'max_discount',
