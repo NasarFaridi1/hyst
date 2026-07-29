@@ -372,7 +372,15 @@
                 @foreach($categories as $category)
                     <div class="category-filter" data-id="{{ $category->id }}">
                         <div class="category-image">
+                        @php
+                            $imagePath = public_path($category->image);
+                        @endphp
+
+                        @if(file_exists($imagePath))
                             <img src="{{ asset($category->image) }}" alt="{{ $category->name }}">
+                        @else
+                            <img src="{{ asset('resturant/' . $category->image) }}" alt="{{ $category->name }}">
+                        @endif
                         </div>
                         <span>{{ $category->name }}</span>
                     </div>
