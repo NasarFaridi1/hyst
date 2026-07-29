@@ -72,8 +72,23 @@ use App\Http\Controllers\RestaurantAdmin\LoyaltyRewardController;
 use App\Http\Controllers\RestaurantAdmin\RestaurantDeliveryChargeController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\Auth\AmbassadorRegisterController;
+use App\Http\Controllers\MarketingPageController;
 
 
+
+Route::get('/{slug}', [MarketingPageController::class, 'show'])
+    ->where('slug', implode('|', [
+        'hyst-vs-deliveroo',
+        'hyst-vs-just-eat',
+        'why-food-is-more-expensive-on-marketplaces',
+        'commission-free-restaurant-ordering',
+        'restaurant-ordering-platform-uk',
+        'restaurant-marketing-guide',
+        'restaurant-loyalty-programme',
+        'restaurant-qr-ordering',
+        'direct-online-ordering-for-restaurants',
+        'restaurant-pos-integration',
+    ]));
 
 Route::get('/auth/{provider}/redirect', [SocialAuthController::class, 'redirect'])->name('social.redirect');
 Route::get('/auth/{provider}/callback', [SocialAuthController::class, 'callback'])->name('social.callback');
