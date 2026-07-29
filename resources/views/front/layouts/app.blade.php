@@ -713,8 +713,12 @@
         const app = initializeApp(firebaseConfig);
         const messaging = getMessaging(app);
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        const isStandalone = (window.navigator.standalone === true) || window.matchMedia('(display-mode: standalone)').matches;
 
         function checkShouldPromptPermission() {
+            if ('Notification' in window && Notification.permission === 'granted') {
+                return false; // Notifications already enabled! Never prompt!
+            }
             const lastClosed = localStorage.getItem('fcm_permission_closed');
             if (lastClosed) {
                 const thirtyMins = 30 * 60 * 1000;
@@ -733,7 +737,14 @@
 
         async function registerAndSaveToken() {
             try {
-                const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', { scope: '/' });
+                if (!('serviceWorker' in navigator)) return;
+
+                const swUrl = '/firebase-messaging-sw.js?apiKey=' + encodeURIComponent(firebaseConfig.apiKey || '') +
+                              '&projectId=' + encodeURIComponent(firebaseConfig.projectId || '') +
+                              '&messagingSenderId=' + encodeURIComponent(firebaseConfig.messagingSenderId || '') +
+                              '&appId=' + encodeURIComponent(firebaseConfig.appId || '');
+
+                const registration = await navigator.serviceWorker.register(swUrl, { scope: '/' });
                 const token = await getToken(messaging, {
                     vapidKey: "{{ config('services.firebase.vapid_key') }}",
                     serviceWorkerRegistration: registration
@@ -741,6 +752,7 @@
 
                 if (token) {
                     console.log('FCM TOKEN OBTAINED:', token);
+                    localStorage.setItem('fcm_token_saved', token);
                     fetch('/save-fcm-token', {
                         method: 'POST',
                         headers: {
@@ -758,24 +770,18 @@
         // Initialize Notification logic
         if ('Notification' in window) {
             if (Notification.permission === 'granted') {
+                const banner = document.getElementById('fcmPermissionBanner');
+                if (banner) banner.style.display = 'none';
                 registerAndSaveToken();
-            } else if (Notification.permission === 'default') {
-                if (checkShouldPromptPermission()) {
-                    setTimeout(() => {
-                        const banner = document.getElementById('fcmPermissionBanner');
-                        if (banner) banner.style.display = 'flex';
-                    }, 3000);
-                }
-            } else {
-                // If denied/blocked, respect 30 minute re-asking rule
-                if (checkShouldPromptPermission()) {
-                    setTimeout(() => {
-                        const banner = document.getElementById('fcmPermissionBanner');
-                        if (banner) banner.style.display = 'flex';
-                    }, 3000);
-                }
+            } else if (checkShouldPromptPermission()) {
+                setTimeout(() => {
+                    const banner = document.getElementById('fcmPermissionBanner');
+                    if (banner && Notification.permission !== 'granted') {
+                        banner.style.display = 'flex';
+                    }
+                }, 3000);
             }
-        } else if (isIOS) {
+        } else if (isIOS && !isStandalone) {
             // iOS Safari outside standalone PWA mode
             if (checkShouldPromptPermission()) {
                 setTimeout(() => {
@@ -804,8 +810,9 @@
                         console.error('Error requesting notification permission:', e);
                         snoozePermissionPrompt();
                     }
-                } else if (isIOS) {
-                    alert('To enable notifications on iPhone/iPad:\n1. Tap Share (⎋) at bottom of Safari\n2. Select "Add to Home Screen" (⊕)\n3. Open HYST from Home Screen');
+                } else if (isIOS && !isStandalone) {
+                    const guide = document.getElementById('iosInstallGuide');
+                    if (guide) guide.style.display = 'flex';
                     snoozePermissionPrompt();
                 }
             });
@@ -932,8 +939,8 @@
 
     <script>
         let deferredPrompt;
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-        const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+        const isIOSApp = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        const isStandaloneApp = (window.navigator.standalone === true) || window.matchMedia('(display-mode: standalone)').matches;
 
         function closeInstall() {
             localStorage.setItem('install_popup_closed', Date.now());
@@ -942,6 +949,9 @@
         }
 
         function checkShowInstallPopup() {
+            if (isStandaloneApp) {
+                return false; // App is ALREADY INSTALLED! Never show install popup!
+            }
             const lastClosed = localStorage.getItem('install_popup_closed');
             if (lastClosed) {
                 const thirtyMins = 30 * 60 * 1000;
@@ -952,8 +962,8 @@
             return true;
         }
 
-        // Show installation popup on iOS Safari
-        if (isIOS && !isStandalone && checkShowInstallPopup()) {
+        // Show installation popup on iOS Safari only if not standalone PWA
+        if (isIOSApp && !isStandaloneApp && checkShowInstallPopup()) {
             setTimeout(() => {
                 const popup = document.getElementById('installPopup');
                 if (popup) popup.style.display = 'flex';
@@ -976,7 +986,7 @@
         const installBtn = document.getElementById('installBtn');
         if (installBtn) {
             installBtn.addEventListener('click', async () => {
-                if (isIOS) {
+                if (isIOSApp) {
                     const guide = document.getElementById('iosInstallGuide');
                     if (guide) guide.style.display = 'flex';
                     closeInstall();
