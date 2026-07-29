@@ -933,6 +933,13 @@
                 }
 
                 updateGrandTotal();
+
+                // Re-verify Gift Card if code is entered or applied
+                const gcCodeVal = document.getElementById("gift_card_code")?.value?.trim() || document.getElementById("giftCardCodeHidden")?.value?.trim();
+                if (gcCodeVal) {
+                    const applyBtn = document.getElementById("applyGiftCard");
+                    if (applyBtn) applyBtn.click();
+                }
                 window.validateCheckoutPlaceOrderButton();
             });
         });
@@ -1068,6 +1075,15 @@
     let giftCardDiscount = 0;
 
     document.getElementById("applyGiftCard").onclick = function () {
+        const orderTypeInput = document.querySelector('input[name="order_type"]:checked');
+        const currentOrderType = orderTypeInput ? orderTypeInput.value : 'delivery';
+        const giftCardCode = document.getElementById("gift_card_code")?.value || '';
+
+        if (!giftCardCode || giftCardCode.trim() === '') {
+            document.getElementById("giftCardMessage").innerHTML = "<span style='color:#DC2626;'>Please enter a Gift Card code.</span>";
+            return;
+        }
+
         fetch("{{ route('gift-card.apply') }}", {
             method: "POST",
             headers: {
@@ -1075,7 +1091,8 @@
                 "X-CSRF-TOKEN":"{{ csrf_token() }}"
             },
             body: JSON.stringify({
-                code: document.getElementById("gift_card_code").value,
+                code: giftCardCode,
+                order_type: currentOrderType,
                 offer_discount: parseFloat(document.getElementById('offer_discount').value || 0),
                 coupon_discount: couponDiscount
             })
@@ -1086,6 +1103,8 @@
                 giftCardDiscount = 0;
                 document.getElementById("giftCardRow").style.display="none";
                 document.getElementById("giftCardAmountHidden").value = 0;
+                document.getElementById("giftCardIdHidden").value = "";
+                document.getElementById("giftCardCodeHidden").value = "";
                 document.getElementById("giftCardMessage").innerHTML = "<span style='color:#DC2626;'>"+res.message+"</span>";
                 updateGrandTotal();
                 return;

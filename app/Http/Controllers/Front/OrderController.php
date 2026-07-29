@@ -594,10 +594,13 @@ class OrderController extends Controller
                 $giftCard = $query->first();
 
                 if ($giftCard && $giftCard->balance > 0) {
-                    $giftCardBaseAmount = max($subtotalAfterOffers - $couponDiscount, 0);
-                    if (!$giftCard->minimum_order_amount || $giftCardBaseAmount >= $giftCard->minimum_order_amount) {
-                        $giftCardDiscount = min($giftCard->balance, $giftCardBaseAmount);
-                        $giftCardDiscount = round($giftCardDiscount, 2);
+                    $orderType = $request->input('order_type', 'delivery');
+                    if (!$giftCard->applicable_type || $giftCard->applicable_type === 'all' || $giftCard->applicable_type === $orderType) {
+                        $giftCardBaseAmount = max($subtotalAfterOffers - $couponDiscount, 0);
+                        if (!$giftCard->minimum_order_amount || $giftCardBaseAmount >= $giftCard->minimum_order_amount) {
+                            $giftCardDiscount = min($giftCard->balance, $giftCardBaseAmount);
+                            $giftCardDiscount = round($giftCardDiscount, 2);
+                        }
                     }
                 }
             }

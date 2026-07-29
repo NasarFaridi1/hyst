@@ -38,6 +38,7 @@ class GiftCardController extends Controller
             'expires_at' => 'nullable|date|after_or_equal:starts_at',
 
             'status' => 'required|in:active,inactive',
+            'applicable_type' => 'required|in:all,delivery,dine_in,takeaway',
         ]);
 
         $data['code'] = strtoupper($data['code']);
@@ -73,6 +74,7 @@ class GiftCardController extends Controller
             'expires_at' => 'nullable|date|after_or_equal:starts_at',
 
             'status' => 'required|in:active,inactive',
+            'applicable_type' => 'required|in:all,delivery,dine_in,takeaway',
         ]);
 
         $data['code'] = strtoupper($data['code']);
@@ -132,6 +134,20 @@ class GiftCardController extends Controller
             return response()->json([
                 'success'=>false,
                 'message'=>'Gift Card expired.'
+            ]);
+        }
+
+        $orderType = $request->input('order_type', 'delivery');
+        if ($giftCard->applicable_type && $giftCard->applicable_type !== 'all' && $giftCard->applicable_type !== $orderType) {
+            $labels = [
+                'delivery' => 'Delivery',
+                'dine_in' => 'Dine-In',
+                'takeaway' => 'Takeaway'
+            ];
+            $allowedLabel = $labels[$giftCard->applicable_type] ?? ucfirst($giftCard->applicable_type);
+            return response()->json([
+                'success' => false,
+                'message' => "This Gift Card is only valid for {$allowedLabel} orders."
             ]);
         }
 

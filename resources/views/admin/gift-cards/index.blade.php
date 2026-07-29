@@ -65,6 +65,8 @@
 
                     <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Expiry</th>
 
+                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Order Type</th>
+
                     <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Status</th>
 
                     <th class="px-6 py-4 text-center text-sm font-semibold text-gray-700">
@@ -119,6 +121,27 @@
 
                             {{ optional($giftCard->expires_at)->format('d M Y') ?? '-' }}
 
+                        </td>
+
+                        <td class="px-6 py-4">
+                            @php
+                                $typeLabels = [
+                                    'all' => 'All Types',
+                                    'delivery' => 'Delivery Only',
+                                    'dine_in' => 'Dine-In Only',
+                                    'takeaway' => 'Takeaway Only'
+                                ];
+                                $typeBadgeClasses = [
+                                    'all' => 'bg-blue-100 text-blue-700',
+                                    'delivery' => 'bg-orange-100 text-orange-700',
+                                    'dine_in' => 'bg-purple-100 text-purple-700',
+                                    'takeaway' => 'bg-teal-100 text-teal-700'
+                                ];
+                                $cardType = $giftCard->applicable_type ?? 'all';
+                            @endphp
+                            <span class="px-3 py-1 {{ $typeBadgeClasses[$cardType] ?? 'bg-gray-100 text-gray-700' }} rounded-full text-xs font-medium">
+                                {{ $typeLabels[$cardType] ?? 'All Types' }}
+                            </span>
                         </td>
 
                         <td class="px-6 py-4">

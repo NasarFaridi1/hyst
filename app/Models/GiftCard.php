@@ -22,6 +22,7 @@ class GiftCard extends Model
         'starts_at',
         'expires_at',
         'status',
+        'applicable_type',
         'created_by',
     ];
 

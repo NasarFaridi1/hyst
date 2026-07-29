@@ -197,6 +197,30 @@
 
                 </div>
 
+                {{-- Applicable Order Type --}}
+                <div>
+
+                    <label class="block mb-2 font-medium text-gray-700">
+                        Applicable Order Type
+                    </label>
+
+                    <select
+                        name="applicable_type"
+                        class="w-full rounded-xl border border-gray-300 px-4 py-3">
+
+                        <option value="all" {{ old('applicable_type') == 'all' ? 'selected' : '' }}>All Order Types</option>
+                        <option value="delivery" {{ old('applicable_type') == 'delivery' ? 'selected' : '' }}>Delivery Only</option>
+                        <option value="dine_in" {{ old('applicable_type') == 'dine_in' ? 'selected' : '' }}>Dine-In Only</option>
+                        <option value="takeaway" {{ old('applicable_type') == 'takeaway' ? 'selected' : '' }}>Takeaway Only</option>
+
+                    </select>
+
+                    @error('applicable_type')
+                        <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                    @enderror
+
+                </div>
+
                 {{-- Description --}}
                 <div class="md:col-span-2">
 
