@@ -54,6 +54,7 @@ use App\Http\Controllers\Admin\RestaurantCategoryController;
 use App\Http\Controllers\Admin\RestaurantPolicyController;
 use App\Http\Controllers\Admin\RestaurantRefundPolicyController;
 use App\Http\Controllers\Admin\RestaurantTermsConditionController;
+use App\Http\Controllers\Admin\GoogleDriveController;
 
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\RestaurantAdmin\RestaurantBannerController;
@@ -466,6 +467,22 @@ Route::middleware(['auth', 'super_admin'])
     ->name('admin.')
     ->group(function () {
 
+       
+        Route::get(
+            '/google-drive',
+            [GoogleDriveController::class,'index']
+        )->name('google-drive.index');
+
+        Route::post(
+            '/google-drive/generate-url',
+            [GoogleDriveController::class,'generateUrl']
+        )->name('google-drive.generate-url');
+
+        Route::post(
+            '/google-drive/generate-token',
+            [GoogleDriveController::class,'generateToken']
+        )->name('google-drive.generate-token');
+
 		 // Admin Send Message
         Route::post(
             'orders/{id}/message',
@@ -487,7 +504,7 @@ Route::middleware(['auth', 'super_admin'])
         Route::resource('complaint', AdminComplaintController::class);
 
 
-    Route::get('/complaint/{order}', [AdminComplaintController::class, 'show'])
+        Route::get('/complaint/{order}', [AdminComplaintController::class, 'show'])
             ->name('complaint.show');
 
         Route::post('/complaints/{id}/reply', [AdminComplaintController::class, 'complaintReply'])

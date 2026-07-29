@@ -11,11 +11,22 @@ use App\Models\Review;
 use Illuminate\Http\Request;
 use App\Services\FirebaseNotificationService;
 use Illuminate\Support\Facades\Http;
-    use App\Models\OrderCompletionEvidence;
+use App\Models\OrderCompletionEvidence;
+use App\Services\WorldpayService;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+
+
 
 
 class OrderController extends Controller
 {
+    protected WorldpayService $worldpay;
+
+    public function __construct(WorldpayService $worldpay)
+    {
+        $this->worldpay = $worldpay;
+    }
     /*
     |--------------------------------------------------------------------------
     | ORDER LIST
@@ -365,7 +376,7 @@ class OrderController extends Controller
         );
 
         if ($order->user && !empty($order->user->fcm_token)) {
-            \Log::info('SEND ORDER STATUS FCM TO USER', ['user_id' => $order->user_id, 'status' => $request->status]);
+            Log::info('SEND ORDER STATUS FCM TO USER', ['user_id' => $order->user_id, 'status' => $request->status]);
 
             $title = 'Order Status Update';
             $body = 'Your order #' . $order->id . ' status is now ' . strtoupper($request->status) . '.';
@@ -384,24 +395,8 @@ class OrderController extends Controller
             $firebase = new FirebaseNotificationService();
             $firebase->send($order->user->fcm_token, $title, $body, '/my-orders');
         }
-        /*
-        |--------------------------------------------------------------------------
-        | PAYMENT STATUS AUTO UPDATE
-        |--------------------------------------------------------------------------
-        */
+       
 
-        if ($request->status == 'completed') {
-
-            Payment::where(
-                'order_id',
-                $order->id
-            )->update([
-
-                        'payment_status' => 'paid'
-
-                    ]);
-
-        }
 
         /*
         |--------------------------------------------------------------------------
@@ -409,18 +404,63 @@ class OrderController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        if ($request->status == 'cancelled') {
+                /*
+        |--------------------------------------------------------------------------
+        | CANCELLED ORDER
+        |--------------------------------------------------------------------------
+        */
 
-            Payment::where(
-                'order_id',
-                $order->id
-            )->update([
+        if ($request->status === 'cancelled') {
 
-                        'payment_status' => 'paid'
+            $payment = $order->payment;
 
+            if (
+                $payment &&
+                !empty($payment->payment_transaction_id) &&
+                !in_array($payment->payment_status, ['refunded'])
+            ) {
+                try {
+
+                    $restaurant = $order->restaurant;
+
+                    $token = $this->worldpay->login($restaurant);
+
+                    // Refund FULL amount
+                    $this->worldpay->refundPayment(
+                        $restaurant,
+                        $token,
+                        $payment->payment_transaction_id,
+                        $payment->amount, // Full payment amount
+                        $payment->payment_type,
+                        "Full refund for cancelled Order #{$order->id}"
+                    );
+
+                    DB::transaction(function () use ($payment) {
+
+                        $payment->refunded_amount = $payment->amount;
+
+                        $payment->payment_status = 'refunded';
+
+                        $payment->save();
+
+                    });
+
+                } catch (\Exception $e) {
+
+                    Log::error('Refund Failed', [
+                        'order_id' => $order->id,
+                        'message' => $e->getMessage()
                     ]);
 
+                    return back()->with(
+                        'error',
+                        'Order was cancelled but refund failed: ' . $e->getMessage()
+                    );
+                }
+            }
         }
+
+
 
         return back()->with(
             'success',

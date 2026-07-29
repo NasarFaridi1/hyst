@@ -26,9 +26,17 @@ use App\Models\OrderItemAddon;
 use App\Models\User;
 use App\Models\UserAddress;
 use Illuminate\Support\Facades\Auth;
+use App\Services\WorldpayService;
+use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
+    protected WorldpayService $worldpay;
+
+    public function __construct(WorldpayService $worldpay)
+    {
+        $this->worldpay = $worldpay;
+    }
 
     public function storeGuestInfo(Request $request)
     {
@@ -1641,15 +1649,7 @@ class OrderController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        if ($order->payment) {
-
-            $order->payment->update([
-
-                'payment_status' => 'cancelled'
-
-            ]);
-
-        }
+        
 
         if(
             $order->payment->payment_method != 'Cash On Delivery'
@@ -1673,6 +1673,100 @@ class OrderController extends Controller
 
                 $order->id
             );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | PAYMENT REFUND
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            $order->payment &&
+            $order->payment->payment_method != 'Cash On Delivery'
+        ) {
+
+            $payment = $order->payment;
+
+            // Don't refund twice
+            if (
+                !empty($payment->payment_transaction_id) &&
+                $payment->payment_status !== 'refunded'
+            ) {
+
+                try {
+
+                    $restaurant = $order->restaurant;
+
+                    $token = $this->worldpay->login($restaurant);
+
+                    // Refund full amount
+                    $this->worldpay->refundPayment(
+                        $restaurant,
+                        $token,
+                        $payment->payment_transaction_id,
+                        $payment->amount,
+                        $payment->payment_type,
+                        "Full refund for cancelled Order #{$order->id}"
+                    );
+
+                    DB::transaction(function () use ($payment) {
+
+                        $payment->refunded_amount = $payment->amount;
+                        $payment->payment_status = 'refunded';
+                        $payment->save();
+
+                    });
+
+                    sendNotification(
+
+                        auth()->id(),
+
+                        'refund_completed',
+
+                        'Refund Processed',
+
+                        'Your payment for order #' .
+                        $order->id .
+                        ' has been refunded successfully.',
+
+                        'order',
+
+                        $order->id,
+
+                        $order->id
+                    );
+
+                } catch (\Exception $e) {
+
+                    Log::error('Refund Failed', [
+                        'order_id' => $order->id,
+                        'message' => $e->getMessage(),
+                    ]);
+
+                    sendNotification(
+
+                        auth()->id(),
+
+                        'refund_failed',
+
+                        'Refund Failed',
+
+                        'Your order was cancelled but the refund could not be processed. Please contact support.',
+
+                        'order',
+
+                        $order->id,
+
+                        $order->id
+                    );
+
+                    return back()->with(
+                        'error',
+                        'Order cancelled, but refund failed: ' . $e->getMessage()
+                    );
+                }
+            }
         }
 
         return back()->with(

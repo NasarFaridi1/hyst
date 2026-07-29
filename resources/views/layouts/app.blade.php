@@ -7,45 +7,43 @@
     <title>Restaurant System</title>
 
     <meta name="title" content="HYST — Premium Food Delivery | Order Food Online">
-<meta name="description" content="Order delicious food online from HYST — Premium Food Delivery. Fresh meals, fast delivery, and the best prices in your city.">
-<meta name="keywords" content="restaurant, food delivery, online food order, pizza, burger, indian food, takeaway, restaurant near me">
-<meta name="author" content="HYST — Premium Food Delivery">
-<meta name="robots" content="index, follow">
-<meta name="language" content="English">
-<meta name="revisit-after" content="7 days">
+    <meta name="description" content="Order delicious food online from HYST — Premium Food Delivery. Fresh meals, fast delivery, and the best prices in your city.">
+    <meta name="keywords" content="restaurant, food delivery, online food order, pizza, burger, indian food, takeaway, restaurant near me">
+    <meta name="author" content="HYST — Premium Food Delivery">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="English">
+    <meta name="revisit-after" content="7 days">
 
-<!-- Canonical URL -->
-<link rel="canonical" href="https://hyst.uk/">
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://hyst.uk/">
 
-<!-- Mobile -->
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Mobile -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- Geo Tags -->
-<meta name="geo.region" content="GB-LND">
-<meta name="geo.placename" content="Hounslow">
-<meta name="geo.position" content="51.4686;-0.3618">
-<meta name="ICBM" content="51.4686, -0.3618">
+    <!-- Geo Tags -->
+    <meta name="geo.region" content="GB-LND">
+    <meta name="geo.placename" content="Hounslow">
+    <meta name="geo.position" content="51.4686;-0.3618">
+    <meta name="ICBM" content="51.4686, -0.3618">
 
-<!-- Open Graph -->
-<meta property="og:type" content="website">
-<meta property="og:title" content="HYST — Premium Food Delivery | Order Food Online">
-<meta property="og:description" content="Order delicious food online with fast delivery and fair prices.">
-<meta property="og:image" content="https://hyst.uk/images/banner.jpg">
-<meta property="og:url" content="https://hyst.uk/">
-<meta property="og:site_name" content="HYST — Premium Food Delivery">
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="HYST — Premium Food Delivery | Order Food Online">
+    <meta property="og:description" content="Order delicious food online with fast delivery and fair prices.">
+    <meta property="og:image" content="https://hyst.uk/images/banner.jpg">
+    <meta property="og:url" content="https://hyst.uk/">
+    <meta property="og:site_name" content="HYST — Premium Food Delivery">
 
-<!-- Twitter -->
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="HYST — Premium Food Delivery | Order Food Online">
-<meta name="twitter:description" content="Order delicious food online with fast delivery and fair prices.">
-<meta name="twitter:image" content="https://hyst.uk/images/banner.jpg">
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="HYST — Premium Food Delivery | Order Food Online">
+    <meta name="twitter:description" content="Order delicious food online with fast delivery and fair prices.">
+    <meta name="twitter:image" content="https://hyst.uk/images/banner.jpg">
 
-<!-- Favicon -->
-<link rel="icon" type="image/png" href="/favicon.png">
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/favicon.png">
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"

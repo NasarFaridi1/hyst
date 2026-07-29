@@ -1,10 +1,123 @@
 @extends('layouts.app')
 @section('content')
 <div class="p-8">
-  <div class="flex justify-between items-center mb-8">
+  <div class="flex flex-col md:flex-row justify-between items-center mb-8">
     <div>
       <h1 class="text-2xl font-medium">Dashboard</h1>
       <p class="text-gray-500 text-sm mt-1">Super admin overview</p>
+    </div>
+    {{-- //direct button --}}
+    {{-- <a href="{{ route('admin.google-drive.index') }}"
+      class="bg-[#C25A2A] text-white px-5 py-2 rounded hover:bg-blue-700">
+        Google Drive Token
+    </a> --}}
+
+    {{-- //dynamic --}}
+    @php
+        use Illuminate\Support\Facades\Storage;
+        use Carbon\Carbon;
+
+        $status = 'not_connected';
+        $daysLeft = null;
+        $statusText = 'Not Connected';
+
+        if (Storage::exists('google-drive-token.json')) {
+
+            $token = json_decode(Storage::get('google-drive-token.json'), true);
+
+            if (!empty($token['expires_at'])) {
+
+                $expiresAt = Carbon::parse($token['expires_at']);
+
+                $daysLeft = now()->diffInDays($expiresAt, false);
+
+                if ($daysLeft < 0) {
+
+                    $status = 'expired';
+                    $statusText = 'Expired';
+
+                } elseif ($daysLeft <= 3) {
+
+                    $status = 'warning';
+                    $statusText = $daysLeft . ' day(s) left';
+
+                } else {
+
+                    $status = 'connected';
+                    $statusText = 'Connected';
+
+                }
+
+            } else {
+
+                /*
+                |--------------------------------------------------------------------------
+                | Production Refresh Token
+                |--------------------------------------------------------------------------
+                | No expiry stored means token is treated as active.
+                */
+
+                $status = 'connected';
+                $statusText = 'Connected';
+            }
+        }
+    @endphp
+
+    <div class="flex flex-col md:flex-row items-center gap-3">
+
+        <a href="{{ route('admin.google-drive.index') }}"
+          class="inline-flex items-center gap-2 px-5 py-2 rounded-lg font-medium text-white transition
+
+          @if($status=='connected')
+                bg-green-600 hover:bg-green-700
+          @elseif($status=='warning')
+                bg-yellow-500 hover:bg-yellow-600
+          @elseif($status=='expired')
+                bg-red-600 hover:bg-red-700
+          @else
+                bg-blue-600 hover:bg-blue-700
+          @endif">
+
+            @if($status=='connected')
+                🟢
+            @elseif($status=='warning')
+                🟡
+            @elseif($status=='expired')
+                🔴
+            @else
+                ⚪
+            @endif
+
+            Google Drive
+
+        </a>
+
+        @if($status=='connected')
+
+            <span class="text-green-600 font-semibold">
+            <span class="font-semibold">({{ $daysLeft }} days left)</span> Connected
+            </span>
+
+        @elseif($status=='warning')
+
+            <span class="text-yellow-600 font-semibold">
+                {{ $statusText }}
+            </span>
+
+        @elseif($status=='expired')
+
+            <span class="text-red-600 font-semibold">
+                Token Expired
+            </span>
+
+        @else
+
+            <span class="text-gray-500 font-semibold">
+                Not Connected
+            </span>
+
+        @endif
+
     </div>
   </div>
 
