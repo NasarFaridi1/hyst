@@ -432,7 +432,7 @@ Install HYST
 
 <p>
 
-Install app for better experience.
+Install Web App for better experience.
 
 </p>
 
