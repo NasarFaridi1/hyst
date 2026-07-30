@@ -999,20 +999,25 @@
 
        function updateDeliveryTimeUI() {
 
-            document.querySelectorAll('input[name="delivery_time_type"]').forEach(r => {
-                r.closest('.dt-label').classList.toggle('checked', r.checked);
-            });
+             document.querySelectorAll('input[name="delivery_time_type"]').forEach(r => {
+                 const label = r.closest('.dt-label');
+                 if (label) label.classList.toggle('checked', r.checked);
+             });
 
-            const isSchedule = document.querySelector(
-                'input[name="delivery_time_type"][value="schedule"]'
-            ).checked;
+             const scheduleRadio = document.querySelector(
+                 'input[name="delivery_time_type"][value="schedule"]'
+             );
+             const isSchedule = scheduleRadio ? scheduleRadio.checked : false;
 
-            document
-                .getElementById('scheduleFields')
-                .classList.toggle('co-hidden', !isSchedule);
+             const scheduleFields = document.getElementById('scheduleFields');
+             if (scheduleFields) {
+                 scheduleFields.classList.toggle('co-hidden', !isSchedule);
+             }
 
-            document.getElementById('scheduled_date').required = isSchedule;
-            document.getElementById('scheduled_time').required = isSchedule;
+             const dateElem = document.getElementById('scheduled_date');
+             const timeElem = document.getElementById('scheduled_time');
+             if (dateElem) dateElem.required = isSchedule;
+             if (timeElem) timeElem.required = isSchedule;
         }
 
         document.querySelectorAll('input[name="delivery_time_type"]').forEach(radio => {
@@ -1054,9 +1059,10 @@
                 }
             }
 
-            const type = document.querySelector(
+            const typeElem = document.querySelector(
                 'input[name="delivery_time_type"]:checked'
-            ).value;
+            );
+            const type = typeElem ? typeElem.value : 'now';
 
             if (type === 'schedule') {
 

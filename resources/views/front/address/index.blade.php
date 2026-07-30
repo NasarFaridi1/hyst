@@ -111,6 +111,12 @@
         <input type="hidden" id="label"         name="label">
 </div>
 
+                    @php
+                        $allowAsap = isset($restaurant->allow_asap) ? (bool)$restaurant->allow_asap : true;
+                        $allowSchedule = isset($restaurant->allow_schedule) ? (bool)$restaurant->allow_schedule : true;
+                    @endphp
+
+                    @if($allowAsap || $allowSchedule)
                     <div id="deliveryScheduleContainer" style="margin-top:20px;">
 
                         <div class="co-card">
@@ -121,13 +127,14 @@
 
                             <div class="ot-grid">
 
-                                <label class="dt-label checked">
+                                @if($allowAsap)
+                                <label class="dt-label {{ $allowAsap ? 'checked' : '' }}">
 
                                     <input
                                         type="radio"
                                         name="delivery_time_type"
                                         value="now"
-                                        checked
+                                        {{ $allowAsap ? 'checked' : '' }}
                                     >
 
                                     <div class="ot-icon">⚡</div>
@@ -145,13 +152,16 @@
                                     </div>
 
                                 </label>
+                                @endif
 
-                                <label class="dt-label">
+                                @if($allowSchedule)
+                                <label class="dt-label {{ !$allowAsap && $allowSchedule ? 'checked' : '' }}">
 
                                     <input
                                         type="radio"
                                         name="delivery_time_type"
                                         value="schedule"
+                                        {{ !$allowAsap && $allowSchedule ? 'checked' : '' }}
                                     >
 
                                     <div class="ot-icon">📅</div>
@@ -169,6 +179,7 @@
                                     </div>
 
                                 </label>
+                                @endif
 
                             </div>
 
@@ -210,6 +221,8 @@
                         </div>
 
                     </div>
+
+                    @endif
 
 {{-- ============================ STEP 1 : CHOOSE BUILDING ============================ --}}
 <div class="co-modal-overlay" id="buildingTypeModal">

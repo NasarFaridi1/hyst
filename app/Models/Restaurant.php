@@ -57,17 +57,14 @@ class Restaurant extends Model
         'worldpay_password',
 
         'self_delivery',
-
-        
-
-
-
-
-        
+        'allow_asap',
+        'allow_schedule',
     ];
 
     protected $casts = [
         'category_ids' => 'array',
+        'allow_asap' => 'boolean',
+        'allow_schedule' => 'boolean',
     ];
 
     protected $appends = [

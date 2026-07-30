@@ -281,6 +281,32 @@
 
                 </div>
 
+                <div class="mt-8 pt-6 border-t">
+                    <h3 class="font-bold text-lg mb-4 text-gray-800 flex items-center gap-2">
+                        🕒 Delivery Time Options
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="font-bold block mb-2 text-gray-700">
+                                ⚡ As Soon As Possible (ASAP Delivery)
+                            </label>
+                            <select name="allow_asap" class="w-full border p-4 rounded-xl">
+                                <option value="1" {{ ($restaurant->allow_asap ?? true) ? 'selected' : '' }}>Enable</option>
+                                <option value="0" {{ !($restaurant->allow_asap ?? true) ? 'selected' : '' }}>Disable</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="font-bold block mb-2 text-gray-700">
+                                📅 Schedule Delivery (Date & Time Selection)
+                            </label>
+                            <select name="allow_schedule" class="w-full border p-4 rounded-xl">
+                                <option value="1" {{ ($restaurant->allow_schedule ?? true) ? 'selected' : '' }}>Enable</option>
+                                <option value="0" {{ !($restaurant->allow_schedule ?? true) ? 'selected' : '' }}>Disable</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
                 <button class="bg-blue-500 text-white px-10 py-4 rounded-xl mt-8">
 
                     Update Profile

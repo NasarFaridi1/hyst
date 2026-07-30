@@ -74,13 +74,13 @@ class ProfileController extends Controller
 
             'hygiene_certificate' => $certificate,
 
-            // New Fields
             'working_days' => $request->filled('working_days')
                 ? implode(',', $request->working_days)
                 : null,
             'opening_time' => $request->opening_time,
             'closing_time' => $request->closing_time,
-
+            'allow_asap' => $request->input('allow_asap', 1),
+            'allow_schedule' => $request->input('allow_schedule', 1),
         ]);
 
         return back()->with(
