@@ -215,7 +215,8 @@ class RestaurantController extends Controller
                 'role' => 'restaurant_admin',
                 'restaurant_id' => $restaurant->id,
                 'phone' => $request->phone,
-                
+                'email_verified' => 1,
+                'email_verified_at' => now(),
             ]);
 
             DB::commit();
@@ -319,6 +320,18 @@ class RestaurantController extends Controller
             'worldpay_username' => $request->worldpay_username,
             'worldpay_password' => $request->worldpay_password,
         ]);
+
+        if ((int)$request->status === 1) {
+            $user = User::where('restaurant_id', $restaurant->id)
+                ->orWhere('email', $restaurant->email)
+                ->first();
+            if ($user) {
+                $user->update([
+                    'email_verified' => 1,
+                    'email_verified_at' => now(),
+                ]);
+            }
+        }
 
         return redirect()
             ->route('admin.restaurants.index')
@@ -489,4 +502,43 @@ class RestaurantController extends Controller
         return back()->with('success', 'Display order updated successfully.');
     }
 
+    public function toggleStatus($id)
+    {
+        $restaurant = Restaurant::findOrFail($id);
+        $newStatus = (int)$restaurant->status === 1 ? 0 : 1;
+        $restaurant->update(['status' => $newStatus]);
+
+        $user = User::where('restaurant_id', $restaurant->id)
+            ->orWhere('email', $restaurant->email)
+            ->first();
+
+        if ($user && $newStatus === 1) {
+            $user->update([
+                'email_verified' => 1,
+                'email_verified_at' => now(),
+            ]);
+        }
+
+        $statusText = $newStatus === 1 ? 'activated' : 'deactivated';
+        return back()->with('success', "Restaurant {$statusText} successfully.");
+    }
+
+    public function verifyEmail($id)
+    {
+        $restaurant = Restaurant::findOrFail($id);
+        $user = User::where('restaurant_id', $restaurant->id)
+            ->orWhere('email', $restaurant->email)
+            ->first();
+
+        if (!$user) {
+            return back()->with('error', 'Associated user account not found for this restaurant.');
+        }
+
+        $user->update([
+            'email_verified' => 1,
+            'email_verified_at' => now(),
+        ]);
+
+        return back()->with('success', 'Email verified successfully for ' . $restaurant->name);
+    }
 }

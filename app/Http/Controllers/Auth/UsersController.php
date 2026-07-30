@@ -112,6 +112,24 @@ class UsersController extends Controller
             ->with('type', 'error');
         }
 
+        if ($user->role === 'restaurant_admin' || $user->restaurant_id) {
+            $restaurant = $user->restaurant ?? \App\Models\Restaurant::find($user->restaurant_id);
+
+            if (!$restaurant || (int)$restaurant->status === 0) {
+                return back()
+                    ->with('message', 'Your restaurant account has been deactivated. Please contact the administrator.')
+                    ->with('type', 'error')
+                    ->with('error', 'Your restaurant account has been deactivated. Please contact the administrator.');
+            }
+
+            if (!$user->email_verified) {
+                $user->update([
+                    'email_verified' => 1,
+                    'email_verified_at' => now()
+                ]);
+            }
+        }
+
         if (!$user->email_verified) {
 
             return back()

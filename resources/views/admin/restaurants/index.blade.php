@@ -106,6 +106,10 @@
                 </th>
 
                 <th class="p-5 text-left">
+                    Email Verification
+                </th>
+
+                <th class="p-5 text-left">
                     Display Order
                 </th>
 
@@ -206,27 +210,39 @@
                 
 
                 <td class="p-5">
+                    <form method="POST" action="{{ route('admin.restaurants.toggleStatus', $restaurant->id) }}" class="inline">
+                        @csrf
+                        @if((int)$restaurant->status === 1)
+                            <button type="submit" onclick="return confirm('Deactivate this restaurant?')" class="bg-green-100 hover:bg-green-200 text-green-800 px-4 py-1.5 rounded-full text-xs font-semibold shadow-sm transition" title="Click to Deactivate">
+                                ✓ Active
+                            </button>
+                        @else
+                            <button type="submit" onclick="return confirm('Activate this restaurant?')" class="bg-red-100 hover:bg-red-200 text-red-800 px-4 py-1.5 rounded-full text-xs font-semibold shadow-sm transition" title="Click to Activate">
+                                ✕ Inactive
+                            </button>
+                        @endif
+                    </form>
+                </td>
 
-                    @if($restaurant->status == 1)
+                <td class="p-5">
+                    @php
+                        $restUser = \App\Models\User::where('restaurant_id', $restaurant->id)
+                            ->orWhere('email', $restaurant->email)
+                            ->first();
+                    @endphp
 
-                    <span
-                    class="bg-green-100 text-green-700 px-4 py-1 rounded-full text-sm">
-
-                        Active
-
-                    </span>
-
+                    @if($restUser && ($restUser->email_verified || $restUser->email_verified_at))
+                        <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-semibold">
+                            ✓ Verified
+                        </span>
                     @else
-
-                    <span
-                    class="bg-red-100 text-red-700 px-4 py-1 rounded-full text-sm">
-
-                        Inactive
-
-                    </span>
-
+                        <form method="POST" action="{{ route('admin.restaurants.verifyEmail', $restaurant->id) }}" class="inline">
+                            @csrf
+                            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow transition">
+                                Verify Email
+                            </button>
+                        </form>
                     @endif
-
                 </td>
 
                 <td class="p-5">

@@ -537,6 +537,10 @@ Route::middleware(['auth', 'super_admin'])
 
         Route::put('/restaurants/{restaurant}/display-order', [RestaurantController::class, 'updateOrder'])
             ->name('restaurants.updateOrder');
+        Route::post('/restaurants/{id}/toggle-status', [RestaurantController::class, 'toggleStatus'])
+            ->name('restaurants.toggleStatus');
+        Route::post('/restaurants/{id}/verify-email', [RestaurantController::class, 'verifyEmail'])
+            ->name('restaurants.verifyEmail');
         Route::get(
             '/users',
             [UserController::class, 'index']

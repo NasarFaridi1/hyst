@@ -295,6 +295,24 @@ class AuthController extends Controller
             ], 404);
         }
 
+        if ($user->role === 'restaurant_admin' || $user->restaurant_id) {
+            $restaurant = $user->restaurant ?? \App\Models\Restaurant::find($user->restaurant_id);
+
+            if (!$restaurant || (int)$restaurant->status === 0) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Your restaurant account has been deactivated. Please contact the administrator.'
+                ], 403);
+            }
+
+            if (!$user->email_verified) {
+                $user->update([
+                    'email_verified' => 1,
+                    'email_verified_at' => now()
+                ]);
+            }
+        }
+
         if (!$user->email_verified) {
             return response()->json([
                 'status' => false,

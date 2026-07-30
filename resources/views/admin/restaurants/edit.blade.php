@@ -216,6 +216,34 @@
                 class="w-full border p-3 rounded">
         </div>
 
+        <div>
+            <label class="block mb-2 font-medium">Status</label>
+            <select name="status" class="w-full border p-3 rounded">
+                <option value="1" {{ (int)$restaurant->status === 1 ? 'selected' : '' }}>Active</option>
+                <option value="0" {{ (int)$restaurant->status === 0 ? 'selected' : '' }}>Inactive</option>
+            </select>
+        </div>
+
+        <div>
+            @php
+                $restUser = \App\Models\User::where('restaurant_id', $restaurant->id)
+                    ->orWhere('email', $restaurant->email)
+                    ->first();
+            @endphp
+            <label class="block mb-2 font-medium">Email Verification Status</label>
+            <div class="flex items-center gap-3">
+                @if($restUser && ($restUser->email_verified || $restUser->email_verified_at))
+                    <span class="bg-blue-100 text-blue-800 px-4 py-2 rounded-lg text-sm font-semibold">
+                        ✓ Verified
+                    </span>
+                @else
+                    <span class="bg-red-100 text-red-800 px-4 py-2 rounded-lg text-sm font-semibold">
+                        ✕ Unverified
+                    </span>
+                @endif
+            </div>
+        </div>
+
         
 <div class="mt-5">
 
