@@ -273,11 +273,7 @@
                     <i data-lucide="activity"></i>
 
                 </div>
-
-
-
                 <span>Analytics Integration</span>
-
 
 
             </a>
@@ -388,13 +384,13 @@
             </a>
 
             {{-- 11. Items --}}
-            <a href="/restaurant/items"
+            <!-- <a href="/restaurant/items"
             class="sidebar-item {{ str_contains($current,'restaurant/items') ? 'active' : '' }}">
                 <div class="sidebar-icon">
                     <i data-lucide="utensils-crossed"></i>
                 </div>
                 <span>Items</span>
-            </a>
+            </a> -->
 
             {{-- 12. Analytic --}}
             <a href="{{ route('restaurant.page-visits.index') }}"
