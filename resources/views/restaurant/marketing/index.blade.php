@@ -168,6 +168,59 @@
     .pg-header h1 { font-size: 24px; }
     .mk-card-body { padding: 20px 16px; }
   }
+
+    .mk-contact-admin{
+        display:flex;
+        align-items:center;
+        gap:18px;
+        background:linear-gradient(135deg,#FFF8F4,#F6F1E8);
+        border:1px solid rgba(194,90,42,.18);
+        border-left:5px solid #C25A2A;
+        border-radius:16px;
+        padding:20px;
+        margin-bottom:24px;
+    }
+
+    .mk-contact-icon{
+        width:60px;
+        height:60px;
+        border-radius:50%;
+        background:#C25A2A;
+        color:#fff;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        font-size:28px;
+        flex-shrink:0;
+    }
+
+    .mk-contact-content h4{
+        margin:0 0 6px;
+        font-size:18px;
+        color:#1A1208;
+    }
+
+    .mk-contact-content p{
+        margin:0 0 10px;
+        color:#6B5C46;
+        font-size:14px;
+    }
+
+    .mk-contact-info{
+        display:flex;
+        gap:12px;
+        flex-wrap:wrap;
+        font-weight:600;
+    }
+
+    .mk-contact-info a{
+        color:#C25A2A;
+        text-decoration:none;
+    }
+
+    .mk-contact-info a:hover{
+        text-decoration:underline;
+    }
 </style>
 
 <div class="mk-wrap">
