@@ -261,18 +261,27 @@ class UsersController extends Controller
         ]);
 
         $email = strtolower(trim($request->email));
+        $cacheKey = 'pwd_reset_cooldown_' . md5($email);
+
+        if (Cache::has($cacheKey)) {
+            return redirect('/login')
+                ->with('message', 'Password reset link has already been sent to your email. Please check your inbox.')
+                ->with('type', 'success');
+        }
 
         $user = User::where(
             'email_hash',
             hash('sha256',$email)
         )->first();
 
-    if (!$user) {
+        if (!$user) {
 
-    return back()
-        ->with('message', 'Invalid email address.')
-        ->with('type', 'error');
-}
+            return back()
+                ->with('message', 'Invalid email address.')
+                ->with('type', 'error');
+        }
+
+        Cache::put($cacheKey, true, 60);
 
         $url = URL::temporarySignedRoute(
             'password.reset',

@@ -919,7 +919,7 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::get('/forgot-password', [UsersController::class, 'showForgotPassword']);
-Route::post('/forgot-password', [UsersController::class, 'forgotPassword']);  
+Route::post('/forgot-password', [UsersController::class, 'forgotPassword'])->middleware('throttle:5,1');  
 
 Route::get('/reset-password', [UsersController::class,'showResetPassword'])
     ->name('password.reset')

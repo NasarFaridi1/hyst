@@ -347,6 +347,14 @@ class AuthController extends Controller
         }
 
         $email = strtolower(trim($request->email));
+        $cacheKey = 'pwd_reset_cooldown_' . md5($email);
+
+        if (Cache::has($cacheKey)) {
+            return response()->json([
+                'status' => true,
+                'message' => 'Password reset link sent successfully.'
+            ]);
+        }
 
         $user = User::where(
             'email_hash',
@@ -359,6 +367,8 @@ class AuthController extends Controller
                 'message' => 'Email not found.'
             ], 404);
         }
+
+        Cache::put($cacheKey, true, 60);
 
         $url = URL::temporarySignedRoute(
             'password.reset',

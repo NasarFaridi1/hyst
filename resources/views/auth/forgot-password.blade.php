@@ -16,7 +16,7 @@
         Reset Password
     </h2>
 
-    <form method="POST" action="/forgot-password">
+    <form method="POST" action="/forgot-password" onsubmit="let btn = this.querySelector('button[type=submit]'); if(btn.disabled) return false; btn.disabled = true; btn.style.opacity = '0.7'; btn.innerText = 'Sending Reset Link...';">
 
         @csrf
 
@@ -30,9 +30,10 @@
         
 
         <button
-            class="w-full bg-[#c25a2a] text-white p-4 rounded-xl">
+            type="submit"
+            class="w-full bg-[#c25a2a] text-white p-4 rounded-xl font-bold hover:bg-[#c25a2a]/90 transition">
 
-            Update Password
+            Send Reset Link
 
         </button>
 
