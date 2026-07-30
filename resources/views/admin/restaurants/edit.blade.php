@@ -274,7 +274,7 @@
 
     @if($restaurant->hygiene_certificate)
         <div class="mb-3">
-            <a href="{{ asset('storage/'.$restaurant->hygiene_certificate) }}"
+            <a href="{{ file_exists(public_path($restaurant->hygiene_certificate)) ? asset($restaurant->hygiene_certificate) : asset('storage/'.$restaurant->hygiene_certificate) }}"
                target="_blank"
                class="text-blue-600 underline">
                 View Current Certificate

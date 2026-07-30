@@ -191,7 +191,7 @@
 
                     @if($restaurant->hygiene_certificate)
 
-                        <a href="{{ asset('storage/'.$restaurant->hygiene_certificate) }}"
+                        <a href="{{ file_exists(public_path($restaurant->hygiene_certificate)) ? asset($restaurant->hygiene_certificate) : asset('storage/'.$restaurant->hygiene_certificate) }}"
                         target="_blank"
                         class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg text-sm">
                             View
