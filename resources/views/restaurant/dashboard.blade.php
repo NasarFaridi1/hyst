@@ -779,21 +779,41 @@
         <div class="panel">
           <div class="panel-header"><span class="panel-title">Quick Actions</span></div>
           <div class="action-list">
-            <a href="/restaurant/products/create" class="action-link">
-              <span class="al-icon">➕</span> Add New Product
-              <span class="al-arrow">›</span>
-            </a>
-            <a href="/restaurant/products" class="action-link">
-              <span class="al-icon">📦</span> View Products
-              <span class="al-arrow">›</span>
-            </a>
             <a href="/restaurant/orders" class="action-link">
-              <span class="al-icon">🧾</span> Manage Orders
-              <span class="al-arrow">›</span>
+                <span class="al-icon">🧾</span> Orders
+                <span class="al-arrow">›</span>
+            </a>
+            <a href="/restaurant/complaint" class="action-link">
+                <span class="al-icon">💬</span> Payment Complain
+                <span class="al-arrow">›</span>
+            </a>
+            <a href="/restaurant/reviews" class="action-link">
+                <span class="al-icon">⭐</span> Review
+                <span class="al-arrow">›</span>
+            </a>
+            <a href="/restaurant/banners" class="action-link">
+                <span class="al-icon">📣</span> Banner
+                <span class="al-arrow">›</span>
+            </a>
+            <a href="/restaurant/coupons" class="action-link">
+                <span class="al-icon">🎟️</span> Coupon
+                <span class="al-arrow">›</span>
+            </a>
+            <a href="/restaurant/order-offers" class="action-link">
+                <span class="al-icon">🏷️</span> Offer
+                <span class="al-arrow">›</span>
             </a>
             <a href="/restaurant/categories" class="action-link">
-              <span class="al-icon">🏷️</span> Categories
-              <span class="al-arrow">›</span>
+                <span class="al-icon">📂</span> Category Products
+                <span class="al-arrow">›</span>
+            </a>
+            <a href="{{ route('restaurant.page-visits.index') }}" class="action-link">
+                <span class="al-icon">📊</span> Analytic
+                <span class="al-arrow">›</span>
+            </a>
+            <a href="/restaurant/profile" class="action-link">
+                <span class="al-icon">👤</span> Profile
+                <span class="al-arrow">›</span>
             </a>
             <a href="/restaurant/payments" class="action-link">
               <span class="al-icon">💷</span> View Payments
