@@ -578,7 +578,7 @@
                             <input type="radio" name="order_type" value="dine_in">
                             <div class="ot-icon">🍽️</div>
                             <div>
-                                <div class="ot-title">Dine In</div>
+                                <div class="ot-title">Dine In/Take Away</div>
                                 <div class="ot-sub">Eat at restaurant</div>
                             </div>
                             <span class="selected-badge">✓ Selected</span>
