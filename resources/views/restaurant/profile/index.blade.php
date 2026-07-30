@@ -291,6 +291,67 @@
 
         </div>
 
+        <!-- CHANGE PASSWORD CARD -->
+        <div class="bg-white rounded-2xl shadow p-10 mt-8">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800 flex items-center gap-2">
+                🔒 Change Password
+            </h2>
+
+            <form method="POST" action="{{ route('restaurant.profile.change-password') }}">
+                @csrf
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label class="font-bold block mb-2 text-gray-700">
+                            Current Password
+                        </label>
+                        <input
+                            type="password"
+                            name="current_password"
+                            required
+                            placeholder="••••••••"
+                            class="w-full border p-4 rounded-xl @error('current_password') border-red-500 @enderror">
+                        @error('current_password')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label class="font-bold block mb-2 text-gray-700">
+                            New Password
+                        </label>
+                        <input
+                            type="password"
+                            name="new_password"
+                            required
+                            placeholder="Minimum 8 characters"
+                            class="w-full border p-4 rounded-xl @error('new_password') border-red-500 @enderror">
+                        @error('new_password')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label class="font-bold block mb-2 text-gray-700">
+                            Confirm New Password
+                        </label>
+                        <input
+                            type="password"
+                            name="new_password_confirmation"
+                            required
+                            placeholder="Re-enter new password"
+                            class="w-full border p-4 rounded-xl">
+                    </div>
+                </div>
+
+                <div class="mt-8">
+                    <button type="submit" class="bg-[#C25A2A] hover:bg-[#C25A2A]/90 text-white font-bold px-8 py-3.5 rounded-xl shadow transition">
+                        Update Password
+                    </button>
+                </div>
+            </form>
+        </div>
+
     </div>
 
     <script>

@@ -740,6 +740,11 @@ Route::middleware(['auth', 'restaurant_admin'])
             '/profile/update',
             [ProfileController::class, 'update']
         );
+
+        Route::post(
+            '/profile/change-password',
+            [ProfileController::class, 'changePassword']
+        )->name('profile.change-password');
         // ✅ ADD THIS
         Route::post(
             '/orders/payment-status/{id}',
