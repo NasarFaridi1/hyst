@@ -491,7 +491,7 @@ Later
                 </div>
             </div>
 
-            <button onclick="document.getElementById('iosInstallGuide').style.display='none'; closeInstall();" style="width:100%; background:#C25A2A; color:#fff; font-weight:700; padding:13px; border:none; border-radius:12px; font-size:15px; cursor:pointer; box-shadow:0 8px 20px rgba(194,90,42,0.35);">
+            <button onclick="document.getElementById('iosInstallGuide').style.display='none'; markPwaInstalled();" style="width:100%; background:#C25A2A; color:#fff; font-weight:700; padding:13px; border:none; border-radius:12px; font-size:15px; cursor:pointer; box-shadow:0 8px 20px rgba(194,90,42,0.35);">
                 Got It
             </button>
         </div>
@@ -500,7 +500,18 @@ Later
 <script>
     let deferredPrompt;
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+    const isStandalone = (window.navigator.standalone === true) || window.matchMedia('(display-mode: standalone)').matches;
+
+    if (isStandalone) {
+        localStorage.setItem('pwa_installed', 'true');
+        document.cookie = "pwa_installed=true; max-age=31536000; path=/; SameSite=Lax";
+    }
+
+    function markPwaInstalled() {
+        localStorage.setItem('pwa_installed', 'true');
+        document.cookie = "pwa_installed=true; max-age=31536000; path=/; SameSite=Lax";
+        closeInstall();
+    }
 
     function closeInstall() {
         localStorage.setItem('install_popup_closed', Date.now());
@@ -509,6 +520,11 @@ Later
     }
 
     function checkShowInstallPopup() {
+        if (isStandalone || localStorage.getItem('pwa_installed') === 'true' || document.cookie.indexOf('pwa_installed=true') !== -1) {
+            localStorage.setItem('pwa_installed', 'true');
+            document.cookie = "pwa_installed=true; max-age=31536000; path=/; SameSite=Lax";
+            return false; // App is ALREADY INSTALLED!
+        }
         const lastClosed = localStorage.getItem('install_popup_closed');
         if (lastClosed) {
             const thirtyMins = 30 * 60 * 1000;
@@ -522,7 +538,7 @@ Later
     if (isIOS && !isStandalone && checkShowInstallPopup()) {
         setTimeout(() => {
             const popup = document.getElementById('installPopup');
-            if (popup) popup.style.display = 'flex';
+            if (popup && checkShowInstallPopup()) popup.style.display = 'flex';
         }, 3000);
     }
 
@@ -534,7 +550,7 @@ Later
         if (checkShowInstallPopup()) {
             setTimeout(() => {
                 const popup = document.getElementById('installPopup');
-                if (popup) popup.style.display = 'flex';
+                if (popup && checkShowInstallPopup()) popup.style.display = 'flex';
             }, 3000);
         }
     });
@@ -555,13 +571,17 @@ Later
             }
 
             deferredPrompt.prompt();
-            await deferredPrompt.userChoice;
-            closeInstall();
+            const choice = await deferredPrompt.userChoice;
+            if (choice && choice.outcome === 'accepted') {
+                markPwaInstalled();
+            } else {
+                closeInstall();
+            }
         });
     }
 
     window.addEventListener('appinstalled', () => {
-        closeInstall();
+        markPwaInstalled();
     });
 </script>
 

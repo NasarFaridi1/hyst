@@ -716,8 +716,17 @@
         const isStandalone = (window.navigator.standalone === true) || window.matchMedia('(display-mode: standalone)').matches;
 
         function checkShouldPromptPermission() {
-            if ('Notification' in window && Notification.permission === 'granted') {
-                return false; // Notifications already enabled! Never prompt!
+            if ('Notification' in window && (Notification.permission === 'granted' || Notification.permission === 'denied')) {
+                if (Notification.permission === 'granted') {
+                    localStorage.setItem('fcm_permission_granted', 'true');
+                    document.cookie = "fcm_permission_granted=true; max-age=31536000; path=/; SameSite=Lax";
+                }
+                return false; // Notifications already enabled or denied! Never prompt!
+            }
+            if (localStorage.getItem('fcm_permission_granted') === 'true' ||
+                localStorage.getItem('fcm_token_saved') ||
+                document.cookie.indexOf('fcm_permission_granted=true') !== -1) {
+                return false; // Notifications already granted/saved! Never prompt!
             }
             const lastClosed = localStorage.getItem('fcm_permission_closed');
             if (lastClosed) {
@@ -753,6 +762,8 @@
                 if (token) {
                     console.log('FCM TOKEN OBTAINED:', token);
                     localStorage.setItem('fcm_token_saved', token);
+                    localStorage.setItem('fcm_permission_granted', 'true');
+                    document.cookie = "fcm_permission_granted=true; max-age=31536000; path=/; SameSite=Lax";
                     fetch('/save-fcm-token', {
                         method: 'POST',
                         headers: {
@@ -768,15 +779,23 @@
         }
 
         // Initialize Notification logic
-        if ('Notification' in window) {
+        if (!checkShouldPromptPermission()) {
+            const banner = document.getElementById('fcmPermissionBanner');
+            if (banner) banner.style.display = 'none';
+            if ('Notification' in window && Notification.permission === 'granted') {
+                registerAndSaveToken();
+            }
+        } else if ('Notification' in window) {
             if (Notification.permission === 'granted') {
+                localStorage.setItem('fcm_permission_granted', 'true');
+                document.cookie = "fcm_permission_granted=true; max-age=31536000; path=/; SameSite=Lax";
                 const banner = document.getElementById('fcmPermissionBanner');
                 if (banner) banner.style.display = 'none';
                 registerAndSaveToken();
             } else if (checkShouldPromptPermission()) {
                 setTimeout(() => {
                     const banner = document.getElementById('fcmPermissionBanner');
-                    if (banner && Notification.permission !== 'granted') {
+                    if (banner && Notification.permission !== 'granted' && checkShouldPromptPermission()) {
                         banner.style.display = 'flex';
                     }
                 }, 3000);
@@ -786,7 +805,7 @@
             if (checkShouldPromptPermission()) {
                 setTimeout(() => {
                     const banner = document.getElementById('fcmPermissionBanner');
-                    if (banner) banner.style.display = 'flex';
+                    if (banner && checkShouldPromptPermission()) banner.style.display = 'flex';
                 }, 3000);
             }
         }
@@ -797,6 +816,8 @@
             btnAllow.addEventListener('click', async () => {
                 const banner = document.getElementById('fcmPermissionBanner');
                 if (banner) banner.style.display = 'none';
+                localStorage.setItem('fcm_permission_granted', 'true');
+                document.cookie = "fcm_permission_granted=true; max-age=31536000; path=/; SameSite=Lax";
 
                 if ('Notification' in window) {
                     try {
@@ -812,7 +833,7 @@
                     }
                 } else if (isIOS && !isStandalone) {
                     const guide = document.getElementById('iosInstallGuide');
-                    if (guide) guide.style.display = 'flex';
+                    if (guide && checkShowInstallPopup()) guide.style.display = 'flex';
                     snoozePermissionPrompt();
                 }
             });
@@ -931,7 +952,7 @@
                 </div>
             </div>
 
-            <button onclick="document.getElementById('iosInstallGuide').style.display='none'; closeInstall();" style="width:100%; background:#C25A2A; color:#fff; font-weight:700; padding:13px; border:none; border-radius:12px; font-size:15px; cursor:pointer; box-shadow:0 8px 20px rgba(194,90,42,0.35);">
+            <button onclick="document.getElementById('iosInstallGuide').style.display='none'; markPwaInstalled();" style="width:100%; background:#C25A2A; color:#fff; font-weight:700; padding:13px; border:none; border-radius:12px; font-size:15px; cursor:pointer; box-shadow:0 8px 20px rgba(194,90,42,0.35);">
                 Got It
             </button>
         </div>
@@ -942,6 +963,17 @@
         const isIOSApp = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         const isStandaloneApp = (window.navigator.standalone === true) || window.matchMedia('(display-mode: standalone)').matches;
 
+        if (isStandaloneApp) {
+            localStorage.setItem('pwa_installed', 'true');
+            document.cookie = "pwa_installed=true; max-age=31536000; path=/; SameSite=Lax";
+        }
+
+        function markPwaInstalled() {
+            localStorage.setItem('pwa_installed', 'true');
+            document.cookie = "pwa_installed=true; max-age=31536000; path=/; SameSite=Lax";
+            closeInstall();
+        }
+
         function closeInstall() {
             localStorage.setItem('install_popup_closed', Date.now());
             const popup = document.getElementById('installPopup');
@@ -949,7 +981,9 @@
         }
 
         function checkShowInstallPopup() {
-            if (isStandaloneApp) {
+            if (isStandaloneApp || localStorage.getItem('pwa_installed') === 'true' || document.cookie.indexOf('pwa_installed=true') !== -1) {
+                localStorage.setItem('pwa_installed', 'true');
+                document.cookie = "pwa_installed=true; max-age=31536000; path=/; SameSite=Lax";
                 return false; // App is ALREADY INSTALLED! Never show install popup!
             }
             const lastClosed = localStorage.getItem('install_popup_closed');
@@ -962,11 +996,11 @@
             return true;
         }
 
-        // Show installation popup on iOS Safari only if not standalone PWA
+        // Show installation popup on iOS Safari only if not standalone PWA and not already installed
         if (isIOSApp && !isStandaloneApp && checkShowInstallPopup()) {
             setTimeout(() => {
                 const popup = document.getElementById('installPopup');
-                if (popup) popup.style.display = 'flex';
+                if (popup && checkShowInstallPopup()) popup.style.display = 'flex';
             }, 3000);
         }
 
@@ -978,7 +1012,7 @@
             if (checkShowInstallPopup()) {
                 setTimeout(() => {
                     const popup = document.getElementById('installPopup');
-                    if (popup) popup.style.display = 'flex';
+                    if (popup && checkShowInstallPopup()) popup.style.display = 'flex';
                 }, 3000);
             }
         });
@@ -999,13 +1033,17 @@
                 }
 
                 deferredPrompt.prompt();
-                await deferredPrompt.userChoice;
-                closeInstall();
+                const choice = await deferredPrompt.userChoice;
+                if (choice && choice.outcome === 'accepted') {
+                    markPwaInstalled();
+                } else {
+                    closeInstall();
+                }
             });
         }
 
         window.addEventListener('appinstalled', () => {
-            closeInstall();
+            markPwaInstalled();
         });
     </script>
 
