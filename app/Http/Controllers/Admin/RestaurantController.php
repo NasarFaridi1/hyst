@@ -202,7 +202,10 @@ class RestaurantController extends Controller
                 'postcode' => $request->postcode,
                 'longitude' => $request->longitude,
                 'latitude' => $request->latitude,
-                'address' => $request->location
+                'address' => $request->location,
+                'worldpay_business_id' => $request->worldpay_business_id,
+                'worldpay_username' => $request->worldpay_username,
+                'worldpay_password' => $request->worldpay_password,
             ]);
 
             User::create([
@@ -311,7 +314,10 @@ class RestaurantController extends Controller
             'postcode' => $request->postcode,
             'longitude' => $request->longitude,
             'latitude' => $request->latitude,
-            'address' => $request->location
+            'address' => $request->location,
+            'worldpay_business_id' => $request->worldpay_business_id,
+            'worldpay_username' => $request->worldpay_username,
+            'worldpay_password' => $request->worldpay_password,
         ]);
 
         return redirect()

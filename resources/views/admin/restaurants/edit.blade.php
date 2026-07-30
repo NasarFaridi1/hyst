@@ -294,6 +294,38 @@ function validateFileSize(input, errorId, maxSizeMB) {
 
         
 
+<div class="mt-8 border-t pt-6">
+    <h3 class="text-xl font-bold mb-4">Payment Gateway Settings</h3>
+    <div class="grid grid-cols-2 gap-5">
+        <div>
+            <label class="block mb-2 font-medium">Worldpay Business ID</label>
+            <input type="text"
+            name="worldpay_business_id"
+            value="{{ old('worldpay_business_id', $restaurant->worldpay_business_id) }}"
+            class="w-full border p-3 rounded"
+            placeholder="example: 90809">
+        </div>
+
+        <div>
+            <label class="block mb-2 font-medium">Worldpay Username</label>
+            <input type="text"
+            name="worldpay_username"
+            value="{{ old('worldpay_username', $restaurant->worldpay_username) }}"
+            class="w-full border p-3 rounded"
+            placeholder="example: 90809.1">
+        </div>
+
+        <div>
+            <label class="block mb-2 font-medium">Worldpay Password</label>
+            <input type="text"
+            name="worldpay_password"
+            value="{{ old('worldpay_password', $restaurant->worldpay_password) }}"
+            class="w-full border p-3 rounded"
+            placeholder="example: dsgfdhdfhag51621gsdf">
+        </div>
+    </div>
+</div>
+
         <button
         class="bg-green-500 text-white px-8 py-3 rounded mt-5">
 

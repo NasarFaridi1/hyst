@@ -406,6 +406,42 @@
 
             </div>
 
+            <!-- Payment Gateway Settings -->
+            <div class="mt-8 border-t pt-6">
+                <h3 class="text-xl font-bold mb-4">Payment Gateway Settings</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="font-semibold block mb-2">Worldpay Business ID</label>
+                        <input
+                            type="text"
+                            name="worldpay_business_id"
+                            value="{{ old('worldpay_business_id') }}"
+                            placeholder="example: 90809"
+                            class="w-full border border-gray-300 rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <div>
+                        <label class="font-semibold block mb-2">Worldpay Username</label>
+                        <input
+                            type="text"
+                            name="worldpay_username"
+                            value="{{ old('worldpay_username') }}"
+                            placeholder="example: 90809.1"
+                            class="w-full border border-gray-300 rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <div>
+                        <label class="font-semibold block mb-2">Worldpay Password</label>
+                        <input
+                            type="text"
+                            name="worldpay_password"
+                            value="{{ old('worldpay_password') }}"
+                            placeholder="example: dsgfdhdfhag51621gsdf"
+                            class="w-full border border-gray-300 rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+            </div>
+
             <!-- Submit -->
 
             <div class="mt-6">

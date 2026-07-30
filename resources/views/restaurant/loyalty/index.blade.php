@@ -435,11 +435,11 @@
                                     </div>
 
 
-                                    <div class="lr-info">
+                                    {{-- <div class="lr-info">
 
                                         {{ $customer->email }}
 
-                                    </div>
+                                    </div> --}}
 
 
                                     <div class="lr-info">
@@ -835,9 +835,9 @@
                             Customer
                         </th>
 
-                        <th style="padding: 14px; text-align: left;">
+                        {{-- <th style="padding: 14px; text-align: left;">
                             Email
-                        </th>
+                        </th> --}}
 
                         <th style="padding: 14px; text-align: left;">
                             Reward Type
@@ -885,11 +885,11 @@
 
                             {{-- CUSTOMER EMAIL --}}
 
-                            <td style="padding: 14px;">
+                            {{-- <td style="padding: 14px;">
 
                                 {{ $rewardLog->user->email ?? 'N/A' }}
 
-                            </td>
+                            </td> --}}
 
 
                             {{-- REWARD TYPE --}}

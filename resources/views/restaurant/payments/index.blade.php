@@ -3,6 +3,7 @@
 @section('content')
 
 
+{{-- 
 <div class="p-8 mb-6 bg-white rounded-3xl shadow overflow-hidden">
 
         <h2 class="text-2xl font-bold mb-6">
@@ -58,32 +59,6 @@
                         >
                 </div>
 
-                
-
-                {{-- <div>
-                    <label class="block mb-2 font-medium">
-                        Mode
-                    </label>
-
-                    <select
-                        name="transactworld_mode"
-                        class="w-full border rounded-xl p-4">
-
-                        <option
-                            value="test"
-                            {{ $restaurant->transactworld_mode == 'test' ? 'selected' : '' }}>
-                            Test
-                        </option>
-
-                        <option
-                            value="live"
-                            {{ $restaurant->transactworld_mode == 'live' ? 'selected' : '' }}>
-                            Live
-                        </option>
-
-                    </select>
-                </div> --}}
-
             </div>
 
             <button
@@ -97,6 +72,7 @@
         </form>
 
     </div>
+--}}
 
 <div class="bg-white rounded-3xl shadow overflow-hidden">
 
