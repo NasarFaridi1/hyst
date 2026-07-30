@@ -297,6 +297,7 @@
         {{-- RESTAURANT ADMIN --}}
         @if(auth()->user()->role == 'restaurant_admin')
 
+            {{-- 1. Dashboard --}}
             <a href="/restaurant/dashboard"
             class="sidebar-item {{ str_contains($current,'restaurant/dashboard') ? 'active' : '' }}">
                 <div class="sidebar-icon">
@@ -305,6 +306,7 @@
                 <span>Dashboard</span>
             </a>
 
+            {{-- 2. Orders --}}
             <a href="/restaurant/orders"
             class="sidebar-item {{ str_contains($current,'restaurant/orders') ? 'active' : '' }}">
                 <div class="sidebar-icon">
@@ -313,14 +315,70 @@
                 <span>Orders</span>
             </a>
 
+            {{-- 3. Payment --}}
             <a href="/restaurant/payments"
             class="sidebar-item {{ str_contains($current,'restaurant/payments') ? 'active' : '' }}">
                 <div class="sidebar-icon">
                     <i data-lucide="credit-card"></i>
                 </div>
-                <span>Payments</span>
+                <span>Payment</span>
             </a>
 
+            {{-- 4. Payment Complain --}}
+            <a href="/restaurant/complaint"
+            class="sidebar-item {{ str_contains($current,'restaurant/complaint') ? 'active' : '' }}">
+                <div class="sidebar-icon">
+                    <i data-lucide="message-square"></i>
+                </div>
+                <span>Payment Complain</span>
+            </a>
+
+            {{-- 5. Review --}}
+            <a href="/restaurant/reviews"
+            class="sidebar-item {{ str_contains($current,'restaurant/reviews') ? 'active' : '' }}">
+                <div class="sidebar-icon">
+                    <i data-lucide="star"></i>
+                </div>
+                <span>Review</span>
+            </a>
+
+            {{-- 6. Banner --}}
+            <a href="/restaurant/banners"
+            class="sidebar-item {{ str_contains($current,'restaurant/banners') ? 'active' : '' }}">
+                <div class="sidebar-icon">
+                    <i data-lucide="megaphone"></i>
+                </div>
+                <span>Banner</span>
+            </a>
+
+            {{-- 7. Coupon --}}
+            <a href="/restaurant/coupons"
+            class="sidebar-item {{ str_contains($current,'restaurant/coupons') ? 'active' : '' }}">
+                <div class="sidebar-icon">
+                    <i data-lucide="ticket"></i>
+                </div>
+                <span>Coupon</span>
+            </a>
+
+            {{-- 8. Offer --}}
+            <a href="/restaurant/order-offers"
+            class="sidebar-item {{ str_contains($current,'restaurant/order-offers') || str_contains($current,'restaurant/offers') ? 'active' : '' }}">
+                <div class="sidebar-icon">
+                    <i data-lucide="badge-percent"></i>
+                </div>
+                <span>Offer</span>
+            </a>
+
+            {{-- 9. Category --}}
+            <a href="/restaurant/categories"
+            class="sidebar-item {{ str_contains($current,'restaurant/categories') ? 'active' : '' }}">
+                <div class="sidebar-icon">
+                    <i data-lucide="grid-2x2"></i>
+                </div>
+                <span>Category</span>
+            </a>
+
+            {{-- 10. Products --}}
             <a href="/restaurant/products"
             class="sidebar-item {{ str_contains($current,'restaurant/products') ? 'active' : '' }}">
                 <div class="sidebar-icon">
@@ -329,40 +387,7 @@
                 <span>Products</span>
             </a>
 
-
-            <a href="/restaurant/categories"
-            class="sidebar-item {{ str_contains($current,'restaurant/categories') ? 'active' : '' }}">
-                <div class="sidebar-icon">
-                    <i data-lucide="grid-2x2"></i>
-                </div>
-                <span>Categories</span>
-            </a>
-
-            <a href="{{ route('restaurant.delivery-charges.index') }}"
-            class="sidebar-item {{ str_contains($current,'restaurant/delivery-charges') ? 'active' : '' }}">
-                <div class="sidebar-icon">
-                    <i data-lucide="truck"></i>
-                </div>
-                <span>Delivery Charges</span>
-            </a>
-
-            <a href="/restaurant/coupons"
-            class="sidebar-item {{ str_contains($current,'restaurant/coupons') ? 'active' : '' }}">
-                <div class="sidebar-icon">
-                    <i data-lucide="discount"></i>
-                </div>
-                <span>Coupons</span>
-            </a>
-
-            <a href="/restaurant/banners"
-            class="sidebar-item {{ str_contains($current,'restaurant/banners') ? 'active' : '' }}">
-                <div class="sidebar-icon">
-                    <i data-lucide="megaphone"></i>
-                </div>
-                <span>Banners</span>
-            </a>
-	 
-
+            {{-- 11. Items --}}
             <a href="/restaurant/items"
             class="sidebar-item {{ str_contains($current,'restaurant/items') ? 'active' : '' }}">
                 <div class="sidebar-icon">
@@ -371,24 +396,16 @@
                 <span>Items</span>
             </a>
 
-            <a href="/restaurant/order-offers"
-            class="sidebar-item {{ str_contains($current,'restaurant/order-offers') ? 'active' : '' }}">
+            {{-- 12. Analytic --}}
+            <a href="{{ route('restaurant.page-visits.index') }}"
+            class="sidebar-item {{ str_contains($current,'restaurant/page-visits') ? 'active' : '' }}">
                 <div class="sidebar-icon">
-                    <i data-lucide="badge-percent"></i>
+                    <i data-lucide="activity"></i>
                 </div>
-                <span>Offers</span>
+                <span>Analytic</span>
             </a>
 
-            <a href="/restaurant/reviews"
-            class="sidebar-item {{ str_contains($current,'restaurant/reviews') ? 'active' : '' }}">
-                <div class="sidebar-icon">
-                    <i data-lucide="star"></i>
-                </div>
-                <span>Reviews</span>
-            </a>
-
-            
-
+            {{-- 13. Profile --}}
             <a href="/restaurant/profile"
             class="sidebar-item {{ str_contains($current,'restaurant/profile') ? 'active' : '' }}">
                 <div class="sidebar-icon">
@@ -396,59 +413,24 @@
                 </div>
                 <span>Profile</span>
             </a>
-             
-            <a href="{{ route('restaurant.page-visits.index') }}"
 
-            class="sidebar-item {{ str_contains($current,'restaurant/page-visits') ? 'active' : '' }}">
-
-
-
-            <div class="sidebar-icon">
-
-                <i data-lucide="activity"></i>
-
-            </div>
-
-
-
-            <span>Analytics Integration</span>
-
-
-
-        </a>
-
-        <a href="/restaurant/complaint"
-            class="sidebar-item {{ str_contains($current,'restaurant/complaint') ? 'active' : '' }}">
+            {{-- 14. Loyalty & Rewards --}}
+            <a href="{{ route('restaurant.loyalty.index') }}"
+            class="sidebar-item {{ str_contains($current,'restaurant/loyalty-rewards') ? 'active' : '' }}">
                 <div class="sidebar-icon">
-                    <i data-lucide="clipboard-list"></i>
+                    <i data-lucide="gift"></i>
                 </div>
-                <span>Complaints</span>
-            </a>
-       
-
-            {{-- <a href="/restaurant/privacy-policy"
-            class="sidebar-item {{ str_contains($current,'restaurant/privacy-policy') ? 'active' : '' }}">
-                <div class="sidebar-icon">
-                    <i data-lucide="clipboard-list"></i>
-                </div>
-                <span>Restaurant Privacy Policy</span>
+                <span>Loyalty & Rewards</span>
             </a>
 
-            <a href="/restaurant/terms"
-            class="sidebar-item {{ str_contains($current,'restaurant/terms') ? 'active' : '' }}">
+            {{-- 15. Delivery Charges --}}
+            <a href="{{ route('restaurant.delivery-charges.index') }}"
+            class="sidebar-item {{ str_contains($current,'restaurant/delivery-charges') ? 'active' : '' }}">
                 <div class="sidebar-icon">
-                    <i data-lucide="clipboard-list"></i>
+                    <i data-lucide="truck"></i>
                 </div>
-                <span>Restaurant Terms</span>
+                <span>Delivery Charges</span>
             </a>
-
-            <a href="/restaurant/refund-policy"
-            class="sidebar-item {{ str_contains($current,'restaurant/refund-policy') ? 'active' : '' }}">
-                <div class="sidebar-icon">
-                    <i data-lucide="clipboard-list"></i>
-                </div>
-                <span>Restaurant Refund Policy</span>
-            </a> --}}
 
         @endif
 
