@@ -799,26 +799,6 @@
                 <span class="al-icon">🎟️</span> Coupon
                 <span class="al-arrow">›</span>
             </a>
-            <a href="/restaurant/order-offers" class="action-link">
-                <span class="al-icon">🏷️</span> Offer
-                <span class="al-arrow">›</span>
-            </a>
-            <a href="/restaurant/categories" class="action-link">
-                <span class="al-icon">📂</span> Category Products
-                <span class="al-arrow">›</span>
-            </a>
-            <a href="{{ route('restaurant.page-visits.index') }}" class="action-link">
-                <span class="al-icon">📊</span> Analytic
-                <span class="al-arrow">›</span>
-            </a>
-            <a href="/restaurant/profile" class="action-link">
-                <span class="al-icon">👤</span> Profile
-                <span class="al-arrow">›</span>
-            </a>
-            <a href="/restaurant/payments" class="action-link">
-              <span class="al-icon">💷</span> View Payments
-              <span class="al-arrow">›</span>
-            </a>
           </div>
         </div>
 
