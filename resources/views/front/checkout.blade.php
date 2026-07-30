@@ -801,7 +801,7 @@
 
                     @if(isset($orderOffer) && $orderOffer)
                     <div style="background:#F0FDF4; border:1px solid #BBF7D0; border-radius:10px; padding:10px 14px; margin-bottom:16px; font-size:13px; font-weight:600; color:#15803D; display:flex; align-items:center; gap:6px;">
-                        <span>🎉 You're saving £{{ number_format($orderOfferDiscount ?? 0, 2) }} on this order!</span>
+                        <span id="totalSavingText">🎉 You're saving £{{ number_format($orderOfferDiscount ?? 0, 2) }} on this order!</span>
                     </div>
                     @endif
 
@@ -1088,6 +1088,18 @@
 </script>
 
 <script>
+
+    function updateTotalSaving() {
+        const offer = parseFloat(@json($orderOfferDiscount ?? 0));
+        const coupon = parseFloat(document.getElementById('couponDiscountHidden').value || 0);
+        const gift = parseFloat(document.getElementById('giftCardAmountHidden').value || 0);
+
+        const total = offer + coupon + gift;
+
+        document.getElementById('totalSavingText').textContent =
+            `🎉 You're saving £${total.toFixed(2)} on this order!`;
+    }
+
     let couponDiscount = 0;
 
     document.getElementById('applyCoupon').onclick = function () {
@@ -1122,6 +1134,7 @@
             document.getElementById("couponIdHidden").value = res.coupon_id;
             document.getElementById("couponDiscountHidden").value = couponDiscount;
             updateGrandTotal();
+            updateTotalSaving();
         });
     };
 
@@ -1171,6 +1184,7 @@
             document.getElementById("giftCardCodeHidden").value = res.gift_card;
             document.getElementById("giftCardAmountHidden").value = giftCardDiscount;
             updateGrandTotal();
+            updateTotalSaving();
         });
     };
 

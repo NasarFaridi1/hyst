@@ -1420,6 +1420,32 @@
   </div>
   @endif
 
+            @if($order->description)
+            <div style="margin-top:20px;
+                        margin-bottom:20px;
+                        background:#FFF8F4;
+                        border:1px solid #F3D6C8;
+                        border-radius:12px;
+                        padding:16px;">
+
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                    <span style="font-size:18px;">📝</span>
+                    <span style="font-size:15px;font-weight:700;color:#111;">
+                        Order Notes
+                    </span>
+                </div>
+
+                <p style="font-size:14px;
+                        color:#555;
+                        line-height:1.7;
+                        white-space:pre-line;
+                        margin:0;">
+                    {{ $order->description }}
+                </p>
+
+            </div>
+            @endif 
+
   {{-- ── Order Items ── --}}
   <div class="od-table-wrap">
     <div class="od-tbl-header">
