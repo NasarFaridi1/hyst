@@ -783,6 +783,10 @@
                 <span class="al-icon">🧾</span> Orders
                 <span class="al-arrow">›</span>
             </a>
+            <a href="/restaurant/payments" class="action-link">
+                <span class="al-icon">💷</span> Payment
+                <span class="al-arrow">›</span>
+            </a>
             <a href="/restaurant/complaint" class="action-link">
                 <span class="al-icon">💬</span> Payment Complain
                 <span class="al-arrow">›</span>
