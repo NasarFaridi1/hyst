@@ -728,8 +728,9 @@
                   background:#d4edda;
                   color:#155724;
                   border-radius:8px;
+                  font-size:10px;
               ">
-                  ✅ Payment has already been fully refunded.
+                  ✅ Payment has been fully refunded.
               </div>
 
           @endif

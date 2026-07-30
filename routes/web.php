@@ -899,6 +899,9 @@ Route::middleware('guest')->group(function () {
         [UserRegisterController::class, 'showRegister']
     );
 
+    Route::post('/check-email', [UserRegisterController::class, 'checkEmail'])
+    ->name('check.email');
+
     Route::post(
         '/register-user',
         [UserRegisterController::class, 'register']

@@ -76,7 +76,8 @@ class Order extends Model
 
         'is_scheduled',
         'scheduled_for',
-        'preparation_minutes'
+        'preparation_minutes',
+        'description'
         
     ];
 

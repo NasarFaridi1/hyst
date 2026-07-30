@@ -621,6 +621,45 @@
                     </div>  
                 </div>
 
+                <!-- ── STEP 3: ORDER DESCRIPTION (OPTIONAL) ── -->
+                <div class="co-card">
+                    <div class="co-card-title" style="margin-bottom:16px;">
+                        <span class="step-num">3</span>
+                        <span>Order Notes <span style="font-size:12px;color:#6B7280;font-weight:500;">(Optional)</span></span>
+                    </div>
+
+                    <label
+                        for="description"
+                        style="display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:8px;">
+                        Special Instructions
+                    </label>
+
+                    <textarea
+                        id="description"
+                        name="description"
+                        rows="4"
+                        maxlength="500"
+                        placeholder="Example: No onions, extra spicy, ring the doorbell once, leave at the reception, etc."
+                        style="width:100%;
+                            border:1px solid #E5E7EB;
+                            border-radius:12px;
+                            padding:12px;
+                            font-size:14px;
+                            resize:vertical;
+                            outline:none;
+                            background:#fff;">{{ old('description') }}</textarea>
+
+                    <div style="display:flex;justify-content:space-between;margin-top:6px;">
+                        <small style="color:#6B7280;">
+                            Add any notes for the restaurant or delivery partner.
+                        </small>
+
+                        <small id="description-count" style="color:#9CA3AF;">
+                            0 / 500
+                        </small>
+                    </div>
+                </div>
+
                 <!-- Hidden Payment Method (Always Online) -->
                 <input type="hidden" name="payment_method" value="online">
                 <input type="hidden" name="amount" value="{{ $finalTotal }}">
@@ -850,6 +889,20 @@
                 return false;
             }
         };
+
+        const description = document.getElementById('description');
+        const counter = document.getElementById('description-count');
+
+        if (description) {
+
+            const updateCounter = () => {
+                counter.textContent = `${description.value.length} / 500`;
+            };
+
+            updateCounter();
+
+            description.addEventListener('input', updateCounter);
+        }
 
         /* ── ORDER TYPE RADIO HIGHLIGHT & SYNC ── */
         document.querySelectorAll('.ot-label').forEach(function(label) {

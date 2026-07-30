@@ -89,6 +89,9 @@
                     Price
                 </th>
 
+                <th class="p-5 text-left">Allergy&Dietary</th>
+
+
                 <th class="p-5 text-left">
                     Status
                 </th>
@@ -136,6 +139,26 @@
 
                     £{{ $product->price }}
 
+                </td>
+
+                <td class="p-5">
+                        @if($product->allergies->count())
+                            <div class="mb-2 text-xs">
+                                <strong>Allergy:</strong>
+                                {{ $product->allergies->pluck('allergy')->join(', ') }}
+                            </div>
+                        @endif
+
+                        @if($product->dietaries->count())
+                            <div class="text-xs">
+                                <strong>Dietary:</strong>
+                                {{ $product->dietaries->pluck('dietary')->join(', ') }}
+                            </div>
+                        @endif
+
+                        @if(!$product->allergies->count() && !$product->dietaries->count())
+                            <span class="text-gray-400">-</span>
+                        @endif
                 </td>
 
                 <td class="p-5">

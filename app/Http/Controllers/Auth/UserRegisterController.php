@@ -22,6 +22,28 @@ class UserRegisterController extends Controller
         return view('auth.user-register');
     }
 
+
+public function checkEmail(Request $request)
+{
+    try {
+
+        $emailHash = hash('sha256', strtolower(trim($request->email)));
+
+        return response()->json([
+            'hash' => $emailHash,
+            'exists' => User::where('email_hash', $emailHash)->exists(),
+        ]);
+
+    } catch (\Throwable $e) {
+
+        return response()->json([
+            'message' => $e->getMessage(),
+            'line' => $e->getLine(),
+            'file' => $e->getFile(),
+        ], 500);
+    }
+}
+
     public function register(Request $request)
     {
 
@@ -125,8 +147,6 @@ class UserRegisterController extends Controller
             ->with('type','success');
 
     }
-
-
 
 
     public function verifyEmailLink(Request $request)

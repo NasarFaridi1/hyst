@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create HYST Account</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -211,7 +212,8 @@
                                 class="field-input"
                                 autocomplete="email">
                         </div>
-                        <p class="inline-error" id="email-error">Please enter a valid email address.</p>
+                        {{-- <p class="inline-error" id="email-error">Please enter a valid email address.</p> --}}
+                        <p class="inline-error" id="email-error"></p>
                     </div>
 
                     {{-- Password --}}
@@ -388,7 +390,7 @@
         });
 
         /* ─── Email validation ─── */
-        emailField.addEventListener('input', function () {
+        /*emailField.addEventListener('input', function () {
             const val = this.value.trim();
             const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
 
@@ -408,6 +410,109 @@
                 state.email = false;
             }
             updateSubmit();
+        });*/
+
+        let emailCheckTimeout = null;
+
+        emailField.addEventListener('input', function () {
+
+            const val = this.value.trim();
+            const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+
+            clearTimeout(emailCheckTimeout);
+
+            if (!val) {
+
+                this.classList.remove('field-error', 'field-ok');
+                emailError.style.display = 'none';
+                state.email = false;
+                updateSubmit();
+                return;
+            }
+
+            if (!valid) {
+
+                this.classList.remove('field-ok');
+                this.classList.add('field-error');
+
+                emailError.textContent = 'Please enter a valid email address.';
+                emailError.style.display = 'block';
+
+                state.email = false;
+                updateSubmit();
+                return;
+            }
+
+            // Wait 500ms after typing stops
+            emailCheckTimeout = setTimeout(() => {
+
+                fetch('/check-email', {
+
+                    method: 'POST',
+
+                    headers: {
+
+                        'Content-Type': 'application/json',
+
+                        'X-CSRF-TOKEN': document
+                            .querySelector('meta[name="csrf-token"]')
+                            .getAttribute('content'),
+
+                        'Accept': 'application/json'
+                    },
+
+                    body: JSON.stringify({
+                        email: val
+                    })
+
+                })
+                .then(async response => {
+
+                    console.log("Status:", response.status);
+
+                    const data = await response.json();
+
+                    console.log(data);
+
+                    return data;
+
+                })
+
+                .then(data => {
+
+                    if (data.exists) {
+
+                        emailField.classList.remove('field-ok');
+                        emailField.classList.add('field-error');
+
+                        emailError.textContent = 'This email is already registered.';
+                        emailError.style.display = 'block';
+
+                        state.email = false;
+
+                    } else {
+
+                        emailField.classList.remove('field-error');
+                        emailField.classList.add('field-ok');
+
+                        emailError.style.display = 'none';
+
+                        state.email = true;
+                    }
+
+                    updateSubmit();
+
+                })
+                .catch((e) => {
+
+                   console.log(e)
+                    state.email = false;
+                    updateSubmit();
+
+                });
+
+            }, 500);
+
         });
 
         /* ─── Password validation (single handler) ─── */

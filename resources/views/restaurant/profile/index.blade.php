@@ -38,7 +38,7 @@
 
                         </label>
 
-                        <input type="email" name="email" value="{{ $restaurant->email }}"
+                        <input @disabled(true) @readonly(true) type="email" name="email" value="{{ $restaurant->email }}"
                             class="w-full border p-4 rounded-xl">
 
                     </div>

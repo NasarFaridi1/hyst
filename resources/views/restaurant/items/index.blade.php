@@ -37,6 +37,7 @@
 
                     <th class="p-3">Qty</th>
 
+
                     <th class="p-3">Action</th>
 
                 </tr>
@@ -71,6 +72,9 @@
                     <td class="p-3">
                         {{ $item->quantity }}
                     </td>
+
+                    
+
 
                     <td class="p-3 flex gap-2">
 

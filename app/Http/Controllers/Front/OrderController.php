@@ -685,6 +685,7 @@ class OrderController extends Controller
                 'delivery_provider' => $restaurant->self_delivery ? 'self' : 'uber',
                 'is_scheduled' => $request->boolean('is_scheduled'),
                 'scheduled_for' => $request->scheduled_for,
+                'description'=> $request->description,
                 
             ]);
 
