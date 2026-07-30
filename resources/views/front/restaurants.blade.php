@@ -379,7 +379,7 @@
                         @if(file_exists($imagePath))
                             <img src="{{ asset($category->image) }}" alt="{{ $category->name }}">
                         @else
-                            <img src="{{ asset('resturant/' . $category->image) }}" alt="{{ $category->name }}">
+                            <img src="{{ asset('restaurant/' . $category->image) }}" alt="{{ $category->name }}">
                         @endif
                         </div>
                         <span>{{ $category->name }}</span>

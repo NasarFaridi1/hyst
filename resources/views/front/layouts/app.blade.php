@@ -4,28 +4,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>HYST | Zero Commission Food Ordering Platform UK | Order Direct from Restaurants</title>
 
-    <meta name="title" content="HYST — Premium Food Delivery | Order Food Online">
+    <meta name="title" content="HYST | Zero Commission Food Ordering Platform UK | Order Direct from Restaurants">
+
     <meta name="description" content="HYST is the UK's zero commission food ordering platform. Order directly from local restaurants at genuine menu prices with no hidden markups. Support local businesses while enjoying fair pricing and fast ordering.">
-    <meta name="keywords"
-    content="HYST, food ordering UK, zero commission food ordering, order directly from restaurants, restaurant takeaway UK, online takeaway, food delivery, Hounslow restaurants, restaurant ordering platform, fair food prices">
-    <meta name="author" content="HYST — Premium Food Delivery">
+
+    <meta name="keywords" content="HYST, food ordering UK, zero commission food ordering, order directly from restaurants, restaurant takeaway UK, online takeaway, food delivery, Hounslow restaurants, restaurant ordering platform, fair food prices">
+
+    <meta name="author" content="HYST">
     <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
     <meta name="language" content="English">
-    <meta name="revisit-after" content="7 days">
-
     <meta name="theme-color" content="#C25A2A">
+
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
 
-    <!-- Canonical URL -->
     <link rel="canonical" href="https://hyst.uk/">
 
-    <!-- Mobile -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <!-- Geo Tags -->
+    <!-- Geo -->
     <meta name="geo.region" content="GB-LND">
     <meta name="geo.placename" content="Hounslow">
     <meta name="geo.position" content="51.4686;-0.3618">
@@ -33,19 +31,29 @@
 
     <!-- Open Graph -->
     <meta property="og:type" content="website">
-    <meta property="og:title" content="HYST | Zero Commission Food Ordering Platform">
-    <meta property="og:description" content="Order directly from restaurants with zero commission and genuine menu prices.">
-    <meta property="og:url" content="https://hyst.uk">
+    <meta property="og:url" content="https://hyst.uk/">
     <meta property="og:site_name" content="HYST">
-    <meta property="og:image" content="https://hyst.uk/images/og-image.jpg">
     <meta property="og:locale" content="en_GB">
+
+    <meta property="og:title" content="HYST | Zero Commission Food Ordering Platform UK | Order Direct from Restaurants">
+
+    <meta property="og:description" content="HYST is the UK's zero commission food ordering platform. Order directly from local restaurants at genuine menu prices with no hidden markups. Support local businesses while enjoying fair pricing and fast ordering.">
+
+    <meta property="og:image" content="https://hyst.uk/images/social-share.jpg">
+    <meta property="og:image:secure_url" content="https://hyst.uk/images/social-share.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="HYST - Zero Commission Food Ordering Platform">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="HYST | Zero Commission Food Ordering">
-    <meta name="twitter:description" content="Support local restaurants while paying genuine menu prices.">
-    <meta name="twitter:image" content="https://hyst.uk/images/og-image.jpg">
 
+    <meta name="twitter:title" content="HYST | Zero Commission Food Ordering Platform UK | Order Direct from Restaurants">
+
+    <meta name="twitter:description" content="HYST is the UK's zero commission food ordering platform. Order directly from local restaurants at genuine menu prices with no hidden markups. Support local businesses while enjoying fair pricing and fast ordering.">
+
+    <meta name="twitter:image" content="https://hyst.uk/images/social-share.jpg">
+    <meta name="twitter:image:alt" content="HYST - Zero Commission Food Ordering Platform">
     <script type="application/ld+json">
         {
             "@context":"https://schema.org",

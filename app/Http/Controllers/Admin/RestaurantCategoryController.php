@@ -42,7 +42,7 @@ class RestaurantCategoryController extends Controller
         if ($request->hasFile('image')) {
             $image = time().'_'.$request->image->getClientOriginalName();
 
-            $request->image->move(public_path('resturant'), $image);
+            $request->image->move(public_path('restaurant'), $image);
         }
 
         RestaurantCategory::create([
@@ -82,13 +82,13 @@ class RestaurantCategoryController extends Controller
 
         if ($request->hasFile('image')) {
 
-            if ($image && file_exists(public_path('resturant/'.$image))) {
-                unlink(public_path('resturant/'.$image));
+            if ($image && file_exists(public_path('restaurant/'.$image))) {
+                unlink(public_path('restaurant/'.$image));
             }
 
             $image = time().'_'.$request->image->getClientOriginalName();
 
-            $request->image->move(public_path('resturant'), $image);
+            $request->image->move(public_path('restaurant'), $image);
         }
 
         $category->update([
