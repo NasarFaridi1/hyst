@@ -186,11 +186,31 @@
     @endif
 
     <div class="mk-card">
-        <div class="mk-card-header">
-            <h4>Compose Campaign</h4>
-        </div>
 
-        <div class="mk-card-body">
+        <div class="mk-contact-admin">
+            <div class="mk-contact-icon">
+                📞
+            </div>
+
+            <div class="mk-contact-content">
+                <h4>Contact Admin</h4>
+                <p>
+                    Need help with marketing campaigns or customer emails?
+                    Contact the administrator for assistance.
+                </p>
+
+                <div class="mk-contact-info">
+                    <a href="tel:+441234567890">+44 1234 567890</a>
+                    <span>•</span>
+                    <a href="mailto:admin@example.com">admin@example.com</a>
+                </div>
+            </div>
+        </div>
+        {{-- <div class="mk-card-header">
+            <h4>Compose Campaign</h4>
+        </div> --}}
+
+        {{-- <div class="mk-card-body">
 
             <form action="{{ route('restaurant.marketing.send') }}" method="POST">
 
@@ -232,7 +252,7 @@
 
                             <div>
                                 <div class="mk-cust-name">{{ $customer->name }}</div>
-                                <div class="mk-cust-email">{{ $customer->email }}</div>
+                                
                             </div>
 
                         </label>
@@ -276,234 +296,224 @@
 
             </form>
 
-        </div>
-        {{-- MARKETING EMAIL HISTORY --}}
+        </div> --}}
+       
 
-<div class="mk-card" style="margin-top: 28px;">
+        {{-- <div class="mk-card" style="margin-top: 28px;">
 
-    <div class="mk-card-header">
+            <div class="mk-card-header">
 
-        <h4>
-            Sent Email History
-        </h4>
-
-    </div>
-
-
-    <div class="mk-card-body">
-
-
-        <div style="overflow-x: auto;">
-
-
-            <table style="
-                width: 100%;
-                border-collapse: collapse;
-                min-width: 850px;
-            ">
-
-
-                <thead>
-
-                    <tr style="
-                        background: #F6F1E8;
-                    ">
-
-                        <th style="
-                            padding: 14px;
-                            text-align: left;
-                        ">
-                            Customer
-                        </th>
-
-
-                        <th style="
-                            padding: 14px;
-                            text-align: left;
-                        ">
-                            Email
-                        </th>
-
-
-                        <th style="
-                            padding: 14px;
-                            text-align: left;
-                        ">
-                            Subject
-                        </th>
-
-
-                        <th style="
-                            padding: 14px;
-                            text-align: left;
-                        ">
-                            Status
-                        </th>
-
-
-                        <th style="
-                            padding: 14px;
-                            text-align: left;
-                        ">
-                            Sent Date
-                        </th>
-
-                    </tr>
-
-                </thead>
-
-
-                <tbody>
-
-
-                    @forelse($emailLogs as $emailLog)
-
-
-                        <tr style="
-                            border-bottom:
-                            1px solid
-                            rgba(194,90,42,0.12);
-                        ">
-
-
-                            <td style="padding: 14px;">
-
-                                {{ $emailLog->customer_name
-                                    ?? 'N/A' }}
-
-                            </td>
-
-
-                            <td style="padding: 14px;">
-
-                                {{ $emailLog->customer_email }}
-
-                            </td>
-
-
-                            <td style="padding: 14px;">
-
-                                {{ $emailLog->subject }}
-
-                            </td>
-
-
-                            <td style="padding: 14px;">
-
-
-                                @if(
-                                    $emailLog->status
-                                    === 'sent'
-                                )
-
-
-                                    <span style="
-                                        color: #15803D;
-                                        background: #DCFCE7;
-                                        padding: 6px 12px;
-                                        border-radius: 20px;
-                                        font-size: 12px;
-                                        font-weight: 600;
-                                    ">
-
-                                        Sent
-
-                                    </span>
-
-
-                                @else
-
-
-                                    <span style="
-                                        color: #B91C1C;
-                                        background: #FEE2E2;
-                                        padding: 6px 12px;
-                                        border-radius: 20px;
-                                        font-size: 12px;
-                                        font-weight: 600;
-                                    ">
-
-                                        Failed
-
-                                    </span>
-
-
-                                @endif
-
-
-                            </td>
-
-
-                            <td style="padding: 14px;">
-
-
-                                {{ $emailLog->sent_at
-
-                                    ? $emailLog
-                                        ->sent_at
-                                        ->format(
-                                            'd M Y, h:i A'
-                                        )
-
-                                    : 'N/A'
-
-                                }}
-
-
-                            </td>
-
-
-                        </tr>
-
-
-                    @empty
-
-
-                        <tr>
-
-                            <td
-                                colspan="5"
-
-                                style="
-                                    padding: 50px;
-                                    text-align: center;
-                                    color: #8A7A62;
-                                "
-                            >
-
-                                No Marketing Emails Sent Yet
-
-                            </td>
-
-                        </tr>
-
-
-                    @endforelse
-
-
-                </tbody>
-
-
-            </table>
-
-
-        </div>
-
-
-        @if($emailLogs->hasPages())
-
-            <div style="margin-top: 22px;">
-
-                {{ $emailLogs->links() }}
+                <h4>
+                    Sent Email History
+                </h4>
 
             </div>
 
-        @endif
+
+            <div class="mk-card-body">
 
 
-    </div>
+                <div style="overflow-x: auto;">
 
-</div>
+
+                    <table style="
+                        width: 100%;
+                        border-collapse: collapse;
+                        min-width: 850px;
+                    ">
+
+
+                        <thead>
+
+                            <tr style="
+                                background: #F6F1E8;
+                            ">
+
+                                <th style="
+                                    padding: 14px;
+                                    text-align: left;
+                                ">
+                                    Customer
+                                </th>
+
+
+
+
+                                <th style="
+                                    padding: 14px;
+                                    text-align: left;
+                                ">
+                                    Subject
+                                </th>
+
+
+                                <th style="
+                                    padding: 14px;
+                                    text-align: left;
+                                ">
+                                    Status
+                                </th>
+
+
+                                <th style="
+                                    padding: 14px;
+                                    text-align: left;
+                                ">
+                                    Sent Date
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+
+                            @forelse($emailLogs as $emailLog)
+
+
+                                <tr style="
+                                    border-bottom:
+                                    1px solid
+                                    rgba(194,90,42,0.12);
+                                ">
+
+
+                                    <td style="padding: 14px;">
+
+                                        {{ $emailLog->customer_name
+                                            ?? 'N/A' }}
+
+                                    </td>
+
+
+                                    
+
+
+                                    <td style="padding: 14px;">
+
+                                        {{ $emailLog->subject }}
+
+                                    </td>
+
+
+                                    <td style="padding: 14px;">
+
+
+                                        @if(
+                                            $emailLog->status
+                                            === 'sent'
+                                        )
+
+
+                                            <span style="
+                                                color: #15803D;
+                                                background: #DCFCE7;
+                                                padding: 6px 12px;
+                                                border-radius: 20px;
+                                                font-size: 12px;
+                                                font-weight: 600;
+                                            ">
+
+                                                Sent
+
+                                            </span>
+
+
+                                        @else
+
+
+                                            <span style="
+                                                color: #B91C1C;
+                                                background: #FEE2E2;
+                                                padding: 6px 12px;
+                                                border-radius: 20px;
+                                                font-size: 12px;
+                                                font-weight: 600;
+                                            ">
+
+                                                Failed
+
+                                            </span>
+
+
+                                        @endif
+
+
+                                    </td>
+
+
+                                    <td style="padding: 14px;">
+
+
+                                        {{ $emailLog->sent_at
+
+                                            ? $emailLog
+                                                ->sent_at
+                                                ->format(
+                                                    'd M Y, h:i A'
+                                                )
+
+                                            : 'N/A'
+
+                                        }}
+
+
+                                    </td>
+
+
+                                </tr>
+
+
+                            @empty
+
+
+                                <tr>
+
+                                    <td
+                                        colspan="5"
+
+                                        style="
+                                            padding: 50px;
+                                            text-align: center;
+                                            color: #8A7A62;
+                                        "
+                                    >
+
+                                        No Marketing Emails Sent Yet
+
+                                    </td>
+
+                                </tr>
+
+
+                            @endforelse
+
+
+                        </tbody>
+
+
+                    </table>
+
+
+                </div>
+
+
+                @if($emailLogs->hasPages())
+
+                    <div style="margin-top: 22px;">
+
+                        {{ $emailLogs->links() }}
+
+                    </div>
+
+                @endif
+
+
+            </div>
+
+        </div> --}}
     </div>
 
 </div>
