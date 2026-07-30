@@ -241,9 +241,6 @@
     <div class="mk-card">
 
         <div class="mk-contact-admin">
-            <div class="mk-contact-icon">
-                📞
-            </div>
 
             <div class="mk-contact-content">
                 <h4>Contact Admin</h4>
@@ -252,11 +249,6 @@
                     Contact the administrator for assistance.
                 </p>
 
-                <div class="mk-contact-info">
-                    <a href="tel:+441234567890">+44 1234 567890</a>
-                    <span>•</span>
-                    <a href="mailto:admin@example.com">admin@example.com</a>
-                </div>
             </div>
         </div>
         {{-- <div class="mk-card-header">
