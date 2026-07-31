@@ -142,6 +142,8 @@
     </script>
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="apple-touch-icon" href="/social-share.jpeg">
+    <link rel="apple-touch-icon" sizes="180x180" href="/social-share.jpeg">
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.tailwindcss.com"></script>

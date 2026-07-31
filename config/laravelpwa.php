@@ -23,44 +23,44 @@ return [
         'icons' => [
 
             '72x72' => [
-                'path' => '/images/icons/hyst.png',
+                'path' => '/social-share.jpeg',
                 'purpose' => 'any'
             ],
 
             '96x96' => [
-                'path' => '/images/icons/hyst.png',
+                'path' => '/social-share.jpeg',
                 'purpose' => 'any'
             ],
 
             '128x128' => [
-                'path' => '/images/icons/hyst.png',
+                'path' => '/social-share.jpeg',
                 'purpose' => 'any'
             ],
 
             '144x144' => [
-                'path' => '/images/icons/hyst.png',
+                'path' => '/social-share.jpeg',
                 'purpose' => 'any'
             ],
 
             '152x152' => [
-                'path' => '/images/icons/hyst.png',
+                'path' => '/social-share.jpeg',
                 'purpose' => 'any'
             ],
 
             '192x192' => [
-                'path' => '/images/icons/hyst.png',
+                'path' => '/social-share.jpeg',
                 'purpose' => 'any maskable'
             ],
 
             '384x384' => [
-                'path' => '/images/icons/hyst.png',
+                'path' => '/social-share.jpeg',
                 'purpose' => 'any maskable'
             ],
 
             '512x512' => [
-                'path' => '/images/icons/hyst.png',
+                'path' => '/social-share.jpeg',
                 'purpose' => 'any maskable'
-            ]
+            ],
 
         ],
         'splash' => [
