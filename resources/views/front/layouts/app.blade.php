@@ -39,8 +39,8 @@
 
     <meta property="og:description" content="HYST is the UK's zero commission food ordering platform. Order directly from local restaurants at genuine menu prices with no hidden markups. Support local businesses while enjoying fair pricing and fast ordering.">
 
-    <meta property="og:image" content="https://hyst.uk/images/social-share.jpg">
-    <meta property="og:image:secure_url" content="https://hyst.uk/images/social-share.jpg">
+    <meta property="og:image" content="https://hyst.uk/social-share.jpeg">
+    <meta property="og:image:secure_url" content="https://hyst.uk/social-share.jpeg">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="HYST - Zero Commission Food Ordering Platform">
@@ -52,7 +52,7 @@
 
     <meta name="twitter:description" content="HYST is the UK's zero commission food ordering platform. Order directly from local restaurants at genuine menu prices with no hidden markups. Support local businesses while enjoying fair pricing and fast ordering.">
 
-    <meta name="twitter:image" content="https://hyst.uk/images/social-share.jpg">
+    <meta name="twitter:image" content="https://hyst.uk/social-share.jpeg">
     <meta name="twitter:image:alt" content="HYST - Zero Commission Food Ordering Platform">
     <script type="application/ld+json">
         {
@@ -60,7 +60,7 @@
             "@type":"Organization",
             "name":"HYST",
             "url":"https://hyst.uk",
-            "logo":"https://hyst.uk/images/logo.png",
+            "logo":"https://hyst.uk/social-share.jpeg",
             "email":"info@hyst.uk",
             "telephone":"+44 7879 175585",
             "address":{
@@ -97,7 +97,7 @@
             "@context":"https://schema.org",
             "@type":"LocalBusiness",
             "name":"HYST",
-            "image":"https://hyst.uk/images/logo.png",
+            "image":"https://hyst.uk/social-share.jpeg",
             "telephone":"+44 7879 175585",
             "email":"info@hyst.uk",
             "address":{
@@ -107,6 +107,15 @@
                 "postalCode":"TW3 2DX",
                 "addressCountry":"United Kingdom"
             }
+        }
+
+        {
+        "@context":"https://schema.org",
+        "@type":"SoftwareApplication",
+        "name":"HYST",
+        "applicationCategory":"BusinessApplication",
+        "operatingSystem":"Web",
+        "description":"Commission-free restaurant ordering platform in the UK."
         }
     </script>
 
