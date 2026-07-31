@@ -1,4 +1,4 @@
-@extends('support.layout')
+@extends('layouts.app')
 
 @section('title', 'Support Dashboard')
 
