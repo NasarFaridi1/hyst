@@ -8,6 +8,8 @@ use App\Models\SupportTicketReply;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 
 class TicketController extends Controller
 {
@@ -127,7 +129,7 @@ class TicketController extends Controller
 
         $ticket = SupportTicket::findOrFail($id);
 
-        SupportTicketReply::create([
+        $reply = SupportTicketReply::create([
             'ticket_id'   => $ticket->id,
             'user_id'     => auth()->id(),
             'sender_type' => 'support',
@@ -141,7 +143,7 @@ class TicketController extends Controller
             $ticket->update(['status' => 'in_progress']);
         }
 
-        // Send notification to customer if user_id exists
+        // Send in-app notification to customer if user_id exists
         if ($ticket->user_id && function_exists('sendNotification')) {
             sendNotification(
                 $ticket->user_id,
@@ -152,6 +154,27 @@ class TicketController extends Controller
                 $ticket->id,
                 $ticket->order_id
             );
+        }
+
+        // Send email to customer
+        $recipientEmail = $ticket->email ?: ($ticket->user ? $ticket->user->email : null);
+        if (!empty($recipientEmail)) {
+            try {
+                Mail::send(
+                    'emails.support-ticket-reply',
+                    [
+                        'ticket'         => $ticket,
+                        'reply'          => $reply,
+                        'messageContent' => $request->message,
+                    ],
+                    function ($mail) use ($recipientEmail, $ticket) {
+                        $mail->to($recipientEmail)
+                            ->subject("Reply on Support Ticket #{$ticket->ticket_number}");
+                    }
+                );
+            } catch (\Exception $e) {
+                Log::error("Failed to send support ticket reply email to {$recipientEmail}: " . $e->getMessage());
+            }
         }
 
         return back()->with('success', 'Reply posted successfully!');
