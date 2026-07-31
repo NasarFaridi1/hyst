@@ -501,6 +501,40 @@
 
         @endif
 
+        @if(auth()->user()->role=='support')
+            <a href="/support/dashboard"
+            class="sidebar-item {{ str_contains($current,'support/dashboard') ? 'active' : '' }}">
+                <div class="sidebar-icon">
+                    <i data-lucide="layout-dashboard"></i>
+                </div>
+                <span>Dashboard</span>
+            </a>
+            <a href="/support/tickets"
+            class="sidebar-item {{ str_contains($current,'support/tickets') ? 'active' : '' }}">
+                <div class="sidebar-icon">
+                    <i data-lucide="clipboard-list"></i>
+                </div>
+                <span>Tickets</span>
+            </a>
+
+            <a href="/support/orders"
+            class="sidebar-item {{ str_contains($current,'support/orders') ? 'active' : '' }}">
+                <div class="sidebar-icon">
+                    <i data-lucide="clipboard-list"></i>
+                </div>
+                <span>Orders</span>
+            </a>
+
+            <a href="/support/users"
+            class="sidebar-item {{ str_contains($current,'support/users') ? 'active' : '' }}">
+                <div class="sidebar-icon">
+                    <i data-lucide="users"></i>
+                </div>
+                <span>Users</span>
+            </a>
+
+        @endif
+
         <form method="POST" action="{{ route('logout') }}">
             @csrf
 

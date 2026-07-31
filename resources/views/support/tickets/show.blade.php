@@ -1,4 +1,4 @@
-@extends('support.layout')
+@extends('layouts.app')
 
 @section('title', 'Ticket #' . $ticket->ticket_number)
 

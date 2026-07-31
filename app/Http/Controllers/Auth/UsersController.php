@@ -97,6 +97,8 @@ class UsersController extends Controller
         //     );
         // }
 
+        
+
         $user = User::where(
             'email_hash',
             hash(
@@ -111,6 +113,8 @@ class UsersController extends Controller
             ->with('message', 'User not found')
             ->with('type', 'error');
         }
+
+        
 
         if ($user->role === 'restaurant_admin' || $user->restaurant_id) {
             $restaurant = $user->restaurant ?? \App\Models\Restaurant::find($user->restaurant_id);
@@ -168,6 +172,14 @@ class UsersController extends Controller
                 return redirect('/ambassador/dashboard');
 
             }
+
+            if ($user->role == 'support') {
+
+                return redirect('/support/dashboard');
+
+            }
+
+           
 
             $redirect = session()->pull('login_redirect', $request->input('redirect', !empty(session('cart')) ? '/checkout' : '/'));
 
