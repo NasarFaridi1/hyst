@@ -20,26 +20,126 @@
     <!-- Mobile -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Geo Tags -->
+     <!-- Geo -->
     <meta name="geo.region" content="GB-LND">
     <meta name="geo.placename" content="Hounslow">
     <meta name="geo.position" content="51.4686;-0.3618">
-    <meta name="ICBM" content="51.4686, -0.3618">
+    <meta name="ICBM" content="51.4686,-0.3618">
 
     <!-- Open Graph -->
     <meta property="og:type" content="website">
-    <meta property="og:title" content="HYST — Premium Food Delivery | Order Food Online">
-    <meta property="og:description" content="Order delicious food online with fast delivery and fair prices.">
-    <meta property="og:image" content="https://hyst.uk/images/banner.jpg">
     <meta property="og:url" content="https://hyst.uk/">
-    <meta property="og:site_name" content="HYST — Premium Food Delivery">
+    <meta property="og:site_name" content="HYST">
+    <meta property="og:locale" content="en_GB">
+
+    <meta property="og:title" content="HYST | Zero Commission Food Ordering Platform UK | Order Direct from Restaurants">
+
+    <meta property="og:description" content="HYST is the UK's zero commission food ordering platform. Order directly from local restaurants at genuine menu prices with no hidden markups. Support local businesses while enjoying fair pricing and fast ordering.">
+
+    <meta property="og:image" content="https://hyst.uk/social-share.jpeg">
+    <meta property="og:image:secure_url" content="https://hyst.uk/social-share.jpeg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="HYST - Zero Commission Food Ordering Platform">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="HYST — Premium Food Delivery | Order Food Online">
-    <meta name="twitter:description" content="Order delicious food online with fast delivery and fair prices.">
-    <meta name="twitter:image" content="https://hyst.uk/images/banner.jpg">
 
+    <meta name="twitter:title" content="HYST | Zero Commission Food Ordering Platform UK | Order Direct from Restaurants">
+
+    <meta name="twitter:description" content="HYST is the UK's zero commission food ordering platform. Order directly from local restaurants at genuine menu prices with no hidden markups. Support local businesses while enjoying fair pricing and fast ordering.">
+
+    <meta name="twitter:image" content="https://hyst.uk/social-share.jpeg">
+    <meta name="twitter:image:alt" content="HYST - Zero Commission Food Ordering Platform">
+    <script type="application/ld+json">
+        {
+            "@context":"https://schema.org",
+            "@type":"Organization",
+            "name":"HYST",
+            "url":"https://hyst.uk",
+            "logo":"https://hyst.uk/social-share.jpeg",
+            "email":"info@hyst.uk",
+            "telephone":"+44 7879 175585",
+            "address":{
+                "@type":"PostalAddress",
+                "streetAddress":"Hounslow",
+                "addressLocality":"London",
+                "postalCode":"TW3 2DX",
+                "addressCountry":"GB"
+            },
+            "sameAs":[
+                "https://facebook.com/yourpage",
+                "https://instagram.com/yourpage",
+                "https://linkedin.com/company/hyst"
+            ]
+        }
+    </script>
+
+    <script type="application/ld+json">
+        {
+            "@context":"https://schema.org",
+            "@type":"WebSite",
+            "name":"HYST",
+            "url":"https://hyst.uk",
+            "potentialAction":{
+                "@type":"SearchAction",
+                "target":"https://hyst.uk/search?q={search_term_string}",
+                "query-input":"required name=search_term_string"
+            }
+        }
+    </script>
+
+    <script type="application/ld+json">
+        {
+            "@context":"https://schema.org",
+            "@type":"LocalBusiness",
+            "name":"HYST",
+            "image":"https://hyst.uk/social-share.jpeg",
+            "telephone":"+44 7879 175585",
+            "email":"info@hyst.uk",
+            "address":{
+                "@type":"PostalAddress",
+                "addressLocality":"Hounslow",
+                "addressRegion":"London",
+                "postalCode":"TW3 2DX",
+                "addressCountry":"United Kingdom"
+            }
+        }
+
+        {
+        "@context":"https://schema.org",
+        "@type":"SoftwareApplication",
+        "name":"HYST",
+        "applicationCategory":"BusinessApplication",
+        "operatingSystem":"Web",
+        "description":"Commission-free restaurant ordering platform in the UK."
+        }
+    </script>
+
+    <script type="application/ld+json">
+        {
+            "@context":"https://schema.org",
+            "@type":"FAQPage",
+            "mainEntity":[
+                {
+                    "@type":"Question",
+                    "name":"Does HYST charge restaurant commission?",
+                    "acceptedAnswer":{
+                    "@type":"Answer",
+                    "text":"No. HYST follows a zero commission model so restaurants keep more of their earnings."
+                    }
+                },
+                {
+                    "@type":"Question",
+                    "name":"Why are HYST prices lower?",
+                    "acceptedAnswer":{
+                        "@type":"Answer",
+                        "text":"Restaurants display their genuine menu prices because HYST does not charge high commissions."
+                    }
+                }
+            ]
+        }
+    </script>
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/favicon.png">
 
