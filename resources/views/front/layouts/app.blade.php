@@ -1121,6 +1121,7 @@
         });
         </script>
     @endif
+    @include('front.partials.chatbot')
 </body>
 
 </html>

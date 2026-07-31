@@ -1041,3 +1041,25 @@ Route::middleware(['auth','ambassador'])
             ->name('profile.update');
 
 });
+
+/*
+|--------------------------------------------------------------------------
+| Support Panel & Ticket Routes
+|--------------------------------------------------------------------------
+*/
+Route::post('/support/ticket/create', [\App\Http\Controllers\Support\TicketController::class, 'storePublicTicket'])
+    ->name('support.ticket.store');
+
+Route::middleware(['auth', 'support'])
+    ->prefix('support')
+    ->name('support.')
+    ->group(function () {
+        Route::get('/dashboard', [\App\Http\Controllers\Support\DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/tickets', [\App\Http\Controllers\Support\TicketController::class, 'index'])->name('tickets.index');
+        Route::get('/tickets/{id}', [\App\Http\Controllers\Support\TicketController::class, 'show'])->name('tickets.show');
+        Route::post('/tickets/{id}/reply', [\App\Http\Controllers\Support\TicketController::class, 'reply'])->name('tickets.reply');
+        Route::post('/tickets/{id}/status', [\App\Http\Controllers\Support\TicketController::class, 'updateStatus'])->name('tickets.status');
+        Route::get('/orders', [\App\Http\Controllers\Support\OrderController::class, 'index'])->name('orders.index');
+        Route::get('/orders/{id}', [\App\Http\Controllers\Support\OrderController::class, 'show'])->name('orders.show');
+        Route::get('/users', [\App\Http\Controllers\Support\UserController::class, 'index'])->name('users.index');
+    });

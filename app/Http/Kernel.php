@@ -72,6 +72,7 @@ class Kernel extends HttpKernel
         'ambassador' => \App\Http\Middleware\AmbassadorMiddleware::class,
         'restaurant_admin' => \App\Http\Middleware\RestaurantAdminMiddleware::class,
         'vendor' => \App\Http\Middleware\VendorMiddleware::class,
+        'support' => \App\Http\Middleware\SupportMiddleware::class,
 
         // Add this
         'api.token' => \App\Http\Middleware\ApiTokenMiddleware::class,
