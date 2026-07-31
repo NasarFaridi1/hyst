@@ -108,6 +108,15 @@
                 "addressCountry":"United Kingdom"
             }
         }
+
+        {
+        "@context":"https://schema.org",
+        "@type":"SoftwareApplication",
+        "name":"HYST",
+        "applicationCategory":"BusinessApplication",
+        "operatingSystem":"Web",
+        "description":"Commission-free restaurant ordering platform in the UK."
+        }
     </script>
 
     <script type="application/ld+json">
