@@ -1,9 +1,4 @@
 @extends('front.layouts.app')
-
-@section('title', 'HYST | Takeaway & Food Delivery Near Me | Dine In Hounslow & UK')
-@section('meta_description', 'Discover local takeaways & food delivery near me in Hounslow, London TW3 & UK. Dine in or order online with zero commission & genuine menu prices.')
-@section('keywords', 'takeaway near me, food delivery near me, dine in near me, online food order near me, Hounslow food delivery, takeaway Hounslow, HYST')
-
 @section('content')
 
     <style>
@@ -87,7 +82,6 @@
                 font-size: 26px !important;
             }
         }
-        
     </style>
 
     
@@ -99,7 +93,6 @@
 
     </section>
 
-   
     <style>
         .desktop-banner,
         .mobile-banner {
@@ -127,7 +120,6 @@
             }
         }
     </style>
-
 
 
    
@@ -298,7 +290,7 @@
     <!-- ══════════════════════════════════════
          APP DOWNLOAD CTA
     ══════════════════════════════════════ -->
-    <section style="background:#C25A2A; padding:64px 0;">
+    <section style="background:#C25A2A; padding:64px 0; display:none;">
         <div style="max-width:1280px; margin:0 auto; padding:0 24px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:28px;">
             <div style="max-width:540px;">
                 <h2 style="font-family:'Poppins',sans-serif; font-size:30px; font-weight:800; color:#fff; margin:0 0 10px; letter-spacing:-.3px;">
