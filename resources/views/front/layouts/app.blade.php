@@ -840,6 +840,63 @@
             }
         };
 
+        window.refreshAndSaveNotificationToken = async function(btn) {
+            try {
+                if (btn) {
+                    btn.disabled = true;
+                    btn.innerHTML = 'Refreshing Token...';
+                }
+
+                if (!('Notification' in window)) {
+                    alert('Notifications are not supported on this browser.');
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = 'Enable Notifications & Refresh Token';
+                    }
+                    return;
+                }
+
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    localStorage.setItem('fcm_permission_granted', 'true');
+                    await registerAndSaveToken();
+
+                    if (btn) {
+                        btn.innerHTML = '✓ Notifications Active & Token Saved';
+                        btn.style.background = '#16A34A';
+                        btn.disabled = false;
+                    }
+
+                    if (typeof window.playNotificationSound === 'function') {
+                        window.playNotificationSound();
+                    }
+
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Token Refreshed & Saved! 🔔',
+                            text: 'Your device FCM token has been updated and saved to your account.',
+                            confirmButtonColor: '#C25A2A'
+                        });
+                    } else {
+                        alert('Notifications enabled and token refreshed successfully!');
+                    }
+                } else {
+                    alert('Notification permission was blocked in browser settings. Please allow notifications in browser URL bar.');
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = 'Enable Notifications & Refresh Token';
+                    }
+                }
+            } catch (e) {
+                console.error('Error refreshing token:', e);
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = 'Enable Notifications & Refresh Token';
+                }
+            }
+        };
+
         // Initialize Notification logic
         if ('Notification' in window && Notification.permission === 'granted') {
             registerAndSaveToken();

@@ -38,6 +38,29 @@
                         <i class="fa-brands fa-linkedin-in" style="color:#9CA3AF;font-size:16px;"></i>
                     </a>
                 </div>
+
+                <div style="margin-top:20px;">
+                    <button id="btnFooterPushRefresh" onclick="refreshAndSaveNotificationToken(this)"
+                            style="
+                                background: linear-gradient(135deg, #C25A2A 0%, #E8570E 100%);
+                                color: #ffffff;
+                                border: none;
+                                border-radius: 12px;
+                                padding: 10px 16px;
+                                font-family: 'Poppins', sans-serif;
+                                font-size: 13px;
+                                font-weight: 700;
+                                cursor: pointer;
+                                display: inline-flex;
+                                align-items: center;
+                                gap: 8px;
+                                box-shadow: 0 4px 14px rgba(194, 90, 42, 0.35);
+                                transition: all 0.2s ease;
+                            ">
+                        <i data-lucide="bell-ring" style="width:16px; height:16px;"></i>
+                        <span>Enable Notifications & Refresh Token</span>
+                    </button>
+                </div>
             </div>
 
             <!-- QUICK LINKS -->
