@@ -258,11 +258,20 @@ document.addEventListener('click', function(e){
     }
 });
 
+let lastUnreadCount = null;
+
 function fetchNotifications()
 {
     fetch('/notifications/latest')
     .then(res => res.json())
     .then(data => {
+
+        if (lastUnreadCount !== null && data.unreadCount > lastUnreadCount) {
+            if (typeof window.playNotificationSound === 'function') {
+                window.playNotificationSound();
+            }
+        }
+        lastUnreadCount = data.unreadCount;
 
         /*
         |--------------------------------------------------------------------------

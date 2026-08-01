@@ -26,6 +26,8 @@ if (firebaseConfig.apiKey && firebaseConfig.apiKey !== 'AIzaSyDummyKey') {
                 body: payload.notification ? payload.notification.body : (payload.data ? payload.data.body : 'You have a new order update.'),
                 icon: '/images/icons/icon-192x192.png',
                 badge: '/images/icons/icon-72x72.png',
+                sound: '/sounds/hyst_notification.mp3',
+                vibrate: [200, 100, 200, 100, 200],
                 data: payload.data || {},
                 actions: [
                     { action: 'open', title: 'View Order' }
