@@ -1,20 +1,52 @@
 /**
  * HYST Global Notification Sound Engine
- * Handles playing audio for all normal & FCM notifications across the platform.
+ * Handles playing audio for all normal & FCM notifications across iOS Safari, Android Chrome, and Desktop.
  */
 (function() {
-    window.playNotificationSound = function(options = {}) {
-        console.log('[HYST Notification Sound] Playing audio notification...');
+    let globalAudioCtx = null;
 
-        // 1. Web Audio API Synthesizer (Instant, 0-latency, 100% reliable)
-        try {
+    function getAudioContext() {
+        if (!globalAudioCtx) {
             const AudioCtx = window.AudioContext || window.webkitAudioContext;
             if (AudioCtx) {
-                const ctx = new AudioCtx();
-                if (ctx.state === 'suspended') {
-                    ctx.resume();
-                }
+                globalAudioCtx = new AudioCtx();
+            }
+        }
+        if (globalAudioCtx && globalAudioCtx.state === 'suspended') {
+            globalAudioCtx.resume();
+        }
+        return globalAudioCtx;
+    }
 
+    // Unlock AudioContext on first user interaction (Essential for iOS Safari & Android Chrome)
+    function unlockAudioOnInteraction() {
+        const ctx = getAudioContext();
+        if (ctx) {
+            ctx.resume().then(() => {
+                console.log('[HYST Sound] AudioContext unlocked for iOS/Android.');
+            }).catch(e => console.warn(e));
+        }
+        document.removeEventListener('touchstart', unlockAudioOnInteraction);
+        document.removeEventListener('click', unlockAudioOnInteraction);
+    }
+
+    document.addEventListener('touchstart', unlockAudioOnInteraction, { once: true });
+    document.addEventListener('click', unlockAudioOnInteraction, { once: true });
+
+    window.playNotificationSound = function(options = {}) {
+        console.log('[HYST Notification Sound] Playing audio notification on iOS/Android...');
+
+        // Mobile Vibration API (Android & PWA supported)
+        if ('vibrate' in navigator) {
+            try {
+                navigator.vibrate([200, 100, 200, 100, 200]);
+            } catch(e) {}
+        }
+
+        // 1. Web Audio API Synthesizer (Instant, 0-latency, 100% reliable across iOS & Android)
+        try {
+            const ctx = getAudioContext();
+            if (ctx) {
                 // Signature HYST 2-Tone Chime (E5: 659.25Hz -> B5: 987.77Hz)
                 const notes = [
                     { freq: 659.25, start: 0, duration: 0.18 },
@@ -51,8 +83,7 @@
             const promise = audio.play();
             if (promise !== undefined) {
                 promise.catch(err => {
-                    // Browser autoplay policy catch
-                    console.log('[HYST Sound] HTML5 Audio autoplay policy prevented file playback; Web Audio synth played.');
+                    console.log('[HYST Sound] HTML5 Audio autoplay policy catch; Web Audio synth played.');
                 });
             }
         } catch(e) {
