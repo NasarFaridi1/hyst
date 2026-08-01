@@ -151,6 +151,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('social-share.jpeg') }}">
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{{ asset('js/notification-sound.js') }}"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
@@ -460,18 +461,30 @@
         });
 
         onMessage(messaging, (payload) => {
+            console.log('MESSAGE RECEIVED', payload);
 
-            console.log(
-                'MESSAGE RECEIVED',
-                payload
-            );
+            if (typeof window.playNotificationSound === 'function') {
+                window.playNotificationSound();
+            }
 
-            alert(
-                payload.notification.title
-                + ' - ' +
-                payload.notification.body
-            );
+            const title = payload.notification?.title || payload.data?.title || 'New Notification';
+            const body = payload.notification?.body || payload.data?.body || '';
 
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'info',
+                    title: title,
+                    text: body,
+                    showConfirmButton: true,
+                    confirmButtonText: 'View',
+                    confirmButtonColor: '#C25A2A',
+                    timer: 8000
+                });
+            } else {
+                alert(title + ' - ' + body);
+            }
         });
     </script>
 

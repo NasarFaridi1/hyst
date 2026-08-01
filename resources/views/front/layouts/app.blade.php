@@ -161,6 +161,7 @@
         rel="stylesheet">
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{{ asset('js/notification-sound.js') }}"></script>
 
     <link
     rel="stylesheet"
@@ -874,6 +875,9 @@
 
         onMessage(messaging, (payload) => {
             console.log('FCM FOREGROUND NOTIFICATION:', payload);
+            if (typeof window.playNotificationSound === 'function') {
+                window.playNotificationSound();
+            }
             const title = payload.notification?.title || payload.data?.title || 'HYST Order Update';
             const body = payload.notification?.body || payload.data?.body || '';
 
