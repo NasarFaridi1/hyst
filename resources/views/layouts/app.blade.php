@@ -4,13 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'HYST | Zero Commission Food Ordering Platform UK | Order Direct from Restaurants')</title>
+    <title>@yield('title', 'HYST | Zero Commission Takeaway & Food Delivery Near Me | Dine In Hounslow & UK')</title>
 
-    <meta name="title" content="@yield('title', 'HYST | Zero Commission Food Ordering Platform UK | Order Direct from Restaurants')">
+    <meta name="title" content="@yield('title', 'HYST | Zero Commission Takeaway & Food Delivery Near Me | Dine In Hounslow & UK')">
 
-    <meta name="description" content="@yield('meta_description', 'HYST is the UK\'s zero commission food ordering platform. Order directly from local restaurants at genuine menu prices with no hidden markups.')">
+    <meta name="description" content="@yield('meta_description', 'Find top takeaways, food delivery near me & dine in restaurants in Hounslow, TW3 & London UK. Order direct on HYST with zero commission & genuine menu prices.')">
 
-    <meta name="keywords" content="@yield('keywords', 'HYST, food ordering UK, zero commission food ordering, order directly from restaurants, restaurant takeaway UK, online takeaway, food delivery, Hounslow restaurants, restaurant ordering platform, fair food prices')">
+    <meta name="keywords" content="@yield('keywords', 'takeaway near me, food delivery near me, dine in, order takeaway near me, food ordering platform Hounslow, takeaway Hounslow TW3, zero commission food delivery, HYST')">
 
     <meta name="author" content="HYST">
     <meta name="robots" content="@yield('robots', 'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1')">

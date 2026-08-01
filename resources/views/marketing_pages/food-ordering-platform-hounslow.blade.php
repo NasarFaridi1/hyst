@@ -1,15 +1,15 @@
 @extends('front.layouts.app')
 
-@section('title', 'Food Ordering & Delivery Platform Hounslow | Takeaway Hounslow TW3 | HYST')
-@section('meta_description', 'Order takeaway food online from top restaurants in Hounslow, London TW3 & West London on HYST. Zero commission platform with genuine menu prices and fast delivery.')
-@section('keywords', 'ordering platform Hounslow, food delivery Hounslow, takeaway Hounslow TW3, restaurants in Hounslow, order food online Hounslow, zero commission Hounslow')
+@section('title', 'Takeaway & Food Delivery Near Me | Dine In Hounslow TW3 | HYST')
+@section('meta_description', 'Find top takeaways, food delivery near me & dine in restaurants in Hounslow, London TW3. Order direct on HYST with zero commission & genuine menu prices.')
+@section('keywords', 'takeaway near me, food delivery near me, dine in Hounslow, ordering platform Hounslow, takeaway Hounslow TW3, food ordering Hounslow, HYST')
 
 @section('ld_json')
 <script type="application/ld+json">
 {
     "@context": "https://schema.org",
     "@type": "Service",
-    "serviceType": "Food Ordering & Delivery Platform",
+    "serviceType": "Takeaway, Dine In & Food Delivery Platform",
     "provider": {
         "@type": "LocalBusiness",
         "name": "HYST Hounslow",
@@ -28,7 +28,7 @@
         "name": "Hounslow",
         "sameAs": "https://en.wikipedia.org/wiki/Hounslow"
     },
-    "description": "Zero-commission food ordering and takeaway platform serving Hounslow, London TW3."
+    "description": "Zero-commission takeaway, dine in, and food delivery platform serving Hounslow, London TW3."
 }
 </script>
 @endsection
@@ -37,10 +37,10 @@
 <div style="background: linear-gradient(135deg, #0D0D0D 0%, #1A1A1A 100%); color: #fff; padding: 70px 24px; text-align: center;">
     <div style="max-width: 900px; margin: 0 auto;">
         <span style="background: rgba(194, 90, 42, 0.2); color: #C25A2A; font-weight: 700; padding: 6px 16px; border-radius: 50px; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; display: inline-block; margin-bottom: 16px;">
-            Hounslow, London TW3 Direct Ordering
+            Hounslow, London TW3 Takeaway & Dine In
         </span>
         <h1 style="font-size: 38px; font-weight: 800; margin-bottom: 16px; line-height: 1.2;">
-            Zero Commission Food Ordering & Delivery Platform in Hounslow
+            Takeaway & Food Delivery Near Me in Hounslow, TW3 (Dine In & Direct Order)
         </h1>
         <p style="font-size: 18px; color: #D1D5DB; margin-bottom: 32px; max-width: 750px; margin-left: auto; margin-right: auto; line-height: 1.6;">
             Order directly from your favourite local Hounslow restaurants & takeaways at genuine menu prices — with no hidden 30% delivery app markups or extra fees.

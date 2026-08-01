@@ -1,4 +1,9 @@
 @extends('front.layouts.app')
+
+@section('title', 'HYST | Takeaway & Food Delivery Near Me | Dine In Hounslow & UK')
+@section('meta_description', 'Discover local takeaways & food delivery near me in Hounslow, London TW3 & UK. Dine in or order online with zero commission & genuine menu prices.')
+@section('keywords', 'takeaway near me, food delivery near me, dine in near me, online food order near me, Hounslow food delivery, takeaway Hounslow, HYST')
+
 @section('content')
 
     <style>
