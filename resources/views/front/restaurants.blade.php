@@ -1,10 +1,3 @@
-@extends('front.layouts.app')
-
-@section('title', 'Takeaway & Food Delivery Near Me | Dine In Restaurants | HYST')
-@section('meta_description', 'Discover top restaurants, takeaways & food delivery near me in Hounslow & UK. Filter by Dine In, Takeaway, or Delivery with zero commission & genuine menu prices.')
-@section('keywords', 'takeaway near me, food delivery near me, dine in near me, restaurants near me, order takeaway near me, food ordering Hounslow, HYST')
-
-@section('content')
 <style>
     .restaurant-grid{
         display:grid;
@@ -663,5 +656,3 @@
     </script>
 
 </section>
-
-@endsection
