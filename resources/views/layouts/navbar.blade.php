@@ -59,6 +59,28 @@
     @auth
         <div style="display:flex; align-items:center; gap:10px;">
 
+            <!-- Enable Notifications Button -->
+            <button id="btnEnableNavbarPush" onclick="enablePushNotifications(this)"
+                    style="
+                        background: linear-gradient(135deg, #C25A2A 0%, #E8570E 100%);
+                        color: #fff;
+                        border: none;
+                        border-radius: 10px;
+                        padding: 8px 14px;
+                        font-family: 'Poppins', sans-serif;
+                        font-size: 12px;
+                        font-weight: 600;
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        gap: 6px;
+                        box-shadow: 0 2px 6px rgba(194, 90, 42, 0.25);
+                        transition: all 0.2s;
+                    ">
+                <i data-lucide="bell-ring" style="width:14px; height:14px;"></i>
+                <span>Enable Alerts</span>
+            </button>
+
             @php
                 $notifications = \App\Models\Notification::where(
                     'user_id',

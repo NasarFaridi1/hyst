@@ -18,12 +18,16 @@ class FCMController extends Controller
             auth()->user()->update([
                 'fcm_token' => $token
             ]);
+            \Log::info('FCM TOKEN SAVED FOR USER #' . auth()->id() . ' (' . auth()->user()->role . ')', [
+                'token' => substr($token, 0, 25) . '...'
+            ]);
         }
 
         session(['guest_fcm_token' => $token]);
 
         return response()->json([
-            'success' => true
+            'success' => true,
+            'user_id' => auth()->id()
         ]);
     }
 }
