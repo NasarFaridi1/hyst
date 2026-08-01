@@ -28,6 +28,7 @@ class SitemapController extends Controller
             '/restaurant-qr-ordering',
             '/direct-online-ordering-for-restaurants',
             '/restaurant-pos-integration',
+            '/food-ordering-platform-hounslow',
         ];
 
         $urls = [];

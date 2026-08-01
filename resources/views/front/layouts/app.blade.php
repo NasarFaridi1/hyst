@@ -5,13 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>@yield('title', 'HYST | Zero Commission Food Ordering Platform UK | Order Direct from Restaurants')</title>
+    <title>@yield('title', 'HYST | Zero Commission Food Ordering Platform Hounslow & UK | Order Direct')</title>
 
-    <meta name="title" content="@yield('title', 'HYST | Zero Commission Food Ordering Platform UK | Order Direct from Restaurants')">
+    <meta name="title" content="@yield('title', 'HYST | Zero Commission Food Ordering Platform Hounslow & UK | Order Direct')">
 
-    <meta name="description" content="@yield('meta_description', 'HYST is the UK\'s zero commission food ordering platform. Order directly from local restaurants at genuine menu prices with no hidden markups. Support local businesses while enjoying fair pricing and fast ordering.')">
+    <meta name="description" content="@yield('meta_description', 'Order direct from local restaurants & takeaways in Hounslow, London TW3 & across the UK on HYST. Zero commission, genuine menu prices, and fast delivery.')">
 
-    <meta name="keywords" content="@yield('keywords', 'HYST, food ordering UK, zero commission food ordering, order directly from restaurants, restaurant takeaway UK, online takeaway, food delivery, Hounslow restaurants, restaurant ordering platform, fair food prices')">
+    <meta name="keywords" content="@yield('keywords', 'HYST, ordering platform Hounslow, food ordering Hounslow, takeaway Hounslow, food delivery Hounslow TW3, zero commission food ordering, order directly from restaurants UK, Hounslow restaurants, fair food prices')">
 
     <meta name="author" content="HYST">
     <meta name="robots" content="@yield('robots', 'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1')">
@@ -150,9 +150,10 @@
     @yield('ld_json')
 
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="/favicon.png">
-    <link rel="apple-touch-icon" href="/social-share.jpeg">
-    <link rel="apple-touch-icon" sizes="180x180" href="/social-share.jpeg">
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <link rel="apple-touch-icon" href="{{ asset('social-share.jpeg') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('social-share.jpeg') }}">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>

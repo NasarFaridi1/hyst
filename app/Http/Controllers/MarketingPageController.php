@@ -55,4 +55,9 @@ class MarketingPageController extends Controller
     {
         return view('marketing_pages.restaurant-pos-integration');
     }
+
+    public function foodOrderingPlatformHounslow()
+    {
+        return view('marketing_pages.food-ordering-platform-hounslow');
+    }
 }

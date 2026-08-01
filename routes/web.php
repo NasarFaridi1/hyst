@@ -113,6 +113,9 @@ Route::controller(MarketingPageController::class)->group(function () {
     Route::get('/restaurant-pos-integration', 'restaurantPosIntegration')
         ->name('marketing.restaurant-pos-integration');
 
+    Route::get('/food-ordering-platform-hounslow', 'foodOrderingPlatformHounslow')
+        ->name('marketing.food-ordering-platform-hounslow');
+
 });
 Route::get('/auth/{provider}/redirect', [SocialAuthController::class, 'redirect'])->name('social.redirect');
 Route::get('/auth/{provider}/callback', [SocialAuthController::class, 'callback'])->name('social.callback');
