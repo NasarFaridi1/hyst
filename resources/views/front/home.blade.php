@@ -90,38 +90,36 @@
     </style>
 
     
-    <section style="position:relative; min-height:250px; display:flex; align-items:flex-end; overflow:hidden; border-radius:12px;">
+    <section style="position:relative; width:100%; margin-bottom:24px; overflow:hidden; border-radius:16px; box-shadow:0 4px 14px rgba(0,0,0,0.06);">
 
-        <img src="images/Hanover.png" class="desktop-banner" alt="Desktop Banner">
+        <img src="{{ asset('images/Hanover.png') }}" class="desktop-banner" alt="Desktop Banner" style="width:100%; height:auto; display:block;">
 
-        <img src="images/FoodMenu.png" class="mobile-banner" alt="Mobile Banner">
+        <img src="{{ asset('images/FoodMenu.png') }}" class="mobile-banner" alt="Mobile Banner" style="width:100%; height:auto; display:none;">
 
     </section>
 
     <style>
-        .desktop-banner,
-        .mobile-banner {
-            position: absolute;
-            inset: 0;
+        .desktop-banner {
             width: 100%;
-            height: 100%;
+            height: auto;
+            display: block;
             object-fit: cover;
         }
 
         .mobile-banner {
+            width: 100%;
+            height: auto;
             display: none;
-            object-fit: fill !important;
+            object-fit: cover;
         }
 
         @media (max-width: 768px) {
             .desktop-banner {
-                display: none;
-                
+                display: none !important;
             }
 
             .mobile-banner {
-                display: block;
-                  object-fit: fill !important;
+                display: block !important;
             }
         }
     </style>
