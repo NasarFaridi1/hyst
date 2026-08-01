@@ -87,6 +87,7 @@
                 font-size: 26px !important;
             }
         }
+        
     </style>
 
     
