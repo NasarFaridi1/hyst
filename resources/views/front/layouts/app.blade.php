@@ -804,7 +804,46 @@
             }
         }
 
+        window.registerAndSaveToken = registerAndSaveToken;
+
+        window.enablePushNotifications = async function(btn) {
+            try {
+                if (!('Notification' in window)) {
+                    alert('Notifications are not supported on this browser.');
+                    return;
+                }
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    localStorage.setItem('fcm_permission_granted', 'true');
+                    await registerAndSaveToken();
+                    if (btn) {
+                        btn.innerHTML = '✓ Alerts Active';
+                        btn.style.background = '#16A34A';
+                        btn.disabled = true;
+                    }
+                    if (typeof window.playNotificationSound === 'function') {
+                        window.playNotificationSound();
+                    }
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Notifications Enabled! 🔔',
+                            text: 'You will now receive instant order updates & sound alerts.',
+                            confirmButtonColor: '#C25A2A'
+                        });
+                    }
+                } else {
+                    alert('Notification permission was blocked in browser settings.');
+                }
+            } catch(e) {
+                console.error('Error enabling notifications:', e);
+            }
+        };
+
         // Initialize Notification logic
+        if ('Notification' in window && Notification.permission === 'granted') {
+            registerAndSaveToken();
+        }
         if (!checkShouldPromptPermission()) {
             const banner = document.getElementById('fcmPermissionBanner');
             if (banner) banner.style.display = 'none';

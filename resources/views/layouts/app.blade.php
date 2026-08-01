@@ -411,54 +411,78 @@
         const messaging =
             getMessaging(app);
 
-        navigator.serviceWorker.register(
-
-            '/firebase-messaging-sw.js'
-
-        ).then(async (registration) => {
-
-            const token = await getToken(
-
-                messaging,
-
-                {
-
+        async function registerAndSaveToken() {
+            try {
+                if (!('serviceWorker' in navigator)) return;
+                const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+                const token = await getToken(messaging, {
                     vapidKey: "{{ config('services.firebase.vapid_key') }}",
-
-                    serviceWorkerRegistration:
-                        registration
-                }
-
-            );
-
-            console.log(token);
-
-            if (token) {
-
-                fetch('/save-fcm-token', {
-
-                    method: 'POST',
-
-                    headers: {
-
-                        'Content-Type':
-                            'application/json',
-
-                        'X-CSRF-TOKEN':
-
-                            document.querySelector(
-                                'meta[name="csrf-token"]'
-                            ).content
-                    },
-
-                    body: JSON.stringify({
-
-                        token: token
-
-                    })
+                    serviceWorkerRegistration: registration
                 });
+
+                if (token) {
+                    console.log('FCM TOKEN REFRESHED & SAVED:', token);
+                    localStorage.setItem('fcm_token_saved', token);
+                    localStorage.setItem('fcm_permission_granted', 'true');
+                    fetch('/save-fcm-token', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: JSON.stringify({ token: token })
+                    });
+                }
+            } catch (err) {
+                console.error('FCM Token Generation Error:', err);
             }
-        });
+        }
+
+        window.registerAndSaveToken = registerAndSaveToken;
+
+        window.enablePushNotifications = async function(btn) {
+            try {
+                if (!('Notification' in window)) {
+                    alert('Notifications are not supported on this browser.');
+                    return;
+                }
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    localStorage.setItem('fcm_permission_granted', 'true');
+                    await registerAndSaveToken();
+                    if (btn) {
+                        btn.innerHTML = '<i data-lucide="check" style="width:14px;height:14px;"></i> Alerts Active';
+                        btn.style.background = '#16A34A';
+                        if (typeof lucide !== 'undefined') lucide.createIcons();
+                    }
+                    if (typeof window.playNotificationSound === 'function') {
+                        window.playNotificationSound();
+                    }
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Notifications Enabled! 🔔',
+                            text: 'You will now receive instant sound & push alerts for new orders.',
+                            confirmButtonColor: '#C25A2A'
+                        });
+                    }
+                } else {
+                    alert('Notification permission was blocked in browser settings.');
+                }
+            } catch (e) {
+                console.error('Error enabling notifications:', e);
+            }
+        };
+
+        // Always attempt token refresh if permission is already granted
+        if ('Notification' in window && Notification.permission === 'granted') {
+            registerAndSaveToken();
+            const navbarBtn = document.getElementById('btnEnableNavbarPush');
+            if (navbarBtn) {
+                navbarBtn.innerHTML = '<i data-lucide="check" style="width:14px;height:14px;"></i> Alerts Active';
+                navbarBtn.style.background = '#16A34A';
+            }
+        }
 
         onMessage(messaging, (payload) => {
             console.log('MESSAGE RECEIVED', payload);
