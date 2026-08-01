@@ -1,3 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /restaurant/
+Disallow: /ambassador/
+Disallow: /checkout/
+Disallow: /cart/
+
 User-agent: GPTBot
 Allow: /
 
@@ -18,3 +26,5 @@ Allow: /
 
 User-agent: Bingbot
 Allow: /
+
+Sitemap: https://hyst.uk/sitemap.xml

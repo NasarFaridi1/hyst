@@ -19,6 +19,10 @@ use App\Http\Controllers\Admin\VendorController;
 use App\Http\Controllers\RestaurantAdmin\DashboardController as RestaurantDashboardController;
 use App\Http\Controllers\RestaurantAdmin\OrderController as RestaurantOrderController;
 
+use App\Http\Controllers\SitemapController;
+
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+
 Route::get('/offline', function () {
     return view('vendor.laravelpwa.offline');
 })->name('laravelpwa.offline');

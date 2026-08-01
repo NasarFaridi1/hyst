@@ -1,5 +1,39 @@
 @extends('front.layouts.app')
 
+@section('title', $restaurant->name . ' | Order Online Direct | HYST')
+@section('meta_description', 'Order direct from ' . $restaurant->name . ' on HYST. Genuine menu prices, fast delivery, zero markups. Located at ' . ($restaurant->location ?? 'UK') . '.')
+@if($restaurant->image)
+    @section('og_image', asset('storage/' . $restaurant->image))
+@endif
+
+@section('ld_json')
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "Restaurant",
+            "name": @json($restaurant->name),
+            "image": @json($restaurant->image ? asset('storage/' . $restaurant->image) : asset('social-share.jpeg')),
+            "description": @json($restaurant->description ?? ($restaurant->name . ' - Order direct with zero markup on HYST.')),
+            "telephone": @json($restaurant->phone ?? ''),
+            "address": {
+                "@type": "PostalAddress",
+                "streetAddress": @json($restaurant->address ?? $restaurant->location ?? ''),
+                "addressLocality": @json($restaurant->city ?? 'London'),
+                "postalCode": @json($restaurant->postcode ?? ''),
+                "addressCountry": "GB"
+            },
+            "geo": {
+                "@type": "GeoCoordinates",
+                "latitude": @json($restaurant->latitude ?? 51.4686),
+                "longitude": @json($restaurant->longitude ?? -0.3618)
+            },
+            "url": @json(url()->current()),
+            "priceRange": "££",
+            "servesCuisine": "Takeaway, Delivery"
+        }
+    </script>
+@endsection
+
 @section('content')
 
     <style>

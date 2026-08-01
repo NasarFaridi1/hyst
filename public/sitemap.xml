@@ -1,17 +1,87 @@
-/
-
-/restaurant-ordering-platform-uk
-
-/direct-online-ordering-for-restaurants
-
-/restaurant-loyalty-programme
-
-/restaurant-qr-ordering
-
-/restaurant-pos-integration
-
-/why-food-is-more-expensive-on-marketplaces
-
-/hyst-vs-deliveroo
-
-/hyst-vs-just-eat
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://hyst.uk/</loc>
+    <lastmod>2026-08-01T09:00:00+00:00</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://hyst.uk/restaurants</loc>
+    <lastmod>2026-08-01T09:00:00+00:00</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://hyst.uk/restaurant-ordering-platform-uk</loc>
+    <lastmod>2026-08-01T09:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://hyst.uk/direct-online-ordering-for-restaurants</loc>
+    <lastmod>2026-08-01T09:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://hyst.uk/restaurant-loyalty-programme</loc>
+    <lastmod>2026-08-01T09:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://hyst.uk/restaurant-qr-ordering</loc>
+    <lastmod>2026-08-01T09:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://hyst.uk/restaurant-pos-integration</loc>
+    <lastmod>2026-08-01T09:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://hyst.uk/why-food-is-more-expensive-on-marketplaces</loc>
+    <lastmod>2026-08-01T09:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://hyst.uk/hyst-vs-deliveroo</loc>
+    <lastmod>2026-08-01T09:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://hyst.uk/hyst-vs-just-eat</loc>
+    <lastmod>2026-08-01T09:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://hyst.uk/commission-free-restaurant-ordering</loc>
+    <lastmod>2026-08-01T09:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://hyst.uk/restaurant-marketing-guide</loc>
+    <lastmod>2026-08-01T09:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://hyst.uk/become-a-partner</loc>
+    <lastmod>2026-08-01T09:00:00+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://hyst.uk/become-ambassador</loc>
+    <lastmod>2026-08-01T09:00:00+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+</urlset>
