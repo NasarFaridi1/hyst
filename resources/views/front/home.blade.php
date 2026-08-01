@@ -295,7 +295,7 @@
     <!-- ══════════════════════════════════════
          APP DOWNLOAD CTA
     ══════════════════════════════════════ -->
-    <section style="background:#C25A2A; padding:64px 0; display:none;">
+    <section style="background:#C25A2A; padding:64px 0;">
         <div style="max-width:1280px; margin:0 auto; padding:0 24px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:28px;">
             <div style="max-width:540px;">
                 <h2 style="font-family:'Poppins',sans-serif; font-size:30px; font-weight:800; color:#fff; margin:0 0 10px; letter-spacing:-.3px;">
