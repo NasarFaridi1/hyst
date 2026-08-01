@@ -88,10 +88,24 @@ class FirebaseNotificationService
             return true;
 
         } catch (\Throwable $e) {
+            $errorMsg = $e->getMessage();
             \Log::error('FCM SEND FAILED', [
-                'error' => $e->getMessage(),
+                'error' => $errorMsg,
                 'title' => $title
             ]);
+
+            // Automatically clear dead/unregistered token from database so it doesn't cause recurring failures
+            if (
+                str_contains($errorMsg, 'Device unregistered') ||
+                str_contains($errorMsg, 'NotRegistered') ||
+                str_contains($errorMsg, 'NotFound') ||
+                str_contains($errorMsg, 'InvalidArgument') ||
+                str_contains($errorMsg, 'unregistered')
+            ) {
+                \Log::warning('Clearing invalid/unregistered FCM token from database: ' . substr($token, 0, 20) . '...');
+                \App\Models\User::where('fcm_token', $token)->update(['fcm_token' => null]);
+            }
+
             return false;
         }
     }
