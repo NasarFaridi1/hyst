@@ -21,20 +21,23 @@ if (firebaseConfig.apiKey && firebaseConfig.apiKey !== 'AIzaSyDummyKey') {
         messaging.onBackgroundMessage(function(payload) {
             console.log('[firebase-messaging-sw.js] Received background message ', payload);
 
-            const notificationTitle = payload.notification ? payload.notification.title : (payload.data ? payload.data.title : 'HYST Order Update');
-            const notificationOptions = {
-                body: payload.notification ? payload.notification.body : (payload.data ? payload.data.body : 'You have a new order update.'),
-                icon: '/images/icons/icon-192x192.png',
-                badge: '/images/icons/icon-72x72.png',
-                sound: '/sounds/hyst_notification.mp3',
-                vibrate: [200, 100, 200, 100, 200],
-                data: payload.data || {},
-                actions: [
-                    { action: 'open', title: 'View Order' }
-                ]
-            };
+            // If Firebase SDK already handles displaying notification via payload.notification, do not call showNotification to prevent duplicates!
+            if (!payload.notification && payload.data) {
+                const notificationTitle = payload.data.title || 'HYST Order Update';
+                const notificationOptions = {
+                    body: payload.data.body || 'You have a new order update.',
+                    icon: '/images/icons/icon-192x192.png',
+                    badge: '/images/icons/icon-72x72.png',
+                    sound: '/sounds/hyst_notification.mp3',
+                    vibrate: [200, 100, 200, 100, 200],
+                    data: payload.data || {},
+                    actions: [
+                        { action: 'open', title: 'View Order' }
+                    ]
+                };
 
-            self.registration.showNotification(notificationTitle, notificationOptions);
+                self.registration.showNotification(notificationTitle, notificationOptions);
+            }
         });
     } catch (e) {
         console.error('Firebase SW Init Error:', e);
