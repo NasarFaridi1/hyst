@@ -366,12 +366,12 @@
             </a>
 
             {{-- Loyalty Rewards --}}
-            <a href="/restaurant/loyalty"
-            class="sidebar-item {{ str_contains($current,'restaurant/loyalty') ? 'active' : '' }}">
+            <a href="/restaurant/loyalty-rules"
+            class="sidebar-item {{ str_contains($current,'restaurant/loyalty-rules') ? 'active' : '' }}">
                 <div class="sidebar-icon">
                     <i data-lucide="gift"></i>
                 </div>
-                <span>Loyalty</span>
+                <span>Loyalty Rules</span>
             </a>
 
             {{-- 9. Category --}}
