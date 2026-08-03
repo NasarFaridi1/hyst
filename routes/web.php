@@ -449,12 +449,12 @@ Route::middleware(['auth'])->group(function () {
 
     });
 
-    Route::prefix('restaurant/loyalty')->group(function () {
-        Route::get('/', [\App\Http\Controllers\RestaurantAdmin\LoyaltyRuleController::class, 'index'])->name('restaurant.loyalty.index');
-        Route::post('/', [\App\Http\Controllers\RestaurantAdmin\LoyaltyRuleController::class, 'store'])->name('restaurant.loyalty.store');
-        Route::put('/{id}', [\App\Http\Controllers\RestaurantAdmin\LoyaltyRuleController::class, 'update'])->name('restaurant.loyalty.update');
-        Route::delete('/{id}', [\App\Http\Controllers\RestaurantAdmin\LoyaltyRuleController::class, 'destroy'])->name('restaurant.loyalty.destroy');
-        Route::patch('/{id}/toggle', [\App\Http\Controllers\RestaurantAdmin\LoyaltyRuleController::class, 'toggleStatus'])->name('restaurant.loyalty.toggle');
+    Route::prefix('restaurant/loyalty-rules')->group(function () {
+        Route::get('/', [\App\Http\Controllers\RestaurantAdmin\LoyaltyRuleController::class, 'index'])->name('restaurant.loyalty.rules.index');
+        Route::post('/', [\App\Http\Controllers\RestaurantAdmin\LoyaltyRuleController::class, 'store'])->name('restaurant.loyalty.rules.store');
+        Route::put('/{id}', [\App\Http\Controllers\RestaurantAdmin\LoyaltyRuleController::class, 'update'])->name('restaurant.loyalty.rules.update');
+        Route::delete('/{id}', [\App\Http\Controllers\RestaurantAdmin\LoyaltyRuleController::class, 'destroy'])->name('restaurant.loyalty.rules.destroy');
+        Route::patch('/{id}/toggle', [\App\Http\Controllers\RestaurantAdmin\LoyaltyRuleController::class, 'toggleStatus'])->name('restaurant.loyalty.rules.toggle');
     });
 
 });
