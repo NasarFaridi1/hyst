@@ -54,10 +54,14 @@ class LoyaltyRewardController extends Controller
         | REWARD EMAIL HISTORY
         |--------------------------------------------------------------------------
         */
-        $rewardLogs = LoyaltyRewardLog::with('user')
-            ->where('restaurant_id', $restaurantId)
-            ->latest('sent_at')
-            ->paginate(15);
+        if (\Illuminate\Support\Facades\Schema::hasTable('loyalty_reward_logs')) {
+            $rewardLogs = LoyaltyRewardLog::with('user')
+                ->where('restaurant_id', $restaurantId)
+                ->latest('sent_at')
+                ->paginate(15);
+        } else {
+            $rewardLogs = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 15);
+        }
 
         return view('restaurant.loyalty.index', compact('customers', 'offers', 'rewardLogs'));
     }
