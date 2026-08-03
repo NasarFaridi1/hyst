@@ -121,7 +121,12 @@ class Order extends Model
 
     public function loyaltyReward()
     {
-        return $this->belongsTo(UserLoyaltyReward::class, 'loyalty_reward_id');
+        return $this->belongsTo(LoyaltyReward::class, 'loyalty_reward_id');
+    }
+
+    public function loyaltyRewardUsages()
+    {
+        return $this->hasMany(LoyaltyRewardUsage::class, 'order_id');
     }
 
     public function complaints()
