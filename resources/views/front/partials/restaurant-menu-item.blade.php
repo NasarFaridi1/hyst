@@ -73,14 +73,18 @@
             <div class="menu-card-desc">{{ strip_tags($product->description) }}</div>
         @endif
 
-         {{-- Allergy & Dietary tooltip (from your old view) --}}
-        <div style="display:flex;gap:12px;align-items:center;margin-top:4px;">
-            @if($product->allergies->count() || $product->dietaries->count())
-                <div class="info-tooltip">
-                    <span class="details-link"><i data-lucide="info" style="width:14px;height:14px;"></i></span>
+         {{-- Allergy & Dietary tooltip --}}
+        @php
+            $allergiesCount = ($product->allergies ?? collect())->count();
+            $dietariesCount = ($product->dietaries ?? collect())->count();
+        @endphp
+        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:4px; min-width:0;">
+            @if($allergiesCount || $dietariesCount)
+                <div class="info-tooltip" onclick="event.stopPropagation()">
+                    <span class="details-link"><i data-lucide="info" style="width:14px;height:14px;vertical-align:middle;"></i> Allergy &amp; Dietary</span>
                     <div class="tooltip-content">
                         <h6>Allergy Information</h6>
-                        @if($product->allergies->count())
+                        @if($allergiesCount)
                             <ul style="margin:0 0 6px;padding-left:16px;list-style:disc;">
                                 @foreach($product->allergies as $a)<li>{{ $a->allergy }}</li>@endforeach
                             </ul>
@@ -88,7 +92,7 @@
                             <p>May contain common allergens.</p>
                         @endif
                         <h6 style="margin-top:8px;">Dietary</h6>
-                        @if($product->dietaries->count())
+                        @if($dietariesCount)
                             <ul style="margin:0;padding-left:16px;list-style:disc;">
                                 @foreach($product->dietaries as $d)<li>{{ $d->dietary }}</li>@endforeach
                             </ul>
@@ -101,7 +105,7 @@
 
             @if($arImg)
                 <a href="javascript:void(0)" onclick="event.stopPropagation();openAR('{{ $jsArImg }}')"
-                   style="font-size:11px;color:#757575;font-weight:600;border-bottom:1px dotted #bbb;line-height:1;">🔭 3D View</a>
+                   style="font-size:11px;color:#757575;font-weight:600;border-bottom:1px dotted #bbb;line-height:1;white-space:nowrap;">🔭 3D View</a>
             @endif
         </div>
 
@@ -114,29 +118,6 @@
                 @endif
             </div>
         @endif
-
-        {{-- @if(($product->allergies ?? collect())->count() || ($product->dietaries ?? collect())->count())
-            <div class="info-tooltip" onclick="event.stopPropagation()">
-                <span class="details-link">Allergy &amp; Dietary</span>
-                <div class="tooltip-content">
-                    <h6>Allergy Information</h6>
-                    @if($product->allergies->count())
-                        <ul style="margin:0 0 6px;padding-left:16px;list-style:disc;">
-                            @foreach($product->allergies as $a)<li>{{ $a->allergy }}</li>@endforeach
-                        </ul>
-                    @else <p>May contain common allergens.</p>
-                    @endif
-                    <h6 style="margin-top:8px;">Dietary</h6>
-                    @if($product->dietaries->count())
-                        <ul style="margin:0;padding-left:16px;list-style:disc;">
-                            @foreach($product->dietaries as $d)<li>{{ $d->dietary }}</li>@endforeach
-                        </ul>
-                    @else
-                        <p>{{ $isVeg ? '🟢 Vegetarian' : ($isBev ? '🥤 Beverage' : '🔴 Non-Vegetarian') }}</p>
-                    @endif
-                </div>
-            </div>
-        @endif --}}
 
         {{-- Price + Add button --}}
         <div class="menu-card-footer">

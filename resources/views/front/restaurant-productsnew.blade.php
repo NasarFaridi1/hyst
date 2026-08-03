@@ -900,7 +900,7 @@
    REPLACE your second <style> block content with this entire block
    ============================================================ */
 
-    /* ── Grid: FORCE 2 cards per row ── */
+    /* ── Responsive Grid ── */
     .menu-cards-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr) !important;
@@ -909,9 +909,16 @@
         width: 100%;
     }
 
-    @media (max-width: 640px) {
+    @media (max-width: 1100px) {
         .menu-cards-grid {
             grid-template-columns: 1fr !important;
+        }
+    }
+
+    @media (min-width: 1025px) and (max-width: 1280px) {
+        .menu-cards-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 12px;
         }
     }
 
@@ -920,16 +927,17 @@
         background: #fff;
         border: 1px solid #F0EDE8;
         border-radius: 18px;
-        overflow: visible;
+        overflow: hidden;
         cursor: pointer;
         transition: box-shadow .2s, transform .18s;
 
         display: flex !important;
-        flex-direction: row !important;   /* CRITICAL: side-by-side */
+        flex-direction: row !important;   /* side-by-side */
         align-items: stretch;
-        min-height: 120px;
-        max-height: 160px;               /* keep cards compact */
+        min-height: 125px;
+        height: auto;
         width: 100%;
+        box-shadow: 0 2px 8px rgba(0,0,0,.03);
     }
 
     .menu-card:hover {
@@ -937,13 +945,14 @@
         transform: translateY(-2px);
     }
 
-    /* ── Left: square image ── */
+    /* ── Left: fluid square image ── */
     .menu-card-img {
         width: 130px !important;
-        min-width: 130px !important;
+        min-width: 100px !important;
         max-width: 130px !important;
         flex-shrink: 0;
         overflow: hidden;
+        position: relative;
     }
 
     .menu-card-img img {
@@ -964,18 +973,19 @@
         padding: 12px 14px;
         display: flex;
         flex-direction: column;
-        gap: 4px;
+        justify-content: space-between;
+        gap: 6px;
         min-width: 0;
-        overflow: visible;
+        overflow: hidden;
     }
 
     /* ── Name row ── */
     .menu-card-name-row {
         display: flex;
-        align-items: center;
-        gap: 7px;
-        flex-wrap: nowrap;
-        overflow: hidden;
+        align-items: flex-start;
+        gap: 6px;
+        flex-wrap: wrap;
+        min-width: 0;
     }
 
     .menu-card-name {
@@ -983,21 +993,27 @@
         font-weight: 700;
         color: #0D0D0D;
         letter-spacing: -.1px;
-        line-height: 1.3;
-        white-space: nowrap;
+        line-height: 1.35;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
         overflow: hidden;
-        text-overflow: ellipsis;
+        word-break: break-word;
+        overflow-wrap: break-word;
+        flex: 1;
+        min-width: 0;
     }
 
     /* ── Description ── */
     .menu-card-desc {
         font-size: 12px;
         color: #6B7280;
-        line-height: 1.45;
+        line-height: 1.4;
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
+        word-break: break-word;
     }
 
     /* ── Tags ── */
@@ -1034,13 +1050,16 @@
         align-items: center;
         justify-content: space-between;
         margin-top: auto;
-        padding-top: 6px;
+        padding-top: 4px;
+        gap: 8px;
+        min-width: 0;
     }
 
     .menu-card-price {
         font-size: 14px;
         font-weight: 800;
         color: #0D0D0D;
+        white-space: nowrap;
     }
 
     /* ── Add (+) button: orange circle ── */
@@ -1072,7 +1091,7 @@
     /* ── Veg dot ── */
     .veg-dot-wrap {
         width: 14px; height: 14px; border-radius: 3px;
-        display: grid; place-items: center; flex-shrink: 0;
+        display: grid; place-items: center; flex-shrink: 0; margin-top: 2px;
     }
     .veg-dot-wrap.veg    { border: 1.5px solid #1E7A45; }
     .veg-dot-wrap.nonveg { border: 1.5px solid #A93A2C; }
@@ -1086,7 +1105,7 @@
     .popular-badge {
         font-size: 10px; font-weight: 700;
         background: #FFF3CD; color: #946C00;
-        padding: 1px 6px; border-radius: 4px; flex-shrink: 0;
+        padding: 1px 6px; border-radius: 4px; flex-shrink: 0; margin-top: 2px;
     }
 
     /* ── Section heading ── */
@@ -1100,28 +1119,36 @@
     .items-column {
         flex: 1 !important;
         min-width: 0 !important;
-        padding: 28px 32px !important;
+        padding: 24px 28px !important;
     }
 
-    /* ── Mobile cart bar ── */
+    /* ── Cart Sidebar & Mobile Bar Responsive ── */
     .mobile-cart-bar { display: none !important; }
-    @media (max-width: 900px) {
+    
+    @media (max-width: 1024px) {
+        .cart-sidebar { display: none !important; }
         .mobile-cart-bar { display: block !important; }
-        .items-column { padding: 16px !important; }
+        .items-column { padding: 18px 16px !important; }
     }
 
-    /* ── Mobile: stack image on top ── */
+    /* ── Mobile layout ── */
     @media (max-width: 640px) {
-        .menu-card {
-            flex-direction: column !important;
-            min-height: unset;
-            max-height: unset;
+        .menu-cards-grid {
+            grid-template-columns: 1fr !important;
+        }
+        .items-column {
+            padding: 14px 12px !important;
         }
         .menu-card-img {
-            width: 100% !important;
-            min-width: unset !important;
-            max-width: unset !important;
-            height: 160px;
+            width: 105px !important;
+            min-width: 95px !important;
+            max-width: 110px !important;
+        }
+        .menu-card-body {
+            padding: 10px 12px;
+        }
+        .menu-card-name {
+            font-size: 13.5px;
         }
     }
 </style>
@@ -1395,7 +1422,7 @@ function copyCoupon(button, code) {
 {{-- ════════════════════════════════════════════
      MAIN CONTENT AREA
      ════════════════════════════════════════════ --}}
-<div style="display:flex; align-items:flex-start; background:#fff; min-height:600px;">
+<div style="display:flex; align-items:flex-start; background:#fff; min-height:600px; width:100%; overflow:hidden;">
 
     {{-- ── ITEMS COLUMN ── --}}
     <div class="items-column" id="itemsColumn">
