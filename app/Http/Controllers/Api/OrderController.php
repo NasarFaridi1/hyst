@@ -152,6 +152,16 @@ class OrderController extends Controller
             }
         }
 
+        $loyaltyService = app(\App\Services\LoyaltyRewardService::class);
+        $activeLoyaltyReward = $loyaltyService->getAvailableReward(auth()->id(), $restaurant->id);
+        $loyaltyDiscount = 0;
+
+        if ($activeLoyaltyReward) {
+            $loyaltyDiscount = $activeLoyaltyReward->calculateDiscount(max(0, $finalTotal));
+            $finalTotal = max(0, $finalTotal - $loyaltyDiscount);
+            $discount += $loyaltyDiscount;
+        }
+
         $serviceCharge = 0.12;
         $deliveryCharge = 0.12;
         $hystCharge = 0.25;
@@ -172,6 +182,10 @@ class OrderController extends Controller
             'subtotal' => $originalTotal,
 
             'discount' => $discount,
+
+            'loyalty_discount' => $loyaltyDiscount,
+
+            'active_loyalty_reward' => $activeLoyaltyReward,
 
             'service_charge' => $serviceCharge,
 
@@ -322,6 +336,32 @@ class OrderController extends Controller
             }
         }
 
+        $loyaltyService = app(\App\Services\LoyaltyRewardService::class);
+        $appliedLoyaltyReward = null;
+        $loyaltyRewardDiscount = 0;
+
+        if (auth()->check()) {
+            $rewardId = $request->input('loyalty_reward_id');
+            if (!$rewardId) {
+                $availReward = $loyaltyService->getAvailableReward(auth()->id(), $restaurantId);
+                $rewardId = $availReward?->id;
+            }
+
+            if ($rewardId) {
+                $appliedLoyaltyReward = \App\Models\LoyaltyReward::where('id', $rewardId)
+                    ->where('user_id', auth()->id())
+                    ->where('restaurant_id', $restaurantId)
+                    ->available()
+                    ->first();
+
+                if ($appliedLoyaltyReward) {
+                    $loyaltyRewardDiscount = $appliedLoyaltyReward->calculateDiscount(max(0, $finalTotal));
+                    $discount   += $loyaltyRewardDiscount;
+                    $finalTotal  = max(0, $finalTotal - $loyaltyRewardDiscount);
+                }
+            }
+        }
+
         $serviceCharge  = 0.12;
         $deliveryCharge = 0.12;
         $hystCharge     = 0.25;
@@ -334,19 +374,29 @@ class OrderController extends Controller
         |--------------------------------------------------------------------------
         */
         $order = Order::create([
-            'user_id'         => auth()->id(),
-            'restaurant_id'   => $restaurantId,
-            'total_amount'    => $finalTotal,
-            'service_charge'  => $serviceCharge,
-            'delivery_charge' => $deliveryCharge,
-            'hyst_charge'     => $hystCharge,
-            'order_type'      => $request->order_type,
-            'phone'           => $request->phone,
-            'address'         => $request->address,
-            'pincode'         => $request->pincode,
-            'payment_method'  => $request->payment_method,
-            'status'          => 'pending',
+            'user_id'           => auth()->id(),
+            'restaurant_id'     => $restaurantId,
+            'total_amount'      => $finalTotal,
+            'service_charge'    => $serviceCharge,
+            'delivery_charge'   => $deliveryCharge,
+            'hyst_charge'       => $hystCharge,
+            'order_type'        => $request->order_type,
+            'phone'             => $request->phone,
+            'address'           => $request->address,
+            'pincode'           => $request->pincode,
+            'payment_method'    => $request->payment_method,
+            'status'            => 'pending',
+            'loyalty_reward_id' => $appliedLoyaltyReward?->id,
+            'loyalty_discount'  => $loyaltyRewardDiscount,
         ]);
+
+        if ($appliedLoyaltyReward && $loyaltyRewardDiscount > 0) {
+            $loyaltyService->processRedemption($order, $appliedLoyaltyReward->id, max(0, $originalTotal - $discount + $loyaltyRewardDiscount));
+        }
+
+        if (auth()->check()) {
+            $loyaltyService->evaluateAndIssueReward($order, $originalTotal);
+        }
 
         Log::info('ORDER CREATED', ['order_id' => $order->id]);
 
@@ -850,6 +900,19 @@ class OrderController extends Controller
         return response()->json([
             'status' => true,
             'message' => 'Order cancelled successfully.'
+        ]);
+    }
+
+    public function customerLoyaltyRewards()
+    {
+        $rewards = \App\Models\LoyaltyReward::with(['restaurant', 'earnedFromOrder'])
+            ->where('user_id', auth()->id())
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'status' => true,
+            'data'   => $rewards,
         ]);
     }
 

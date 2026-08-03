@@ -71,6 +71,7 @@ Route::middleware('api.token')->group(function () {
     Route::post('/profile/update', [AuthController::class, 'update']);
     Route::get('/dashboard', [AuthController::class, 'dashboard']);
 
+    Route::get('/loyalty/rewards', [OrderController::class, 'customerLoyaltyRewards']);
 
 });
 
