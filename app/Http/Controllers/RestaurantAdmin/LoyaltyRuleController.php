@@ -43,7 +43,7 @@ class LoyaltyRuleController extends Controller
             ->latest()
             ->paginate(15);
 
-        return view('restaurant.loyalty-rewards.index', compact('rules', 'stats', 'issuedRewards'));
+        return view('restaurant.loyalty.index', compact('rules', 'stats', 'issuedRewards'));
     }
 
     /**
@@ -74,7 +74,7 @@ class LoyaltyRuleController extends Controller
             'is_active'            => $request->has('is_active') ? 1 : 0,
         ]);
 
-        return redirect()->route('restaurant.loyalty-rewards.index')
+        return redirect()->route('restaurant.loyalty.index')
             ->with('success', 'Loyalty rule created successfully!');
     }
 
@@ -109,7 +109,7 @@ class LoyaltyRuleController extends Controller
             'is_active'            => $request->has('is_active') ? 1 : 0,
         ]);
 
-        return redirect()->route('restaurant.loyalty-rewards.index')
+        return redirect()->route('restaurant.loyalty.index')
             ->with('success', 'Loyalty rule updated successfully!');
     }
 
@@ -126,7 +126,7 @@ class LoyaltyRuleController extends Controller
 
         $rule->delete();
 
-        return redirect()->route('restaurant.loyalty-rewards.index')
+        return redirect()->route('restaurant.loyalty.index')
             ->with('success', 'Loyalty rule deleted successfully!');
     }
 
@@ -144,7 +144,7 @@ class LoyaltyRuleController extends Controller
         $rule->is_active = $rule->is_active ? 0 : 1;
         $rule->save();
 
-        return redirect()->route('restaurant.loyalty-rewards.index')
+        return redirect()->route('restaurant.loyalty.index')
             ->with('success', 'Rule status updated successfully!');
     }
 }
