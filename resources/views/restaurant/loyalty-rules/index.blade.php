@@ -28,30 +28,7 @@
         </button>
     </div>
 
-    <!-- Alert Notifications -->
-    @if(session('success'))
-        <div class="mb-6 p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-lg flex items-center justify-between">
-            <div class="flex items-center">
-                <i class="fas fa-check-circle text-emerald-500 text-lg mr-3"></i>
-                <span>{{ session('success') }}</span>
-            </div>
-            <button onclick="this.parentElement.remove()" class="text-emerald-500 hover:text-emerald-700">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-    @endif
-
-    @if(session('error'))
-        <div class="mb-6 p-4 bg-rose-50 border border-rose-200 text-rose-800 rounded-lg flex items-center justify-between">
-            <div class="flex items-center">
-                <i class="fas fa-exclamation-triangle text-rose-500 text-lg mr-3"></i>
-                <span>{{ session('error') }}</span>
-            </div>
-            <button onclick="this.parentElement.remove()" class="text-rose-500 hover:text-rose-700">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-    @endif
+    
 
     <!-- Statistics Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -147,7 +124,7 @@
                                 {{ $rule->max_usage }} {{ Str::plural('use', $rule->max_usage) }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <form action="{{ route('restaurant.loyalty-rewards.toggle', $rule->id) }}" method="POST" class="inline">
+                                <form action="{{ route('restaurant.loyalty.rules.toggle', $rule->id) }}" method="POST" class="inline">
                                     @csrf
                                     @method('PATCH')
                                     <button type="submit" class="cursor-pointer">
@@ -169,7 +146,7 @@
                                             class="text-blue-600 hover:text-blue-900 p-1.5 hover:bg-blue-50 rounded transition">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <form action="{{ route('restaurant.loyalty-rewards.destroy', $rule->id) }}" 
+                                    <form action="{{ route('restaurant.loyalty.rules.destroy', $rule->id) }}" 
                                           method="POST" 
                                           onsubmit="return confirm('Are you sure you want to delete this loyalty rule?');" 
                                           class="inline">
@@ -290,7 +267,7 @@
             </button>
         </div>
 
-        <form id="ruleForm" action="{{ route('restaurant.loyalty-rewards.store') }}" method="POST" class="mt-4 space-y-4">
+        <form id="ruleForm" action="{{ route('restaurant.loyalty.rules.store') }}" method="POST" class="mt-4 space-y-4">
             @csrf
             <input type="hidden" id="formMethod" name="_method" value="POST">
 
@@ -369,7 +346,7 @@
 <script>
     function openCreateModal() {
         document.getElementById('modalTitle').innerText = 'Add Loyalty Rule';
-        document.getElementById('ruleForm').action = "{{ route('restaurant.loyalty-rewards.store') }}";
+        document.getElementById('ruleForm').action = "{{ route('restaurant.loyalty.rules.store') }}";
         document.getElementById('formMethod').value = 'POST';
         
         document.getElementById('ruleName').value = '';
