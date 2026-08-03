@@ -77,8 +77,9 @@ class Order extends Model
         'is_scheduled',
         'scheduled_for',
         'preparation_minutes',
-        'description'
-        
+        'description',
+        'loyalty_reward_id',
+        'loyalty_discount'
     ];
 
     public function user()
@@ -107,7 +108,6 @@ class Order extends Model
     {
         return $this->hasOne(Invoice::class);
     }
-    
 
     public function coupon()
     {
@@ -118,9 +118,14 @@ class Order extends Model
     {
         return $this->belongsTo(GiftCard::class);
     }
-    // Order.php
-public function complaints()
-{
-    return $this->hasMany(Complaint::class);
-}
+
+    public function loyaltyReward()
+    {
+        return $this->belongsTo(UserLoyaltyReward::class, 'loyalty_reward_id');
+    }
+
+    public function complaints()
+    {
+        return $this->hasMany(Complaint::class);
+    }
 }

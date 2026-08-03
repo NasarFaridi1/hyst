@@ -17,7 +17,13 @@ class ProfileController extends Controller
         ->orderByDesc('is_default')
         ->latest()
         ->get();
-        return view('front.profile', compact('addresses'));
+
+        $loyaltyRewards = \App\Models\UserLoyaltyReward::with('restaurant')
+            ->where('user_id', auth()->id())
+            ->latest()
+            ->get();
+
+        return view('front.profile', compact('addresses', 'loyaltyRewards'));
     }
 
     public function update(Request $request)

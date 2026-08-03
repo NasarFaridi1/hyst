@@ -162,4 +162,14 @@ class Restaurant extends Model
         return $this->hasMany(RestaurantDeliveryCharge::class)
                     ->orderBy('from_distance');
     }
+
+    public function loyaltyRule()
+    {
+        return $this->hasOne(RestaurantLoyaltyRule::class);
+    }
+
+    public function loyaltyRewards()
+    {
+        return $this->hasMany(UserLoyaltyReward::class);
+    }
 }

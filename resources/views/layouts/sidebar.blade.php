@@ -365,6 +365,15 @@
                 <span>Offer</span>
             </a>
 
+            {{-- Loyalty Rewards --}}
+            <a href="/restaurant/loyalty-rewards"
+            class="sidebar-item {{ str_contains($current,'restaurant/loyalty-rewards') ? 'active' : '' }}">
+                <div class="sidebar-icon">
+                    <i data-lucide="gift"></i>
+                </div>
+                <span>Loyalty Rewards</span>
+            </a>
+
             {{-- 9. Category --}}
             <a href="/restaurant/categories"
             class="sidebar-item {{ str_contains($current,'restaurant/categories') ? 'active' : '' }}">
