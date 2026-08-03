@@ -2103,14 +2103,19 @@ async function submitCart(form) {
    CART SIDEBAR
 ══════════════════════════════════════════ */
 function updateCounts(count) {
-    ['cartCount', 'mobileCartCount'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.innerHTML = count;
+    const num = parseInt(count, 10) || 0;
+    document.querySelectorAll('#cartCount, #mobileCartCount, #mobileToggleCartCount, #bottomBarCartCount, .cart-count-badge, .cart-count').forEach(el => {
+        el.textContent = num;
+        if (num > 0) {
+            el.style.display = (el.id === 'mobileToggleCartCount' || el.style.position === 'absolute') ? 'flex' : 'inline-flex';
+        } else {
+            el.style.display = 'none';
+        }
     });
     const badge = document.getElementById('mobileCartCountBadge');
-    if (badge) badge.textContent = count;
+    if (badge) badge.textContent = num;
     const bar = document.getElementById('mobileCartBar');
-    if (bar) bar.style.display = count > 0 ? 'block' : 'none';
+    if (bar) bar.style.display = num > 0 ? 'block' : 'none';
 }
 
 async function refreshCartSidebar() {

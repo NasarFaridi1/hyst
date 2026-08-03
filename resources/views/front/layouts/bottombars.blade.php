@@ -143,18 +143,17 @@
 
             Cart
 
-            @if($cartCount > 0)
-                <span id="cartCount" style="
-                    background:#C25A2A;
-                    color:#fff;
-                    padding:2px 8px;
-                    border-radius:20px;
-                    font-size:11px;
-                    margin-left:5px;
-                ">
-                    {{ $cartCount }}
-                </span>
-            @endif
+            <span id="bottomBarCartCount" class="cart-count-badge" style="
+                background:#C25A2A;
+                color:#fff;
+                padding:2px 8px;
+                border-radius:20px;
+                font-size:11px;
+                margin-left:5px;
+                display: {{ $cartCount > 0 ? 'inline-flex' : 'none' }};
+            ">
+                {{ $cartCount }}
+            </span>
 
             <span class="mob-dot"></span>
         </a>
