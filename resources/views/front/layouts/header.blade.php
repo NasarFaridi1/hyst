@@ -276,7 +276,7 @@
             </style>
 
             <!-- MOBILE TOGGLE -->
-            <div  class="mobile-toggle-nav">
+            <div class="mobile-toggle-nav">
                 <a href="/cart" class="mob-nav-item {{ request()->is('cart') ? 'active' : '' }}">
     
                     <span style="position:relative; display:inline-block;">
@@ -286,35 +286,33 @@
                             <path d="M1 1h4l2.68 13.39a2 2 0 001.98 1.61h9.72a2 2 0 001.95-1.56L23 6H6"/>
                         </svg>
 
-                        @if($cartCount > 0)
-                            <span id="cartCount"
-                                style="
-                                    position:absolute;
-                                    top:-8px;
-                                    right:-10px;
-                                    min-width:18px;
-                                    height:18px;
-                                    background:#C25A2A;
-                                    color:#fff;
-                                    border-radius:50%;
-                                    display:flex;
-                                    align-items:center;
-                                    justify-content:center;
-                                    font-size:10px;
-                                    font-weight:700;
-                                    line-height:1;
-                                    padding:0 4px;
-                                    border:2px solid #fff;
-                                ">
-                                {{ collect(session('cart', []))->sum('quantity') }}
-                            </span>
-                        @endif
+                        <span id="mobileToggleCartCount" class="cart-count-badge"
+                            style="
+                                position:absolute;
+                                top:-8px;
+                                right:-10px;
+                                min-width:18px;
+                                height:18px;
+                                background:#C25A2A;
+                                color:#fff;
+                                border-radius:50%;
+                                display: {{ $cartCount > 0 ? 'flex' : 'none' }};
+                                align-items:center;
+                                justify-content:center;
+                                font-size:10px;
+                                font-weight:700;
+                                line-height:1;
+                                padding:0 4px;
+                                border:2px solid #fff;
+                            ">
+                            {{ $cartCount }}
+                        </span>
                     </span>
 
                 </a>
-            <button class="mobile-toggle" onclick="toggleMobileMenu()" aria-label="Menu">
-                <i data-lucide="menu" style="width:22px; height:22px;"></i>
-            </button>
+                <button class="mobile-toggle" onclick="toggleMobileMenu()" aria-label="Menu">
+                    <i data-lucide="menu" style="width:22px; height:22px;"></i>
+                </button>
             </div>
         </div>
     </div>
