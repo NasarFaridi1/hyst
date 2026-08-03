@@ -449,6 +449,12 @@ Route::middleware(['auth'])->group(function () {
 
     });
 
+    Route::prefix('restaurant/loyalty-rewards')->group(function () {
+        Route::get('/', [\App\Http\Controllers\RestaurantAdmin\LoyaltyRuleController::class, 'index'])->name('restaurant.loyalty-rewards.index');
+        Route::post('/', [\App\Http\Controllers\RestaurantAdmin\LoyaltyRuleController::class, 'storeOrUpdate'])->name('restaurant.loyalty-rewards.store');
+        Route::delete('/', [\App\Http\Controllers\RestaurantAdmin\LoyaltyRuleController::class, 'destroy'])->name('restaurant.loyalty-rewards.destroy');
+    });
+
 });
 
 Route::middleware(['auth'])

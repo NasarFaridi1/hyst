@@ -680,6 +680,29 @@
                         </span>
                     </div>
 
+                    <!-- ── LOYALTY REWARDS BANNER ── -->
+                    @if(isset($activeLoyaltyReward) && $activeLoyaltyReward)
+                        <div style="background:#ECFDF5; border:1.5px solid #10B981; border-radius:14px; padding:14px; margin-bottom:16px;">
+                            <div style="font-size:13px; font-weight:700; color:#065F46; display:flex; align-items:center; justify-content:space-between; gap:6px;">
+                                <span>🎁 Active Loyalty Reward</span>
+                                <span style="background:#10B981; color:#fff; padding:2px 8px; border-radius:999px; font-size:11px; font-weight:800;">-£{{ number_format($activeLoyaltyReward->reward_amount, 2) }}</span>
+                            </div>
+                            <p style="font-size:12px; color:#047857; margin:6px 0 0 0; line-height:1.4;">
+                                You earned this £{{ number_format($activeLoyaltyReward->reward_amount, 2) }} reward from a previous qualifying order at {{ $restaurant->name }}. It has been automatically applied to this order!
+                            </p>
+                            <input type="hidden" name="loyalty_reward_id" value="{{ $activeLoyaltyReward->id }}">
+                        </div>
+                    @elseif(isset($loyaltyRule) && $loyaltyRule && $loyaltyRule->is_active)
+                        <div style="background:#EFF6FF; border:1px solid #3B82F6; border-radius:14px; padding:12px 14px; margin-bottom:16px;">
+                            <div style="font-size:12.5px; font-weight:700; color:#1E40AF; display:flex; align-items:center; gap:6px;">
+                                <span>⭐ Loyalty Rewards Opportunity</span>
+                            </div>
+                            <p style="font-size:12px; color:#1D4ED8; margin:4px 0 0 0; line-height:1.4;">
+                                Spend <strong>£{{ number_format($loyaltyRule->min_order_amount, 2) }}</strong> or more on this order to earn a <strong>£{{ number_format($loyaltyRule->reward_amount, 2) }} reward</strong> for your next order!
+                            </p>
+                        </div>
+                    @endif
+
                     <!-- ── PROMOTIONS & COUPONS (UPPER SIDE) ── -->
                     <div style="background:#FAF9F6; border:1px solid var(--border); border-radius:14px; padding:14px; margin-bottom:16px;">
                         <div style="font-size:13px; font-weight:700; color:#374151; margin-bottom:10px; display:flex; align-items:center; gap:6px;">
@@ -740,6 +763,17 @@
                             </span>
                             <span class="sr-value green">
                                 -£{{ number_format($discount, 2) }}
+                            </span>
+                        </div>
+                    @endif
+
+                    @if(isset($loyaltyDiscount) && $loyaltyDiscount > 0)
+                        <div class="summary-row">
+                            <span class="sr-label" style="color:#059669; font-weight:600;">
+                                🎁 Loyalty Reward Discount
+                            </span>
+                            <span class="sr-value green" style="color:#059669; font-weight:700;">
+                                -£{{ number_format($loyaltyDiscount, 2) }}
                             </span>
                         </div>
                     @endif

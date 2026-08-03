@@ -259,6 +259,29 @@ class OrderController extends Controller
         }   
 
 
+        $activeLoyaltyReward = null;
+        $loyaltyDiscount = 0;
+        $loyaltyRule = null;
+
+        if (auth()->check()) {
+            $activeLoyaltyReward = \App\Models\UserLoyaltyReward::where('user_id', auth()->id())
+                ->where('restaurant_id', $restaurantId)
+                ->where('status', 'active')
+                ->where('expires_at', '>=', now())
+                ->first();
+
+            if ($activeLoyaltyReward) {
+                $loyaltyDiscount = min($activeLoyaltyReward->reward_amount, $finalTotal);
+                $loyaltyDiscount = round($loyaltyDiscount, 2);
+                $finalTotal = max(0, $finalTotal - $loyaltyDiscount);
+                $discount += $loyaltyDiscount;
+            }
+
+            $loyaltyRule = \App\Models\RestaurantLoyaltyRule::where('restaurant_id', $restaurantId)
+                ->where('is_active', 1)
+                ->first();
+        }
+
         foreach ($cart as $key => $item) {
 
             $cart[$key]['offer'] =
@@ -311,6 +334,9 @@ class OrderController extends Controller
                 'deliveryCharge',
                 'hystCharge',
                 'addresses',
+                'activeLoyaltyReward',
+                'loyaltyDiscount',
+                'loyaltyRule'
             )
         );
     }
@@ -613,7 +639,30 @@ class OrderController extends Controller
                 }
             }
 
-            $subtotalAfterDiscounts = max($subtotalAfterOffers - $couponDiscount - $giftCardDiscount, 0);
+            // Loyalty Reward Processing (Redemption)
+            $loyaltyRewardDiscount = 0;
+            $appliedLoyaltyReward = null;
+
+            if ($userId) {
+                $rewardQuery = \App\Models\UserLoyaltyReward::where('user_id', $userId)
+                    ->where('restaurant_id', $restaurantId)
+                    ->where('status', 'active')
+                    ->where('expires_at', '>=', now());
+
+                if ($request->filled('loyalty_reward_id')) {
+                    $rewardQuery->where('id', $request->loyalty_reward_id);
+                }
+
+                $appliedLoyaltyReward = $rewardQuery->first();
+
+                if ($appliedLoyaltyReward) {
+                    $loyaltyBaseAmount = max($subtotalAfterOffers - $couponDiscount - $giftCardDiscount, 0);
+                    $loyaltyRewardDiscount = min($appliedLoyaltyReward->reward_amount, $loyaltyBaseAmount);
+                    $loyaltyRewardDiscount = round($loyaltyRewardDiscount, 2);
+                }
+            }
+
+            $subtotalAfterDiscounts = max($subtotalAfterOffers - $couponDiscount - $giftCardDiscount - $loyaltyRewardDiscount, 0);
 
             $finalTotal =
                 $subtotalAfterDiscounts
@@ -682,6 +731,8 @@ class OrderController extends Controller
                 'gift_card_id' => $giftCard?->id,
                 'gift_card_code' => $giftCard?->code,
                 'gift_card_amount' => $giftCardDiscount,
+                'loyalty_reward_id' => $appliedLoyaltyReward?->id,
+                'loyalty_discount' => $loyaltyRewardDiscount,
                 'delivery_provider' => $restaurant->self_delivery ? 'self' : 'uber',
                 'is_scheduled' => $request->boolean('is_scheduled'),
                 'scheduled_for' => $request->scheduled_for,
@@ -691,6 +742,45 @@ class OrderController extends Controller
 
             if ($giftCard && $giftCardDiscount > 0) {
                 $giftCard->decrement('balance', $giftCardDiscount);
+            }
+
+            if ($appliedLoyaltyReward && $loyaltyRewardDiscount > 0) {
+                $appliedLoyaltyReward->update([
+                    'status' => 'used',
+                    'used_at' => now(),
+                    'used_in_order_id' => $order->id,
+                ]);
+            }
+
+            // Issue NEW Loyalty Reward for Next Order if this order qualifies!
+            if ($userId) {
+                $loyaltyRule = \App\Models\RestaurantLoyaltyRule::where('restaurant_id', $restaurantId)
+                    ->where('is_active', 1)
+                    ->first();
+
+                if ($loyaltyRule && $originalTotal >= $loyaltyRule->min_order_amount) {
+                    $userRewardsCount = \App\Models\UserLoyaltyReward::where('user_id', $userId)
+                        ->where('restaurant_id', $restaurantId)
+                        ->count();
+
+                    if (!$loyaltyRule->max_uses_per_user || $userRewardsCount < $loyaltyRule->max_uses_per_user) {
+                        \App\Models\UserLoyaltyReward::create([
+                            'user_id' => $userId,
+                            'restaurant_id' => $restaurantId,
+                            'earned_from_order_id' => $order->id,
+                            'reward_amount' => $loyaltyRule->reward_amount,
+                            'status' => 'active',
+                            'expires_at' => now()->addDays($loyaltyRule->expiry_days),
+                        ]);
+
+                        Log::info('LOYALTY REWARD ISSUED FOR NEXT ORDER', [
+                            'user_id' => $userId,
+                            'restaurant_id' => $restaurantId,
+                            'order_id' => $order->id,
+                            'reward_amount' => $loyaltyRule->reward_amount,
+                        ]);
+                    }
+                }
             }
 
             

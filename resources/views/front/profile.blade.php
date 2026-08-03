@@ -477,6 +477,61 @@
 
 
 
+            <!-- ── MY LOYALTY REWARDS CARD ── -->
+            <div class="profile-card addr-card" style="margin-top: 24px;">
+                <div class="profile-header addr-header">
+                    <div class="profile-avatar" style="background:#ECFDF5; border-color:#A7F3D0;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="1.8" style="width:28px; height:28px;">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M20 12v10H4V12M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="profile-eyebrow" style="color:#10B981;">Discounts & Rewards</div>
+                        <h1 class="profile-title">My Loyalty Rewards</h1>
+                        <p class="profile-subtitle">Rewards earned from qualifying restaurant orders</p>
+                    </div>
+                </div>
+
+                <div class="addr-list">
+                    @forelse($loyaltyRewards ?? [] as $reward)
+                        <div class="addr-row" style="border-color: {{ $reward->status === 'active' && $reward->expires_at && $reward->expires_at->isFuture() ? '#A7F3D0' : '#F0F0EC' }}; background: {{ $reward->status === 'active' && $reward->expires_at && $reward->expires_at->isFuture() ? '#ECFDF5' : '#FAFAF8' }};">
+                            <span class="addr-row-icon">
+                                <span style="font-size:20px;">🎁</span>
+                            </span>
+                            <span class="addr-row-body">
+                                <span class="addr-row-title">
+                                    {{ $reward->restaurant->name ?? 'Restaurant' }}
+                                    @if($reward->status === 'active' && $reward->expires_at && $reward->expires_at->isFuture())
+                                        <span class="addr-default-badge" style="background:#D1FAE5; color:#065F46;">Active</span>
+                                    @elseif($reward->status === 'used')
+                                        <span class="addr-default-badge" style="background:#E5E7EB; color:#374151;">Redeemed</span>
+                                    @else
+                                        <span class="addr-default-badge" style="background:#F3F4F6; color:#9CA3AF;">Expired</span>
+                                    @endif
+                                </span>
+                                <span class="addr-row-line">
+                                    <strong style="color:#059669; font-size:14px;">£{{ number_format($reward->reward_amount, 2) }} Discount</strong>
+                                    @if($reward->status === 'active' && $reward->expires_at)
+                                        · Expires {{ $reward->expires_at->format('d M Y') }}
+                                    @elseif($reward->used_at)
+                                        · Redeemed on {{ $reward->used_at->format('d M Y') }}
+                                    @endif
+                                </span>
+                            </span>
+                            @if($reward->status === 'active' && $reward->expires_at && $reward->expires_at->isFuture() && $reward->restaurant)
+                                <a href="/restaurant/{{ $reward->restaurant->slug }}" class="addr-btn-add" style="padding:6px 14px; font-size:12px; text-decoration:none;">
+                                    Use Now
+                                </a>
+                            @endif
+                        </div>
+                    @empty
+                        <div class="addr-empty" style="text-align:center; padding:20px;">
+                            You don't have any loyalty rewards yet. Place a qualifying order at participating restaurants to earn rewards for your next order!
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+
         </div>
         
     </div>
