@@ -411,7 +411,7 @@
     }
     .co-modal-title{font-size:22px;font-weight:800;margin:0 0 4px;}
     .co-modal-subtitle{font-size:13px;color:#666;margin:0 0 18px;}
-    .co-modal-footer{display:flex;justify-content:flex-end;gap:10px;margin-top:18px;}
+    .co-modal-footer{display:flex;justify-content:flex-end;gap:10px;margin-top:18px; margin-bottom:100px}
     .co-btn-secondary{
         padding:12px 18px;border-radius:10px;border:1px solid #ddd;background:#fff;
         font-weight:600;font-size:14px;cursor:pointer;
