@@ -1422,7 +1422,7 @@ function copyCoupon(button, code) {
 {{-- ════════════════════════════════════════════
      MAIN CONTENT AREA
      ════════════════════════════════════════════ --}}
-<div style="display:flex; align-items:flex-start; background:#fff; min-height:600px; width:100%; overflow:hidden;">
+<div style="display:flex; align-items:flex-start; background:#fff; min-height:600px; width:100%; position:relative;">
 
     {{-- ── ITEMS COLUMN ── --}}
     <div class="items-column" id="itemsColumn">
