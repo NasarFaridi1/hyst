@@ -186,12 +186,12 @@
                                 style="background:#fff;"
                                 autocomplete="off"
                             >
-                            <div id="leafletSearchResults" class="absolute left-0 right-0 top-full bg-white border border-gray-200 rounded-xl mt-1 max-h-60 overflow-y-auto z-50 shadow-2xl hidden" style="position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid #CBD5E1; border-radius:10px; z-index:99; display:none; max-height:220px; overflow-y:auto; box-shadow:0 10px 25px rgba(0,0,0,0.15);"></div>
+                            <div id="leafletSearchResults" class="absolute left-0 right-0 top-full bg-white border border-gray-200 rounded-xl mt-1 max-h-60 overflow-y-auto z-[9999] shadow-2xl hidden" style="position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid #CBD5E1; border-radius:10px; z-index:99; display:none; max-height:220px; overflow-y:auto; box-shadow:0 10px 25px rgba(0,0,0,0.15);"></div>
                         </div>
-                        <div id="restaurantMapContainer" style="margin-top:14px; border-radius:12px; border:1px solid #CBD5E1; overflow:hidden; height:220px;">
+                        {{-- <div id="restaurantMapContainer" style="margin-top:14px; border-radius:12px; border:1px solid #CBD5E1; overflow:hidden; height:220px;">
                             <div id="restaurantMap" style="width:100%; height:100%;"></div>
-                        </div>
-                        <p class="field-hint" style="color:#2563EB; font-weight:600; margin-top:8px;">💡 Search address above or drag pin on map to fill details automatically.</p>
+                        </div> --}}
+                        <p class="field-hint" style="color:#2563EB; font-weight:600; margin-top:8px;">💡 Search address above to fill details automatically</p>
                     </div>
 
                     {{-- City --}}
