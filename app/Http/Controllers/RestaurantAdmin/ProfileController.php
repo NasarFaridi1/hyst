@@ -62,6 +62,14 @@ class ProfileController extends Controller
 
             'longitude' => $request->longitude,
 
+            'city' => $request->city,
+
+            'state' => $request->state,
+
+            'country' => $request->country,
+
+            'postcode' => $request->postcode,
+
             'description' => $request->description,
 
             'image' => $image,

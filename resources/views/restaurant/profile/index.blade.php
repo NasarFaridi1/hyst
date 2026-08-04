@@ -58,9 +58,55 @@
 
                     <div>
 
+                        <label>City</label>
+
+                        <input type="text"
+                        name="city"
+                        required
+                        value="{{ $restaurant->city }}"
+                        class="w-full border p-4 rounded-xl">
+
+                    </div>
+                    <div>
+
+                        <label>State</label>
+
+                        <input type="text"
+                        name="state"
+                        required
+                        value="{{ $restaurant->state }}"
+                        class="w-full border p-4 rounded-xl">
+
+                    </div>
+                    <div>
+
+                        <label>Country</label>
+
+                        <input type="text"
+                        name="country"
+                        required
+                        value="{{ $restaurant->country }}"
+                        class="w-full border p-4 rounded-xl">
+
+                    </div>
+
+                    <div>
+
+                        <label>Postal Code</label>
+
+                        <input type="text"
+                        name="postcode"
+                        required
+                        value="{{ $restaurant->postcode }}"
+                        class="w-full border p-4 rounded-xl">
+
+                    </div>
+
+                    <div>
+
                         <label class="font-bold block mb-2">
 
-                            Location
+                           Address
 
                         </label>
 
@@ -68,6 +114,8 @@
                             class="w-full border p-4 rounded-xl">
 
                     </div>
+
+
                     <div>
 
                         <label class="font-bold block mb-2">
@@ -92,6 +140,8 @@
                     </div>
 
                 </div>
+
+                
 
 
                 <div class="grid grid-cols-2 gap-6 mt-6">

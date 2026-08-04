@@ -597,7 +597,7 @@
                         </label>
                         @endif
 
-                        @if($restaurant->home_delivery)
+                        {{-- @if($restaurant->home_delivery)
                         <label class="ot-label checked" id="ot-delivery">
                             <input type="radio" name="order_type" value="delivery" checked>
                             <div class="ot-icon">🚚</div>
@@ -607,6 +607,25 @@
                             </div>
                             <span class="selected-badge">✓ Selected</span>
                         </label>
+                        @endif --}}
+                        @php
+                            $showDelivery = $restaurant->home_delivery &&
+                                (
+                                    !$restaurant->self_delivery ||
+                                    $restaurant->deliveryCharges()->exists()
+                                );
+                        @endphp
+
+                        @if($showDelivery)
+                            <label class="ot-label checked" id="ot-delivery">
+                                <input type="radio" name="order_type" value="delivery" checked>
+                                <div class="ot-icon">🚚</div>
+                                <div>
+                                    <div class="ot-title">Home Delivery</div>
+                                    <div class="ot-sub">Delivered to door</div>
+                                </div>
+                                <span class="selected-badge">✓ Selected</span>
+                            </label>
                         @endif
                     </div>
 

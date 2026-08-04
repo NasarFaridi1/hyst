@@ -12,19 +12,19 @@ class RestaurantDeliveryChargeController extends Controller
 {
     protected function restaurant()
     {
-        return Restaurant::where('email', Auth::user()->email)->firstOrFail();
+        return Restaurant::where('id', Auth::user()->restaurant_id)->firstOrFail();
     }
 
     public function index()
     {
         
+        
         $restaurant = $this->restaurant();
-
-        dd($restaurant->deliveryCharges()->orderBy('from_distance')->get());
 
         $charges = $restaurant->deliveryCharges()
             ->orderBy('from_distance')
             ->get();
+           
 
         return view('restaurant.delivery-charges.index', compact('restaurant', 'charges'));
     }
