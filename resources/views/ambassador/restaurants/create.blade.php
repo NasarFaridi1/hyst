@@ -169,6 +169,31 @@
                         </div>
                     </div>
 
+                    <!-- Address Search Component -->
+                    <div class="form-group full" style="background:#F4F6F8; padding:20px; border-radius:14px; border:1px solid #E2E8F0;">
+                        <label class="field-label" style="color:#1E293B; font-weight:700; font-size:15px; margin-bottom:10px;">
+                            Search & Select Restaurant Address
+                        </label>
+                        <div class="field-wrap" style="position:relative;">
+                            <span class="field-icon">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2.2"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+                            </span>
+                            <input
+                                type="text"
+                                id="leafletSearchInput"
+                                placeholder="Type address, area or postcode to search..."
+                                class="field-input"
+                                style="background:#fff;"
+                                autocomplete="off"
+                            >
+                            <div id="leafletSearchResults" class="absolute left-0 right-0 top-full bg-white border border-gray-200 rounded-xl mt-1 max-h-60 overflow-y-auto z-50 shadow-2xl hidden" style="position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid #CBD5E1; border-radius:10px; z-index:99; display:none; max-height:220px; overflow-y:auto; box-shadow:0 10px 25px rgba(0,0,0,0.15);"></div>
+                        </div>
+                        <div id="restaurantMapContainer" style="margin-top:14px; border-radius:12px; border:1px solid #CBD5E1; overflow:hidden; height:220px;">
+                            <div id="restaurantMap" style="width:100%; height:100%;"></div>
+                        </div>
+                        <p class="field-hint" style="color:#2563EB; font-weight:600; margin-top:8px;">💡 Search address above or drag pin on map to fill details automatically.</p>
+                    </div>
+
                     {{-- City --}}
                     <div class="form-group">
                         <label class="field-label">City</label>
@@ -413,3 +438,146 @@ function previewFile(input, previewId) {
 </script>
 
 @endsection
+
+{{-- Leaflet Assets & Auto-fill Script --}}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const latInput = document.querySelector('[name="latitude"]');
+    const lngInput = document.querySelector('[name="longitude"]');
+    const locationInput = document.querySelector('[name="location"]');
+    const cityInput = document.querySelector('[name="city"]');
+    const stateInput = document.querySelector('[name="state"]');
+    const countryInput = document.querySelector('[name="country"]');
+    const postcodeInput = document.querySelector('[name="postcode"]');
+
+    const searchInput = document.getElementById('leafletSearchInput');
+    const searchResults = document.getElementById('leafletSearchResults');
+
+    let defaultLat = parseFloat(latInput?.value) || 51.5074;
+    let defaultLng = parseFloat(lngInput?.value) || -0.1278;
+
+    const map = L.map('restaurantMap', {
+        center: [defaultLat, defaultLng],
+        zoom: (latInput?.value && lngInput?.value) ? 15 : 12,
+    });
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    let marker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(map);
+
+    function updateAddressFromCoords(lat, lng) {
+        if (latInput) latInput.value = lat.toFixed(7);
+        if (lngInput) lngInput.value = lng.toFixed(7);
+
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`, {
+            headers: { 'Accept-Language': 'en-GB' }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (!data) return;
+            const a = data.address || {};
+            const street = [a.house_number, a.road || a.pedestrian || a.suburb || a.neighbourhood].filter(Boolean).join(', ');
+            const fullAddress = data.display_name || street || '';
+            const city = a.city || a.town || a.village || a.county || '';
+            const state = a.state || a.county || '';
+            const country = a.country || 'United Kingdom';
+            const postcode = a.postcode || '';
+
+            if (locationInput) locationInput.value = fullAddress;
+            if (cityInput) cityInput.value = city;
+            if (stateInput) stateInput.value = state;
+            if (countryInput) countryInput.value = country;
+            if (postcodeInput) postcodeInput.value = postcode;
+            if (searchInput) searchInput.value = fullAddress;
+        })
+        .catch(err => console.error('Reverse geocode error:', err));
+    }
+
+    marker.on('dragend', function (e) {
+        const coord = e.target.getLatLng();
+        updateAddressFromCoords(coord.lat, coord.lng);
+    });
+
+    map.on('click', function (e) {
+        marker.setLatLng(e.latlng);
+        updateAddressFromCoords(e.latlng.lat, e.latlng.lng);
+    });
+
+    let searchDebounce;
+    if (searchInput) {
+        searchInput.addEventListener('input', function (e) {
+            const q = e.target.value.trim();
+            clearTimeout(searchDebounce);
+            if (q.length < 3) {
+                searchResults.style.display = 'none';
+                searchResults.innerHTML = '';
+                return;
+            }
+            searchDebounce = setTimeout(() => {
+                fetch(`https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=6&countrycodes=gb&q=${encodeURIComponent(q)}`, {
+                    headers: { 'Accept-Language': 'en-GB' }
+                })
+                .then(res => res.json())
+                .then(results => {
+                    searchResults.innerHTML = '';
+                    if (!results || !results.length) {
+                        searchResults.style.display = 'none';
+                        return;
+                    }
+                    results.forEach(r => {
+                        const item = document.createElement('div');
+                        item.style.padding = '10px 14px';
+                        item.style.cursor = 'pointer';
+                        item.style.borderBottom = '1px solid #F1F5F9';
+                        item.style.fontSize = '13px';
+                        item.style.color = '#334155';
+                        item.textContent = r.display_name;
+                        item.addEventListener('mouseenter', () => item.style.background = '#F8FAFC');
+                        item.addEventListener('mouseleave', () => item.style.background = '#fff');
+                        item.addEventListener('click', function () {
+                            const lat = parseFloat(r.lat);
+                            const lng = parseFloat(r.lon);
+
+                            map.setView([lat, lng], 16);
+                            marker.setLatLng([lat, lng]);
+
+                            const a = r.address || {};
+                            const street = [a.house_number, a.road || a.pedestrian || a.suburb || a.neighbourhood].filter(Boolean).join(', ');
+                            const fullAddress = r.display_name || street || '';
+                            const city = a.city || a.town || a.village || a.county || '';
+                            const state = a.state || a.county || '';
+                            const country = a.country || 'United Kingdom';
+                            const postcode = a.postcode || '';
+
+                            if (locationInput) locationInput.value = fullAddress;
+                            if (cityInput) cityInput.value = city;
+                            if (stateInput) stateInput.value = state;
+                            if (countryInput) countryInput.value = country;
+                            if (postcodeInput) postcodeInput.value = postcode;
+                            if (latInput) latInput.value = lat.toFixed(7);
+                            if (lngInput) lngInput.value = lng.toFixed(7);
+
+                            searchInput.value = fullAddress;
+                            searchResults.style.display = 'none';
+                        });
+                        searchResults.appendChild(item);
+                    });
+                    searchResults.style.display = 'block';
+                })
+                .catch(err => console.error('Search error:', err));
+            }, 350);
+        });
+
+        document.addEventListener('click', function (e) {
+            if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                searchResults.style.display = 'none';
+            }
+        });
+    }
+});
+</script>

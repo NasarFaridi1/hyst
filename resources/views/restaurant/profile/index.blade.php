@@ -56,6 +56,29 @@
 
                     </div>
 
+                    <!-- Address Search Component -->
+                    <div class="col-span-2 mt-2 bg-[#FFF7F3] p-6 rounded-2xl border border-[#FFEFE6]">
+                        <label class="font-bold text-[#0D0D0D] block mb-2 flex items-center gap-2 text-base">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C25A2A" stroke-width="2.2"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+                            Search & Update Restaurant Address
+                        </label>
+                        <div class="relative">
+                            <input
+                                type="text"
+                                id="leafletSearchInput"
+                                value="{{ $restaurant->location }}"
+                                placeholder="Type to search area, street name, postcode..."
+                                class="w-full border border-[#F0E4D8] rounded-xl p-4 pr-10 focus:outline-none focus:ring-2 focus:ring-[#C25A2A] bg-white text-[#0D0D0D] shadow-sm"
+                                autocomplete="off"
+                            >
+                            <div id="leafletSearchResults" class="absolute left-0 right-0 top-full bg-white border border-gray-200 rounded-xl mt-1 max-h-60 overflow-y-auto z-50 shadow-2xl hidden"></div>
+                        </div>
+                        <div id="restaurantMapContainer" class="mt-4 rounded-xl border border-[#F0E4D8] overflow-hidden shadow-inner" style="height: 240px;">
+                            <div id="restaurantMap" style="width: 100%; height: 100%;"></div>
+                        </div>
+                        <p class="text-xs text-[#C25A2A] mt-2 font-medium">💡 Search address above or drag the pin on map to auto-fill all location fields below.</p>
+                    </div>
+
                     <div>
 
                         <label>City</label>
@@ -106,7 +129,7 @@
 
                         <label class="font-bold block mb-2">
 
-                           Address
+                           Address (Location)
 
                         </label>
 
@@ -124,7 +147,7 @@
 
                         </label>
 
-                        <input type="number" name="latitude" id="latitude" step="any" value="{{ $restaurant->latitude }}"
+                        <input type="text" name="latitude" id="latitude" value="{{ $restaurant->latitude }}"
                             class="w-full border p-4 rounded-xl">
                     </div>
                     <div>
@@ -135,7 +158,7 @@
 
                         </label>
 
-                        <input type="number" name="longitude" id="longitude" step="any" value="{{ $restaurant->longitude }}"
+                        <input type="text" name="longitude" id="longitude" value="{{ $restaurant->longitude }}"
                             class="w-full border p-4 rounded-xl">
                     </div>
 
@@ -430,33 +453,141 @@
 
     </div>
 
-    <script>
+@endsection
 
-        const locationInput = document.querySelector('[name="location"]');
+{{-- Leaflet Assets & Auto-fill Script --}}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const latInput = document.querySelector('[name="latitude"]');
+    const lngInput = document.querySelector('[name="longitude"]');
+    const locationInput = document.querySelector('[name="location"]');
+    const cityInput = document.querySelector('[name="city"]');
+    const stateInput = document.querySelector('[name="state"]');
+    const countryInput = document.querySelector('[name="country"]');
+    const postcodeInput = document.querySelector('[name="postcode"]');
 
-        locationInput.addEventListener('change', async function () {
+    const searchInput = document.getElementById('leafletSearchInput');
+    const searchResults = document.getElementById('leafletSearchResults');
 
-            const address = this.value;
+    let defaultLat = parseFloat(latInput?.value) || 51.5074;
+    let defaultLng = parseFloat(lngInput?.value) || -0.1278;
 
-            const apiKey = "YOUR_GOOGLE_MAP_API_KEY";
+    const map = L.map('restaurantMap', {
+        center: [defaultLat, defaultLng],
+        zoom: (latInput?.value && lngInput?.value) ? 15 : 12,
+    });
 
-            const url =
-                `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`;
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
 
-            const response = await fetch(url);
+    let marker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(map);
 
-            const data = await response.json();
+    function updateAddressFromCoords(lat, lng) {
+        if (latInput) latInput.value = lat.toFixed(7);
+        if (lngInput) lngInput.value = lng.toFixed(7);
 
-            if (data.results.length > 0) {
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`, {
+            headers: { 'Accept-Language': 'en-GB' }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (!data) return;
+            const a = data.address || {};
+            const street = [a.house_number, a.road || a.pedestrian || a.suburb || a.neighbourhood].filter(Boolean).join(', ');
+            const fullAddress = data.display_name || street || '';
+            const city = a.city || a.town || a.village || a.county || '';
+            const state = a.state || a.county || '';
+            const country = a.country || 'United Kingdom';
+            const postcode = a.postcode || '';
 
-                const location = data.results[0].geometry.location;
+            if (locationInput) locationInput.value = fullAddress;
+            if (cityInput) cityInput.value = city;
+            if (stateInput) stateInput.value = state;
+            if (countryInput) countryInput.value = country;
+            if (postcodeInput) postcodeInput.value = postcode;
+            if (searchInput) searchInput.value = fullAddress;
+        })
+        .catch(err => console.error('Reverse geocode error:', err));
+    }
 
-                document.getElementById('latitude').value = location.lat;
+    marker.on('dragend', function (e) {
+        const coord = e.target.getLatLng();
+        updateAddressFromCoords(coord.lat, coord.lng);
+    });
 
-                document.getElementById('longitude').value = location.lng;
+    map.on('click', function (e) {
+        marker.setLatLng(e.latlng);
+        updateAddressFromCoords(e.latlng.lat, e.latlng.lng);
+    });
+
+    let searchDebounce;
+    if (searchInput) {
+        searchInput.addEventListener('input', function (e) {
+            const q = e.target.value.trim();
+            clearTimeout(searchDebounce);
+            if (q.length < 3) {
+                searchResults.classList.add('hidden');
+                searchResults.innerHTML = '';
+                return;
             }
+            searchDebounce = setTimeout(() => {
+                fetch(`https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=6&countrycodes=gb&q=${encodeURIComponent(q)}`, {
+                    headers: { 'Accept-Language': 'en-GB' }
+                })
+                .then(res => res.json())
+                .then(results => {
+                    searchResults.innerHTML = '';
+                    if (!results || !results.length) {
+                        searchResults.classList.add('hidden');
+                        return;
+                    }
+                    results.forEach(r => {
+                        const item = document.createElement('div');
+                        item.className = 'p-3 hover:bg-[#FFF7F3] cursor-pointer border-b border-gray-100 text-sm text-gray-800 font-medium transition';
+                        item.textContent = r.display_name;
+                        item.addEventListener('click', function () {
+                            const lat = parseFloat(r.lat);
+                            const lng = parseFloat(r.lon);
+
+                            map.setView([lat, lng], 16);
+                            marker.setLatLng([lat, lng]);
+
+                            const a = r.address || {};
+                            const street = [a.house_number, a.road || a.pedestrian || a.suburb || a.neighbourhood].filter(Boolean).join(', ');
+                            const fullAddress = r.display_name || street || '';
+                            const city = a.city || a.town || a.village || a.county || '';
+                            const state = a.state || a.county || '';
+                            const country = a.country || 'United Kingdom';
+                            const postcode = a.postcode || '';
+
+                            if (locationInput) locationInput.value = fullAddress;
+                            if (cityInput) cityInput.value = city;
+                            if (stateInput) stateInput.value = state;
+                            if (countryInput) countryInput.value = country;
+                            if (postcodeInput) postcodeInput.value = postcode;
+                            if (latInput) latInput.value = lat.toFixed(7);
+                            if (lngInput) lngInput.value = lng.toFixed(7);
+
+                            searchInput.value = fullAddress;
+                            searchResults.classList.add('hidden');
+                        });
+                        searchResults.appendChild(item);
+                    });
+                    searchResults.classList.remove('hidden');
+                })
+                .catch(err => console.error('Search error:', err));
+            }, 350);
         });
 
-    </script>
-
-@endsection
+        document.addEventListener('click', function (e) {
+            if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                searchResults.classList.add('hidden');
+            }
+        });
+    }
+});
+</script>
