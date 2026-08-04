@@ -124,6 +124,11 @@ class Order extends Model
         return $this->belongsTo(LoyaltyReward::class, 'loyalty_reward_id');
     }
 
+    public function earnedLoyaltyReward()
+    {
+        return $this->hasOne(LoyaltyReward::class, 'order_id');
+    }
+
     public function loyaltyRewardUsages()
     {
         return $this->hasMany(LoyaltyRewardUsage::class, 'order_id');

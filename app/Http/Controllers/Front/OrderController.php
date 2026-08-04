@@ -1370,14 +1370,14 @@ class OrderController extends Controller
     public function orderDetails(Request $request, $id)
     {
         $order = Order::with([
-
             'items.product',
-             'items.addons',
+            'items.addons',
             'payment',
             'restaurant',
             'review',
-             'invoice'
-
+            'invoice',
+            'loyaltyReward',
+            'earnedLoyaltyReward'
         ])
             ->where('user_id', auth()->id())
             ->findOrFail($id);

@@ -1446,136 +1446,173 @@
             </div>
             @endif 
 
+  {{-- ── Loyalty Reward Attached Banner (If any) ── --}}
+  @if(($order->loyalty_discount ?? 0) > 0 || $order->loyaltyReward)
+  <div class="od-card" style="background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%); border: 1px solid #FCD34D; padding: 20px 24px; border-radius: 20px; margin-bottom: 20px; box-shadow: 0 4px 14px rgba(245,158,11,0.12);">
+      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+          <div style="display: flex; align-items: center; gap: 14px;">
+              <div style="width: 44px; height: 44px; border-radius: 12px; background: #F59E0B; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; box-shadow: 0 4px 12px rgba(245,158,11,0.25);">
+                  🏷️
+              </div>
+              <div>
+                  <h3 style="font-size: 15px; font-weight: 700; color: #78350F; margin: 0 0 3px;">Loyalty Reward Redeemed</h3>
+                  <p style="font-size: 13px; color: #92400E; margin: 0;">
+                      Customer saved <strong>£{{ number_format($order->loyalty_discount, 2) }}</strong> on this order using a loyalty reward!
+                      @if($order->loyaltyReward)
+                          <span style="display:inline-block; margin-left:4px; font-weight:600;">({{ $order->loyaltyReward->reward_type === 'percentage' ? number_format($order->loyaltyReward->reward_value, 0).'% Discount' : '£'.number_format($order->loyaltyReward->reward_value, 2).' Discount' }})</span>
+                      @endif
+                  </p>
+              </div>
+          </div>
+          <span style="background: #F59E0B; color: #fff; font-size: 12px; font-weight: 700; padding: 6px 16px; border-radius: 50px; text-transform: uppercase; letter-spacing: 0.05em; box-shadow: 0 2px 8px rgba(245,158,11,0.25);">
+              -£{{ number_format($order->loyalty_discount, 2) }} DISCOUNT
+          </span>
+      </div>
+  </div>
+  @endif
+
+  @if($order->earnedLoyaltyReward)
+  <div class="od-card" style="background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%); border: 1px solid #6EE7B7; padding: 20px 24px; border-radius: 20px; margin-bottom: 20px; box-shadow: 0 4px 14px rgba(16,185,129,0.12);">
+      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+          <div style="display: flex; align-items: center; gap: 14px;">
+              <div style="width: 44px; height: 44px; border-radius: 12px; background: #10B981; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; box-shadow: 0 4px 12px rgba(16,185,129,0.25);">
+                  🎁
+              </div>
+              <div>
+                  <h3 style="font-size: 15px; font-weight: 700; color: #065F46; margin: 0 0 3px;">Loyalty Reward Issued to Customer</h3>
+                  <p style="font-size: 13px; color: #047857; margin: 0;">
+                      This order issued a reward of <strong>{{ $order->earnedLoyaltyReward->reward_type === 'percentage' ? number_format($order->earnedLoyaltyReward->reward_value, 0).'% Off' : '£'.number_format($order->earnedLoyaltyReward->reward_value, 2).' Off' }}</strong> for the customer's next order!
+                      @if($order->earnedLoyaltyReward->expires_at)
+                          <span style="display:block; margin-top:2px; font-size:12px; color:#059669;">Expires on {{ $order->earnedLoyaltyReward->expires_at->format('d M, Y') }}</span>
+                      @endif
+                  </p>
+              </div>
+          </div>
+          <span style="background: #10B981; color: #fff; font-size: 12px; font-weight: 700; padding: 6px 16px; border-radius: 50px; text-transform: uppercase; letter-spacing: 0.05em; box-shadow: 0 2px 8px rgba(16,185,129,0.25);">
+              {{ ucfirst($order->earnedLoyaltyReward->status) }}
+          </span>
+      </div>
+  </div>
+  @endif
+
   {{-- ── Order Items ── --}}
-  <div class="od-table-wrap">
-    <div class="od-tbl-header">
-      <span>Product</span>
-      <span>Price</span>
-      <span>Qty</span>
-      <span>Total</span>
-    </div>
-    @foreach($order->items as $item)
-    <div class="od-tbl-row">
-      <span class="col-name">
+  <div class="od-card" style="background:#ffffff; border-radius:20px; border:1px solid #E8E6E0; overflow:hidden; margin-bottom:20px; padding:0;">
+      <div style="padding:22px 28px; border-bottom:1px solid #F0EDE8;">
+          <h2 style="font-size:18px; font-weight:700; color:#111111; margin:0;">Ordered Items</h2>
+      </div>
+      <div style="padding:8px 28px 16px;">
+          @php $itemsSubtotal = 0; @endphp
+          @foreach($order->items as $item)
+              @php
+                  $itemTotal = $item->total ?? ($item->price * $item->quantity);
+                  $itemsSubtotal += $itemTotal;
+                  $unitPrice = $item->quantity > 0 ? ($itemTotal / $item->quantity) : $item->price;
+              @endphp
+              <div style="display:flex; justify-space-between; align-items:flex-start; padding:20px 0; border-bottom:1px solid #F0EDE8; gap:16px;">
+                  <div style="display:flex; align-items:flex-start; gap:16px; flex:1;">
+                      <img 
+                          src="{{ $item->product && $item->product->image ? (str_starts_with($item->product->image, 'http') ? $item->product->image : config('services.google_drive.image_url') . $item->product->image) : asset('no-image.png') }}"
+                          alt="{{ $item->product->name ?? 'Product' }}"
+                          style="width:68px; height:68px; border-radius:12px; object-fit:cover; flex-shrink:0; background:#F3F4F6; border:1px solid #E5E7EB;"
+                      >
+                      <div style="flex:1;">
+                          <div style="font-size:15px; font-weight:700; color:#111827; margin-bottom:4px;">
+                              {{ $item->product->name ?? 'Product' }}
+                          </div>
+                          @if(!empty($item->variant_name))
+                              <div style="font-size:13px; color:#6B7280; margin-bottom:6px; font-weight:500;">
+                                  Variant: {{ $item->variant_name }}
+                              </div>
+                          @endif
 
-        {{ $item->product->name ?? '—' }}
+                          @if($item->addons && $item->addons->count())
+                              @php
+                                  $groupedAddons = $item->addons->groupBy('category_name');
+                              @endphp
+                              <div style="margin-top:8px; margin-bottom:8px;">
+                                  @foreach($groupedAddons as $category => $addons)
+                                      <div style="font-size:12px; font-weight:700; color:#374151; margin-bottom:6px;">
+                                          {{ $category ?: 'Common Addons' }}
+                                      </div>
+                                      <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
+                                          @foreach($addons as $addon)
+                                              <div style="display:inline-flex; align-items:center; gap:6px; background:#FFF7F5; border:1px solid #FCD34D; border-radius:50px; padding:4px 12px; font-size:12px; font-weight:600; color:#374151;">
+                                                  <span style="width:6px; height:6px; border-radius:50%; background:#C25A2A; display:inline-block;"></span>
+                                                  <span>{{ $addon->addon_name }}</span>
+                                                  <span style="color:#C25A2A; font-weight:700;">+£{{ number_format($addon->price, 2) }}</span>
+                                              </div>
+                                          @endforeach
+                                      </div>
+                                  @endforeach
+                              </div>
+                          @endif
 
-        @if(!empty($item->variant_name))
-            <div style="
-                font-size:12px;
-                color:#6B7280;
-                margin-top:2px;
-            ">
-                Variant: {{ $item->variant_name }}
-            </div>
-        @endif
+                          <div style="font-size:13px; color:#888888; font-weight:500; margin-top:4px;">
+                              £{{ number_format($unitPrice, 2) }} × {{ $item->quantity }}
+                          </div>
+                      </div>
+                  </div>
+                  <div style="font-size:16px; font-weight:700; color:#C25A2A; white-space:nowrap; text-align:right; margin-top:2px;">
+                      £{{ number_format($itemTotal, 2) }}
+                  </div>
+              </div>
+          @endforeach
+      </div>
 
-        @if($item->addons->count())
+      {{-- Subtotal --}}
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:18px 28px; border-top:1px solid #F0EDE8;">
+          <span style="font-size:15px; font-weight:700; color:#111827;">Subtotal</span>
+          <span style="font-size:15px; font-weight:700; color:#C25A2A;">£{{ number_format($itemsSubtotal, 2) }}</span>
+      </div>
 
-            @php
-                $groupedAddons = $item->addons->groupBy('category_name');
-            @endphp
+      {{-- Delivery Fee --}}
+      @if($order->delivery_charge > 0)
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:18px 28px; border-top:1px solid #F0EDE8;">
+          <span style="font-size:15px; font-weight:700; color:#111827;">Delivery Fee</span>
+          <span style="font-size:15px; font-weight:700; color:#C25A2A;">£{{ number_format($order->delivery_charge, 2) }}</span>
+      </div>
+      @endif
 
-            <div style="margin-top:8px;">
+      {{-- Hyst Charge --}}
+      @if($order->hyst_charge > 0)
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:18px 28px; border-top:1px solid #F0EDE8;">
+          <span style="font-size:15px; font-weight:700; color:#111827;">Hyst Charge</span>
+          <span style="font-size:15px; font-weight:700; color:#C25A2A;">£{{ number_format($order->hyst_charge, 2) }}</span>
+      </div>
+      @endif
 
-                @foreach($groupedAddons as $category => $addons)
+      {{-- Coupon Discount --}}
+      @if($order->coupon_discount > 0)
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:18px 28px; border-top:1px solid #F0EDE8;">
+          <span style="font-size:15px; font-weight:700; color:#111827;">Coupon Discount</span>
+          <span style="font-size:15px; font-weight:700; color:#DC2626;">-£{{ number_format($order->coupon_discount, 2) }}</span>
+      </div>
+      @endif
 
-                    <div style="
-                        font-size:11px;
-                        font-weight:700;
-                        color:#666;
-                        margin:6px 0;
-                    ">
-                        {{ $category }}
-                    </div>
+      {{-- Gift Card --}}
+      @if($order->gift_card_amount > 0)
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:18px 28px; border-top:1px solid #F0EDE8;">
+          <span style="font-size:15px; font-weight:700; color:#111827;">Gift Card</span>
+          <span style="font-size:15px; font-weight:700; color:#DC2626;">-£{{ number_format($order->gift_card_amount, 2) }}</span>
+      </div>
+      @endif
 
-                    <div style="
-                        display:flex;
-                        flex-wrap:wrap;
-                        gap:6px;
-                    ">
+      {{-- Loyalty Reward Discount --}}
+      @if(($order->loyalty_discount ?? 0) > 0)
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:18px 28px; border-top:1px solid #F0EDE8;">
+          <span style="font-size:15px; font-weight:700; color:#111827; display:flex; align-items:center; gap:8px;">
+              <span>Loyalty Reward Discount</span>
+              <span style="font-size:10px; background:#FEF3C7; color:#92400E; padding:3px 8px; border-radius:12px; font-weight:700; border:1px solid #FCD34D;">REDEEMED</span>
+          </span>
+          <span style="font-size:15px; font-weight:700; color:#DC2626;">-£{{ number_format($order->loyalty_discount, 2) }}</span>
+      </div>
+      @endif
 
-                        @foreach($addons as $addon)
-
-                            <div style="
-                                display:flex;
-                                align-items:center;
-                                gap:5px;
-                                background:#FAFAFA;
-                                border:1px solid #E5E7EB;
-                                border-radius:999px;
-                                padding:1px 5px;
-                                font-size:8px;
-                            ">
-
-                                <span style="
-                                    width:6px;
-                                    height:6px;
-                                    border-radius:50%;
-                                    background:#C25A2A;
-                                    display:inline-block;
-                                "></span>
-
-                                <span>{{ $addon->addon_name }}</span>
-
-                                <span style="
-                                    color:#C25A2A;
-                                    font-weight:700;
-                                ">
-                                    +£{{ number_format($addon->price,2) }}
-                                </span>
-
-                            </div>
-
-                        @endforeach
-
-                    </div>
-
-                @endforeach
-
-            </div>
-
-        @endif
-
-    </span>
-      <span>£{{ number_format($item->price, 2) }}</span>
-      <span>{{ $item->quantity }}</span>
-      <span class="col-total">£{{ number_format($item->total, 2) }}</span>
-    </div>
-    @endforeach
-    @if($order->delivery_charge > 0)
-    <div class="od-tbl-footer">
-        <span class="total-label">Delivery Fee</span>
-        <span class="total-val">£{{ number_format($order->delivery_charge, 2) }}</span>
-    </div>
-    @endif
-
-    @if($order->hyst_charge > 0)
-    <div class="od-tbl-footer">
-        <span class="total-label">Hyst Charge</span>
-        <span class="total-val">£{{ number_format($order->hyst_charge, 2) }}</span>
-    </div>
-    @endif
-
-    @if($order->coupon_discount > 0)
-    <div class="od-tbl-footer">
-        <span class="total-label">Coupon Discount</span>
-        <span class="total-val discount">-£{{ number_format($order->coupon_discount, 2) }}</span>
-    </div>
-    @endif
-
-    @if($order->gift_card_amount > 0)
-    <div class="od-tbl-footer">
-        <span class="total-label">Gift Card</span>
-        <span class="total-val discount">-£{{ number_format($order->gift_card_amount, 2) }}</span>
-    </div>
-    @endif
-
-    <div class="od-tbl-footer grand-total">
-        <span class="total-label">Order Total</span>
-        <span class="total-val">£{{ number_format($order->total_amount, 2) }}</span>
-    </div>
-    
+      {{-- Order Total --}}
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:22px 28px; border-top:2px solid #E8E6E0; background:#FAFAFA;">
+          <span style="font-size:18px; font-weight:800; color:#111827;">Order Total</span>
+          <span style="font-size:24px; font-weight:800; color:#C25A2A;">£{{ number_format($order->total_amount, 2) }}</span>
+      </div>
   </div>
 
 </div>

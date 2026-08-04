@@ -52,7 +52,9 @@ class OrdersController extends Controller
             'items.addons',
             'payment',
             'review',
-            'invoice'
+            'invoice',
+            'loyaltyReward',
+            'earnedLoyaltyReward'
         ])->findOrFail($id);
 
         $complaints = Complaint::with([
