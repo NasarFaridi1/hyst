@@ -727,7 +727,9 @@ class OrderController extends Controller
                     'pending',
 
                 'coupon_id' => $coupon?->id,
-                'coupon_discount' => $couponDiscount,  
+                'coupon_discount' => $couponDiscount,
+                'offer_discount' => $discount,
+                'offer_title' => $orderOffer?->title ?? ($discount > 0 ? 'Offer Discount' : null),
                 'gift_card_id' => $giftCard?->id,
                 'gift_card_code' => $giftCard?->code,
                 'gift_card_amount' => $giftCardDiscount,

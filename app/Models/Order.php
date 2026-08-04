@@ -70,6 +70,8 @@ class Order extends Model
         'guest_longitude',
         'coupon_id',
         'coupon_discount',
+        'offer_discount',
+        'offer_title',
         'gift_card_id',
         'gift_card_code',
         'gift_card_amount',

@@ -215,6 +215,61 @@
 
             </tbody>
 
+            <tfoot class="bg-gray-50 border-t-2 border-gray-200">
+                @php
+                    $subtotal = $order->items->sum('total');
+                @endphp
+                <tr>
+                    <td colspan="3" class="p-4 text-right font-semibold text-gray-600">Subtotal</td>
+                    <td class="p-4 font-bold text-gray-800">£{{ number_format($subtotal, 2) }}</td>
+                </tr>
+                @if($order->delivery_charge > 0)
+                <tr>
+                    <td colspan="3" class="p-4 text-right font-semibold text-gray-600">Delivery Fee</td>
+                    <td class="p-4 font-bold text-gray-800">£{{ number_format($order->delivery_charge, 2) }}</td>
+                </tr>
+                @endif
+                @if($order->hyst_charge > 0)
+                <tr>
+                    <td colspan="3" class="p-4 text-right font-semibold text-gray-600">Hyst Charge</td>
+                    <td class="p-4 font-bold text-gray-800">£{{ number_format($order->hyst_charge, 2) }}</td>
+                </tr>
+                @endif
+                @if(($order->offer_discount ?? 0) > 0)
+                <tr>
+                    <td colspan="3" class="p-4 text-right font-semibold text-orange-600">
+                        🎉 Offer Discount
+                        @if(!empty($order->offer_title))
+                            <span class="text-xs text-amber-700">({{ $order->offer_title }})</span>
+                        @endif
+                    </td>
+                    <td class="p-4 font-bold text-red-600">-£{{ number_format($order->offer_discount, 2) }}</td>
+                </tr>
+                @endif
+                @if($order->coupon_discount > 0)
+                <tr>
+                    <td colspan="3" class="p-4 text-right font-semibold text-gray-600">Coupon Discount</td>
+                    <td class="p-4 font-bold text-red-600">-£{{ number_format($order->coupon_discount, 2) }}</td>
+                </tr>
+                @endif
+                @if($order->gift_card_amount > 0)
+                <tr>
+                    <td colspan="3" class="p-4 text-right font-semibold text-gray-600">Gift Card</td>
+                    <td class="p-4 font-bold text-red-600">-£{{ number_format($order->gift_card_amount, 2) }}</td>
+                </tr>
+                @endif
+                @if(($order->loyalty_discount ?? 0) > 0)
+                <tr>
+                    <td colspan="3" class="p-4 text-right font-semibold text-amber-700">🎁 Loyalty Reward Discount</td>
+                    <td class="p-4 font-bold text-red-600">-£{{ number_format($order->loyalty_discount, 2) }}</td>
+                </tr>
+                @endif
+                <tr class="bg-gray-100 text-lg">
+                    <td colspan="3" class="p-5 text-right font-extrabold text-gray-900">Order Total</td>
+                    <td class="p-5 font-extrabold text-orange-600">£{{ number_format($order->total_amount, 2) }}</td>
+                </tr>
+            </tfoot>
+
         </table>
 
     </div>

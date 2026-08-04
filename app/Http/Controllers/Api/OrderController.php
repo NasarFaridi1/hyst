@@ -386,6 +386,8 @@ class OrderController extends Controller
             'pincode'           => $request->pincode,
             'payment_method'    => $request->payment_method,
             'status'            => 'pending',
+            'offer_discount'    => $discount,
+            'offer_title'       => $orderOffer?->title ?? ($discount > 0 ? 'Offer Discount' : null),
             'loyalty_reward_id' => $appliedLoyaltyReward?->id,
             'loyalty_discount'  => $loyaltyRewardDiscount,
         ]);

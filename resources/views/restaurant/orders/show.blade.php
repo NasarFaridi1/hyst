@@ -1581,6 +1581,19 @@
       </div>
       @endif
 
+      {{-- Offer Discount --}}
+      @if(($order->offer_discount ?? 0) > 0)
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:18px 28px; border-top:1px solid #F0EDE8;">
+          <span style="font-size:15px; font-weight:700; color:#C25A2A; display:flex; align-items:center; gap:6px;">
+              <span>🎉 Offer Discount</span>
+              @if(!empty($order->offer_title))
+                  <span style="font-size:12px; font-weight:600; color:#854D0E;">({{ $order->offer_title }})</span>
+              @endif
+          </span>
+          <span style="font-size:15px; font-weight:700; color:#DC2626;">-£{{ number_format($order->offer_discount, 2) }}</span>
+      </div>
+      @endif
+
       {{-- Coupon Discount --}}
       @if($order->coupon_discount > 0)
       <div style="display:flex; justify-content:space-between; align-items:center; padding:18px 28px; border-top:1px solid #F0EDE8;">
