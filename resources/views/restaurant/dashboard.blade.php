@@ -675,16 +675,37 @@
               </div>
 
               @if($restaurant->self_delivery)
-                  <div class="mt-5 pt-5 border-t border-gray-200 flex justify-end">
-                      <a href="{{ route('restaurant.delivery-charges.index') }}"
-                        class="inline-flex items-center px-4 py-2 bg-[#C25A2A] text-white rounded-lg hover:bg-blue-700 transition">
-                          <i data-lucide="truck" class="w-4 h-4 mr-2"></i>
-                          Manage Delivery Charges
-                      </a>
+                  <div class="mt-5 pt-5 border-t border-gray-200">
+                      @if($restaurant->deliveryCharges()->exists())
+                          <div class="flex justify-end">
+                              <a href="{{ route('restaurant.delivery-charges.index') }}"
+                                class="inline-flex items-center px-4 py-2 bg-[#C25A2A] text-white rounded-lg hover:bg-blue-700 transition">
+                                  <i data-lucide="truck" class="w-4 h-4 mr-2"></i>
+                                  Manage Delivery Charges
+                              </a>
+                          </div>
+                      @else
+                          <div class="rounded-lg border border-yellow-300 bg-yellow-50 p-4">
+                              <p class="text-sm text-yellow-800">
+                                  <strong>Delivery charges are not configured.</strong>
+                                  Home Delivery will not be shown to customers until you add at least one delivery charge range.
+                                  If you don't provide your own delivery service, you can simply turn off <strong>Self Delivery</strong>, and then Home Delivery will be handled by the platform's delivery service.
+                              </p>
+
+                              <div class="mt-3">
+                                  <a href="{{ route('restaurant.delivery-charges.index') }}"
+                                    class="inline-flex items-center px-4 py-2 bg-[#C25A2A] text-white rounded-lg hover:bg-blue-700 transition">
+                                      <i data-lucide="truck" class="w-4 h-4 mr-2"></i>
+                                      Add Delivery Charges
+                                  </a>
+                              </div>
+                          </div>
+                      @endif
                   </div>
               @endif
 
           </div>
+          
           
       </div>
       
