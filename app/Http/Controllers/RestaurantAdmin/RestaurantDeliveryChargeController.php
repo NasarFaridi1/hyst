@@ -17,7 +17,10 @@ class RestaurantDeliveryChargeController extends Controller
 
     public function index()
     {
+        
         $restaurant = $this->restaurant();
+
+        dd($restaurant->deliveryCharges()->orderBy('from_distance')->get());
 
         $charges = $restaurant->deliveryCharges()
             ->orderBy('from_distance')

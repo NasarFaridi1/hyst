@@ -165,11 +165,11 @@ class Restaurant extends Model
 
     public function loyaltyRule()
     {
-        return $this->hasOne(RestaurantLoyaltyRule::class);
+        return $this->hasOne(LoyaltyRule::class);
     }
 
     public function loyaltyRewards()
     {
-        return $this->hasMany(UserLoyaltyReward::class);
+        return $this->hasMany(LoyaltyReward::class);
     }
 }

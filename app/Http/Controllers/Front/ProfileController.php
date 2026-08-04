@@ -18,7 +18,7 @@ class ProfileController extends Controller
         ->latest()
         ->get();
 
-        $loyaltyRewards = \App\Models\UserLoyaltyReward::with('restaurant')
+        $loyaltyRewards = \App\Models\LoyaltyReward::with('restaurant')
             ->where('user_id', auth()->id())
             ->latest()
             ->get();
