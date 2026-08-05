@@ -721,27 +721,15 @@
                             $ruleRewardText = $loyaltyRule->reward_type === 'percentage' 
                                 ? number_format($loyaltyRule->reward_value, 0) . '% reward' 
                                 : '£' . number_format($loyaltyRule->reward_value, 2) . ' reward';
-                            $isQualifiedForLoyalty = ($originalTotal >= $loyaltyRule->minimum_order_amount);
                         @endphp
-                        @if($isQualifiedForLoyalty)
-                            <div style="background:#ECFDF5; border:1px solid #10B981; border-radius:14px; padding:12px 14px; margin-bottom:16px;">
-                                <div style="font-size:12.5px; font-weight:700; color:#065F46; display:flex; align-items:center; gap:6px;">
-                                    <span>🎉 Congratulations! You have qualified for Loyalty Rewards.</span>
-                                </div>
-                                <p style="font-size:12px; color:#047857; margin:4px 0 0 0; line-height:1.4;">
-                                    Complete this order to earn a <strong>{{ $ruleRewardText }}</strong> for your next order!
-                                </p>
+                        <div style="background:#EFF6FF; border:1px solid #3B82F6; border-radius:14px; padding:12px 14px; margin-bottom:16px;">
+                            <div style="font-size:12.5px; font-weight:700; color:#1E40AF; display:flex; align-items:center; gap:6px;">
+                                <span>⭐ Loyalty Rewards Opportunity</span>
                             </div>
-                        @else
-                            <div style="background:#EFF6FF; border:1px solid #3B82F6; border-radius:14px; padding:12px 14px; margin-bottom:16px;">
-                                <div style="font-size:12.5px; font-weight:700; color:#1E40AF; display:flex; align-items:center; gap:6px;">
-                                    <span>⭐ Loyalty Rewards Opportunity</span>
-                                </div>
-                                <p style="font-size:12px; color:#1D4ED8; margin:4px 0 0 0; line-height:1.4;">
-                                    Spend <strong>£{{ number_format($loyaltyRule->minimum_order_amount, 2) }}</strong> or more on this order to earn a <strong>{{ $ruleRewardText }}</strong> for your next order!
-                                </p>
-                            </div>
-                        @endif
+                            <p style="font-size:12px; color:#1D4ED8; margin:4px 0 0 0; line-height:1.4;">
+                                Spend <strong>£{{ number_format($loyaltyRule->minimum_order_amount, 2) }}</strong> or more on this order to earn a <strong>{{ $ruleRewardText }}</strong> for your next order!
+                            </p>
+                        </div>
                     @endif
 
                     <!-- ── PROMOTIONS & COUPONS (UPPER SIDE) ── -->
