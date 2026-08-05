@@ -927,9 +927,10 @@
         background: #fff;
         border: 1px solid #F0EDE8;
         border-radius: 18px;
-        overflow: hidden;
+        overflow: visible;
         cursor: pointer;
         transition: box-shadow .2s, transform .18s;
+        position: relative;
 
         display: flex !important;
         flex-direction: row !important;   /* side-by-side */
@@ -943,6 +944,7 @@
     .menu-card:hover {
         box-shadow: 0 6px 24px rgba(0,0,0,.1);
         transform: translateY(-2px);
+        z-index: 50;
     }
 
     /* ── Left: fluid square image ── */
@@ -953,6 +955,8 @@
         flex-shrink: 0;
         overflow: hidden;
         position: relative;
+        border-top-left-radius: 17px;
+        border-bottom-left-radius: 17px;
     }
 
     .menu-card-img img {
@@ -976,7 +980,8 @@
         justify-content: space-between;
         gap: 6px;
         min-width: 0;
-        overflow: hidden;
+        overflow: visible;
+        position: relative;
     }
 
     /* ── Name row ── */
@@ -1028,14 +1033,14 @@
     .item-tag.spicy-tag { background: #FEF0EF; color: #A93A2C; }
 
     /* ── Allergy tooltip ── */
-    .info-tooltip { position: relative; display: inline-block; cursor: pointer; }
+    .info-tooltip { position: relative; display: inline-block; cursor: pointer; z-index: 10; }
     .details-link {
         font-size: 10px; color: #9CA3AF; font-weight: 600;
         border-bottom: 1px dotted #D1D5DB; line-height: 1; white-space: nowrap;
     }
     .details-link:hover { color: #374151; }
     .tooltip-content {
-        position: absolute; bottom: 20px; left: 0;
+        position: absolute; bottom: 100%; left: 0; margin-bottom: 6px;
         width: 200px; max-width: calc(100vw - 20px);
         background: #fff; border: 1px solid #E5E7EB; border-radius: 12px; padding: 10px;
         box-shadow: 0 10px 25px rgba(0,0,0,.15); z-index: 99999; display: none; text-align: left;
