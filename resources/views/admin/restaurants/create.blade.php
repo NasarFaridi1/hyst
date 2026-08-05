@@ -130,9 +130,9 @@
                         >
                         <div id="leafletSearchResults" class="absolute  left-0 right-0 top-full bg-white border border-gray-200 rounded-xl mt-1 max-h-60 overflow-y-auto z-[9999] shadow-2xl hidden"></div>
                     </div>
-                    {{-- <div id="restaurantMapContainer" class="mt-4 rounded-xl border border-blue-200 overflow-hidden shadow-inner" style="height: 240px;">
+                    <div id="restaurantMapContainer" class="mt-4 rounded-xl border border-blue-200 overflow-hidden shadow-inner" style="height: 240px;">
                         <div id="restaurantMap" style="width: 100%; height: 100%;"></div>
-                    </div> --}}
+                    </div>
                     <p class="text-xs text-blue-700 mt-2 font-medium">💡 Search address above to fill details automatically.</p>
                 </div>
 

@@ -239,7 +239,7 @@ class UserAddressController extends Controller
         $request->validate([
             'restaurant_id' => 'required|exists:restaurants,id',
             'selectedAddress_id' => 'required',
-            'finalTotal' => 'required|numeric|min:0',
+            'finalTotal' => 'required|numeric',
         ]);
 
         // return response()->json([
