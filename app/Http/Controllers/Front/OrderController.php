@@ -1596,33 +1596,17 @@ class OrderController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | CANNOT CANCEL AFTER PICKUP
+        | CANNOT CANCEL ONCE ACCEPTED BY RESTAURANT
         |--------------------------------------------------------------------------
         */
 
-        $blockedStatuses = [
-
-            'waiting_at_pickup',
-            'picking',
-            'in_transit',
-            'delivered'
-
-        ];
-
-        if (
-
-            in_array(
-                $order->delivery_status,
-                $blockedStatuses
-            )
-
-        ) {
+        if ($order->status !== 'pending') {
 
             return back()->with(
 
                 'error',
 
-                'Order cannot be cancelled after pickup has started.'
+                'Order cannot be cancelled once accepted by the restaurant.'
 
             );
 

@@ -1250,13 +1250,8 @@
                         return;
                     }
 
-                    // Hide cancel button once pickup starts
-                    if (
-                        data.uber_delivery_status === 'pickup' ||
-                        data.uber_delivery_status === 'pickup_complete' ||
-                        data.uber_delivery_status === 'dropoff' ||
-                        data.uber_delivery_status === 'delivered'
-                    ) {
+                    // Hide cancel button once order is accepted by restaurant (status is no longer pending)
+                    if (data.status !== 'pending' && data.status !== 'cancelled') {
                         container.innerHTML = '';
                     }
                 }
@@ -1799,10 +1794,7 @@
 
             {{-- CANCEL ORDER --}}
             <div id="cancelOrderContainer">
-                @if(
-                    $order->status !== 'completed' &&
-                    $order->status !== 'cancelled'
-                )
+                @if($order->status === 'pending')
 
                     <div class="od-card" style="margin-bottom:20px;">
 
@@ -1835,8 +1827,8 @@
                                         max-width:620px;
                                     ">
 
-                                        You can cancel this order only before pickup starts.
-                                        Once the driver picks up your order from the restaurant,
+                                        You can cancel this order only until the restaurant accepts it.
+                                        Once the restaurant has accepted your order,
                                         cancellation will no longer be available.
 
                                     </p>
@@ -1852,7 +1844,7 @@
                                         line-height:1.6;
                                     ">
 
-                                        ⚠️ Cancellation is allowed only before pickup stage.
+                                        ⚠️ Cancellation is allowed only before the restaurant accepts your order.
 
                                     </div>
 
