@@ -592,13 +592,13 @@
                     </span>
                 </div>
 
-                <div class="zero-commission-strip">
+                {{-- <div class="zero-commission-strip">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
-                    {{-- <p><strong>Commission.</strong> Your full payment supports the restaurant directly — no hidden cuts.</p> --}}
-                    <p>Content to be provided by Nasar</p>
-                </div>
+                    <p><strong>Commission.</strong> Your full payment supports the restaurant directly — no hidden cuts.</p>
+                    
+                </div> --}}
 
                 @auth
                 <a href="/checkout" class="btn-primary">
