@@ -1969,33 +1969,53 @@
                 {{-- Delivery --}}
                 <div class="od-card" style="margin-bottom:0;">
                     <div class="od-info-body">
-                        <div class="od-section-title">Delivery Details</div>
+                        <div class="od-section-title">
+                            @if($order->order_type == 'takeaway')
+                                Takeaway Details
+                            @elseif($order->order_type == 'dine_in')
+                                Dine-In Details
+                            @else
+                                Delivery Details
+                            @endif
+                        </div>
                         <div style="display:flex; flex-direction:column; gap:14px;">
                             <div class="od-info-item">
                                 <label>Type</label>
-                                <span>{{ ucfirst(str_replace('_', ' ', $order->order_type)) }}</span>
+                                <span style="font-weight:700; text-transform:capitalize;">{{ str_replace('_', ' ', $order->order_type) }}</span>
                             </div>
-                            @if($order->order_type == 'delivery' && $order->delivery_provider == 'self')
-                            <div class="od-info-item">
-                                <label>Delivery Time</label>
+
+                            <div class="od-info-item" style="align-items:flex-start;">
+                                <label style="margin-top:6px;">{{ $order->order_type == 'takeaway' ? 'Pick Up Time' : 'Order Time' }}</label>
                                 <span>
                                     @if($order->is_scheduled && $order->scheduled_for)
-                                        📅 Scheduled • {{ \Carbon\Carbon::parse($order->scheduled_for)->format('d M Y, h:i A') }}
+                                        <div style="background:linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%); border:1px solid #C7D2FE; padding:10px 14px; border-radius:12px; display:inline-flex; align-items:center; gap:10px;">
+                                            <span style="font-size:20px;">📅</span>
+                                            <div>
+                                                <div style="font-size:10px; font-weight:700; color:#4338CA; text-transform:uppercase; letter-spacing:0.5px;">Scheduled Order</div>
+                                                <div style="font-size:13px; font-weight:700; color:#1E1B4B; margin-top:1px;">
+                                                    {{ \Carbon\Carbon::parse($order->scheduled_for)->format('l, d M Y @ h:i A') }}
+                                                </div>
+                                            </div>
+                                        </div>
                                     @else
-                                        ⚡ As Soon As Possible
+                                        <span style="display:inline-flex; align-items:center; gap:6px; background:#ECFDF5; border:1px solid #A7F3D0; color:#065F46; padding:6px 14px; border-radius:20px; font-size:13px; font-weight:600;">
+                                            <span>⚡</span> As Soon As Possible (ASAP)
+                                        </span>
                                     @endif
                                 </span>
                             </div>
-                            @endif
+
                             <div class="od-info-item">
                                 <label>Phone</label>
                                 <span>{{ $order->phone ?? '—' }}</span>
                             </div>
+
+                            @if($order->order_type == 'delivery')
                             <div class="od-info-item">
                                 <label>Address</label>
                                 <span>{{ $order->address ?? '—' }}</span>
                             </div>
-                            
+                            @endif
                         </div>
                     </div>
                 </div>

@@ -407,6 +407,25 @@
   </div>
   @endif --}}
 
+  @if($order->is_scheduled && $order->scheduled_for)
+  <div style="background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%); border: 1.5px solid #F59E0B; color: #78350F; padding: 14px 20px; border-radius: 14px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);">
+      <div style="display: flex; align-items: center; gap: 12px;">
+          <span style="font-size: 26px;">📅</span>
+          <div>
+              <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: #92400E;">
+                  SCHEDULED ORDER ({{ strtoupper(str_replace('_', ' ', $order->order_type)) }})
+              </div>
+              <div style="font-size: 16px; font-weight: 800; color: #451A03; margin-top: 2px;">
+                  Target Time: {{ \Carbon\Carbon::parse($order->scheduled_for)->format('l, d M Y @ h:i A') }}
+              </div>
+          </div>
+      </div>
+      <div style="background: #D97706; color: #FFFFFF; font-size: 12px; font-weight: 700; padding: 6px 14px; border-radius: 20px;">
+          Prepare for {{ \Carbon\Carbon::parse($order->scheduled_for)->format('h:i A') }}
+      </div>
+  </div>
+  @endif
+
   {{-- ── Row 1: Customer · Order Info · Delivery ── --}}
   <div class="grid grid-cols-1 md:grid-cols-4 xl:grid-cols-4 gap-8 mb-8">
 
@@ -443,20 +462,22 @@
         </div>
         <div class="info-item">
           <span class="info-label">Order type</span>
-          <span class="info-val">{{ ucfirst($order->order_type ?? 'Delivery') }}</span>
+          <span class="info-val" style="font-weight:700;">{{ ucfirst(str_replace('_', ' ', $order->order_type ?? 'Delivery')) }}</span>
         </div>
-        @if($order->order_type == 'delivery' && $order->delivery_provider == 'self')
         <div class="info-item">
-            <span class="info-label">Delivery Time</span>
+            <span class="info-label">{{ $order->order_type == 'takeaway' ? 'Pick Up Time' : 'Order Time' }}</span>
             <span class="info-val">
                 @if($order->is_scheduled && $order->scheduled_for)
-                    📅 {{ \Carbon\Carbon::parse($order->scheduled_for)->format('d M Y, h:i A') }}
+                    <span style="display:inline-flex; align-items:center; gap:6px; background:#FEF3C7; border:1px solid #F59E0B; color:#78350F; padding:4px 10px; border-radius:8px; font-size:12px; font-weight:700;">
+                        <span>📅</span> {{ \Carbon\Carbon::parse($order->scheduled_for)->format('d M Y, h:i A') }}
+                    </span>
                 @else
-                    ⚡ As Soon As Possible
+                    <span style="display:inline-flex; align-items:center; gap:6px; background:#E0F2FE; border:1px solid #7DD3FC; color:#0369A1; padding:4px 10px; border-radius:8px; font-size:12px; font-weight:700;">
+                        <span>⚡</span> ASAP
+                    </span>
                 @endif
             </span>
         </div>
-        @endif
         <div class="info-item">
           <span class="info-label">Status</span>
           <span class="badge badge-{{ $order->status }}">{{ ucfirst($order->status) }}</span>
