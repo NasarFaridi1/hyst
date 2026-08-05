@@ -705,16 +705,23 @@
                             $rewardValueText = $activeLoyaltyReward->reward_type === 'percentage' 
                                 ? number_format($activeLoyaltyReward->reward_value, 0) . '% OFF' 
                                 : '£' . number_format($activeLoyaltyReward->reward_value, 2) . ' OFF';
+                            $loyaltyApplied = (isset($loyaltyDiscount) && $loyaltyDiscount > 0);
                         @endphp
-                        <div style="background:#ECFDF5; border:1.5px solid #10B981; border-radius:14px; padding:14px; margin-bottom:16px;">
-                            <div style="font-size:13px; font-weight:700; color:#065F46; display:flex; align-items:center; justify-content:space-between; gap:6px;">
+                        <div style="background: {{ $loyaltyApplied ? '#ECFDF5' : '#FEF3C7' }}; border:1.5px solid {{ $loyaltyApplied ? '#10B981' : '#F59E0B' }}; border-radius:14px; padding:14px; margin-bottom:16px;">
+                            <div style="font-size:13px; font-weight:700; color: {{ $loyaltyApplied ? '#065F46' : '#92400E' }}; display:flex; align-items:center; justify-content:space-between; gap:6px;">
                                 <span>🎁 Active Loyalty Reward Available</span>
-                                <span style="background:#10B981; color:#fff; padding:2px 8px; border-radius:999px; font-size:11px; font-weight:800;">-{{ $rewardValueText }}</span>
+                                <span style="background: {{ $loyaltyApplied ? '#10B981' : '#F59E0B' }}; color:#fff; padding:2px 8px; border-radius:999px; font-size:11px; font-weight:800;">-{{ $rewardValueText }}</span>
                             </div>
-                            <p style="font-size:12px; color:#047857; margin:6px 0 0 0; line-height:1.4;">
-                                You earned a {{ $rewardValueText }} reward from a previous qualifying order at {{ $restaurant->name }}. It has been automatically applied to this order!
+                            <p style="font-size:12px; color: {{ $loyaltyApplied ? '#047857' : '#B45309' }}; margin:6px 0 0 0; line-height:1.4;">
+                                @if($loyaltyApplied)
+                                    You earned a {{ $rewardValueText }} reward from a previous qualifying order at {{ $restaurant->name }}. It has been automatically applied to this order!
+                                @else
+                                    You have a {{ $rewardValueText }} reward available! Since your subtotal is already fully covered by another offer discount, your reward remains saved in your account for your next order.
+                                @endif
                             </p>
-                            <input type="hidden" name="loyalty_reward_id" value="{{ $activeLoyaltyReward->id }}">
+                            @if($loyaltyApplied)
+                                <input type="hidden" name="loyalty_reward_id" value="{{ $activeLoyaltyReward->id }}">
+                            @endif
                         </div>
                     @elseif(isset($loyaltyRule) && $loyaltyRule && $loyaltyRule->is_active)
                         @php

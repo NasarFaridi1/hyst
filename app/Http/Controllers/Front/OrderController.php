@@ -251,6 +251,8 @@ class OrderController extends Controller
                             $orderOffer->value;
                     }
 
+                    $orderOfferDiscount = min($orderOfferDiscount, $finalTotal);
+
                     $finalTotal -= $orderOfferDiscount;
 
                     $discount += $orderOfferDiscount;
@@ -549,14 +551,18 @@ class OrderController extends Controller
 
                     if($orderOffer->value_type == 'percentage') {
 
-                        $discount +=
+                        $orderOfferDiscount =
                             ($finalTotal * $orderOffer->value) / 100;
 
                     } else {
 
-                        $discount +=
+                        $orderOfferDiscount =
                             $orderOffer->value;
                     }
+
+                    $orderOfferDiscount = min($orderOfferDiscount, $finalTotal);
+
+                    $discount += $orderOfferDiscount;
                 }
             }
 
