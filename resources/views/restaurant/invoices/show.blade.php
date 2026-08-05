@@ -18,8 +18,9 @@
 </style>
 
 @php
-    $isCancelled = in_array(strtolower($order->status), ['cancelled', 'canceled']);
-    $paymentStatus = strtolower(optional($order->payment)->payment_status ?? 'pending');
+    $isCancelled = in_array(strtolower($order->status ?? ''), ['cancelled', 'canceled']);
+    $paymentStatus = strtolower($order->payment->payment_status ?? 'pending');
+    $invoiceDate = $order->invoice->invoice_date ?? $order->created_at;
 @endphp
 
 <div class="max-w-6xl mx-auto p-3 sm:p-5 lg:p-8">
@@ -71,7 +72,7 @@
                         {{ $order->invoice->invoice_number ?? ('INV-'.$order->id) }}
                     </h2>
                     <p class="text-xs sm:text-sm text-orange-100 mt-1">
-                        Issued: {{ optional($order->invoice->invoice_date ?? $order->created_at)->format('d M Y, h:i A') }}
+                        Issued: {{ $invoiceDate ? \Carbon\Carbon::parse($invoiceDate)->format('d M Y, h:i A') : '—' }}
                     </p>
                 </div>
             </div>
@@ -110,11 +111,11 @@
                     <div class="space-y-2 text-xs sm:text-sm text-gray-700">
                         <p class="break-words">
                             <span class="font-semibold text-gray-900">Name:</span>
-                            {{ optional($order->user)->name ?? $order->name ?? 'Guest Customer' }}
+                            {{ $order->user->name ?? $order->name ?? 'Guest Customer' }}
                         </p>
                         <p class="break-words">
                             <span class="font-semibold text-gray-900">Phone:</span>
-                            {{ $order->phone ?? optional($order->user)->phone ?? '—' }}
+                            {{ $order->phone ?? $order->user->phone ?? '—' }}
                         </p>
                         <p class="break-words">
                             <span class="font-semibold text-gray-900">Address:</span>

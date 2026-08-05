@@ -677,11 +677,33 @@ class OrderController extends Controller
 
             /*
             |--------------------------------------------------------------------------
-            | CREATE ORDER
+            | RESOLVE ADDRESS & POSTCODE FOR DELIVERY (INCLUDING SELF DELIVERY)
             |--------------------------------------------------------------------------
             */
+            $addressVal = $request->address;
+            $postcodeVal = $request->postcode;
 
-            // 1. Fetch coupon details from session
+            if ($request->filled('address_id')) {
+                $userAddr = UserAddress::find($request->address_id);
+                if ($userAddr) {
+                    $addressVal = $addressVal ?: ($userAddr->address . ($userAddr->landmark ? ', ' . $userAddr->landmark : '') . ($userAddr->city ? ', ' . $userAddr->city : ''));
+                    $postcodeVal = $postcodeVal ?: $userAddr->postcode;
+                }
+            }
+
+            if (empty($addressVal) && $request->order_type === 'delivery') {
+                if ($userId) {
+                    $defaultAddr = UserAddress::where('user_id', $userId)->where('is_default', 1)->first()
+                        ?? UserAddress::where('user_id', $userId)->latest()->first();
+                    if ($defaultAddr) {
+                        $addressVal = $defaultAddr->address;
+                        $postcodeVal = $postcodeVal ?: $defaultAddr->postcode;
+                    }
+                } elseif ($guest) {
+                    $addressVal = $guest['address'] ?? null;
+                    $postcodeVal = $guest['postcode'] ?? null;
+                }
+            }
 
             $order = Order::create([
 
@@ -717,13 +739,13 @@ class OrderController extends Controller
                     $request->order_type,
 
                 'phone' =>
-                    $request->phone,
+                    $request->phone ?: ($guest['phone'] ?? optional(auth()->user())->phone),
 
                 'address' =>
-                    $request->address,
+                    $addressVal,
 
                 'pincode' =>
-                    $request->postcode,
+                    $postcodeVal,
 
                 'payment_method' =>
                     $request->payment_method,

@@ -372,6 +372,26 @@ class OrderController extends Controller
         | CREATE ORDER
         |--------------------------------------------------------------------------
         */
+        $addressVal = $request->address;
+        $postcodeVal = $request->pincode;
+
+        if ($request->filled('address_id')) {
+            $userAddr = UserAddress::find($request->address_id);
+            if ($userAddr) {
+                $addressVal = $addressVal ?: ($userAddr->address . ($userAddr->city ? ', ' . $userAddr->city : ''));
+                $postcodeVal = $postcodeVal ?: $userAddr->postcode;
+            }
+        }
+
+        if (empty($addressVal) && $request->order_type === 'delivery' && auth()->check()) {
+            $defaultAddr = UserAddress::where('user_id', auth()->id())->where('is_default', 1)->first()
+                ?? UserAddress::where('user_id', auth()->id())->latest()->first();
+            if ($defaultAddr) {
+                $addressVal = $defaultAddr->address;
+                $postcodeVal = $defaultAddr->postcode;
+            }
+        }
+
         $order = Order::create([
             'user_id'           => auth()->id(),
             'restaurant_id'     => $restaurantId,
@@ -381,14 +401,15 @@ class OrderController extends Controller
             'hyst_charge'       => $hystCharge,
             'order_type'        => $request->order_type,
             'phone'             => $request->phone,
-            'address'           => $request->address,
-            'pincode'           => $request->pincode,
+            'address'           => $addressVal,
+            'pincode'           => $postcodeVal,
             'payment_method'    => $request->payment_method,
             'status'            => 'pending',
             'offer_discount'    => $discount,
             'offer_title'       => $orderOffer?->title ?? ($discount > 0 ? 'Offer Discount' : null),
             'loyalty_reward_id' => $appliedLoyaltyReward?->id,
             'loyalty_discount'  => $loyaltyRewardDiscount,
+            'delivery_provider' => $restaurant->self_delivery ? 'self' : 'uber',
         ]);
 
         if ($appliedLoyaltyReward && $loyaltyRewardDiscount > 0) {
