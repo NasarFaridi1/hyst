@@ -1816,14 +1816,26 @@ _clearBtn?.addEventListener('click', function () {
 ══════════════════════════════════════════ */
 function openItemModal(productId, name, price, desc, imgUrl, isVeg, hasCustom, rating, arImg, allergies, dietaries) {
     modalCurrentProductId    = productId;
-    modalCurrentProductPrice = parseFloat(price);
+    modalCurrentProductPrice = parseFloat(price) || 0;
     modalCurrentQty          = 1;
 
-    allergies = Array.isArray(allergies) ? allergies : [];
-    dietaries = Array.isArray(dietaries) ? dietaries : [];
+    if (typeof allergies === 'string') {
+        try { allergies = JSON.parse(allergies); } catch (e) { allergies = allergies ? [allergies] : []; }
+    }
+    if (!Array.isArray(allergies)) allergies = [];
 
-    document.getElementById('modalName').textContent    = name;
-    document.getElementById('modalPrice').textContent   = '£' + parseFloat(price).toFixed(2);
+    if (typeof dietaries === 'string') {
+        try { dietaries = JSON.parse(dietaries); } catch (e) { dietaries = dietaries ? [dietaries] : []; }
+    }
+    if (!Array.isArray(dietaries)) dietaries = [];
+
+    const setElText = (id, txt) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = txt;
+    };
+
+    setElText('modalName', name || '');
+    setElText('modalPrice', '£' + (parseFloat(price) || 0).toFixed(2));
 
     // 1. Alergic
     const allergyEl = document.getElementById('modalAllergy');
@@ -1838,31 +1850,44 @@ function openItemModal(productId, name, price, desc, imgUrl, isVeg, hasCustom, r
     }
 
     // 3. Description
-    document.getElementById('modalDesc').textContent    = desc || '';
-    document.getElementById('modalRating').textContent  = rating ? '★ ' + rating : '';
-    document.getElementById('modalQty').textContent     = 1;
-    document.getElementById('modalAddLabel').textContent= 'Add to order';
-    document.getElementById('modalAddPrice').textContent= '£' + parseFloat(price).toFixed(2);
+    setElText('modalDesc', desc || '');
+    setElText('modalRating', rating ? '★ ' + rating : '');
+    setElText('modalQty', 1);
+    setElText('modalAddLabel', 'Add to order');
+    setElText('modalAddPrice', '£' + (parseFloat(price) || 0).toFixed(2));
 
     const vegWrap = document.getElementById('modalVegWrap');
-    vegWrap.className = 'veg-dot-wrap ' + (isVeg ? 'veg' : 'nonveg');
-    vegWrap.innerHTML = '<span></span>';
+    if (vegWrap) {
+        vegWrap.className = 'veg-dot-wrap ' + (isVeg ? 'veg' : 'nonveg');
+        vegWrap.innerHTML = '<span></span>';
+    }
 
     const img = document.getElementById('modalImg');
     const ph  = document.getElementById('modalImgPlaceholder');
-    if (imgUrl) {
-        img.src = imgUrl; img.style.display = 'block'; ph.style.display = 'none';
-    } else {
-        img.style.display = 'none'; ph.style.display = 'block';
+    if (img) {
+        if (imgUrl) {
+            img.src = imgUrl;
+            img.style.display = 'block';
+            if (ph) ph.style.display = 'none';
+        } else {
+            img.style.display = 'none';
+            if (ph) ph.style.display = 'block';
+        }
     }
 
-    document.getElementById('modalSpiceSection').style.display =
-        hasCustom ? 'block' : 'none';
+    const spiceSec = document.getElementById('modalSpiceSection');
+    if (spiceSec) {
+        spiceSec.style.display = hasCustom ? 'block' : 'none';
+    }
+
     document.querySelectorAll('.spice-btn').forEach(b =>
         b.classList.toggle('selected', b.textContent === 'Medium'));
     selectedSpice = 'Medium';
 
-    document.getElementById('itemDetailModal').style.display = 'flex';
+    const modal = document.getElementById('itemDetailModal');
+    if (modal) {
+        modal.style.display = 'flex';
+    }
 }
 
 function closeItemModal(e) {

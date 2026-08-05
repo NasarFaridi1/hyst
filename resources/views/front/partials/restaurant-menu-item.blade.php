@@ -28,8 +28,8 @@
 
     $avgRating = $product->reviews_avg_rating ?? null;
 
-    $jsName  = addslashes(strip_tags($product->name));
-    $jsDesc  = addslashes(strip_tags($product->description ?? ''));
+    $jsName  = addslashes(preg_replace('/\s+/', ' ', strip_tags($product->name)));
+    $jsDesc  = addslashes(preg_replace('/\s+/', ' ', strip_tags($product->description ?? '')));
     $jsImg   = addslashes($imgUrl ?? '');
     $jsArImg = addslashes($arImg ?? '');
 
