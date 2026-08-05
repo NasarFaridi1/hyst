@@ -159,7 +159,6 @@ class OrderController extends Controller
         if ($activeLoyaltyReward) {
             $loyaltyDiscount = $activeLoyaltyReward->calculateDiscount(max(0, $finalTotal));
             $finalTotal = max(0, $finalTotal - $loyaltyDiscount);
-            $discount += $loyaltyDiscount;
         }
 
         $serviceCharge = 0.12;

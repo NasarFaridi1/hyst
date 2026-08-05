@@ -838,10 +838,11 @@
                     <!-- Hidden Price State Inputs -->
                     <input type="hidden" id="raw_cart_subtotal" value="{{ $originalTotal }}">
                     <input type="hidden" id="offer_discount" value="{{ $discount }}">
+                    <input type="hidden" id="loyalty_discount" value="{{ $loyaltyDiscount ?? 0 }}">
                     <input type="hidden" id="delivery_charge" name="delivery_charge" value="0">
                     <input type="hidden" id="hyst_charge" name="hyst_charge" value="0">
                     <input type="hidden" id="uber_quote_id" name="uber_quote_id" value="">
-                    <input type="hidden" id="cartSubtotal" value="{{ max($originalTotal - $discount, 0) }}">
+                    <input type="hidden" id="cartSubtotal" value="{{ max($originalTotal - $discount - ($loyaltyDiscount ?? 0), 0) }}">
                     <input type="hidden" id="couponIdHidden" name="coupon_id">
                     <input type="hidden" id="couponCodeHidden" name="coupon_code">
                     <input type="hidden" id="couponDiscountHidden" name="coupon_discount" value="0">
@@ -1159,14 +1160,17 @@
 <script>
 
     function updateTotalSaving() {
-        const offer = parseFloat(@json($orderOfferDiscount ?? 0));
-        const coupon = parseFloat(document.getElementById('couponDiscountHidden').value || 0);
-        const gift = parseFloat(document.getElementById('giftCardAmountHidden').value || 0);
+        const offer = parseFloat(document.getElementById('offer_discount')?.value || 0);
+        const loyalty = parseFloat(document.getElementById('loyalty_discount')?.value || 0);
+        const coupon = parseFloat(document.getElementById('couponDiscountHidden')?.value || 0);
+        const gift = parseFloat(document.getElementById('giftCardAmountHidden')?.value || 0);
 
-        const total = offer + coupon + gift;
+        const total = offer + loyalty + coupon + gift;
 
-        document.getElementById('totalSavingText').textContent =
-            `🎉 You're saving £${total.toFixed(2)} on this order!`;
+        const totalSavingElem = document.getElementById('totalSavingText');
+        if (totalSavingElem) {
+            totalSavingElem.textContent = `🎉 You're saving £${total.toFixed(2)} on this order!`;
+        }
     }
 
     let couponDiscount = 0;
@@ -1260,10 +1264,12 @@
     function updateGrandTotal() {
         let rawSubtotal = parseFloat(document.getElementById("raw_cart_subtotal").value || 0);
         let offerDiscount = parseFloat(document.getElementById("offer_discount").value || 0);
+        let loyaltyDiscount = parseFloat(document.getElementById("loyalty_discount") ? document.getElementById("loyalty_discount").value : 0) || 0;
         let delivery = parseFloat(document.getElementById("delivery_charge").value || 0);
 
         let subtotalAfterOffer = Math.max(rawSubtotal - offerDiscount, 0);
-        let subtotalAfterCoupon = Math.max(subtotalAfterOffer - couponDiscount, 0);
+        let subtotalAfterLoyalty = Math.max(subtotalAfterOffer - loyaltyDiscount, 0);
+        let subtotalAfterCoupon = Math.max(subtotalAfterLoyalty - couponDiscount, 0);
         let finalSubtotal = Math.max(subtotalAfterCoupon - giftCardDiscount, 0);
 
         let orderType = document.querySelector('input[name="order_type"]:checked');

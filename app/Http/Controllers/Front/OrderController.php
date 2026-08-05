@@ -270,7 +270,6 @@ class OrderController extends Controller
             if ($activeLoyaltyReward) {
                 $loyaltyDiscount = $activeLoyaltyReward->calculateDiscount($finalTotal);
                 $finalTotal = max(0, $finalTotal - $loyaltyDiscount);
-                $discount += $loyaltyDiscount;
             }
 
             $loyaltyRule = \App\Models\LoyaltyRule::where('restaurant_id', $restaurantId)
