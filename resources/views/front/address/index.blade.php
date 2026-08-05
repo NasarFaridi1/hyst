@@ -309,7 +309,7 @@
         </div>
 
         <div class="co-input-group">
-            <label for="additionalDetails">Additional details</label>
+            <label for="additionalDetails">Additional details(House / flat number, floor, landmark...)</label>
             <input type="text" id="additionalDetails" class="co-input" placeholder="Flat / house number, floor, landmark...">
         </div>
 
