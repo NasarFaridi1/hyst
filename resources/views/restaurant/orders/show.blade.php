@@ -369,8 +369,42 @@
   <div class="pg-header">
     <div>
       <div class="pg-eyebrow">Restaurant Panel</div>
-      <h1>Order <span>#{{ $order->id }}</span></h1>
-      <p class="pg-sub">Placed {{ $order->created_at->format('d M Y, h:i A') }}</p>
+      <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-top:2px;">
+        <h1 style="margin:0;">Order <span>#{{ $order->id }}</span></h1>
+
+        @php
+            $isTakeaway = $order->order_type === 'takeaway';
+            $isDelivery = $order->order_type === 'delivery';
+            $isScheduled = $order->is_scheduled && $order->scheduled_for;
+        @endphp
+
+        @if($isTakeaway)
+            @if($isScheduled)
+                <span style="background:#FEF3C7; border:1.5px solid #F59E0B; color:#78350F; padding:6px 14px; border-radius:20px; font-size:13px; font-weight:700; display:inline-flex; align-items:center; gap:6px;">
+                    <span>📅</span> Schedule Takeaway • {{ \Carbon\Carbon::parse($order->scheduled_for)->format('d M Y, h:i A') }}
+                </span>
+            @else
+                <span style="background:#E0F2FE; border:1.5px solid #0284C7; color:#0369A1; padding:6px 14px; border-radius:20px; font-size:13px; font-weight:700; display:inline-flex; align-items:center; gap:6px;">
+                    <span>⚡</span> Takeaway Now
+                </span>
+            @endif
+        @elseif($isDelivery)
+            @if($isScheduled)
+                <span style="background:#FEF3C7; border:1.5px solid #F59E0B; color:#78350F; padding:6px 14px; border-radius:20px; font-size:13px; font-weight:700; display:inline-flex; align-items:center; gap:6px;">
+                    <span>📅</span> Schedule Delivery • {{ \Carbon\Carbon::parse($order->scheduled_for)->format('d M Y, h:i A') }}
+                </span>
+            @else
+                <span style="background:#E0F2FE; border:1.5px solid #0284C7; color:#0369A1; padding:6px 14px; border-radius:20px; font-size:13px; font-weight:700; display:inline-flex; align-items:center; gap:6px;">
+                    <span>⚡</span> Deliver Now
+                </span>
+            @endif
+        @else
+            <span style="background:#F3F4F6; border:1.5px solid #D1D5DB; color:#374151; padding:6px 14px; border-radius:20px; font-size:13px; font-weight:700; display:inline-flex; align-items:center; gap:6px;">
+                <span>🍽️</span> Dine In
+            </span>
+        @endif
+      </div>
+      <p class="pg-sub" style="margin-top:6px;">Placed {{ $order->created_at->format('d M Y, h:i A') }}</p>
     </div>
     {{-- <a href="/restaurant/orders" class="btn-back">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
@@ -469,11 +503,11 @@
             <span class="info-val">
                 @if($order->is_scheduled && $order->scheduled_for)
                     <span style="display:inline-flex; align-items:center; gap:6px; background:#FEF3C7; border:1px solid #F59E0B; color:#78350F; padding:4px 10px; border-radius:8px; font-size:12px; font-weight:700;">
-                        <span>📅</span> {{ \Carbon\Carbon::parse($order->scheduled_for)->format('d M Y, h:i A') }}
+                        <span>📅</span> {{ $order->order_type == 'takeaway' ? 'Schedule Takeaway' : 'Schedule Delivery' }} ({{ \Carbon\Carbon::parse($order->scheduled_for)->format('d M Y, h:i A') }})
                     </span>
                 @else
                     <span style="display:inline-flex; align-items:center; gap:6px; background:#E0F2FE; border:1px solid #7DD3FC; color:#0369A1; padding:4px 10px; border-radius:8px; font-size:12px; font-weight:700;">
-                        <span>⚡</span> ASAP
+                        <span>⚡</span> {{ $order->order_type == 'takeaway' ? 'Takeaway Now' : ($order->order_type == 'delivery' ? 'Deliver Now' : 'ASAP') }}
                     </span>
                 @endif
             </span>
@@ -639,7 +673,7 @@
     {{-- Payment --}}
     <div class="od-card">
       <div class="card-eyebrow">Payment</div>
-      <div class="info-row" style="margin-bottom:16px">
+      <div class="info-row" style="margin-bottom:0">
         <div class="info-item">
           <span class="info-label">Method</span>
           <span class="info-val">{{ $order->payment->payment_type ?? 'N/A' }}({{ $order->payment->payment_method ?? 'N/A' }})</span>
@@ -652,34 +686,6 @@
           </span>
         </div>
       </div>
-
-      <hr class="pay-divider">
-      <p class="pay-section-label">Update payment status</p>
-
-      <form method="POST" action="{{ route('restaurant.orders.payment.status', $order->id) }}">
-        @csrf
-        <select name="payment_status" class="pay-select">
-          @foreach(['pending','paid','failed','cancelled','refunded','partially_refunded'] as $ps)
-            <option value="{{ $ps }}" {{ optional($order->payment)->payment_status == $ps ? 'selected' : '' }}>
-              {{ ucfirst($ps) }}
-            </option>
-          @endforeach
-        </select>
-        {{-- <button type="submit" class="od-btn btn-pay-update">
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-          Update Payment
-        </button> --}}
-      </form>
-
-      @if($order->status === 'cancelled' && optional($order->payment)->payment_status === 'paid')
-        {{-- <form method="POST" action="{{ route('restaurant.orders.refund', $order->id) }}" style="margin-top:8px">
-          @csrf --}}
-          <button disabled type="submit" class="od-btn btn-refund" onclick="return confirm('Issue a refund for this payment?')">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
-            Refund Payment
-          </button>
-        {{-- </form> --}}
-      @endif
       @if(
           $order->status === 'cancelled' &&
           optional($order->payment)
