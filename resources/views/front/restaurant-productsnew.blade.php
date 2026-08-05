@@ -1563,7 +1563,21 @@ function copyCoupon(button, code) {
                         </span>
                         <h2 style="margin:0; font-size:22px; font-weight:700; letter-spacing:-.3px;" id="modalName"></h2>
                     </div>
-                    <div style="font-size:16px; font-weight:700; margin-bottom:4px;" id="modalPrice"></div>
+                    <div style="font-size:16px; font-weight:700; margin-bottom:6px;" id="modalPrice"></div>
+
+                    {{-- 1. Alergic --}}
+                    <div id="modalAllergySection" style="font-size:13px; color:#555; margin-bottom:6px; line-height:1.4;">
+                        <strong style="color:#222; font-weight:600;">Alergic:</strong>
+                        <span id="modalAllergy" style="color:#666; margin-left:4px;"></span>
+                    </div>
+
+                    {{-- 2. Diatry --}}
+                    <div id="modalDietarySection" style="font-size:13px; color:#555; margin-bottom:8px; line-height:1.4;">
+                        <strong style="color:#222; font-weight:600;">Diatry:</strong>
+                        <span id="modalDietary" style="color:#666; margin-left:4px;"></span>
+                    </div>
+
+                    {{-- 3. Description --}}
                     <div style="font-size:14px; color:#757575; line-height:1.55;" id="modalDesc"></div>
                 </div>
                 <div style="font-size:13px; font-weight:600; color:#06C167; flex-shrink:0;" id="modalRating"></div>
@@ -1573,12 +1587,12 @@ function copyCoupon(button, code) {
             {{-- <div id="modalSpiceSection" style="display:none; border:1px solid #EAEAEA; border-radius:14px; padding:16px;"> --}}
             <div id="modalSpiceSection" >
                 
-                {{-- <div style="font-size:13px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#999; margin-bottom:12px;">Spice level</div> --}}
+                <div style="font-size:13px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#999; margin-bottom:12px;">Spice level</div> --}}
                 {{-- <div class="spice-btns">
                     <button class="spice-btn selected" onclick="selectSpice(this, 'Mild')">Mild</button>
                     <button class="spice-btn" onclick="selectSpice(this, 'Medium')">Medium</button>
                     <button class="spice-btn" onclick="selectSpice(this, 'Hot')">Hot</button>
-                </div> --}}
+                </div>
             </div>
         </div>
 
@@ -1800,14 +1814,31 @@ _clearBtn?.addEventListener('click', function () {
 /* ══════════════════════════════════════════
    ITEM DETAIL MODAL
 ══════════════════════════════════════════ */
-function openItemModal(productId, name, price, desc, imgUrl, isVeg, hasCustom, rating, arImg) {
+function openItemModal(productId, name, price, desc, imgUrl, isVeg, hasCustom, rating, arImg, allergies, dietaries) {
     modalCurrentProductId    = productId;
     modalCurrentProductPrice = parseFloat(price);
     modalCurrentQty          = 1;
 
+    allergies = Array.isArray(allergies) ? allergies : [];
+    dietaries = Array.isArray(dietaries) ? dietaries : [];
+
     document.getElementById('modalName').textContent    = name;
     document.getElementById('modalPrice').textContent   = '£' + parseFloat(price).toFixed(2);
-    document.getElementById('modalDesc').textContent    = desc;
+
+    // 1. Alergic
+    const allergyEl = document.getElementById('modalAllergy');
+    if (allergyEl) {
+        allergyEl.textContent = allergies.length > 0 ? allergies.join(', ') : 'May contain common allergens';
+    }
+
+    // 2. Diatry
+    const dietaryEl = document.getElementById('modalDietary');
+    if (dietaryEl) {
+        dietaryEl.textContent = dietaries.length > 0 ? dietaries.join(', ') : (isVeg ? 'Vegetarian' : 'Non-Vegetarian');
+    }
+
+    // 3. Description
+    document.getElementById('modalDesc').textContent    = desc || '';
     document.getElementById('modalRating').textContent  = rating ? '★ ' + rating : '';
     document.getElementById('modalQty').textContent     = 1;
     document.getElementById('modalAddLabel').textContent= 'Add to order';

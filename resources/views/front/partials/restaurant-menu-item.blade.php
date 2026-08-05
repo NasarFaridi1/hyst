@@ -32,6 +32,9 @@
     $jsDesc  = addslashes(strip_tags($product->description ?? ''));
     $jsImg   = addslashes($imgUrl ?? '');
     $jsArImg = addslashes($arImg ?? '');
+
+    $allergies = isset($product->allergies) ? $product->allergies->pluck('allergy')->values()->toArray() : [];
+    $dietaries = isset($product->dietaries) ? $product->dietaries->pluck('dietary')->values()->toArray() : [];
 @endphp
 
 <div class="menu-card"
@@ -44,7 +47,9 @@
          {{ $isVeg ? 'true' : 'false' }},
          {{ $hasCustom ? 'true' : 'false' }},
          '{{ $avgRating ? number_format($avgRating,1) : '' }}',
-         '{{ $jsArImg }}'
+         '{{ $jsArImg }}',
+         {{ e(json_encode($allergies)) }},
+         {{ e(json_encode($dietaries)) }}
      )"
      data-veg="{{ $isVeg ? '1' : '0' }}">
 
