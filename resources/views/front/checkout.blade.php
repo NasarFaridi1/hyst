@@ -994,6 +994,41 @@
             });
         });
 
+        function updateScheduleUI(orderType) {
+            const container = document.getElementById('deliveryScheduleContainer');
+            if (!container) return;
+
+            const cardTitle     = document.getElementById('scheduleCardTitle');
+            const nowTitle      = document.getElementById('dtNowTitle');
+            const nowSub        = document.getElementById('dtNowSub');
+            const scheduleTitle = document.getElementById('dtScheduleTitle');
+            const scheduleSub   = document.getElementById('dtScheduleSub');
+            const dateLabel     = document.getElementById('scheduledDateLabel');
+            const timeLabel     = document.getElementById('scheduledTimeLabel');
+
+            if (orderType === 'delivery') {
+                container.style.display = 'block';
+                if (cardTitle)     cardTitle.textContent     = '🕒 Delivery Time';
+                if (nowTitle)      nowTitle.textContent      = 'Deliver Now';
+                if (nowSub)        nowSub.textContent        = 'Deliver immediately';
+                if (scheduleTitle) scheduleTitle.textContent = 'Schedule Delivery';
+                if (scheduleSub)   scheduleSub.textContent   = 'Choose date & time';
+                if (dateLabel)     dateLabel.textContent     = 'Delivery Date';
+                if (timeLabel)     timeLabel.textContent     = 'Delivery Time';
+            } else if (orderType === 'takeaway') {
+                container.style.display = 'block';
+                if (cardTitle)     cardTitle.textContent     = '🕒 Takeaway Time';
+                if (nowTitle)      nowTitle.textContent      = 'Takeaway Now';
+                if (nowSub)        nowSub.textContent        = 'Pick up immediately';
+                if (scheduleTitle) scheduleTitle.textContent = 'Schedule Takeaway';
+                if (scheduleSub)   scheduleSub.textContent   = 'Choose date & time';
+                if (dateLabel)     dateLabel.textContent     = 'Pick Up Date';
+                if (timeLabel)     timeLabel.textContent     = 'Pick Up Time';
+            } else {
+                container.style.display = 'none';
+            }
+        }
+
         document.querySelectorAll('input[name="order_type"]').forEach(function(radio) {
             radio.addEventListener('change', function () {
                 document.querySelectorAll('.ot-label').forEach(function(l) { l.classList.remove('checked'); });
@@ -1011,16 +1046,51 @@
                     
                     if (addr) addr.required = true;
                     if (pin)  pin.required  = true;
-                    const addressId = document.getElementById('address_id')?.value;
-                    document
-                        .getElementById('deliveryScheduleContainer')
-                        .style.display = 'block';
+
+                    updateScheduleUI('delivery');
 
                     if (typeof window.fetchUberQuote === 'function') {
                         window.fetchUberQuote();
                     }
 
-                    
+                } else if (this.value === 'takeaway') {
+
+                    if (df) df.classList.add('co-hidden');
+                    if (deliveryRow) deliveryRow.style.display = "none";
+                    if (addr) addr.required = false;
+                    if (pin) pin.required = false;
+
+                    updateScheduleUI('takeaway');
+
+                    // Clear selected address UI
+                    document.querySelectorAll('.address-option-row').forEach(row => {
+                        row.classList.remove('selected');
+                    });
+
+                    // Clear hidden address fields
+                    document.getElementById('address_id').value = "";
+                    document.getElementById('address').value = "";
+                    document.getElementById('pincode').value = "";
+                    document.getElementById('city').value = "";
+                    document.getElementById('state').value = "";
+                    document.getElementById('country').value = "";
+                    document.getElementById('latitude').value = "";
+                    document.getElementById('longitude').value = "";
+                    document.getElementById('building_type').value = "";
+                    document.getElementById('landmark').value = "";
+                    document.getElementById('label').value = "";
+
+                    // Clear delivery charge
+                    document.getElementById("delivery_charge").value = 0;
+                    document.getElementById("deliveryChargeText").innerHTML = "£0.00";
+                    document.getElementById("uber_quote_id").value = "";
+
+                    // Hide quote message
+                    const quoteBox = document.getElementById("uberQuoteStatus");
+                    if (quoteBox) {
+                        quoteBox.style.display = "none";
+                        quoteBox.innerHTML = "";
+                    }
 
                 } else {
 
@@ -1029,9 +1099,7 @@
                     if (addr) addr.required = false;
                     if (pin) pin.required = false;
 
-                    document
-                        .getElementById('deliveryScheduleContainer')
-                        .style.display = 'none';
+                    updateScheduleUI('dine_in');
 
                     // Clear selected address UI
                     document.querySelectorAll('.address-option-row').forEach(row => {

@@ -122,7 +122,7 @@
                         <div class="co-card">
 
                             <div class="co-card-title" style="margin-bottom:15px;">
-                                <span>🕒 Delivery Time</span>
+                                <span id="scheduleCardTitle">🕒 Delivery Time</span>
                             </div>
 
                             <div class="ot-grid">
@@ -141,11 +141,11 @@
 
                                     <div>
 
-                                        <div class="ot-title">
-                                            As Soon As Possible
+                                        <div class="ot-title" id="dtNowTitle">
+                                            Deliver Now
                                         </div>
 
-                                        <div class="ot-sub">
+                                        <div class="ot-sub" id="dtNowSub">
                                             Deliver immediately
                                         </div>
 
@@ -168,11 +168,11 @@
 
                                     <div>
 
-                                        <div class="ot-title">
+                                        <div class="ot-title" id="dtScheduleTitle">
                                             Schedule Delivery
                                         </div>
 
-                                        <div class="ot-sub">
+                                        <div class="ot-sub" id="dtScheduleSub">
                                             Choose date & time
                                         </div>
 
@@ -191,7 +191,7 @@
 
                                 <div class="co-input-group">
 
-                                    <label>Delivery Date</label>
+                                    <label id="scheduledDateLabel">Delivery Date</label>
 
                                     <input
                                         type="date"
@@ -205,7 +205,7 @@
 
                                 <div class="co-input-group">
 
-                                    <label>Delivery Time</label>
+                                    <label id="scheduledTimeLabel">Delivery Time</label>
 
                                     <input
                                         type="time"
