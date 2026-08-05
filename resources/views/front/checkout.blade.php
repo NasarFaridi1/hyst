@@ -728,13 +728,21 @@
                             $ruleRewardText = $loyaltyRule->reward_type === 'percentage' 
                                 ? number_format($loyaltyRule->reward_value, 0) . '% reward' 
                                 : '£' . number_format($loyaltyRule->reward_value, 2) . ' reward';
+                            $isQualifiedForReward = ($originalTotal >= $loyaltyRule->minimum_order_amount);
                         @endphp
-                        <div style="background:#EFF6FF; border:1px solid #3B82F6; border-radius:14px; padding:12px 14px; margin-bottom:16px;">
-                            <div style="font-size:12.5px; font-weight:700; color:#1E40AF; display:flex; align-items:center; gap:6px;">
-                                <span>⭐ Loyalty Rewards Opportunity</span>
+                        <div id="loyaltyRuleBox"
+                             data-min="{{ $loyaltyRule->minimum_order_amount }}"
+                             data-reward="{{ $ruleRewardText }}"
+                             style="background: {{ $isQualifiedForReward ? '#ECFDF5' : '#EFF6FF' }}; border: 1px solid {{ $isQualifiedForReward ? '#10B981' : '#3B82F6' }}; border-radius:14px; padding:12px 14px; margin-bottom:16px;">
+                            <div id="loyaltyRuleTitle" style="font-size:12.5px; font-weight:700; color: {{ $isQualifiedForReward ? '#065F46' : '#1E40AF' }}; display:flex; align-items:center; gap:6px;">
+                                <span>{{ $isQualifiedForReward ? '🎉 Congratulations! You have qualified for Loyalty Rewards.' : '⭐ Loyalty Rewards Opportunity' }}</span>
                             </div>
-                            <p style="font-size:12px; color:#1D4ED8; margin:4px 0 0 0; line-height:1.4;">
-                                Spend <strong>£{{ number_format($loyaltyRule->minimum_order_amount, 2) }}</strong> or more on this order to earn a <strong>{{ $ruleRewardText }}</strong> for your next order!
+                            <p id="loyaltyRuleDesc" style="font-size:12px; color: {{ $isQualifiedForReward ? '#047857' : '#1D4ED8' }}; margin:4px 0 0 0; line-height:1.4;">
+                                @if($isQualifiedForReward)
+                                    Complete this order to earn a <strong>{{ $ruleRewardText }}</strong> for your next order!
+                                @else
+                                    Spend <strong>£{{ number_format($loyaltyRule->minimum_order_amount, 2) }}</strong> or more on this order to earn a <strong>{{ $ruleRewardText }}</strong> for your next order!
+                                @endif
                             </p>
                         </div>
                     @endif
@@ -1268,11 +1276,49 @@
         });
     };
 
+    function updateLoyaltyRuleMessage() {
+        const box = document.getElementById("loyaltyRuleBox");
+        if (!box) return;
+
+        const minAmount = parseFloat(box.dataset.min || 0);
+        const rewardText = box.dataset.reward || "";
+        const rawSubtotal = parseFloat(document.getElementById("raw_cart_subtotal")?.value || 0);
+
+        const titleEl = document.getElementById("loyaltyRuleTitle");
+        const descEl = document.getElementById("loyaltyRuleDesc");
+
+        if (rawSubtotal >= minAmount) {
+            box.style.background = "#ECFDF5";
+            box.style.border = "1px solid #10B981";
+            if (titleEl) {
+                titleEl.style.color = "#065F46";
+                titleEl.innerHTML = "<span>🎉 Congratulations! You have qualified for Loyalty Rewards.</span>";
+            }
+            if (descEl) {
+                descEl.style.color = "#047857";
+                descEl.innerHTML = "Complete this order to earn a <strong>" + rewardText + "</strong> for your next order!";
+            }
+        } else {
+            box.style.background = "#EFF6FF";
+            box.style.border = "1px solid #3B82F6";
+            if (titleEl) {
+                titleEl.style.color = "#1E40AF";
+                titleEl.innerHTML = "<span>⭐ Loyalty Rewards Opportunity</span>";
+            }
+            if (descEl) {
+                descEl.style.color = "#1D4ED8";
+                descEl.innerHTML = "Spend <strong>£" + minAmount.toFixed(2) + "</strong> or more on this order to earn a <strong>" + rewardText + "</strong> for your next order!";
+            }
+        }
+    }
+
     function updateGrandTotal() {
         let rawSubtotal = parseFloat(document.getElementById("raw_cart_subtotal").value || 0);
         let offerDiscount = parseFloat(document.getElementById("offer_discount").value || 0);
         let loyaltyDiscount = parseFloat(document.getElementById("loyalty_discount") ? document.getElementById("loyalty_discount").value : 0) || 0;
         let delivery = parseFloat(document.getElementById("delivery_charge").value || 0);
+
+        updateLoyaltyRuleMessage();
 
         let subtotalAfterOffer = Math.max(rawSubtotal - offerDiscount, 0);
         let subtotalAfterLoyalty = Math.max(subtotalAfterOffer - loyaltyDiscount, 0);
