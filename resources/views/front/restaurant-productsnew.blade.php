@@ -1583,17 +1583,7 @@ function copyCoupon(button, code) {
                 <div style="font-size:13px; font-weight:600; color:#06C167; flex-shrink:0;" id="modalRating"></div>
             </div>
 
-            {{-- Spice level (shown if product has custom option) --}}
-            {{-- <div id="modalSpiceSection" style="display:none; border:1px solid #EAEAEA; border-radius:14px; padding:16px;"> --}}
-            <div id="modalSpiceSection" >
-                
-                <div style="font-size:13px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#999; margin-bottom:12px;">Spice level</div> --}}
-                {{-- <div class="spice-btns">
-                    <button class="spice-btn selected" onclick="selectSpice(this, 'Mild')">Mild</button>
-                    <button class="spice-btn" onclick="selectSpice(this, 'Medium')">Medium</button>
-                    <button class="spice-btn" onclick="selectSpice(this, 'Hot')">Hot</button>
-                </div>
-            </div>
+            
         </div>
 
         <div class="item-modal-footer">

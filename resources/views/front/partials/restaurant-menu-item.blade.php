@@ -83,10 +83,12 @@
             $allergiesCount = ($product->allergies ?? collect())->count();
             $dietariesCount = ($product->dietaries ?? collect())->count();
         @endphp
+
+        
         <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:4px; min-width:0;">
             @if($allergiesCount || $dietariesCount)
                 <div class="info-tooltip" onclick="event.stopPropagation()">
-                    <span class="details-link"><i data-lucide="info" style="width:14px;height:14px;vertical-align:middle;"></i> Allergy &amp; Dietary</span>
+                    <span class="details-link"><i data-lucide="info" style="width:14px;height:14px;vertical-align:middle;"></i></span>
                     <div class="tooltip-content">
                         <h6>Allergy Information</h6>
                         @if($allergiesCount)
@@ -114,7 +116,7 @@
             @endif
         </div>
 
-        @if($spicyLevel || ($product->is_gluten_free ?? false))
+        {{-- @if($spicyLevel || ($product->is_gluten_free ?? false))
             <div class="menu-item-tags">
                 @if($spicyLevel == 1)<span class="item-tag mild-tag">Mild spice</span>@endif
                 @if($spicyLevel == 2)<span class="item-tag spicy-tag">Spicy</span>@endif
@@ -122,7 +124,7 @@
                     <span class="item-tag" style="background:#F0F4FF;color:#3B5BDB;">Gluten free</span>
                 @endif
             </div>
-        @endif
+        @endif --}}
 
         {{-- Price + Add button --}}
         <div class="menu-card-footer">
