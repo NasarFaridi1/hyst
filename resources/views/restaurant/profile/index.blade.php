@@ -2,429 +2,397 @@
 
 @section('content')
 
-    <div class="max-w-5xl mx-auto">
+    <div class="max-w-5xl mx-auto px-4 py-6 md:py-8">
 
-        <h1 class="text-4xl font-bold mb-8">
+        <!-- Page Header -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+            <div>
+                <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">
+                    Restaurant Profile
+                </h1>
+                <p class="text-sm md:text-base text-gray-500 mt-1">
+                    Manage your store information, location, operating hours, and security settings.
+                </p>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold {{ ($restaurant->restaurant_status === 'Open' || ($restaurant->is_open ?? false)) ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200' }}">
+                    <span class="w-2 h-2 rounded-full {{ ($restaurant->restaurant_status === 'Open' || ($restaurant->is_open ?? false)) ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500' }}"></span>
+                    {{ ($restaurant->restaurant_status === 'Open' || ($restaurant->is_open ?? false)) ? 'Store Open' : 'Store Closed' }}
+                </span>
+            </div>
+        </div>
 
-            Restaurant Profile
+        <form method="POST" action="/restaurant/profile/update" enctype="multipart/form-data" class="space-y-8">
+            @csrf
 
-        </h1>
-
-        <div class="bg-white rounded-2xl shadow p-10">
-
-            <form method="POST" action="/restaurant/profile/update" enctype="multipart/form-data">
-
-                @csrf
-
-                <div class="grid grid-cols-2 gap-6">
-
+            <!-- 1. BASIC INFORMATION CARD -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
+                <div class="flex items-center gap-3 pb-5 mb-6 border-b border-gray-100">
+                    <div class="w-10 h-10 rounded-xl bg-orange-50 text-[#C25A2A] flex items-center justify-center font-bold">
+                        🏪
+                    </div>
                     <div>
+                        <h2 class="text-lg font-bold text-gray-900">Basic Details</h2>
+                        <p class="text-xs text-gray-500">Essential details about your restaurant</p>
+                    </div>
+                </div>
 
-                        <label class="font-bold block mb-2">
-
-                            Name
-
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Restaurant Name -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
+                            Restaurant Name
                         </label>
-
-                        <input type="text" name="name" value="{{ $restaurant->name }}" class="w-full border p-4 rounded-xl">
-
+                        <input type="text" name="name" value="{{ old('name', $restaurant->name) }}" required
+                            class="w-full border border-gray-200 rounded-xl p-3.5 text-sm text-gray-900 focus:ring-2 focus:ring-[#C25A2A] focus:border-[#C25A2A] outline-none transition bg-gray-50/50 focus:bg-white">
                     </div>
 
+                    <!-- Email -->
                     <div>
-
-                        <label class="font-bold block mb-2">
-
-                            Email
-
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2 flex items-center justify-between">
+                            <span>Email Address</span>
+                            <span class="text-[10px] text-gray-400 font-normal">🔒 Read-only</span>
                         </label>
-
-                        <input @disabled(true) @readonly(true) type="email" name="email" value="{{ $restaurant->email }}"
-                            class="w-full border p-4 rounded-xl">
-
+                        <input type="email" name="email" value="{{ $restaurant->email }}" @disabled(true) @readonly(true)
+                            class="w-full border border-gray-200 rounded-xl p-3.5 text-sm text-gray-500 bg-gray-100/70 cursor-not-allowed">
                     </div>
 
-                    <div>
-
-                        <label class="font-bold block mb-2">
-
-                            Phone
-
+                    <!-- Phone -->
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
+                            Phone Number
                         </label>
-
-                        <input type="text" name="phone" value="{{ $restaurant->phone }}"
-                            class="w-full border p-4 rounded-xl">
-
+                        <input type="text" name="phone" value="{{ old('phone', $restaurant->phone) }}" required
+                            class="w-full border border-gray-200 rounded-xl p-3.5 text-sm text-gray-900 focus:ring-2 focus:ring-[#C25A2A] focus:border-[#C25A2A] outline-none transition bg-gray-50/50 focus:bg-white">
                     </div>
 
-                    <!-- Address Search Component -->
-                    <div class="col-span-2 mt-2 bg-[#FFF7F3] p-6 rounded-2xl border border-[#FFEFE6]">
-                        <label class="font-bold text-[#0D0D0D] block mb-2 flex items-center gap-2 text-base">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C25A2A" stroke-width="2.2"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
-                            Search & Update Restaurant Address
+                    <!-- Description -->
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
+                            Description
                         </label>
-                        <div class="relative">
-                            <input
-                                type="text"
-                                id="leafletSearchInput"
-                                value="{{ $restaurant->location }}"
-                                placeholder="Type to search area, street name, postcode..."
-                                class="w-full border border-[#F0E4D8] rounded-xl p-4 pr-10 focus:outline-none focus:ring-2 focus:ring-[#C25A2A] bg-white text-[#0D0D0D] shadow-sm"
-                                autocomplete="off"
-                            >
-                            <div id="leafletSearchResults" class="absolute left-0 right-0 top-full bg-white border border-gray-200 rounded-xl mt-1 max-h-60 overflow-y-auto z-[9999] shadow-2xl hidden"></div>
+                        <textarea name="description" rows="3" required placeholder="Describe your restaurant cuisines, specialties..."
+                            class="w-full border border-gray-200 rounded-xl p-3.5 text-sm text-gray-900 focus:ring-2 focus:ring-[#C25A2A] focus:border-[#C25A2A] outline-none transition bg-gray-50/50 focus:bg-white resize-y">{{ old('description', $restaurant->description) }}</textarea>
+                    </div>
+
+                    <!-- Dietary Categories -->
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
+                            Dietary Categories (Serving Categories)
+                        </label>
+                        @php
+                            $savedDietary = old('dietary_categories', $restaurant->dietary_categories ?? []);
+                        @endphp
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 border border-gray-200 rounded-xl bg-orange-50/30">
+                            <label class="flex items-center gap-3 p-3 rounded-lg border border-gray-200 bg-white cursor-pointer hover:border-[#C25A2A] transition">
+                                <input type="checkbox" name="dietary_categories[]" value="halal" {{ in_array('halal', $savedDietary) ? 'checked' : '' }} class="w-4 h-4 text-[#C25A2A] rounded border-gray-300 focus:ring-[#C25A2A]">
+                                <span class="text-sm font-semibold text-gray-800">🌙 Halal</span>
+                            </label>
+                            <label class="flex items-center gap-3 p-3 rounded-lg border border-gray-200 bg-white cursor-pointer hover:border-[#C25A2A] transition">
+                                <input type="checkbox" name="dietary_categories[]" value="vegan" {{ in_array('vegan', $savedDietary) ? 'checked' : '' }} class="w-4 h-4 text-[#C25A2A] rounded border-gray-300 focus:ring-[#C25A2A]">
+                                <span class="text-sm font-semibold text-gray-800">🌱 Vegan</span>
+                            </label>
+                            <label class="flex items-center gap-3 p-3 rounded-lg border border-gray-200 bg-white cursor-pointer hover:border-[#C25A2A] transition">
+                                <input type="checkbox" name="dietary_categories[]" value="vegetable" {{ in_array('vegetable', $savedDietary) ? 'checked' : '' }} class="w-4 h-4 text-[#C25A2A] rounded border-gray-300 focus:ring-[#C25A2A]">
+                                <span class="text-sm font-semibold text-gray-800">🥗 Vegetable</span>
+                            </label>
                         </div>
-                        <div id="restaurantMapContainer" class="mt-4 rounded-xl border border-[#F0E4D8] overflow-hidden shadow-inner" style="height: 240px;">
-                            <div id="restaurantMap" style="width: 100%; height: 100%;"></div>
-                        </div>
-                        <p class="text-xs text-[#C25A2A] mt-2 font-medium">💡 Search address above to fill details automatically.</p>
+                        <p class="text-xs text-gray-400 mt-1">Select all categories your restaurant serves.</p>
                     </div>
+                </div>
+            </div>
 
-                    <div>
-
-                        <label>City</label>
-
-                        <input type="text"
-                        name="city"
-                        required
-                        value="{{ $restaurant->city }}"
-                        class="w-full border p-4 rounded-xl">
-
+            <!-- 2. LOCATION & ADDRESS CARD -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
+                <div class="flex items-center gap-3 pb-5 mb-6 border-b border-gray-100">
+                    <div class="w-10 h-10 rounded-xl bg-orange-50 text-[#C25A2A] flex items-center justify-center font-bold">
+                        📍
                     </div>
                     <div>
-
-                        <label>State</label>
-
-                        <input type="text"
-                        name="state"
-                        required
-                        value="{{ $restaurant->state }}"
-                        class="w-full border p-4 rounded-xl">
-
+                        <h2 class="text-lg font-bold text-gray-900">Location & Address</h2>
+                        <p class="text-xs text-gray-500">Set accurate map position and physical address</p>
                     </div>
-                    <div>
+                </div>
 
-                        <label>Country</label>
-
-                        <input type="text"
-                        name="country"
-                        required
-                        value="{{ $restaurant->country }}"
-                        class="w-full border p-4 rounded-xl">
-
+                <!-- Leaflet Map Search -->
+                <div class="mb-6 bg-orange-50/40 p-5 rounded-2xl border border-orange-100">
+                    <label class="font-bold text-gray-800 block mb-2 flex items-center gap-2 text-sm">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C25A2A" stroke-width="2.2"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+                        Search Address on Map
+                    </label>
+                    <div class="relative">
+                        <input
+                            type="text"
+                            id="leafletSearchInput"
+                            value="{{ $restaurant->location }}"
+                            placeholder="Type to search area, street name, postcode..."
+                            class="w-full border border-gray-200 rounded-xl p-3.5 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-[#C25A2A] bg-white text-gray-800 shadow-sm"
+                            autocomplete="off"
+                        >
+                        <div id="leafletSearchResults" class="absolute left-0 right-0 top-full bg-white border border-gray-200 rounded-xl mt-1 max-h-60 overflow-y-auto z-[9999] shadow-xl hidden"></div>
                     </div>
-
-                    <div>
-
-                        <label>Postal Code</label>
-
-                        <input type="text"
-                        name="postcode"
-                        required
-                        value="{{ $restaurant->postcode }}"
-                        class="w-full border p-4 rounded-xl">
-
+                    <div id="restaurantMapContainer" class="mt-4 rounded-xl border border-gray-200 overflow-hidden shadow-inner" style="height: 240px;">
+                        <div id="restaurantMap" style="width: 100%; height: 100%;"></div>
                     </div>
+                    <p class="text-xs text-[#C25A2A] mt-2 font-medium">💡 Drag marker on map or search above to auto-fill address coordinates.</p>
+                </div>
 
-                    <div>
-
-                        <label class="font-bold block mb-2">
-
-                           Address (Location)
-
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Address (Location) -->
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
+                            Address (Full Location)
                         </label>
-
-                        <input type="text" name="location" value="{{ $restaurant->location }}"
-                            class="w-full border p-4 rounded-xl">
-
+                        <input type="text" name="location" value="{{ old('location', $restaurant->location) }}" required
+                            class="w-full border border-gray-200 rounded-xl p-3.5 text-sm text-gray-900 focus:ring-2 focus:ring-[#C25A2A] focus:border-[#C25A2A] outline-none transition bg-gray-50/50 focus:bg-white">
                     </div>
 
-
+                    <!-- City -->
                     <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
+                            City
+                        </label>
+                        <input type="text" name="city" value="{{ old('city', $restaurant->city) }}" required
+                            class="w-full border border-gray-200 rounded-xl p-3.5 text-sm text-gray-900 focus:ring-2 focus:ring-[#C25A2A] focus:border-[#C25A2A] outline-none transition bg-gray-50/50 focus:bg-white">
+                    </div>
 
-                        <label class="font-bold block mb-2">
+                    <!-- State -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
+                            State
+                        </label>
+                        <input type="text" name="state" value="{{ old('state', $restaurant->state) }}" required
+                            class="w-full border border-gray-200 rounded-xl p-3.5 text-sm text-gray-900 focus:ring-2 focus:ring-[#C25A2A] focus:border-[#C25A2A] outline-none transition bg-gray-50/50 focus:bg-white">
+                    </div>
 
+                    <!-- Country -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
+                            Country
+                        </label>
+                        <input type="text" name="country" value="{{ old('country', $restaurant->country) }}" required
+                            class="w-full border border-gray-200 rounded-xl p-3.5 text-sm text-gray-900 focus:ring-2 focus:ring-[#C25A2A] focus:border-[#C25A2A] outline-none transition bg-gray-50/50 focus:bg-white">
+                    </div>
+
+                    <!-- Postal Code -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
+                            Postal Code
+                        </label>
+                        <input type="text" name="postcode" value="{{ old('postcode', $restaurant->postcode) }}" required
+                            class="w-full border border-gray-200 rounded-xl p-3.5 text-sm text-gray-900 focus:ring-2 focus:ring-[#C25A2A] focus:border-[#C25A2A] outline-none transition bg-gray-50/50 focus:bg-white">
+                    </div>
+
+                    <!-- Latitude -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
                             Latitude
-
                         </label>
-
-                        <input type="text" name="latitude" id="latitude" value="{{ $restaurant->latitude }}"
-                            class="w-full border p-4 rounded-xl">
+                        <input type="text" name="latitude" id="latitude" value="{{ old('latitude', $restaurant->latitude) }}" required
+                            class="w-full border border-gray-200 rounded-xl p-3.5 text-sm text-gray-900 focus:ring-2 focus:ring-[#C25A2A] focus:border-[#C25A2A] outline-none transition bg-gray-50/50 focus:bg-white">
                     </div>
+
+                    <!-- Longitude -->
                     <div>
-
-                        <label class="font-bold block mb-2">
-
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
                             Longitude
-
                         </label>
-
-                        <input type="text" name="longitude" id="longitude" value="{{ $restaurant->longitude }}"
-                            class="w-full border p-4 rounded-xl">
+                        <input type="text" name="longitude" id="longitude" value="{{ old('longitude', $restaurant->longitude) }}" required
+                            class="w-full border border-gray-200 rounded-xl p-3.5 text-sm text-gray-900 focus:ring-2 focus:ring-[#C25A2A] focus:border-[#C25A2A] outline-none transition bg-gray-50/50 focus:bg-white">
                     </div>
+                </div>
+            </div>
 
+            <!-- 3. OPERATING HOURS & DELIVERY OPTIONS CARD -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
+                <div class="flex items-center gap-3 pb-5 mb-6 border-b border-gray-100">
+                    <div class="w-10 h-10 rounded-xl bg-orange-50 text-[#C25A2A] flex items-center justify-center font-bold">
+                        🕒
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold text-gray-900">Working Hours & Delivery Options</h2>
+                        <p class="text-xs text-gray-500">Configure store timing and order delivery methods</p>
+                    </div>
                 </div>
 
-                
-
-
-                <div class="grid grid-cols-2 gap-6 mt-6">
-
-                    <div>
-                        <label class="font-bold block mb-2">
-                            Hygiene Rating
-                        </label>
-
-                        <input
-                            type="number"
-                            name="hygiene_rating"
-                            step="0.1"
-                            min="0"
-                            max="5"
-                            value="{{ old('hygiene_rating', $restaurant->hygiene_rating) }}"
-                            class="w-full border p-4 rounded-xl">
-                    </div>
-
-                    <div>
-                        <label class="font-bold block mb-2">
-                            Hygiene Certificate
-                        </label>
-
-                       @if($restaurant->hygiene_certificate)
-                            <a href="{{ asset($restaurant->hygiene_certificate) }}" class="text-blue-600 text-sm underline" target="_blank">
-                                View Current Certificate
-                            </a>
-                        @endif
-
-                        <input
-                            type="file"
-                            name="hygiene_certificate"
-                            accept=".pdf,.jpg,.jpeg,.png"
-                    </div>
-
-                </div>
-
-                <div class="mt-6">
-                    <label class="font-bold block mb-3">
-                        Dietary Categories (Serving Categories)
+                <!-- Working Days -->
+                <div class="mb-6">
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-3">
+                        Working Days
                     </label>
                     @php
-                        $savedDietary = old('dietary_categories', $restaurant->dietary_categories ?? []);
+                        $selectedDays = old(
+                            'working_days',
+                            $restaurant->working_days ? explode(',', $restaurant->working_days) : []
+                        );
                     @endphp
-                    <div class="flex flex-wrap gap-4 p-4 border rounded-xl bg-gray-50">
-                        <label class="flex items-center gap-2 cursor-pointer font-semibold text-gray-700">
-                            <input type="checkbox" name="dietary_categories[]" value="halal" {{ in_array('halal', $savedDietary) ? 'checked' : '' }} class="w-5 h-5 text-blue-600 rounded">
-                            <span>🌙 Halal</span>
-                        </label>
-                        <label class="flex items-center gap-2 cursor-pointer font-semibold text-gray-700">
-                            <input type="checkbox" name="dietary_categories[]" value="vegan" {{ in_array('vegan', $savedDietary) ? 'checked' : '' }} class="w-5 h-5 text-blue-600 rounded">
-                            <span>🌱 Vegan</span>
-                        </label>
-                        <label class="flex items-center gap-2 cursor-pointer font-semibold text-gray-700">
-                            <input type="checkbox" name="dietary_categories[]" value="vegetable" {{ in_array('vegetable', $savedDietary) ? 'checked' : '' }} class="w-5 h-5 text-blue-600 rounded">
-                            <span>🥗 Vegetable</span>
-                        </label>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2.5">
+                        @foreach([
+                            'Monday',
+                            'Tuesday',
+                            'Wednesday',
+                            'Thursday',
+                            'Friday',
+                            'Saturday',
+                            'Sunday'
+                        ] as $day)
+                            <label class="flex flex-col items-center justify-center p-3 rounded-xl border border-gray-200 cursor-pointer hover:border-[#C25A2A] hover:bg-orange-50/30 transition text-center group">
+                                <input type="checkbox" name="working_days[]" value="{{ $day }}"
+                                    {{ in_array($day, $selectedDays) ? 'checked' : '' }}
+                                    class="w-4 h-4 text-[#C25A2A] rounded border-gray-300 focus:ring-[#C25A2A] mb-1.5">
+                                <span class="text-xs font-semibold text-gray-700 group-hover:text-[#C25A2A] transition">{{ $day }}</span>
+                            </label>
+                        @endforeach
                     </div>
-                    <p class="text-xs text-gray-500 mt-1">Select all categories your restaurant serves (Halal, Vegan, Vegetable).</p>
                 </div>
 
-                <div class="mt-6">
-
-                    <label class="font-bold block mb-2">
-
-                        Description
-
-                    </label>
-
-                    <textarea name="description" rows="5"
-                        class="w-full border p-4 rounded-xl">{{ $restaurant->description }}</textarea>
-
-                </div>
-
-                
-
-                    <div class="mt-6">
-                        <label class="font-bold block mb-3">
-                            Working Days
-                        </label>
-
-                        @php
-                            $selectedDays = old(
-                                'working_days',
-                                $restaurant->working_days ? explode(',', $restaurant->working_days) : []
-                            );
-                        @endphp
-
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-
-                            @foreach([
-                                'Monday',
-                                'Tuesday',
-                                'Wednesday',
-                                'Thursday',
-                                'Friday',
-                                'Saturday',
-                                'Sunday'
-                            ] as $day)
-
-                                <label class="flex items-center gap-2 border rounded-lg p-3 cursor-pointer hover:bg-gray-50">
-
-                                    <input
-                                        type="checkbox"
-                                        name="working_days[]"
-                                        value="{{ $day }}"
-                                        {{ in_array($day, $selectedDays) ? 'checked' : '' }}
-                                        class="rounded border-gray-300 text-blue-600">
-
-                                    <span>{{ $day }}</span>
-
-                                </label>
-
-                            @endforeach
-
-                        </div>
-                    </div>
-                <div class="grid grid-cols-2 gap-6 mt-6">
+                <!-- Opening & Closing Time -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div>
-                        <label class="font-bold block mb-2">
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
                             Opening Time
                         </label>
-
-                        <input
-                            type="time"
-                            name="opening_time"
-                            value="{{ old('opening_time', $restaurant->opening_time) }}"
-                            class="w-full border p-4 rounded-xl">
+                        <input type="time" name="opening_time" value="{{ old('opening_time', $restaurant->opening_time) }}"
+                            class="w-full border border-gray-200 rounded-xl p-3.5 text-sm text-gray-900 focus:ring-2 focus:ring-[#C25A2A] focus:border-[#C25A2A] outline-none transition bg-gray-50/50 focus:bg-white">
                     </div>
 
                     <div>
-                        <label class="font-bold block mb-2">
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
                             Closing Time
                         </label>
-
-                        <input
-                            type="time"
-                            name="closing_time"
-                            value="{{ old('closing_time', $restaurant->closing_time) }}"
-                            class="w-full border p-4 rounded-xl">
+                        <input type="time" name="closing_time" value="{{ old('closing_time', $restaurant->closing_time) }}"
+                            class="w-full border border-gray-200 rounded-xl p-3.5 text-sm text-gray-900 focus:ring-2 focus:ring-[#C25A2A] focus:border-[#C25A2A] outline-none transition bg-gray-50/50 focus:bg-white">
                     </div>
-
                 </div>
 
-                <div class="mt-6">
-
-                    @if($restaurant->image)
-
-                        <img src="{{ asset('storage/' . $restaurant->image) }}" class="w-32 h-32 rounded-xl object-cover mb-5">
-
-                    @endif
-
-                    <input type="file" name="image" class="w-full border p-4 rounded-xl">
-
-                </div>
-
-                <div class="mt-6">
-                        <label class="font-bold block mb-2">
-                            Delivery Methods
-                        </label>
-
-                    <label class="font-bold block mb-2">
-                        Dine In
-                    </label>
-
-                    <select
-                        name="dine_in"
-                        class="w-full border p-4 rounded-xl">
-
-                        <option
-                            value="1"
-                            {{ $restaurant->dine_in ? 'selected' : '' }}>
-                            Enable
-                        </option>
-
-                        <option
-                            value="0"
-                            {{ !$restaurant->dine_in ? 'selected' : '' }}>
-                            Disable
-                        </option>
-
-                    </select>
-
-                </div>
-
-                <div>
-
-                    <label class="font-bold block mb-2">
-                        Home Delivery
-                    </label>
-
-                    <select
-                        name="home_delivery"
-                        class="w-full border p-4 rounded-xl">
-
-                        <option
-                            value="1"
-                            {{ $restaurant->home_delivery ? 'selected' : '' }}>
-                            Enable
-                        </option>
-
-                        <option
-                            value="0"
-                            {{ !$restaurant->home_delivery ? 'selected' : '' }}>
-                            Disable
-                        </option>
-
-                    </select>
-
-                </div>
-
-                <div class="mt-8 pt-6 border-t">
-                    <h3 class="font-bold text-lg mb-4 text-gray-800 flex items-center gap-2">
-                        🕒 Delivery Time Options
-                    </h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="border-t border-gray-100 pt-6">
+                    <h3 class="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4">Service & Delivery Methods</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                         <div>
-                            <label class="font-bold block mb-2 text-gray-700">
-                                ⚡ As Soon As Possible (ASAP Delivery)
+                            <label class="block text-xs font-bold text-gray-600 mb-1.5">
+                                🍽️ Dine In
                             </label>
-                            <select name="allow_asap" class="w-full border p-4 rounded-xl">
+                            <select name="dine_in" class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-[#C25A2A] outline-none bg-gray-50/50 focus:bg-white">
+                                <option value="1" {{ $restaurant->dine_in ? 'selected' : '' }}>Enable</option>
+                                <option value="0" {{ !$restaurant->dine_in ? 'selected' : '' }}>Disable</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-600 mb-1.5">
+                                🚚 Home Delivery
+                            </label>
+                            <select name="home_delivery" class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-[#C25A2A] outline-none bg-gray-50/50 focus:bg-white">
+                                <option value="1" {{ $restaurant->home_delivery ? 'selected' : '' }}>Enable</option>
+                                <option value="0" {{ !$restaurant->home_delivery ? 'selected' : '' }}>Disable</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-600 mb-1.5">
+                                ⚡ ASAP Delivery
+                            </label>
+                            <select name="allow_asap" class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-[#C25A2A] outline-none bg-gray-50/50 focus:bg-white">
                                 <option value="1" {{ ($restaurant->allow_asap ?? true) ? 'selected' : '' }}>Enable</option>
                                 <option value="0" {{ !($restaurant->allow_asap ?? true) ? 'selected' : '' }}>Disable</option>
                             </select>
                         </div>
+
                         <div>
-                            <label class="font-bold block mb-2 text-gray-700">
-                                📅 Schedule Delivery (Date & Time Selection)
+                            <label class="block text-xs font-bold text-gray-600 mb-1.5">
+                                📅 Schedule Delivery
                             </label>
-                            <select name="allow_schedule" class="w-full border p-4 rounded-xl">
+                            <select name="allow_schedule" class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-[#C25A2A] outline-none bg-gray-50/50 focus:bg-white">
                                 <option value="1" {{ ($restaurant->allow_schedule ?? true) ? 'selected' : '' }}>Enable</option>
                                 <option value="0" {{ !($restaurant->allow_schedule ?? true) ? 'selected' : '' }}>Disable</option>
                             </select>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <button class="bg-blue-500 text-white px-10 py-4 rounded-xl mt-8">
+            <!-- 4. MEDIA & HYGIENE CERTIFICATION CARD -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
+                <div class="flex items-center gap-3 pb-5 mb-6 border-b border-gray-100">
+                    <div class="w-10 h-10 rounded-xl bg-orange-50 text-[#C25A2A] flex items-center justify-center font-bold">
+                        🛡️
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold text-gray-900">Media & Certification</h2>
+                        <p class="text-xs text-gray-500">Upload banner image and hygiene rating document</p>
+                    </div>
+                </div>
 
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Restaurant Image -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
+                            Restaurant Image
+                        </label>
+                        @if($restaurant->image)
+                            <div class="mb-3 flex items-center gap-4">
+                                <img src="{{ asset('storage/' . $restaurant->image) }}" class="w-20 h-20 rounded-xl object-cover border border-gray-200 shadow-sm">
+                                <span class="text-xs text-gray-400 font-medium">Current Image Uploaded</span>
+                            </div>
+                        @endif
+                        <input type="file" name="image" accept=".jpg,.jpeg,.png,.webp"
+                            class="w-full text-xs text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-orange-50 file:text-[#C25A2A] hover:file:bg-orange-100 border border-gray-200 rounded-xl p-2 cursor-pointer">
+                    </div>
+
+                    <!-- Hygiene Rating & Certificate -->
+                    <div>
+                        <div class="mb-4">
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
+                                Hygiene Rating (0.0 to 5.0)
+                            </label>
+                            <input type="number" name="hygiene_rating" step="0.1" min="0" max="5"
+                                value="{{ old('hygiene_rating', $restaurant->hygiene_rating) }}"
+                                class="w-full border border-gray-200 rounded-xl p-3.5 text-sm text-gray-900 focus:ring-2 focus:ring-[#C25A2A] outline-none bg-gray-50/50 focus:bg-white">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2 flex items-center justify-between">
+                                <span>Hygiene Certificate</span>
+                                @if($restaurant->hygiene_certificate)
+                                    <a href="{{ asset($restaurant->hygiene_certificate) }}" class="text-xs text-[#C25A2A] hover:underline font-semibold" target="_blank">
+                                        View Current File 📄
+                                    </a>
+                                @endif
+                            </label>
+                            <input type="file" name="hygiene_certificate" accept=".pdf,.jpg,.jpeg,.png"
+                                class="w-full text-xs text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-orange-50 file:text-[#C25A2A] hover:file:bg-orange-100 border border-gray-200 rounded-xl p-2 cursor-pointer">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="flex justify-end pt-2">
+                <button type="submit" class="w-full md:w-auto bg-[#C25A2A] hover:bg-[#A84B22] text-white font-bold text-base px-10 py-4 rounded-xl shadow-lg hover:shadow-xl transition transform active:scale-95 flex items-center justify-center gap-2">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
                     Update Profile
-
                 </button>
+            </div>
+        </form>
 
-            </form>
-
-        </div>
-
-        <!-- CHANGE PASSWORD CARD -->
-        <div class="bg-white rounded-2xl shadow p-10 mt-8">
-            <h2 class="text-2xl font-bold mb-6 text-gray-800 flex items-center gap-2">
-                🔒 Change Password
-            </h2>
+        <!-- 5. SECURITY / CHANGE PASSWORD CARD -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 mt-10">
+            <div class="flex items-center gap-3 pb-5 mb-6 border-b border-gray-100">
+                <div class="w-10 h-10 rounded-xl bg-gray-100 text-gray-800 flex items-center justify-center font-bold">
+                    🔒
+                </div>
+                <div>
+                    <h2 class="text-lg font-bold text-gray-900">Change Password</h2>
+                    <p class="text-xs text-gray-500">Keep your account secure by updating your credentials</p>
+                </div>
+            </div>
 
             <form method="POST" action="{{ route('restaurant.profile.change-password') }}">
                 @csrf
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                     <div>
-                        <label class="font-bold block mb-2 text-gray-700">
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
                             Current Password
                         </label>
                         <input
@@ -432,42 +400,42 @@
                             name="current_password"
                             required
                             placeholder="••••••••"
-                            class="w-full border p-4 rounded-xl @error('current_password') border-red-500 @enderror">
+                            class="w-full border border-gray-200 rounded-xl p-3.5 text-sm text-gray-900 focus:ring-2 focus:ring-[#C25A2A] outline-none @error('current_password') border-red-500 @enderror">
                         @error('current_password')
-                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                            <p class="text-red-500 text-xs mt-1 font-medium">{{ $message }}</p>
                         @enderror
                     </div>
 
                     <div>
-                        <label class="font-bold block mb-2 text-gray-700">
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
                             New Password
                         </label>
                         <input
                             type="password"
                             name="new_password"
                             required
-                            placeholder="Minimum 8 characters"
-                            class="w-full border p-4 rounded-xl @error('new_password') border-red-500 @enderror">
+                            placeholder="Min. 8 characters"
+                            class="w-full border border-gray-200 rounded-xl p-3.5 text-sm text-gray-900 focus:ring-2 focus:ring-[#C25A2A] outline-none @error('new_password') border-red-500 @enderror">
                         @error('new_password')
-                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                            <p class="text-red-500 text-xs mt-1 font-medium">{{ $message }}</p>
                         @enderror
                     </div>
 
                     <div>
-                        <label class="font-bold block mb-2 text-gray-700">
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
                             Confirm New Password
                         </label>
                         <input
                             type="password"
                             name="new_password_confirmation"
                             required
-                            placeholder="Re-enter new password"
-                            class="w-full border p-4 rounded-xl">
+                            placeholder="Re-enter password"
+                            class="w-full border border-gray-200 rounded-xl p-3.5 text-sm text-gray-900 focus:ring-2 focus:ring-[#C25A2A] outline-none">
                     </div>
                 </div>
 
-                <div class="mt-8">
-                    <button type="submit" class="bg-[#C25A2A] hover:bg-[#C25A2A]/90 text-white font-bold px-8 py-3.5 rounded-xl shadow transition">
+                <div class="flex justify-end">
+                    <button type="submit" class="w-full md:w-auto bg-gray-900 hover:bg-black text-white font-bold text-sm px-8 py-3.5 rounded-xl shadow transition">
                         Update Password
                     </button>
                 </div>
