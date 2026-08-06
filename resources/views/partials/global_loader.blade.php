@@ -153,7 +153,7 @@
         // Show loader on form submission
         document.addEventListener('submit', function (e) {
             const form = e.target;
-            if (!form || form.hasAttribute('data-no-loader')) return;
+            if (!form || form.hasAttribute('data-no-loader') || form.classList.contains('addCartForm')) return;
 
             const action = (form.getAttribute('action') || '').toLowerCase();
             const currentPath = window.location.pathname.toLowerCase();

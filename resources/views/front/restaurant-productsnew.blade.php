@@ -1952,6 +1952,9 @@ function modalAddToCart() {
    VARIANT / ADDON MODAL
 ══════════════════════════════════════════ */
 function buildVariantAddonModal(form) {
+    if (typeof window.hideGlobalLoader === 'function') {
+        window.hideGlobalLoader();
+    }
     const variants = JSON.parse(form.dataset.variants || '[]');
     const addons   = JSON.parse(form.dataset.addons   || '[]');
     let html = '';
@@ -2130,7 +2133,7 @@ function confirmVariant() {
 async function submitCart(form) {
     try {
         if (typeof window.showGlobalLoader === 'function') {
-            window.showGlobalLoader('Adding to Cart...', 'Please wait', 3500);
+            window.showGlobalLoader('Adding to Cart...', 'Please wait', 0);
         }
         const res  = await fetch('/cart/add', {
             method: 'POST',

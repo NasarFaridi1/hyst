@@ -142,6 +142,7 @@
                         Also added data-product-id for the new modal's modalAddToCart().
                     --}}
                     <form class="addCartForm"
+                          data-no-loader="true"
                           data-product="{{ $product->id }}"
                           data-product-id="{{ $product->id }}"
                           data-variants='@json($variants)'
