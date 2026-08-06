@@ -38,19 +38,18 @@
 @endphp
 
 <div class="menu-card"
-     onclick="openItemModal(
-         {{ $product->id }},
-         '{{ $jsName }}',
-         {{ (float) $price }},
-         '{{ $jsDesc }}',
-         '{{ $jsImg }}',
-         {{ $isVeg ? 'true' : 'false' }},
-         {{ $hasCustom ? 'true' : 'false' }},
-         '{{ $avgRating ? number_format($avgRating,1) : '' }}',
-         '{{ $jsArImg }}',
-         {{ e(json_encode($allergies)) }},
-         {{ e(json_encode($dietaries)) }}
-     )"
+     onclick="openItemModalFromElement(this)"
+     data-product-id="{{ $product->id }}"
+     data-name="{{ $product->name }}"
+     data-price="{{ (float) $price }}"
+     data-desc="{{ strip_tags($product->description ?? '') }}"
+     data-img="{{ $imgUrl }}"
+     data-is-veg="{{ $isVeg ? 'true' : 'false' }}"
+     data-has-custom="{{ $hasCustom ? 'true' : 'false' }}"
+     data-rating="{{ $avgRating ? number_format($avgRating,1) : '' }}"
+     data-ar-img="{{ $arImg }}"
+     data-allergies='@json($allergies)'
+     data-dietaries='@json($dietaries)'
      data-veg="{{ $isVeg ? '1' : '0' }}">
 
     {{-- LEFT: image --}}

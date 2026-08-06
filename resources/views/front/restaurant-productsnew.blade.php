@@ -1809,6 +1809,29 @@ _clearBtn?.addEventListener('click', function () {
 /* ══════════════════════════════════════════
    ITEM DETAIL MODAL
 ══════════════════════════════════════════ */
+function openItemModalFromElement(el) {
+    if (!el || !el.dataset) return;
+    const ds = el.dataset;
+    let allergies = [];
+    let dietaries = [];
+    try { allergies = JSON.parse(ds.allergies || '[]'); } catch (e) {}
+    try { dietaries = JSON.parse(ds.dietaries || '[]'); } catch (e) {}
+
+    openItemModal(
+        ds.productId,
+        ds.name,
+        ds.price,
+        ds.desc,
+        ds.img,
+        ds.isVeg === 'true' || ds.isVeg === '1',
+        ds.hasCustom === 'true' || ds.hasCustom === '1',
+        ds.rating,
+        ds.arImg,
+        allergies,
+        dietaries
+    );
+}
+
 function openItemModal(productId, name, price, desc, imgUrl, isVeg, hasCustom, rating, arImg, allergies, dietaries) {
     modalCurrentProductId    = productId;
     modalCurrentProductPrice = parseFloat(price) || 0;

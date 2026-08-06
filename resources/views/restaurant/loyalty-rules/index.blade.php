@@ -142,7 +142,7 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <div class="flex items-center justify-end gap-2">
-                                    <button onclick="openEditModal({{ json_encode($rule) }})" 
+                                    <button data-rule='@json($rule)' onclick="openEditModal(JSON.parse(this.dataset.rule))" 
                                             class="text-blue-600 hover:text-blue-900 p-1.5 hover:bg-blue-50 rounded transition">
                                         <i class="fas fa-edit"></i>
                                     </button>
