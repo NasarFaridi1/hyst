@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\VerifyOtpMail;
+use App\Mail\QuickAccountCreatedMail;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
@@ -227,6 +228,66 @@ public function checkEmail(Request $request)
 
         return redirect('/verify-email?token=' . $verifyToken)
             ->with('message', 'A new verification code has been sent to your email.')
+            ->with('type', 'success');
+    }
+
+    public function quickCheckoutRegister(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name'  => 'required|string|max:255',
+            'email' => 'required|email',
+            'phone' => 'required|string|max:50',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors($validator)
+                ->with('quick_checkout_error', $validator->errors()->first());
+        }
+
+        $email = strtolower(trim($request->email));
+
+        if (str_ends_with($email, 'hyst.uk')) {
+            return redirect()->back()
+                ->withInput()
+                ->with('quick_checkout_error', 'Registration with @hyst.uk email addresses is not allowed.');
+        }
+
+        $emailHash = hash('sha256', $email);
+        $emailExist = User::where('email_hash', $emailHash)->first();
+
+        if ($emailExist) {
+            return redirect()->back()
+                ->withInput()
+                ->with('quick_checkout_error', 'An account with this email already exists. Please log in below.');
+        }
+
+        $generatedPassword = Str::random(10);
+
+        $user = User::create([
+            'name'               => $request->name,
+            'email'              => $email,
+            'phone'              => $request->phone,
+            'password'           => Hash::make($generatedPassword),
+            'role'               => 'user',
+            'email_verified'     => 1,
+            'email_verified_at'  => now(),
+            'email_otp'          => null,
+            'otp_expire_at'      => null,
+            'email_verify_token' => null,
+        ]);
+
+        try {
+            Mail::to($user->email)->send(new QuickAccountCreatedMail($user, $generatedPassword));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Quick checkout mail failed: ' . $e->getMessage());
+        }
+
+        Auth::login($user);
+
+        return redirect()->route('checkout')
+            ->with('message', 'Account created successfully! Proceeding to checkout.')
             ->with('type', 'success');
     }
 }

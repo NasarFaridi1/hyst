@@ -349,6 +349,9 @@ Route::post('/save-fcm-token', [FCMController::class, 'saveToken']);
         [CartController::class, 'remove']
     );
 
+    Route::post('/cart/quick-checkout-register', [UserRegisterController::class, 'quickCheckoutRegister'])
+        ->name('cart.quickRegister');
+
     Route::post('/guest-checkout', [OrderController::class, 'storeGuestInfo'])
     ->name('guest.checkout.store');
 

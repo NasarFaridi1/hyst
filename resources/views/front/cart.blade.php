@@ -608,18 +608,12 @@
                     </svg>
                 </a>
                 @else
-                <a href="/login?redirect=/checkout" class="btn-primary">
+                <button type="button" class="btn-primary" onclick="openQuickCheckoutModal()">
                     Proceed to Checkout
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
                     </svg>
-                </a>
-                {{-- <button class="btn-primary" onclick="openGuestModal()">
-                    Proceed to Checkout
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
-                    </svg>
-                </button> --}}
+                </button>
                 @endauth
 
                 <div class="secure-note">
@@ -635,22 +629,20 @@
     </div>
 </div>
 
-<div id="guestModal"
-     style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99999;align-items:center;justify-content:center;padding:20px;">
+<div id="quickCheckoutModal"
+     style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);z-index:99999;align-items:center;justify-content:center;padding:20px;">
 
     <div style="
-        width:560px;
-        height:90vh;
-        overflow-y:scroll;
+        width:480px;
         max-width:100%;
         background:#fff;
         border-radius:24px;
         padding:32px;
         position:relative;
-        box-shadow:0 20px 60px rgba(0,0,0,.18);">
+        box-shadow:0 25px 50px -12px rgba(0, 0, 0, 0.25);">
 
         <button type="button"
-                onclick="closeGuestModal()"
+                onclick="closeQuickCheckoutModal()"
                 style="
                     position:absolute;
                     right:18px;
@@ -659,126 +651,112 @@
                     height:36px;
                     border:none;
                     border-radius:50%;
-                    background:#F5F5F5;
+                    background:#F3F4F6;
+                    color:#4B5563;
                     cursor:pointer;
-                    font-size:18px;">
+                    font-size:18px;
+                    display:flex;
+                    align-items:center;
+                    justify-content:center;
+                    transition:background 0.2s;">
             ✕
         </button>
 
-        <div style="font-size:28px;font-weight:700;color:#111;font-family:Poppins;">
-            Guest Checkout
+        <div style="font-size:24px;font-weight:800;color:#111827;font-family:'Poppins',sans-serif;margin-bottom:6px;">
+            Quick Checkout
         </div>
 
-        <p style="margin:8px 0 28px;color:#6B7280;font-size:14px;">
-            Enter your delivery information to continue.
+        <p style="margin:0 0 24px;color:#6B7280;font-size:14px;line-height:1.4;">
+            Please enter your details below to continue with your order.
         </p>
 
-        <form method="POST" action="{{ route('guest.checkout.store') }}">
+        @if(session('quick_checkout_error'))
+            <div style="background:#FEE2E2;border:1px solid #FCA5A5;color:#991B1B;padding:12px 16px;border-radius:12px;font-size:13.5px;margin-bottom:20px;font-weight:500;">
+                {{ session('quick_checkout_error') }}
+            </div>
+        @endif
+
+        <form method="POST" action="{{ route('cart.quickRegister') }}">
             @csrf
 
-            <div style="display:grid;gap:16px;">
+            <div style="display:flex;flex-direction:column;gap:16px;">
 
-                <input type="text"
-                       name="guest_name"
-                       placeholder="Full Name"
-                       required
-                       class="guest-input">
-
-                <input type="email"
-                       name="guest_email"
-                       placeholder="Email Address"
-                       required
-                       class="guest-input">
-
-                <input type="text"
-                       name="guest_phone"
-                       placeholder="Phone Number"
-                       required
-                       class="guest-input">
-
-                <input type="text"
-                       name="address"
-                       placeholder="Street Address"
-                       required
-                       class="guest-input">
-                <input type="text"
-                       name="country"
-                       placeholder="Country"
-                       required
-                       class="guest-input">
-
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-
+                <div>
+                    <label style="display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:6px;">Full Name *</label>
                     <input type="text"
-                           name="city"
-                           placeholder="City"
+                           name="name"
+                           value="{{ old('name') }}"
+                           placeholder="Full Name"
                            required
                            class="guest-input">
-
-                    <input type="text"
-                           name="state"
-                           placeholder="State"
-                           required
-                           class="guest-input">
-
                 </div>
 
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-
-                    <input type="text"
-                           name="latitude"
-                           placeholder="Latitude"
+                <div>
+                    <label style="display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:6px;">Email Address *</label>
+                    <input type="email"
+                           name="email"
+                           value="{{ old('email') }}"
+                           placeholder="Email Address"
                            required
                            class="guest-input">
-
-                    <input type="text"
-                           name="longitude"
-                           placeholder="Longitude"
-                           required
-                           class="guest-input">
-
                 </div>
 
-                <input type="text"
-                       name="postcode"
-                       placeholder="Postcode"
-                       required
-                       class="guest-input">
+                <div>
+                    <label style="display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:6px;">Phone Number *</label>
+                    <input type="tel"
+                           name="phone"
+                           value="{{ old('phone') }}"
+                           placeholder="Phone Number"
+                           required
+                           class="guest-input">
+                </div>
 
             </div>
 
-            <div style="display:flex;gap:16px;margin-top:30px;">
-
-                <button type="button"
-                        onclick="closeGuestModal()"
-                        style="
-                            width:140px;
-                            height:54px;
-                            border:none;
-                            border-radius:14px;
-                            background:#111;
-                            color:#fff;
-                            font-weight:600;
-                            cursor:pointer;">
-                    Cancel
-                </button>
-
+            <div style="margin-top:24px;">
                 <button type="submit"
                         style="
-                            flex:1;
-                            height:54px;
+                            width:100%;
+                            height:52px;
                             border:none;
                             border-radius:14px;
                             background:#C25A2A;
                             color:#fff;
+                            font-size:15px;
                             font-weight:700;
-                            cursor:pointer;">
-                    Continue →
+                            font-family:'Poppins',sans-serif;
+                            cursor:pointer;
+                            display:flex;
+                            align-items:center;
+                            justify-content:center;
+                            gap:8px;
+                            transition:background .2s, transform .15s;">
+                    Continue to Checkout →
                 </button>
-
             </div>
-
         </form>
+
+        <div style="margin-top:24px;padding-top:20px;border-top:1px solid #E5E7EB;text-align:center;">
+            <p style="font-size:13.5px;color:#6B7280;margin:0 0 10px;">
+                Already have an account?
+            </p>
+            <a href="{{ url('/login?redirect=/checkout') }}"
+               style="
+                   display:inline-block;
+                   width:100%;
+                   padding:12px;
+                   border:1.5px solid #D1D5DB;
+                   border-radius:14px;
+                   background:#fff;
+                   color:#111827;
+                   font-weight:700;
+                   font-size:14px;
+                   font-family:'Poppins',sans-serif;
+                   text-decoration:none;
+                   transition:background 0.2s;">
+                Log In To Your Account
+            </a>
+        </div>
 
     </div>
 
@@ -897,6 +875,28 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 if (window.lucide) { lucide.createIcons(); }
+
+function openQuickCheckoutModal() {
+    const modal = document.getElementById('quickCheckoutModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeQuickCheckoutModal() {
+    const modal = document.getElementById('quickCheckoutModal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+}
+
+@if(session('quick_checkout_error') || $errors->any())
+document.addEventListener('DOMContentLoaded', function() {
+    openQuickCheckoutModal();
+});
+@endif
 </script>
 
 @endsection
