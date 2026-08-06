@@ -705,6 +705,33 @@ class OrderController extends Controller
                 }
             }
 
+            if ($request->order_type === 'delivery') {
+                $custLat = $request->latitude;
+                $custLng = $request->longitude;
+
+                if ($request->filled('address_id')) {
+                    $uAddr = UserAddress::find($request->address_id);
+                    if ($uAddr) {
+                        $custLat = $uAddr->latitude;
+                        $custLng = $uAddr->longitude;
+                    }
+                }
+
+                if (!empty($restaurant->latitude) && !empty($restaurant->longitude) && !empty($custLat) && !empty($custLng)) {
+                    $selfDeliveryService = app(\App\Services\SelfDeliveryService::class);
+                    $distKm = $selfDeliveryService->distanceKm(
+                        (float) $restaurant->latitude,
+                        (float) $restaurant->longitude,
+                        (float) $custLat,
+                        (float) $custLng
+                    );
+
+                    if ($distKm > 10.0) {
+                        return back()->with('error', "Delivery Unavailable: Your delivery address is {$distKm} KM away from the restaurant. Orders in the United Kingdom can only be booked within a 10 KM radius.");
+                    }
+                }
+            }
+
             $order = Order::create([
 
                 'user_id' =>

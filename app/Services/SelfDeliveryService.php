@@ -13,13 +13,12 @@ class SelfDeliveryService
      *
      * Returns distance in miles.
      */
-    public function distance(
+    public function distanceKm(
         float $lat1,
         float $lon1,
         float $lat2,
         float $lon2
     ): float {
-
         $earthRadius = 6371; // KM
 
         $dLat = deg2rad($lat2 - $lat1);
@@ -37,10 +36,22 @@ class SelfDeliveryService
             sqrt(1 - $a)
         );
 
-        $distanceKm = $earthRadius * $c;
+        return round($earthRadius * $c, 2);
+    }
 
-        // Convert KM → Miles
-        return round($distanceKm * 0.621371, 2);
+    /**
+     * Calculate distance between restaurant and customer
+     * using the Haversine formula.
+     *
+     * Returns distance in miles.
+     */
+    public function distance(
+        float $lat1,
+        float $lon1,
+        float $lat2,
+        float $lon2
+    ): float {
+        return round($this->distanceKm($lat1, $lon1, $lat2, $lon2) * 0.621371, 2);
     }
 
     /**
@@ -78,12 +89,6 @@ class SelfDeliveryService
         float $subtotal
     ): array {
 
-        /*
-        |--------------------------------------------------------------------------
-        | Restaurant Location Check
-        |--------------------------------------------------------------------------
-        */
-
         if (
             empty($restaurant->latitude) ||
             empty($restaurant->longitude)
@@ -95,21 +100,28 @@ class SelfDeliveryService
             ];
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Distance
-        |--------------------------------------------------------------------------
-        */
-
-        $distance = $this->distance(
-
+        $distanceKm = $this->distanceKm(
             (float) $restaurant->latitude,
             (float) $restaurant->longitude,
-
             $customerLatitude,
             $customerLongitude
-
         );
+
+        $distanceMiles = round($distanceKm * 0.621371, 2);
+        $maxRadiusKm = 10.0;
+
+        if ($distanceKm > $maxRadiusKm) {
+            return [
+                'success' => false,
+                'distance' => $distanceMiles,
+                'distance_km' => $distanceKm,
+                'distance_miles' => $distanceMiles,
+                'max_radius_km' => $maxRadiusKm,
+                'message' => "Delivery Unavailable: Your address is {$distanceKm} KM away from the restaurant. Orders in the United Kingdom can only be booked within a 10 KM radius.",
+            ];
+        }
+
+        $distance = $distanceMiles;
 
         /*
         |--------------------------------------------------------------------------
@@ -183,6 +195,12 @@ class SelfDeliveryService
             'success' => true,
 
             'distance' => round($distance, 2),
+
+            'distance_km' => $distanceKm,
+
+            'distance_miles' => $distanceMiles,
+
+            'max_radius_km' => 10.0,
 
             'delivery_charge' => round($deliveryCharge, 2),
 

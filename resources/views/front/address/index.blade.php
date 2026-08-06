@@ -737,21 +737,22 @@
 
                 updateCheckoutTotal(delivery);
 
+                let distKm = data.data.distance_km ? parseFloat(data.data.distance_km).toFixed(1) : (parseFloat(data.data.distance) * 1.60934).toFixed(1);
+                let distMiles = parseFloat(data.data.distance).toFixed(1);
+
                 let html = '';
-
-                html += '<div class="uber-quote-row"><strong>Self Delivery Available</strong></div>';
-
-                html += `<div class="uber-quote-row">Distance : ${data.data.distance} Miles</div>`;
-
+                html += '<div style="display:flex; align-items:flex-start; gap:10px;">';
+                html += '  <span style="font-size:20px; flex-shrink:0;">✅</span>';
+                html += '  <div>';
+                html += '    <div style="font-weight:700; font-size:14px; color:#065F46;">Delivery Eligible (Within 10 KM Radius)</div>';
+                html += `    <div style="font-size:12.5px; color:#047857; margin-top:2px;">Distance from restaurant: <strong>${distKm} KM</strong> (${distMiles} Miles) • Max Limit: 10.0 KM</div>`;
                 if (data.data.free_delivery) {
-
-                    html += '<div class="uber-quote-row">Delivery Charge : FREE</div>';
-
+                    html += '    <div style="font-size:12.5px; color:#047857; margin-top:2px; font-weight:700;">Delivery Charge: FREE</div>';
                 } else {
-
-                    html += `<div class="uber-quote-row">Delivery Charge : £${delivery.toFixed(2)}</div>`;
-
+                    html += `    <div style="font-size:12.5px; color:#047857; margin-top:2px;">Delivery Charge: <strong>£${delivery.toFixed(2)}</strong></div>`;
                 }
+                html += '  </div>';
+                html += '</div>';
 
                 box.className =
                     'uber-quote-status uber-quote-success';
@@ -774,8 +775,16 @@
                 box.className =
                     'uber-quote-status uber-quote-error';
 
-                box.textContent =
-                    err.message;
+                let errHtml = '';
+                errHtml += '<div style="display:flex; align-items:flex-start; gap:10px;">';
+                errHtml += '  <span style="font-size:20px; flex-shrink:0;">🚫</span>';
+                errHtml += '  <div>';
+                errHtml += '    <div style="font-weight:700; font-size:14px; color:#991B1B;">Delivery Unavailable</div>';
+                errHtml += `    <div style="font-size:12.5px; color:#B91C1C; margin-top:2px;">${err.message || 'Your address is outside the 10 KM delivery radius.'}</div>`;
+                errHtml += '  </div>';
+                errHtml += '</div>';
+
+                box.innerHTML = errHtml;
 
                 if (typeof window.validateCheckoutPlaceOrderButton === 'function') {
 
