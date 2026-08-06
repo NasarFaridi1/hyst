@@ -302,6 +302,26 @@
                         <p class="field-hint">Hold Ctrl (Windows) / Cmd (Mac) to select multiple.</p>
                     </div>
 
+                    {{-- Dietary Categories --}}
+                    <div class="form-group full">
+                        <label class="field-label">Dietary Categories</label>
+                        <div style="display:flex; flex-wrap:wrap; gap:16px; padding:14px 16px; border:1.5px solid #EBE5DE; border-radius:12px; background:#FDFAF7;">
+                            <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:14px; font-weight:600; color:#0D0D0D;">
+                                <input type="checkbox" name="dietary_categories[]" value="halal" {{ in_array('halal', old('dietary_categories', [])) ? 'checked' : '' }} style="width:16px; height:16px; accent-color:#C25A2A;">
+                                <span>🌙 Halal</span>
+                            </label>
+                            <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:14px; font-weight:600; color:#0D0D0D;">
+                                <input type="checkbox" name="dietary_categories[]" value="vegan" {{ in_array('vegan', old('dietary_categories', [])) ? 'checked' : '' }} style="width:16px; height:16px; accent-color:#C25A2A;">
+                                <span>🌱 Vegan</span>
+                            </label>
+                            <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:14px; font-weight:600; color:#0D0D0D;">
+                                <input type="checkbox" name="dietary_categories[]" value="vegetable" {{ in_array('vegetable', old('dietary_categories', [])) ? 'checked' : '' }} style="width:16px; height:16px; accent-color:#C25A2A;">
+                                <span>🥗 Vegetable</span>
+                            </label>
+                        </div>
+                        <p class="field-hint">Select any or all dietary options served by this restaurant.</p>
+                    </div>
+
                     {{-- Description --}}
                     <div class="form-group full">
                         <label class="field-label">Description</label>

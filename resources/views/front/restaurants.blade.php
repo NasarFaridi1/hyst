@@ -394,6 +394,15 @@
             <div class="filter-chip active-chip" data-filter="all">
                 <i data-lucide="layout-grid" style="width:14px; height:14px;"></i> All
             </div>
+            <div class="filter-chip" data-filter="halal">
+                🌙 Halal
+            </div>
+            <div class="filter-chip" data-filter="vegan">
+                🌱 Vegan
+            </div>
+            <div class="filter-chip" data-filter="vegetable">
+                🥗 Vegetable
+            </div>
             <div class="filter-chip" data-filter="top-rated">
                 <i data-lucide="star" style="width:14px; height:14px;"></i> Top Rated 4.5+
             </div>
@@ -419,6 +428,7 @@
                 style="text-decoration:none;"
                 data-name="{{ strtolower($restaurant->name) }}"
                 data-categories="{{ implode(',', $restaurant->category_ids ?? []) }}"
+                data-dietary="{{ implode(',', $restaurant->dietary_categories ?? []) }}"
                 data-rating="{{ number_format($avgRating, 1) }}"
                 data-has-offer="{{ $restaurant->featuredOffer ? '1' : '0' }}">
 
@@ -429,6 +439,7 @@
                 style="text-decoration:none;pointer-events:none;cursor:not-allowed;"
                 data-name="{{ strtolower($restaurant->name) }}"
                 data-categories="{{ implode(',', $restaurant->category_ids ?? []) }}"
+                data-dietary="{{ implode(',', $restaurant->dietary_categories ?? []) }}"
                 data-rating="{{ number_format($avgRating, 1) }}"
                 data-has-offer="{{ $restaurant->featuredOffer ? '1' : '0' }}">
 
@@ -507,6 +518,20 @@
                     @endif
 
                 </p>
+
+                @if(!empty($restaurant->dietary_categories))
+                    <div style="display:flex; gap:4px; flex-wrap:wrap; margin-bottom:6px;">
+                        @foreach($restaurant->dietary_categories as $dCat)
+                            @if($dCat === 'halal')
+                                <span style="background:#FEF3C7; color:#92400E; font-size:10px; font-weight:700; padding:2px 7px; border-radius:12px; font-family:'Poppins',sans-serif;">🌙 Halal</span>
+                            @elseif($dCat === 'vegan')
+                                <span style="background:#DCFCE7; color:#166534; font-size:10px; font-weight:700; padding:2px 7px; border-radius:12px; font-family:'Poppins',sans-serif;">🌱 Vegan</span>
+                            @elseif($dCat === 'vegetable')
+                                <span style="background:#E0E7FF; color:#3730A3; font-size:10px; font-weight:700; padding:2px 7px; border-radius:12px; font-family:'Poppins',sans-serif;">🥗 Vegetable</span>
+                            @endif
+                        @endforeach
+                    </div>
+                @endif
 
 
                 <div class="restaurant-footer">
@@ -608,6 +633,7 @@
                 cards.forEach(card => {
                     const name = card.dataset.name || '';
                     const categories = (card.dataset.categories || '').split(',');
+                    const dietary = (card.dataset.dietary || '').split(',');
                     const rating = parseFloat(card.dataset.rating || '0');
                     const hasOffer = card.dataset.hasOffer === '1';
 
@@ -617,6 +643,7 @@
                     if(state.categoryId !== 'all' && !categories.includes(state.categoryId)) visible = false;
                     if(state.chip === 'top-rated' && rating < 4.5) visible = false;
                     if(state.chip === 'offers' && !hasOffer) visible = false;
+                    if(['halal', 'vegan', 'vegetable'].includes(state.chip) && !dietary.includes(state.chip)) visible = false;
 
                     card.style.display = visible ? '' : 'none';
                     if(visible) visibleCount++;

@@ -214,6 +214,31 @@
 
         </div>
 
+        <!-- Dietary Categories -->
+        <div class="mt-5">
+            <label class="font-semibold block mb-2">
+                Dietary Categories
+            </label>
+            @php
+                $savedDietary = old('dietary_categories', $restaurant->dietary_categories ?? []);
+            @endphp
+            <div class="flex flex-wrap gap-4 p-4 border border-gray-300 rounded-xl bg-gray-50">
+                <label class="flex items-center gap-2 cursor-pointer font-medium text-gray-700">
+                    <input type="checkbox" name="dietary_categories[]" value="halal" {{ in_array('halal', $savedDietary) ? 'checked' : '' }} class="w-4 h-4 text-blue-600 rounded">
+                    <span>🌙 Halal</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer font-medium text-gray-700">
+                    <input type="checkbox" name="dietary_categories[]" value="vegan" {{ in_array('vegan', $savedDietary) ? 'checked' : '' }} class="w-4 h-4 text-blue-600 rounded">
+                    <span>🌱 Vegan</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer font-medium text-gray-700">
+                    <input type="checkbox" name="dietary_categories[]" value="vegetable" {{ in_array('vegetable', $savedDietary) ? 'checked' : '' }} class="w-4 h-4 text-blue-600 rounded">
+                    <span>🥗 Vegetable</span>
+                </label>
+            </div>
+            <small class="text-gray-500">Select any or all dietary categories served by this restaurant.</small>
+        </div>
+
         <div class="mt-5">
 
             <label>Description</label>

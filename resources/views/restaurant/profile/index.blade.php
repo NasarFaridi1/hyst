@@ -199,9 +199,32 @@
                             type="file"
                             name="hygiene_certificate"
                             accept=".pdf,.jpg,.jpeg,.png"
-                            class="w-full border p-4 rounded-xl">
                     </div>
 
+                </div>
+
+                <div class="mt-6">
+                    <label class="font-bold block mb-3">
+                        Dietary Categories (Serving Categories)
+                    </label>
+                    @php
+                        $savedDietary = old('dietary_categories', $restaurant->dietary_categories ?? []);
+                    @endphp
+                    <div class="flex flex-wrap gap-4 p-4 border rounded-xl bg-gray-50">
+                        <label class="flex items-center gap-2 cursor-pointer font-semibold text-gray-700">
+                            <input type="checkbox" name="dietary_categories[]" value="halal" {{ in_array('halal', $savedDietary) ? 'checked' : '' }} class="w-5 h-5 text-blue-600 rounded">
+                            <span>🌙 Halal</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer font-semibold text-gray-700">
+                            <input type="checkbox" name="dietary_categories[]" value="vegan" {{ in_array('vegan', $savedDietary) ? 'checked' : '' }} class="w-5 h-5 text-blue-600 rounded">
+                            <span>🌱 Vegan</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer font-semibold text-gray-700">
+                            <input type="checkbox" name="dietary_categories[]" value="vegetable" {{ in_array('vegetable', $savedDietary) ? 'checked' : '' }} class="w-5 h-5 text-blue-600 rounded">
+                            <span>🥗 Vegetable</span>
+                        </label>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">Select all categories your restaurant serves (Halal, Vegan, Vegetable).</p>
                 </div>
 
                 <div class="mt-6">

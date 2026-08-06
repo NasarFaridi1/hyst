@@ -89,6 +89,7 @@ class ProfileController extends Controller
             'closing_time' => $request->closing_time,
             'allow_asap' => $request->input('allow_asap', 1),
             'allow_schedule' => $request->input('allow_schedule', 1),
+            'dietary_categories' => $request->input('dietary_categories', []),
         ]);
 
         return back()->with(

@@ -59,10 +59,12 @@ class Restaurant extends Model
         'self_delivery',
         'allow_asap',
         'allow_schedule',
+        'dietary_categories',
     ];
 
     protected $casts = [
         'category_ids' => 'array',
+        'dietary_categories' => 'array',
         'allow_asap' => 'boolean',
         'allow_schedule' => 'boolean',
     ];

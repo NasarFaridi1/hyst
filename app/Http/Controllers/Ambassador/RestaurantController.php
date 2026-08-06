@@ -97,6 +97,8 @@ class RestaurantController extends Controller
 
             'category_ids' => 'required|array|min:1',
 
+            'dietary_categories' => 'nullable|array',
+
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp',
 
             'hygiene_certificate' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg,pdf',
@@ -177,6 +179,8 @@ class RestaurantController extends Controller
                 'description' => $request->description,
 
                 'category_ids' => $request->category_ids,
+
+                'dietary_categories' => $request->dietary_categories ?? [],
 
                 'image' => $image,
 
@@ -288,6 +292,8 @@ class RestaurantController extends Controller
 
             'category_ids' => 'required|array|min:1',
 
+            'dietary_categories' => 'nullable|array',
+
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp',
 
             'hygiene_certificate' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg,pdf',
@@ -373,6 +379,8 @@ class RestaurantController extends Controller
                 'description' => $request->description,
 
                 'category_ids' => json_encode($request->category_ids),
+
+                'dietary_categories' => $request->dietary_categories ?? [],
 
                 'image' => $image,
 
