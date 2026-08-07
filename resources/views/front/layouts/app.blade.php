@@ -39,8 +39,8 @@
 
     <meta property="og:description" content="@yield('meta_description', 'HYST is the UK\'s zero commission food ordering platform. Order directly from local restaurants at genuine menu prices with no hidden markups.')">
 
-    <meta property="og:image" content="@yield('og_image', asset('social-share.jpeg'))">
-    <meta property="og:image:secure_url" content="@yield('og_image', asset('social-share.jpeg'))">
+    <meta property="og:image" content="@yield('og_image', asset('twitter.jpeg'))">
+    <meta property="og:image:secure_url" content="@yield('og_image', asset('twitter.jpeg'))">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="HYST - Zero Commission Food Ordering Platform">
@@ -61,7 +61,7 @@
             "@type":"Organization",
             "name":"HYST",
             "url":"https://hyst.uk",
-            "logo":"https://hyst.uk/social-share.jpeg",
+            "logo":"https://hyst.uk/twitter.jpeg",
             "email":"info@hyst.uk",
             "telephone":"+44 7879 175585",
             "address":{
@@ -98,7 +98,7 @@
             "@context":"https://schema.org",
             "@type":"LocalBusiness",
             "name":"HYST",
-            "image":"https://hyst.uk/social-share.jpeg",
+            "image":"https://hyst.uk/twitter.jpeg",
             "telephone":"+44 7879 175585",
             "email":"info@hyst.uk",
             "address":{
@@ -152,8 +152,8 @@
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     <link rel="shortcut icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
-    <link rel="apple-touch-icon" href="{{ asset('social-share.jpeg') }}">
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('social-share.jpeg') }}">
+    <link rel="apple-touch-icon" href="{{ asset('twitter.jpeg') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('twitter.jpeg') }}">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
