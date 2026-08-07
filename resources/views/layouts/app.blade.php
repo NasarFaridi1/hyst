@@ -48,7 +48,7 @@
 
     <meta name="twitter:description" content="@yield('meta_description', 'HYST is the UK\'s zero commission food ordering platform. Order directly from local restaurants at genuine menu prices with no hidden markups.')">
 
-    <meta name="twitter:image" content="@yield('og_image', asset('social-share.jpeg'))">
+    <meta name="twitter:image" content="@yield('og_image', asset('twitter.jpeg'))">
     <meta name="twitter:image:alt" content="HYST - Zero Commission Food Ordering Platform">
 
     <script type="application/ld+json">
