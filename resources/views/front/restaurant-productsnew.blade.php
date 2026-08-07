@@ -41,7 +41,7 @@
     .hero-slide img {
         width: 100%;
         height: 100%;
-        object-fit: cover;
+        object-fit: fill;
         transform: scale(1);
         transition: transform 8s linear;
     }
