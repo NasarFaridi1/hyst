@@ -232,19 +232,32 @@
                             </div>
                         </div>
                         <div class="p-group">
-                            <label class="p-label">Email Address</label>
+                            <label class="p-label">Phone Number</label>
                             <div class="p-input-wrap">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
                                 </svg>
-                                <input type="email" readonly disabled name="email" value="{{ auth()->user()->email }}" class="p-input" required>
+                                <input type="text" name="phone" value="{{ auth()->user()->phone }}" class="p-input" placeholder="e.g. +447123456789">
                             </div>
                             <div class="p-hint">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="12" cy="12" r="10"/><path stroke-linecap="round" d="M12 16v-4m0-4h.01"/>
-                                </svg>
-                                Email can't be changed for security reasons
+                                Used for delivery quotes & courier notifications
                             </div>
+                        </div>
+                    </div>
+
+                    <div class="p-group">
+                        <label class="p-label">Email Address</label>
+                        <div class="p-input-wrap">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                            <input type="email" readonly disabled name="email" value="{{ auth()->user()->email }}" class="p-input" required>
+                        </div>
+                        <div class="p-hint">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/><path stroke-linecap="round" d="M12 16v-4m0-4h.01"/>
+                            </svg>
+                            Email can't be changed for security reasons
                         </div>
                     </div>
 

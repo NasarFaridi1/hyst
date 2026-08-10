@@ -29,35 +29,15 @@ class ProfileController extends Controller
     public function update(Request $request)
     {
         $request->validate([
-            'name'  => 'required',
-            'email' => 'required|email',
+            'name'  => 'required|string|max:255',
+            'phone' => 'nullable|string|max:25',
         ]);
-
-        $emailExists = User::where(
-            'email_hash',
-            hash(
-                'sha256',
-                strtolower(trim($request->email))
-            )
-        )
-        ->where('id', '!=', auth()->id())
-        ->exists();
-
-        if ($emailExists) {
-
-            
-
-            return back()->with(
-                'error',
-                'Email already exists.'
-            );
-        }
 
         $user = auth()->user();
 
         $user->update([
             'name'  => $request->name,
-            'email' => $request->email,
+            'phone' => $request->phone,
         ]);
 
         return back()->with(

@@ -597,9 +597,14 @@
             if (!uberObj) return 'Delivery is unavailable for this address.';
             let mainMsg = uberObj.message || '';
             let metaMsgs = [];
+            let isPhoneError = false;
+
             if (uberObj.metadata) {
                 if (typeof uberObj.metadata === 'object' && uberObj.metadata !== null) {
                     for (const [key, val] of Object.entries(uberObj.metadata)) {
+                        if (key.includes('phone') || (typeof val === 'string' && val.toLowerCase().includes('phone'))) {
+                            isPhoneError = true;
+                        }
                         if (typeof val === 'string' && val.trim()) {
                             metaMsgs.push(val.trim());
                         } else if (val && typeof val === 'object') {
@@ -609,16 +614,34 @@
                     }
                 } else if (typeof uberObj.metadata === 'string' && uberObj.metadata.trim()) {
                     metaMsgs.push(uberObj.metadata.trim());
+                    if (uberObj.metadata.toLowerCase().includes('phone')) {
+                        isPhoneError = true;
+                    }
                 }
             }
+
+            if (mainMsg.toLowerCase().includes('phone')) {
+                isPhoneError = true;
+            }
+
             const metaStr = metaMsgs.filter(Boolean).join('. ');
+            let fullMsg = '';
+
             if (mainMsg && metaStr) {
                 if (mainMsg.toLowerCase().includes(metaStr.toLowerCase())) {
-                    return mainMsg;
+                    fullMsg = mainMsg;
+                } else {
+                    fullMsg = mainMsg + (mainMsg.endsWith('.') ? ' ' : '. ') + metaStr;
                 }
-                return mainMsg + (mainMsg.endsWith('.') ? ' ' : '. ') + metaStr;
+            } else {
+                fullMsg = mainMsg || metaStr || 'Delivery is unavailable for this address.';
             }
-            return mainMsg || metaStr || 'Delivery is unavailable for this address.';
+
+            if (isPhoneError) {
+                fullMsg += ` Please <a href="/profile" style="color: inherit; font-weight: 700; text-decoration: underline;">go to profile</a> and correct the phone number.`;
+            }
+
+            return fullMsg;
         }
 
         // ---------- instant Uber quote ----------
