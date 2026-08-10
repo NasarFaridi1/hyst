@@ -32,9 +32,15 @@ class RestaurantBannerController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'image'      => 'required|image|max:4096',
-            'mobile_img' => 'nullable|image|max:4096',
+            'image'      => 'required|image|max:2048',
+            'mobile_img' => 'nullable|image|max:2048',
             'status'     => 'required'
+        ], [
+            'image.required'   => 'Please upload a desktop banner image.',
+            'image.image'      => 'The desktop banner must be a valid image file.',
+            'image.max'        => 'The desktop banner image size cannot exceed 2 MB.',
+            'mobile_img.image' => 'The mobile banner must be a valid image file.',
+            'mobile_img.max'   => 'The mobile banner image size cannot exceed 2 MB.',
         ]);
 
         $restaurant = User::where('id', Auth::id())->firstOrFail();
@@ -70,9 +76,14 @@ class RestaurantBannerController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'image'      => 'nullable|image|max:4096',
-            'mobile_img' => 'nullable|image|max:4096',
+            'image'      => 'nullable|image|max:2048',
+            'mobile_img' => 'nullable|image|max:2048',
             'status'     => 'required'
+        ], [
+            'image.image'      => 'The desktop banner must be a valid image file.',
+            'image.max'        => 'The desktop banner image size cannot exceed 2 MB.',
+            'mobile_img.image' => 'The mobile banner must be a valid image file.',
+            'mobile_img.max'   => 'The mobile banner image size cannot exceed 2 MB.',
         ]);
 
         $banner = RestaurantBanner::findOrFail($id);

@@ -134,6 +134,14 @@
     function previewImage(input, containerId, imgId) {
         const file = input.files[0];
         if (file) {
+            const maxSizeInBytes = 2 * 1024 * 1024; // 2 MB
+            if (file.size > maxSizeInBytes) {
+                const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                alert(`Selected image size is ${fileSizeMB} MB.\n\nError: Maximum allowed file size is 2 MB. Please select a smaller image.`);
+                input.value = ''; // Reset file input
+                return;
+            }
+
             const reader = new FileReader();
             reader.onload = function(e) {
                 document.getElementById(imgId).src = e.target.result;
