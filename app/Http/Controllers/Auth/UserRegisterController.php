@@ -285,11 +285,6 @@ public function checkEmail(Request $request)
         }
 
         Auth::login($user);
-        $request->session()->regenerate();
-
-        if ($guestFcmToken = session('guest_fcm_token')) {
-            $user->update(['fcm_token' => $guestFcmToken]);
-        }
 
         return redirect()->route('checkout')
             ->with('message', 'Account created successfully! Proceeding to checkout.')

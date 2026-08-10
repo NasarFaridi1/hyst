@@ -87,7 +87,7 @@ class UberService
             "dropoff_deadline_dt" => $times['dropoffDeadline']->toISOString(),
 
             "pickup_phone_number" => $restaurant->phone,
-            "dropoff_phone_number" => !empty($user?->phone) ? $user->phone : ($checkout['phone'] ?? session('guest_checkout.phone') ?? ''),
+            "dropoff_phone_number" => $user->phone,
 
             "manifest_total_value" => (int) round($checkout['amount'] * 100),
 

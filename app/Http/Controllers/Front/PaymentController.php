@@ -94,17 +94,6 @@ class PaymentController extends Controller
 
             $reference = 'HYST-' . strtoupper(Str::random(12));
 
-            $user = Auth::user();
-            $guest = session('guest_checkout');
-
-            $custName    = $user?->name ?: ($request->name ?: ($guest['name'] ?? 'Customer'));
-            $custEmail   = $user?->email ?: ($request->email ?: ($guest['email'] ?? 'customer@hyst.uk'));
-            $custPhone   = $request->phone ?: ($user?->phone ?: ($guest['phone'] ?? ''));
-            $custAddress = $request->order_type == 'dine_in' ? $restaurant->address : ($request->address ?: ($user?->address ?: ($guest['address'] ?? '')));
-            $custPostcode= $request->order_type == 'dine_in' ? $restaurant->postcode : ($request->postcode ?: ($user?->postcode ?: ($guest['postcode'] ?? '')));
-            $custState   = $request->order_type == 'dine_in' ? $restaurant->state : ($request->state ?: ($user?->state ?: ($guest['state'] ?? '')));
-            $custCountry = $request->order_type == 'dine_in' ? $restaurant->country : ($request->country ?: ($user?->country ?: ($guest['country'] ?? 'United Kingdom')));
-
             $hpp = $this->worldpay->generateHostedPayment(
 
                 $restaurant,
@@ -121,19 +110,35 @@ class PaymentController extends Controller
 
                     'user_id' => Auth::id(),
 
-                    'name' => $custName,
+                    'name' => Auth::user()->name,
 
-                    'email' => $custEmail,
+                    'email' => Auth::user()->email,
 
-                    'phone' => $custPhone,
+                    'phone' => $request->phone ?? Auth::user()->phone,
 
-                    'address' => $custAddress,
+                    // 'address' => $request->address ?? Auth::user()->address,
 
-                    'postcode' => $custPostcode,
+                    // 'postcode' => $request->postcode ?? Auth::user()->postcode,
 
-                    'state' => $custState,
+                    // 'state' => Auth::user()->state,
 
-                    'country' => $custCountry,
+                    // 'country' => Auth::user()->country,
+                    'address' => $request->order_type == 'dine_in'
+                        ? $restaurant->address
+                        : ($request->address ?? Auth::user()->address),
+
+                    'postcode' => $request->order_type == 'dine_in'
+                        ? $restaurant->postcode
+                        : ($request->postcode ?? Auth::user()->postcode),
+
+                    'state' => $request->order_type == 'dine_in'
+                        ? $restaurant->state
+                        : Auth::user()->state,
+
+                    'country' => $request->order_type == 'dine_in'
+                        ? $restaurant->country
+                        : Auth::user()->country,
+
 
                 ]
 
