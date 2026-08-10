@@ -593,6 +593,34 @@
             if (rows.length === 1) selectAddress(rows[0]);
         })();
 
+        function formatUberErrorMessage(uberObj) {
+            if (!uberObj) return 'Delivery is unavailable for this address.';
+            let mainMsg = uberObj.message || '';
+            let metaMsgs = [];
+            if (uberObj.metadata) {
+                if (typeof uberObj.metadata === 'object' && uberObj.metadata !== null) {
+                    for (const [key, val] of Object.entries(uberObj.metadata)) {
+                        if (typeof val === 'string' && val.trim()) {
+                            metaMsgs.push(val.trim());
+                        } else if (val && typeof val === 'object') {
+                            const subVals = Object.values(val).filter(v => typeof v === 'string' && v.trim());
+                            if (subVals.length) metaMsgs.push(subVals.join('. '));
+                        }
+                    }
+                } else if (typeof uberObj.metadata === 'string' && uberObj.metadata.trim()) {
+                    metaMsgs.push(uberObj.metadata.trim());
+                }
+            }
+            const metaStr = metaMsgs.filter(Boolean).join('. ');
+            if (mainMsg && metaStr) {
+                if (mainMsg.toLowerCase().includes(metaStr.toLowerCase())) {
+                    return mainMsg;
+                }
+                return mainMsg + (mainMsg.endsWith('.') ? ' ' : '. ') + metaStr;
+            }
+            return mainMsg || metaStr || 'Delivery is unavailable for this address.';
+        }
+
         // ---------- instant Uber quote ----------
         async function fetchUberQuote() {
             const box = $('uberQuoteStatus');
@@ -623,18 +651,20 @@
                 const data = await res.json();
 
                 if (!res.ok || !data.success) {
-                    throw new Error(data.message || 'Could not fetch a delivery quote.');
+                    document.getElementById('uber_quote_id').value = '';
+                    document.getElementById('delivery_charge').value = 0;
+                    let errMessage = data.message || 'Could not fetch a delivery quote.';
+                    if (data.data && (data.data.kind === 'error' || data.data.code)) {
+                        errMessage = formatUberErrorMessage(data.data);
+                    }
+                    throw new Error(errMessage);
                 }
 
                 // Uber returned an error even though API request succeeded
-                if (data.data?.kind === 'error') {
+                if (data.data?.kind === 'error' || data.data?.code) {
                     document.getElementById('uber_quote_id').value = '';
                     document.getElementById('delivery_charge').value = 0;
-                    throw new Error(
-                        data.data.metadata?.details ||
-                        data.data.message ||
-                        'Delivery is unavailable for this address.'
-                    );
+                    throw new Error(formatUberErrorMessage(data.data));
                 }
 
                 
