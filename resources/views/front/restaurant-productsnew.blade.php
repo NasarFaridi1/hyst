@@ -843,6 +843,88 @@
     }
 
     /* ============================================================
+    HERO HEADER RESPONSIVE STYLES
+    ============================================================ */
+    .res-hero-section {
+        position: relative;
+        min-height: 240px;
+        overflow: hidden;
+        flex-shrink: 0;
+        background: #111;
+    }
+
+    .res-hero-content-wrap {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 24px 32px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 16px;
+        z-index: 2;
+    }
+
+    .res-hero-title {
+        margin: 0;
+        font-size: 32px;
+        font-weight: 700;
+        color: #fff;
+        letter-spacing: -.5px;
+        line-height: 1.2;
+    }
+
+    .res-hero-meta {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 14px;
+        color: rgba(255,255,255,.9);
+        font-weight: 500;
+        flex-wrap: wrap;
+    }
+
+    .res-hero-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-shrink: 0;
+    }
+
+    @media (max-width: 767px) {
+        .res-hero-section {
+            min-height: 260px !important;
+            height: auto !important;
+        }
+        .res-hero-content-wrap {
+            position: relative !important;
+            padding: 20px 16px !important;
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            justify-content: flex-end !important;
+            gap: 12px !important;
+            background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.75) 60%, rgba(0,0,0,0.4) 100%) !important;
+            margin-top: 60px;
+        }
+        .res-hero-title {
+            font-size: 22px !important;
+            line-height: 1.25 !important;
+        }
+        .res-hero-meta {
+            font-size: 12px !important;
+            gap: 6px !important;
+        }
+        .res-hero-actions {
+            width: 100%;
+            justify-content: flex-start !important;
+            flex-wrap: wrap !important;
+            gap: 10px !important;
+            margin-top: 4px;
+        }
+    }
+
+    /* ============================================================
     SEARCH LOADER
     ============================================================ */
     #searchLoader { display:none; font-size:12px; color:#757575; margin-top:4px; }
@@ -1174,7 +1256,7 @@
 </div> --}}
 
 
-<section style="position:relative; height:240px; overflow:hidden; flex-shrink:0;">
+<section class="res-hero-section">
 
     @if($restaurant->banners->count())
         <div class="hero-slider">
@@ -1186,25 +1268,25 @@
                         @endif
                         <img src="{{ asset($banner->image) }}" alt="{{ $restaurant->name }}" style="width:100%; height:100%; object-fit:cover;">
                     </picture>
-                    <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.2) 60%, rgba(0,0,0,0.1) 100%);"></div>
+                    <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 60%, rgba(0,0,0,0.1) 100%);"></div>
                 </div>
             @endforeach
         </div>
     @elseif($restaurant->image)
         <img src="{{ asset('storage/' . $restaurant->image) }}"
-             style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; ">
-        <div style="position:absolute; "></div>
+             style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;">
+        <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 100%);"></div>
     @else
-        <div style="position:absolute; inset:0;"></div>
+        <div style="position:absolute; inset:0; background:linear-gradient(135deg,#0D0D0D 0%,#222 100%);"></div>
     @endif
 
     {{-- Hero content --}}
-    <div style="position:absolute; bottom:0; left:0; right:0; padding:24px 32px; display:flex; align-items:flex-end; justify-content:space-between; z-index:1;">
-        <div style="display:flex; flex-direction:column; gap:6px;">
-            <h1 style="margin:0; font-size:32px; font-weight:700; color:#fff; letter-spacing:-.5px;">
+    <div class="res-hero-content-wrap">
+        <div style="display:flex; flex-direction:column; gap:6px; flex:1; min-width:0;">
+            <h1 class="res-hero-title">
                 {{ $restaurant->name }}
             </h1>
-            <div style="display:flex; align-items:center; gap:14px; font-size:14px; color:rgba(255,255,255,.85); font-weight:500; flex-wrap:wrap;">
+            <div class="res-hero-meta">
                 <span style="display:flex; align-items:center; gap:5px;">
                     <span style="color:#06C167; font-weight:700;">★ {{ number_format($restaurant->reviews->avg('rating') ?? 0, 1) }}</span>
                     ({{ $restaurant->reviews->count() }}+)
@@ -1213,8 +1295,6 @@
                 <span>{{ $restaurant->cuisine ?? 'Restaurant' }}</span>
                 <span>·</span>
                 <span>{{ $restaurant->delivery_time ?? '25–35 min' }}</span>
-                <span>·</span>
-                {{-- <span>£{{ number_format($restaurant->delivery_fee ?? 1.99, 2) }} delivery</span> --}}
                 @if($restaurant->location)
                     <span>·</span>
                     <span>📍 {{ $restaurant->location }}</span>
@@ -1222,17 +1302,17 @@
             </div>
         </div>
 
-        <div style="display:flex; align-items:center; gap:12px;">
+        <div class="res-hero-actions">
             @if($restaurant->hygiene_rating)
-                <div style="background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.25); backdrop-filter:blur(12px); border-radius:12px; padding:10px 16px; text-align:center; color:#fff; flex-shrink:0;">
-                    <div style="font-size:11px; letter-spacing:.1em; text-transform:uppercase; opacity:.7; font-weight:600;">Hygiene</div>
-                    <div style="font-size:18px; font-weight:700;">{{ $restaurant->hygiene_rating }} / 5</div>
+                <div style="background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.25); backdrop-filter:blur(12px); border-radius:12px; padding:8px 14px; text-align:center; color:#fff; flex-shrink:0;">
+                    <div style="font-size:10px; letter-spacing:.1em; text-transform:uppercase; opacity:.8; font-weight:600;">Hygiene</div>
+                    <div style="font-size:16px; font-weight:700;">{{ $restaurant->hygiene_rating }} / 5</div>
                 </div>
             @endif
 
             @auth
                 <button onclick="saveFavorite()" id="favoriteToggleBtn"
-                    style="display:flex; align-items:center; gap:8px; background:rgba(255,255,255,.12); border:1.5px solid rgba(255,255,255,.25); color:#fff; padding:10px 18px; border-radius:14px; font-family:'DM Sans',sans-serif; font-weight:600; font-size:13px; cursor:pointer;">
+                    style="display:flex; align-items:center; gap:8px; background:rgba(255,255,255,.12); border:1.5px solid rgba(255,255,255,.25); color:#fff; padding:9px 16px; border-radius:14px; font-family:'DM Sans',sans-serif; font-weight:600; font-size:13px; cursor:pointer;">
                     <span id="favoriteToggleIcon">{{ (auth()->check() && \App\Models\RestaurantFavorite::where('restaurant_id', $restaurant->id)->where('user_id', auth()->id())->exists()) ? '★' : '☆' }}</span>
                     <span id="favoriteToggleLabel">{{ (auth()->check() && \App\Models\RestaurantFavorite::where('restaurant_id', $restaurant->id)->where('user_id', auth()->id())->exists()) ? 'Saved' : 'Save' }}</span>
                 </button>
