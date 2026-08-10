@@ -417,9 +417,15 @@
             @foreach($restaurant->banners as $banner)
 
                 <div class="hero-slide">
-                    <img
-                        src="{{ asset($banner->image) }}"
-                        style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:1;">
+                    <picture style="position:absolute; inset:0; width:100%; height:100%; display:block;">
+                        @if($banner->mobile_img && file_exists(public_path($banner->mobile_img)))
+                            <source media="(max-width: 767px)" srcset="{{ asset($banner->mobile_img) }}">
+                        @endif
+                        <img
+                            src="{{ asset($banner->image) }}"
+                            alt="{{ $restaurant->name }}"
+                            style="width:100%; height:100%; object-fit:cover; opacity:1;">
+                    </picture>
 
                     <div style="position:absolute; inset:0; background:linear-gradient(135deg,#0D0D0D 10%,rgba(13, 13, 13, 0.26) 100%);"></div>
                 </div>

@@ -32,20 +32,28 @@ class RestaurantBannerController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'image' => 'required|image|max:2048',
-            'status' => 'required'
+            'image'      => 'required|image|max:4096',
+            'mobile_img' => 'nullable|image|max:4096',
+            'status'     => 'required'
         ]);
 
         $restaurant = User::where('id', Auth::id())->firstOrFail();
 
         $imageName = time() . '_' . uniqid() . '.' . $request->image->extension();
-
         $request->image->move(public_path('restaurant_banners'), $imageName);
+
+        $mobileImgPath = null;
+        if ($request->hasFile('mobile_img')) {
+            $mobileImageName = time() . '_mob_' . uniqid() . '.' . $request->mobile_img->extension();
+            $request->mobile_img->move(public_path('restaurant_banners'), $mobileImageName);
+            $mobileImgPath = 'restaurant_banners/' . $mobileImageName;
+        }
 
         RestaurantBanner::create([
             'restaurant_id' => $restaurant->restaurant_id,
-            'image' => 'restaurant_banners/' . $imageName,
-            'status' => $request->status
+            'image'         => 'restaurant_banners/' . $imageName,
+            'mobile_img'    => $mobileImgPath,
+            'status'        => $request->status
         ]);
 
         return redirect()->route('restaurant.banners.index')
@@ -62,24 +70,31 @@ class RestaurantBannerController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'image' => 'nullable|image|max:2048',
-            'status' => 'required'
+            'image'      => 'nullable|image|max:4096',
+            'mobile_img' => 'nullable|image|max:4096',
+            'status'     => 'required'
         ]);
 
         $banner = RestaurantBanner::findOrFail($id);
 
-        
         if ($request->hasFile('image')) {
-
             if ($banner->image && file_exists(public_path($banner->image))) {
-                unlink(public_path($banner->image));
+                @unlink(public_path($banner->image));
             }
 
             $imageName = time() . '_' . uniqid() . '.' . $request->image->extension();
-
             $request->image->move(public_path('restaurant_banners'), $imageName);
-
             $banner->image = 'restaurant_banners/' . $imageName;
+        }
+
+        if ($request->hasFile('mobile_img')) {
+            if ($banner->mobile_img && file_exists(public_path($banner->mobile_img))) {
+                @unlink(public_path($banner->mobile_img));
+            }
+
+            $mobileImageName = time() . '_mob_' . uniqid() . '.' . $request->mobile_img->extension();
+            $request->mobile_img->move(public_path('restaurant_banners'), $mobileImageName);
+            $banner->mobile_img = 'restaurant_banners/' . $mobileImageName;
         }
 
         $banner->status = $request->status;
@@ -94,7 +109,11 @@ class RestaurantBannerController extends Controller
         $banner = RestaurantBanner::findOrFail($id);
 
         if ($banner->image && file_exists(public_path($banner->image))) {
-            unlink(public_path($banner->image));
+            @unlink(public_path($banner->image));
+        }
+
+        if ($banner->mobile_img && file_exists(public_path($banner->mobile_img))) {
+            @unlink(public_path($banner->mobile_img));
         }
 
         $banner->delete();

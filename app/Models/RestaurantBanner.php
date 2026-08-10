@@ -14,6 +14,7 @@ class RestaurantBanner extends Model
     protected $fillable = [
         'restaurant_id',
         'image',
+        'mobile_img',
         'status',
     ];
 
