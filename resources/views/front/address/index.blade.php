@@ -727,7 +727,7 @@
                 }
             } catch (err) {
                 box.className = 'uber-quote-status uber-quote-error';
-                box.textContent = err.message || 'Something went wrong while fetching the delivery quote.';
+                box.innerHTML = err.message || 'Something went wrong while fetching the delivery quote.';
                 if (typeof window.validateCheckoutPlaceOrderButton === 'function') {
                     window.validateCheckoutPlaceOrderButton();
                 }
