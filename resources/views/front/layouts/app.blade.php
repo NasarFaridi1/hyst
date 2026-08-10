@@ -1227,7 +1227,10 @@
         });
         </script>
     @endif
-    @include('front.partials.chatbot')
+
+    @if(request()->is('/') || request()->is('home'))
+        @include('front.partials.chatbot')
+    @endif
 </body>
 
 </html>
