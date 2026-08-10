@@ -1058,12 +1058,29 @@ class OrderController extends Controller
 
             $firebase = new FirebaseNotificationService();
 
-            // Send FCM to Restaurant Admin
-            if ($restaurantAdmin && !empty($restaurantAdmin->fcm_token)) {
+            // Send FCM to all Restaurant Admins for this restaurant
+            $restaurantAdmins = User::where('restaurant_id', $order->restaurant_id)
+                ->whereNotNull('fcm_token')
+                ->where('fcm_token', '!=', '')
+                ->get();
+
+            $sentTokenMap = [];
+            foreach ($restaurantAdmins as $admin) {
+                $sentTokenMap[$admin->fcm_token] = true;
+                $firebase->send(
+                    $admin->fcm_token,
+                    'New Order Received! 🛍️',
+                    'You received a new order #' . $order->id . ' for £' . number_format($order->total_amount, 2) . '.',
+                    '/restaurant/orders'
+                );
+            }
+
+            // Fallback for single restaurantAdmin variable if token not already sent
+            if ($restaurantAdmin && !empty($restaurantAdmin->fcm_token) && empty($sentTokenMap[$restaurantAdmin->fcm_token])) {
                 $firebase->send(
                     $restaurantAdmin->fcm_token,
                     'New Order Received! 🛍️',
-                    'You received a new order #' . $order->id . ' for £' . number_format($order->amount, 2) . '.',
+                    'You received a new order #' . $order->id . ' for £' . number_format($order->total_amount, 2) . '.',
                     '/restaurant/orders'
                 );
             }

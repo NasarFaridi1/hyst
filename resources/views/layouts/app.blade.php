@@ -414,7 +414,11 @@
         async function registerAndSaveToken() {
             try {
                 if (!('serviceWorker' in navigator)) return;
-                const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+                const swUrl = '/firebase-messaging-sw.js?apiKey=' + encodeURIComponent(firebaseConfig.apiKey || '') +
+                              '&projectId=' + encodeURIComponent(firebaseConfig.projectId || '') +
+                              '&messagingSenderId=' + encodeURIComponent(firebaseConfig.messagingSenderId || '') +
+                              '&appId=' + encodeURIComponent(firebaseConfig.appId || '');
+                const registration = await navigator.serviceWorker.register(swUrl, { scope: '/' });
                 const token = await getToken(messaging, {
                     vapidKey: "{{ config('services.firebase.vapid_key') }}",
                     serviceWorkerRegistration: registration

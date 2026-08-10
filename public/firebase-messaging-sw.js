@@ -1,19 +1,19 @@
-importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js');
-importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js');
 
 // Parse Firebase config from query parameters or fallback
 const params = new URLSearchParams(self.location.search);
 
 const firebaseConfig = {
-    apiKey: params.get('apiKey') || "AIzaSyDummyKey",
-    authDomain: params.get('authDomain') || "hyst-app.firebaseapp.com",
-    projectId: params.get('projectId') || "hyst-app",
-    storageBucket: params.get('storageBucket') || "hyst-app.appspot.com",
-    messagingSenderId: params.get('messagingSenderId') || "100000000000",
-    appId: params.get('appId') || "1:100000000000:web:dummy"
+    apiKey: params.get('apiKey') || "",
+    authDomain: params.get('authDomain') || "",
+    projectId: params.get('projectId') || "",
+    storageBucket: params.get('storageBucket') || "",
+    messagingSenderId: params.get('messagingSenderId') || "",
+    appId: params.get('appId') || ""
 };
 
-if (firebaseConfig.apiKey && firebaseConfig.apiKey !== 'AIzaSyDummyKey') {
+if (firebaseConfig.apiKey && firebaseConfig.projectId) {
     try {
         firebase.initializeApp(firebaseConfig);
         const messaging = firebase.messaging();
@@ -21,21 +21,21 @@ if (firebaseConfig.apiKey && firebaseConfig.apiKey !== 'AIzaSyDummyKey') {
         messaging.onBackgroundMessage(function(payload) {
             console.log('[firebase-messaging-sw.js] Received background message ', payload);
 
-            // If Firebase SDK already handles displaying notification via payload.notification, do not call showNotification to prevent duplicates!
-            if (!payload.notification && payload.data) {
-                const notificationTitle = payload.data.title || 'HYST Order Update';
-                const notificationOptions = {
-                    body: payload.data.body || 'You have a new order update.',
-                    icon: '/images/icons/icon-192x192.png',
-                    badge: '/images/icons/icon-72x72.png',
-                    sound: '/sounds/hyst_notification.mp3',
-                    vibrate: [200, 100, 200, 100, 200],
-                    data: payload.data || {},
-                    actions: [
-                        { action: 'open', title: 'View Order' }
-                    ]
-                };
+            // Ensure notification is displayed on devices (including iOS Safari & Android)
+            const notificationTitle = payload.notification?.title || payload.data?.title || 'HYST Order Update';
+            const notificationOptions = {
+                body: payload.notification?.body || payload.data?.body || 'You have an order update.',
+                icon: '/images/icons/icon-192x192.png',
+                badge: '/images/icons/icon-72x72.png',
+                sound: '/sounds/hyst_notification.mp3',
+                vibrate: [200, 100, 200, 100, 200],
+                data: payload.data || { click_action: payload.fcmOptions?.link || '/my-orders' },
+                actions: [
+                    { action: 'open', title: 'View Order' }
+                ]
+            };
 
+            if (!payload.notification || (typeof Notification !== 'undefined' && Notification.permission === 'granted')) {
                 self.registration.showNotification(notificationTitle, notificationOptions);
             }
         });
@@ -43,6 +43,26 @@ if (firebaseConfig.apiKey && firebaseConfig.apiKey !== 'AIzaSyDummyKey') {
         console.error('Firebase SW Init Error:', e);
     }
 }
+
+// Fallback push event handler for WebPush on iOS Safari
+self.addEventListener('push', function(event) {
+    if (!event.data) return;
+    try {
+        const payload = event.data.json();
+        if (payload && (payload.notification || payload.data)) {
+            const title = payload.notification?.title || payload.data?.title || 'HYST Order Update';
+            const options = {
+                body: payload.notification?.body || payload.data?.body || 'You have an order update.',
+                icon: '/images/icons/icon-192x192.png',
+                badge: '/images/icons/icon-72x72.png',
+                data: payload.data || { click_action: payload.fcmOptions?.link || '/my-orders' }
+            };
+            event.waitUntil(self.registration.showNotification(title, options));
+        }
+    } catch (e) {
+        // Silently ignore if already handled by FCM SDK
+    }
+});
 
 self.addEventListener('notificationclick', function(event) {
     event.notification.close();

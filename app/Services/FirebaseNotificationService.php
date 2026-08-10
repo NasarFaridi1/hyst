@@ -51,11 +51,14 @@ class FirebaseNotificationService
             $message = CloudMessage::withTarget('token', (string)$token)
                 ->withNotification(Notification::create($title, $body))
                 ->withData([
-                    'title' => (string)$title,
-                    'body'  => (string)$body,
+                    'title'        => (string)$title,
+                    'body'         => (string)$body,
                     'click_action' => $url,
                 ])
                 ->withWebPushConfig([
+                    'headers' => [
+                        'Urgency' => 'high',
+                    ],
                     'notification' => [
                         'title' => (string)$title,
                         'body'  => (string)$body,
@@ -68,7 +71,8 @@ class FirebaseNotificationService
                 ])
                 ->withApnsConfig([
                     'headers' => [
-                        'apns-priority' => '10',
+                        'apns-priority'  => '10',
+                        'apns-push-type' => 'alert',
                     ],
                     'payload' => [
                         'aps' => [
@@ -76,8 +80,11 @@ class FirebaseNotificationService
                                 'title' => (string)$title,
                                 'body'  => (string)$body,
                             ],
-                            'sound' => 'default',
-                            'badge' => 1,
+                            'sound'             => 'default',
+                            'badge'             => 1,
+                            'content-available' => 1,
+                            'mutable-content'   => 1,
+                            'url'               => $url,
                         ],
                     ],
                 ]);

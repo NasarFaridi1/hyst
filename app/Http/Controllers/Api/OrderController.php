@@ -512,14 +512,30 @@ class OrderController extends Controller
                 $order->id
             );
 
-            if (!empty($restaurantAdmin->fcm_token)) {
+            $firebase = new FirebaseNotificationService();
 
-                $firebase = new FirebaseNotificationService();
+            $restaurantAdmins = User::where('restaurant_id', $order->restaurant_id)
+                ->whereNotNull('fcm_token')
+                ->where('fcm_token', '!=', '')
+                ->get();
 
+            $sentTokenMap = [];
+            foreach ($restaurantAdmins as $admin) {
+                $sentTokenMap[$admin->fcm_token] = true;
+                $firebase->send(
+                    $admin->fcm_token,
+                    'New Order Received! 🛍️',
+                    'You received a new order #' . $order->id . ' for £' . number_format($order->total_amount ?? $order->amount ?? 0, 2) . '.',
+                    '/restaurant/orders'
+                );
+            }
+
+            if (!empty($restaurantAdmin->fcm_token) && empty($sentTokenMap[$restaurantAdmin->fcm_token])) {
                 $firebase->send(
                     $restaurantAdmin->fcm_token,
-                    'New Order',
-                    'You received a new order.'
+                    'New Order Received! 🛍️',
+                    'You received a new order #' . $order->id . ' for £' . number_format($order->total_amount ?? $order->amount ?? 0, 2) . '.',
+                    '/restaurant/orders'
                 );
             }
         }
