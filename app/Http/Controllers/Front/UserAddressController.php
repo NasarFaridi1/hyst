@@ -74,6 +74,25 @@ class UserAddressController extends Controller
 
             
 
+            Log::info('Uber Quote Result', [
+                'restaurant_id' => $restaurant->id,
+                'quote' => $quote
+            ]);
+
+            if (isset($quote['kind']) && $quote['kind'] === 'error') {
+                Log::warning('Uber Quote Returned Error', [
+                    'restaurant_id' => $restaurant->id,
+                    'user_id' => Auth::id(),
+                    'quote' => $quote,
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => $quote['message'] ?? 'Uber quote error.',
+                    'data' => $quote
+                ], 400);
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => 'Uber quote generated successfully.',
