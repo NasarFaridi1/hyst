@@ -76,7 +76,7 @@ class WorldpayService
                     "ServiceDate" => now()->toIso8601String(),
                 ],
                 "Payer" => [
-                    "SavePayer" => true,
+                    "SavePayer" => false,
                     "UniqueReference" => $data['user_id'],
                     "GroupReference" => $data['user_id'],
                     "FamilyOrBusinessName" => $data['name'],
