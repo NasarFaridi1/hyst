@@ -151,6 +151,7 @@ class UsersController extends Controller
         ) {
 
             Auth::login($user);
+            $request->session()->regenerate();
 
             if ($guestFcmToken = session('guest_fcm_token')) {
                 $user->update(['fcm_token' => $guestFcmToken]);

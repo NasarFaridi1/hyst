@@ -69,6 +69,7 @@ class UserAddressController extends Controller
                     'latitude' => $userAddress->latitude,
                     'longitude' => $userAddress->longitude,
                     'amount' => $request->finalTotal,
+                    'phone' => $request->phone ?? optional(Auth::user())->phone ?? session('guest_checkout.phone'),
                 ]
             );
 
