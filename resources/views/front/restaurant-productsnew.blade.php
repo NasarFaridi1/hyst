@@ -904,7 +904,7 @@
             align-items: flex-start !important;
             justify-content: flex-end !important;
             gap: 12px !important;
-            background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.75) 60%, rgba(0,0,0,0.4) 100%) !important;
+            /* background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.75) 60%, rgba(0,0,0,0.4) 100%) !important; */
             margin-top: 60px;
         }
         .res-hero-title {
