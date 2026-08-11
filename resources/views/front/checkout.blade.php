@@ -1482,15 +1482,18 @@
         let key = btn.getAttribute('data-key');
         if (!action || !key) return;
 
-        if (typeof window.showGlobalLoader === 'function') {
-            let msg = action === 'remove' ? 'Removing Item...' : 'Updating Cart...';
-            window.showGlobalLoader(msg, 'Please wait', 2000);
-        }
-
         let url = '/cart/' + action + '/' + encodeURIComponent(key);
 
         btn.style.pointerEvents = 'none';
         btn.style.opacity = '0.5';
+
+        // Optimistic DOM update
+        let qtyEl = document.getElementById('qty-' + key);
+        if (qtyEl && (action === 'increase' || action === 'decrease')) {
+            let cur = parseInt(qtyEl.textContent) || 1;
+            let next = action === 'increase' ? cur + 1 : Math.max(1, cur - 1);
+            qtyEl.textContent = next;
+        }
 
         fetch(url, {
             method: 'GET',
@@ -1504,10 +1507,6 @@
         .then(res => {
             btn.style.pointerEvents = '';
             btn.style.opacity = '';
-
-            if (typeof window.hideGlobalLoader === 'function') {
-                window.hideGlobalLoader();
-            }
 
             if (!res.success) return;
 

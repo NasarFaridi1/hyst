@@ -89,13 +89,12 @@ class OrderController extends Controller
 
         $firstItem = reset($cart);
 
-        $restaurantId = Product::find(
-            $firstItem['id']
-        )->restaurant_id;
+        $restaurantId = $firstItem['restaurant_id'] ?? null;
+        if (!$restaurantId && isset($firstItem['id'])) {
+            $restaurantId = Product::where('id', $firstItem['id'])->value('restaurant_id');
+        }
 
-        $restaurant = Restaurant::find(
-            $restaurantId
-        );
+        $restaurant = Restaurant::find($restaurantId);
 
         $cartProductIds = collect($cart)
             ->pluck('id')
