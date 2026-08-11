@@ -2380,7 +2380,7 @@ function renderCartSidebar(data) {
 
         return `
 
-        <div class="cart-row">
+        <div class="cart-row" data-cart-key="${item.cart_key}">
 
             <div class="cart-row-name">
 
@@ -2415,7 +2415,7 @@ function renderCartSidebar(data) {
 
             <div style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
 
-                <div style="
+                <div class="item-line-total" style="
                     font-size:16px;
                     font-weight:700;
                     color:#C25A2A;
@@ -2477,21 +2477,53 @@ function renderCartSidebar(data) {
 }
 
 async function cartAdjust(cartKey, delta) {
-    if (typeof window.showGlobalLoader === 'function') {
-        window.showGlobalLoader('Updating Cart...', 'Please wait', 2000);
+    const row = document.querySelector(`.cart-row[data-cart-key="${cartKey}"]`);
+    const qtyValEl = row ? row.querySelector('.qty-val') : null;
+    const lineTotalEl = row ? row.querySelector('.item-line-total') : null;
+
+    let currentQty = qtyValEl ? parseInt(qtyValEl.innerText) || 1 : 1;
+    let newQty = currentQty + delta;
+
+    if (qtyValEl && newQty >= 1) {
+        qtyValEl.innerText = newQty;
     }
+
     try {
-        await fetch(`/cart/${delta > 0 ? 'increase' : 'decrease'}/${cartKey}`, {
+        const res = await fetch(`/cart/${delta > 0 ? 'increase' : 'decrease'}/${cartKey}`, {
             headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
             }
         });
-        const d = await fetch('/cart-count').then(r => r.json());
-        updateCounts(d.count);
+        const data = await res.json();
+
+        if (data.success) {
+            updateCounts(data.cart_count);
+
+            if (data.original_total !== undefined) {
+                const subtotal = parseFloat(data.original_total);
+                const subtotalEl = document.getElementById('cartSubtotal');
+                const totalEl = document.getElementById('cartTotal');
+                const mobileEl = document.getElementById('mobileCartTotalBadge');
+
+                if (subtotalEl) subtotalEl.innerText = '£' + subtotal.toFixed(2);
+                if (totalEl) totalEl.innerText = '£' + subtotal.toFixed(2);
+                if (mobileEl) mobileEl.innerText = '£' + subtotal.toFixed(2);
+            }
+
+            if (lineTotalEl && data.item_subtotal !== undefined) {
+                lineTotalEl.innerText = '£' + parseFloat(data.item_subtotal).toFixed(2);
+            }
+
+            if (data.quantity === 0 || data.cart_empty || newQty <= 0) {
+                await refreshCartSidebar();
+            }
+        } else {
+            await refreshCartSidebar();
+        }
+    } catch(e) {
         await refreshCartSidebar();
-    } catch(e) {}
-    if (typeof window.hideGlobalLoader === 'function') {
-        window.hideGlobalLoader();
     }
 }
 
@@ -2499,20 +2531,16 @@ async function removeCartItem(cartKey) {
     if (!confirm('Remove this item from cart?')) {
         return;
     }
-    if (typeof window.showGlobalLoader === 'function') {
-        window.showGlobalLoader('Removing Item...', 'Please wait', 2000);
-    }
     try {
         await fetch(`/cart/remove/${cartKey}`, {
             headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
             }
         });
         await refreshCartSidebar();
     } catch(e) {}
-    if (typeof window.hideGlobalLoader === 'function') {
-        window.hideGlobalLoader();
-    }
 }
 
 /* ══════════════════════════════════════════
