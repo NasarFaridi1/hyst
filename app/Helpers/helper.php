@@ -14,9 +14,19 @@ if (!function_exists('savePageVisit')) {
             $data = [];
 
             if ($ip && $ip !== '127.0.0.1' && $ip !== '::1' && !str_starts_with($ip, '192.168.')) {
-                $response = Http::timeout(1)->get("http://ip-api.com/json/" . $ip);
-                if ($response->successful()) {
-                    $data = $response->json() ?? [];
+                $sessionGeoKey = 'ip_geo_' . md5($ip);
+                if (session()->has($sessionGeoKey)) {
+                    $data = session()->get($sessionGeoKey, []);
+                } else {
+                    try {
+                        $response = Http::timeout(0.3)->get("http://ip-api.com/json/" . $ip);
+                        if ($response->successful()) {
+                            $data = $response->json() ?? [];
+                            session()->put($sessionGeoKey, $data);
+                        }
+                    } catch (\Throwable $e) {
+                        // ignore API timeout so user request never hangs!
+                    }
                 }
             }
 

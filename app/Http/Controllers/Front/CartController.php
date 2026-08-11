@@ -183,39 +183,19 @@ class CartController extends Controller
         */
 
         if (!empty($cart)) {
+            $firstItem = reset($cart);
+            $existingRestaurantId = $firstItem['restaurant_id'] ?? null;
 
-            $firstItem =
-                reset($cart);
+            if (!$existingRestaurantId && isset($firstItem['id'])) {
+                $existingRestaurantId = Product::where('id', $firstItem['id'])->value('restaurant_id');
+            }
 
-            $oldProduct =
-                Product::find(
-                    $firstItem['id']
-                );
-
-            if (
-
-                $oldProduct
-
-                &&
-
-                $oldProduct->restaurant_id
-                !=
-                $product->restaurant_id
-
-            ) {
-
-            
-
+            if ($existingRestaurantId && $existingRestaurantId != $product->restaurant_id) {
                 return response()->json([
                     'success' => false,
                     'different_restaurant' => true,
                     'message' => 'Your cart already contains items from another restaurant. Do you want to clear the cart and add this item?'
                 ]);
-            
-
-                session()->forget('cart');
-
-                $cart = [];
             }
         }
 

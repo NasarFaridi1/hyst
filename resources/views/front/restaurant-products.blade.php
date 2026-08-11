@@ -1983,82 +1983,47 @@
 
         async function submitCart(form)
         {
-            const fd =
-                new FormData(form);
+            const addBtn = form ? form.querySelector('button[type="submit"], .addBtn, .btn-primary') : null;
+            let origBtnHtml = '';
+            if (addBtn) {
+                origBtnHtml = addBtn.innerHTML;
+                addBtn.disabled = true;
+                addBtn.style.opacity = '0.75';
+                addBtn.innerHTML = '<span style="display:inline-block; animation:spin 0.8s linear infinite;">⏳</span> Adding...';
+            }
+
+            const fd = new FormData(form);
 
             try{
+                const res = await fetch('/cart/add', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    },
+                    body: fd
+                });
 
-                const res =
-                    await fetch(
-                        '/cart/add',
-                        {
-                            method:'POST',
+                const data = await res.json();
 
-                            headers:{
-                                'X-CSRF-TOKEN':
-                                document.querySelector(
-                                    'meta[name="csrf-token"]'
-                                ).content,
-
-                                'Accept':
-                                'application/json'
-                            },
-
-                            body:fd
-                        }
-                    );
-
-
-                const data =
-                    await res.json();
-
-                     // Different restaurant
+                // Different restaurant
                 if(data.different_restaurant){
-
-                    showCartReplaceModal(
-                        data.message,
-                        form,
-                        fd
-                    );
-
+                    showCartReplaceModal(data.message, form, fd);
                     return;
                 }
 
                 if(data.success){
                     updateCounts(data.count);
-
                     closeVariantModal();
-
-                    // form.dataset.cartKey = data.cart_key;
-
-                    // const addBtn =
-                    //     form.querySelector('.addBtn');
-
-                    // const qtyBox =
-                    //     form.querySelector('.qtyBox');
-
-                    // const qtyValue =
-                    //     form.querySelector('.qtyValue');
-
-                    // addBtn.style.display='none';
-
-                    // qtyBox.style.display='flex';
-
-                    // qtyValue.innerText='1';
-
-                    // form.dataset.qty = 1;
-
-                    // form.dataset.cartKey = data.cart_key;
-
-                    // updateCounts(
-                    //     data.count
-                    // );
                 }
-
             }catch(err){
-
                 console.log(err);
-
+            }finally{
+                if (addBtn) {
+                    addBtn.disabled = false;
+                    addBtn.style.opacity = '1';
+                    addBtn.innerHTML = origBtnHtml;
+                }
             }
         }
 
