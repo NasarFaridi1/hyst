@@ -1266,7 +1266,7 @@
                         @if($banner->mobile_img && file_exists(public_path($banner->mobile_img)))
                             <source media="(max-width: 767px)" srcset="{{ asset($banner->mobile_img) }}">
                         @endif
-                        <img src="{{ asset($banner->image) }}" alt="{{ $restaurant->name }}" style="width:100%; height:100%; object-fit:cover;">
+                        <img src="{{ asset($banner->image) }}" alt="{{ $restaurant->name }}" style="width:100%; height:100%; object-fit:fill;">
                     </picture>
                     <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 60%, rgba(0,0,0,0.1) 100%);"></div>
                 </div>
@@ -1274,7 +1274,7 @@
         </div>
     @elseif($restaurant->image)
         <img src="{{ asset('storage/' . $restaurant->image) }}"
-             style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;">
+             style="position:absolute; inset:0; width:100%; height:100%; object-fit:fill;">
         <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 100%);"></div>
     @else
         <div style="position:absolute; inset:0; background:linear-gradient(135deg,#0D0D0D 0%,#222 100%);"></div>
