@@ -155,7 +155,9 @@ public function checkEmail(Request $request)
         $token = $request->token;
 
         if (!$token) {
-            return view('auth.verify-email');
+            return redirect('/register')
+                ->with('message', 'Invalid verification request.')
+                ->with('type', 'error');
         }
 
         $user = User::where('email_verify_token', $token)->first();
@@ -173,6 +175,26 @@ public function checkEmail(Request $request)
             return redirect($redirect)
                 ->with('message', 'Your email is already verified.')
                 ->with('type', 'success');
+        }
+
+        $otp = trim($request->otp ?? '');
+
+        if (empty($otp)) {
+            return back()
+                ->with('message', 'Please enter the verification code.')
+                ->with('type', 'error');
+        }
+
+        if ($user->otp_expire_at && now()->gt($user->otp_expire_at)) {
+            return back()
+                ->with('message', 'Verification code has expired. Please request a new code.')
+                ->with('type', 'error');
+        }
+
+        if ((string)$user->email_otp !== (string)$otp) {
+            return back()
+                ->with('message', 'Invalid verification code. Please check the code sent to your email.')
+                ->with('type', 'error');
         }
 
         $user->update([
