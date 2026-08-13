@@ -108,7 +108,7 @@ class UserAddressController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage(),
+                'message' => config('app.debug') ? $e->getMessage() : 'Failed to generate delivery quote.',
             ], 500);
         }
     }

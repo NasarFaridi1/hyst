@@ -255,7 +255,7 @@
                             About this dish</h3>
                         <p style="color:#6B7280; font-size:15px; line-height:1.85; margin:0;">
                             <!-- {{ $product->description }} -->
-                            {!! $product->description !!}
+                            {!! nl2br(e($product->description)) !!}
                         </p>
                     </div>
 

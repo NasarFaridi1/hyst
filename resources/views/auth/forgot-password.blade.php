@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function () {
     Swal.fire({
         icon: 'error',
         title: 'Validation Error',
-        text: "{{ $errors->first() }}",
+        text: @json($errors->first()),
         confirmButtonColor: '#111827'
     });
 });

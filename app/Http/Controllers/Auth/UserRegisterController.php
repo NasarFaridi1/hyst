@@ -36,11 +36,10 @@ class UserRegisterController extends Controller
             ]);
 
         } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Check email error: ' . $e->getMessage());
 
             return response()->json([
-                'message' => $e->getMessage(),
-                'line' => $e->getLine(),
-                'file' => $e->getFile(),
+                'message' => config('app.debug') ? $e->getMessage() : 'An error occurred while checking the email.',
             ], 500);
         }
     }
