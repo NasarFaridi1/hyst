@@ -40,9 +40,15 @@ class RestaurantCategoryController extends Controller
         $image = null;
 
         if ($request->hasFile('image')) {
-            $image = time().'_'.$request->image->getClientOriginalName();
+            $filename = time() . '_' . $request->image->getClientOriginalName();
 
-            $request->image->move(public_path('restaurant'), $image);
+            $request->image->move(
+                public_path('restaurant'),
+                $filename
+            );
+
+            // Save restaurant/filename.jpg
+            $image = 'restaurant/' . $filename;
         }
 
         RestaurantCategory::create([
