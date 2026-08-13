@@ -72,269 +72,281 @@ class OrderController extends Controller
     }
     public function checkout(Request $request)
     {
-        savePageVisit($request, 'Checkout');
-       
-        $cart = session()->get('cart', []);
+        try {
+            savePageVisit($request, 'Checkout');
+           
+            $cart = session()->get('cart', []);
 
-        // dd($cart);
+            if (empty($cart)) {
 
-        if (empty($cart)) {
+                return redirect('/cart')
+                    ->with(
+                        'error',
+                        'Your cart is empty'
+                    );
+            }
 
-            return redirect('/cart')
-                ->with(
-                    'error',
-                    'Your cart is empty'
+            $firstItem = reset($cart);
+
+            $restaurantId = $firstItem['restaurant_id'] ?? null;
+            if (!$restaurantId && isset($firstItem['id'])) {
+                $restaurantId = Product::where('id', $firstItem['id'])->value('restaurant_id');
+            }
+
+            $restaurant = $restaurantId ? Restaurant::find($restaurantId) : null;
+            if (!$restaurant) {
+                return redirect('/cart')->with('error', 'Selected restaurant is currently unavailable. Please update your cart.');
+            }
+
+            $cartProductIds = collect($cart)
+                ->pluck('id')
+                ->toArray();
+
+            $originalTotal = 0;
+
+            $discount = 0;
+
+            $finalTotal = 0;
+
+            foreach ($cart as $item) {
+
+                $itemPrice =
+                    ($item['base_price'] ?? 0)
+                    + ($item['addon_total'] ?? 0);
+
+                $originalTotal +=
+                    $itemPrice
+                    * ($item['quantity'] ?? 1);
+            }
+
+
+            $offers = \App\Models\Offer::with('products')
+
+                ->where('is_active', 1)
+
+                ->where(function ($q) {
+
+                    $q->whereNull('start_date')
+                        ->orWhereDate(
+                            'start_date',
+                            '<=',
+                            now()
+                        );
+
+                })
+
+                ->where(function ($q) {
+
+                    $q->whereNull('end_date')
+                        ->orWhereDate(
+                            'end_date',
+                            '>=',
+                            now()
+                        );
+
+                })
+
+                ->get();
+
+            /*
+            |--------------------------------------------------------------------------
+            | APPLY OFFER ONLY IF
+            | ALL PRODUCTS MATCH
+            |--------------------------------------------------------------------------
+            */
+
+            $cartItemOffer = [];
+
+            foreach ($offers as $offer) {
+
+                $offerProductIds =
+                    $offer->products
+                        ->pluck('id')
+                        ->toArray();
+
+                $allMatched = !empty($offerProductIds) && !array_diff(
+
+                    $offerProductIds,
+
+                    $cartProductIds
                 );
-        }
-
-        $firstItem = reset($cart);
-
-        $restaurantId = $firstItem['restaurant_id'] ?? null;
-        if (!$restaurantId && isset($firstItem['id'])) {
-            $restaurantId = Product::where('id', $firstItem['id'])->value('restaurant_id');
-        }
-
-        $restaurant = Restaurant::find($restaurantId);
-
-        $cartProductIds = collect($cart)
-            ->pluck('id')
-            ->toArray();
-
-        $originalTotal = 0;
-
-        $discount = 0;
-
-        $finalTotal = 0;
-
-        foreach ($cart as $item) {
-
-            $itemPrice =
-                $item['base_price']
-                + ($item['addon_total'] ?? 0);
-
-            $originalTotal +=
-                $itemPrice
-                * $item['quantity'];
-        }
 
 
-        $offers = \App\Models\Offer::with('products')
+                if ($allMatched) {
 
-            ->where('is_active', 1)
+                    $offerProductsTotal = 0;
 
-            ->where(function ($q) {
+                    foreach ($cart as $item) {
 
-                $q->whereNull('start_date')
-                    ->orWhereDate(
-                        'start_date',
-                        '<=',
-                        now()
-                    );
+                        if (
+                            in_array(
+                                $item['id'],
+                                $offerProductIds
+                            )
+                        ) {
 
-            })
+                            $itemPrice =
+                                ($item['base_price'] ?? 0)
+                                + ($item['addon_total'] ?? 0);
 
-            ->where(function ($q) {
-
-                $q->whereNull('end_date')
-                    ->orWhereDate(
-                        'end_date',
-                        '>=',
-                        now()
-                    );
-
-            })
-
-            ->get();
-
-        /*
-        |--------------------------------------------------------------------------
-        | APPLY OFFER ONLY IF
-        | ALL PRODUCTS MATCH
-        |--------------------------------------------------------------------------
-        */
-
-        foreach ($offers as $offer) {
-
-            $offerProductIds =
-                $offer->products
-                    ->pluck('id')
-                    ->toArray();
-
-            $allMatched = !array_diff(
-
-                $offerProductIds,
-
-                $cartProductIds
-            );
+                            $offerProductsTotal +=
+                                $itemPrice
+                                * ($item['quantity'] ?? 1);
 
 
-            if ($allMatched) {
-
-                $offerProductsTotal = 0;
-
-                foreach ($cart as $item) {
-
+                            $cartItemOffer[
+                                $item['id']
+                            ] = $offer;
+                        }
+                    }
                     if (
-                        in_array(
-                            $item['id'],
-                            $offerProductIds
-                        )
+                        $offer->value_type
+                        == 'percent'
                     ) {
 
-                        $itemPrice =
-                            $item['base_price']
-                            + ($item['addon_total'] ?? 0);
-
-                        $offerProductsTotal +=
-                            $itemPrice
-                            * $item['quantity'];
-
-
-                        $cartItemOffer[
-                            $item['id']
-                        ] = $offer;
-                    }
-                }
-                if (
-                    $offer->value_type
-                    == 'percent'
-                ) {
-
-                    $discount +=
-                        (
-                            $offerProductsTotal
-                            * $offer->value
-                        ) / 100;
-                } else {
-
-                    $discount +=
-                        $offer->value;
-                }
-            }
-        }
-
-        $finalTotal =
-            max(
-                $originalTotal - $discount,
-                0
-            );
-
-
-        $orderOfferDiscount = 0;
-        $orderOffer = null;
-
-        if(auth()->check()) {
-
-            $completedOrder = Order::where('user_id', auth()->id())
-                ->where('restaurant_id', $restaurantId)
-                ->whereIn('status', ['completed', 'delivered'])
-                ->exists();
-
-            if($completedOrder) {
-
-                $orderOffer = OrderOffer::where('restaurant_id', $restaurantId)
-                    ->where('status', 'active')
-                    ->where('min_order_value', '<=', $finalTotal)
-                    ->first();
-
-                if($orderOffer) {
-
-                    if($orderOffer->value_type == 'percentage') {
-
-                        $orderOfferDiscount =
-                            ($finalTotal * $orderOffer->value) / 100;
-
+                        $discount +=
+                            (
+                                $offerProductsTotal
+                                * $offer->value
+                            ) / 100;
                     } else {
 
-                        $orderOfferDiscount =
-                            $orderOffer->value;
+                        $discount +=
+                            $offer->value;
                     }
-
-                    $orderOfferDiscount = min($orderOfferDiscount, $finalTotal);
-
-                    $finalTotal -= $orderOfferDiscount;
-
-                    $discount += $orderOfferDiscount;
                 }
             }
-        }   
+
+            $finalTotal =
+                max(
+                    $originalTotal - $discount,
+                    0
+                );
 
 
-        $activeLoyaltyReward = null;
-        $loyaltyDiscount = 0;
-        $loyaltyRule = null;
+            $orderOfferDiscount = 0;
+            $orderOffer = null;
 
-        if (auth()->check()) {
-            $loyaltyService = app(\App\Services\LoyaltyRewardService::class);
-            $activeLoyaltyReward = $loyaltyService->getAvailableReward(auth()->id(), $restaurantId);
+            if(auth()->check()) {
 
-            if ($activeLoyaltyReward) {
-                $loyaltyDiscount = $activeLoyaltyReward->calculateDiscount($finalTotal);
-                $finalTotal = max(0, $finalTotal - $loyaltyDiscount);
+                $completedOrder = Order::where('user_id', auth()->id())
+                    ->where('restaurant_id', $restaurantId)
+                    ->whereIn('status', ['completed', 'delivered'])
+                    ->exists();
+
+                if($completedOrder) {
+
+                    $orderOffer = OrderOffer::where('restaurant_id', $restaurantId)
+                        ->where('status', 'active')
+                        ->where('min_order_value', '<=', $finalTotal)
+                        ->first();
+
+                    if($orderOffer) {
+
+                        if($orderOffer->value_type == 'percentage') {
+
+                            $orderOfferDiscount =
+                                ($finalTotal * $orderOffer->value) / 100;
+
+                        } else {
+
+                            $orderOfferDiscount =
+                                $orderOffer->value;
+                        }
+
+                        $orderOfferDiscount = min($orderOfferDiscount, $finalTotal);
+
+                        $finalTotal -= $orderOfferDiscount;
+
+                        $discount += $orderOfferDiscount;
+                    }
+                }
+            }   
+
+
+            $activeLoyaltyReward = null;
+            $loyaltyDiscount = 0;
+            $loyaltyRule = null;
+
+            if (auth()->check()) {
+                $loyaltyService = app(\App\Services\LoyaltyRewardService::class);
+                $activeLoyaltyReward = $loyaltyService->getAvailableReward(auth()->id(), $restaurantId);
+
+                if ($activeLoyaltyReward) {
+                    $loyaltyDiscount = $activeLoyaltyReward->calculateDiscount($finalTotal);
+                    $finalTotal = max(0, $finalTotal - $loyaltyDiscount);
+                }
+
+                $loyaltyRule = \App\Models\LoyaltyRule::where('restaurant_id', $restaurantId)
+                    ->where('is_active', 1)
+                    ->first();
             }
 
-            $loyaltyRule = \App\Models\LoyaltyRule::where('restaurant_id', $restaurantId)
-                ->where('is_active', 1)
-                ->first();
+            foreach ($cart as $key => $item) {
+
+                $cart[$key]['offer'] =
+                    $cartItemOffer[$item['id']]
+                    ?? null;
+
+                $itemPrice =
+                    ($item['base_price'] ?? 0)
+                    + ($item['addon_total'] ?? 0);
+
+                $cart[$key]['final_price'] = $itemPrice;
+
+                $cart[$key]['subtotal'] =
+                    $itemPrice * ($item['quantity'] ?? 1);
+            }
+
+            $paymentEnabled =
+            !empty($restaurant->worldpay_business_id) &&
+            !empty($restaurant->worldpay_username) &&
+            !empty($restaurant->worldpay_password);
+
+            $serviceCharge = 0;
+            $deliveryCharge = 0;
+            $hystCharge = 0;
+
+            $finalTotal +=
+                $deliveryCharge +
+                $hystCharge;
+
+            $addresses = UserAddress::where('user_id', Auth::id())
+            ->orderByDesc('is_default')
+            ->latest()
+            ->get();
+
+            return view(
+
+                'front.checkout',
+
+                compact(
+
+                    'cart',
+                    'restaurant',
+                    'originalTotal',
+                    'discount',
+                    'finalTotal',
+                    'paymentEnabled',
+                    'orderOffer',
+                    'orderOfferDiscount',
+                    'serviceCharge',
+                    'deliveryCharge',
+                    'hystCharge',
+                    'addresses',
+                    'activeLoyaltyReward',
+                    'loyaltyDiscount',
+                    'loyaltyRule'
+                )
+            );
+        } catch (\Throwable $e) {
+            Log::error('Checkout page error: ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ]);
+
+            return redirect('/cart')->with('error', 'An error occurred while preparing your checkout. Please try again.');
         }
-
-        foreach ($cart as $key => $item) {
-
-            $cart[$key]['offer'] =
-                $cartItemOffer[$item['id']]
-                ?? null;
-
-            $itemPrice =
-                $item['base_price']
-                + ($item['addon_total'] ?? 0);
-
-            $cart[$key]['final_price'] = $itemPrice;
-
-            $cart[$key]['subtotal'] =
-                $itemPrice * $item['quantity'];
-        }
-
-        $paymentEnabled =
-        !empty($restaurant->worldpay_business_id) &&
-        !empty($restaurant->worldpay_username) &&
-        !empty($restaurant->worldpay_password);
-
-        $serviceCharge = 0;
-        $deliveryCharge = 0;
-        $hystCharge = 0;
-
-        $finalTotal +=
-            $deliveryCharge +
-            $hystCharge;
-
-        $addresses = UserAddress::where('user_id', Auth::id())
-        ->orderByDesc('is_default')
-        ->latest()
-        ->get();
-
-        return view(
-
-            'front.checkout',
-
-            compact(
-
-                'cart',
-                'restaurant',
-                'originalTotal',
-                'discount',
-                'finalTotal',
-                'paymentEnabled',
-                'orderOffer',
-                'orderOfferDiscount',
-                'serviceCharge',
-                'deliveryCharge',
-                'hystCharge',
-                'addresses',
-                'activeLoyaltyReward',
-                'loyaltyDiscount',
-                'loyaltyRule'
-            )
-        );
     }
 
     public function placeOrder(Request $request, Payment $payment = null)
@@ -391,9 +403,17 @@ class OrderController extends Controller
 
             $firstItem = reset($cart);
 
-            $restaurantId = Product::find($firstItem['id'])->restaurant_id;
+            $product = isset($firstItem['id']) ? Product::find($firstItem['id']) : null;
+            if (!$product) {
+                return redirect('/cart')->with('error', 'Selected item is no longer available. Please update your cart.');
+            }
+
+            $restaurantId = $product->restaurant_id;
 
             $restaurant = Restaurant::where('id', $restaurantId)->first();
+            if (!$restaurant) {
+                return redirect('/cart')->with('error', 'Selected restaurant is currently unavailable.');
+            }
 
             /*
             |--------------------------------------------------------------------------
