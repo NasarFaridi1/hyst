@@ -32,13 +32,28 @@ class RestaurantRefundPolicyController extends Controller
 
         RestaurantRefundPolicy::updateOrCreate(
             ['restaurant_id' => $restaurant],
-            ['content' => $request->content]
+            ['content' => $this->sanitizeHtml($request->content)]
         );
 
         return back()->with(
             'success',
             'Refund policy updated successfully.'
         );
+    }
+
+    private function sanitizeHtml($content)
+    {
+        if (!$content) return '';
+
+        $content = preg_replace('/<script\b[^>]*>(.*?)<\/script>/is', '', $content);
+        $content = preg_replace('/<iframe\b[^>]*>(.*?)<\/iframe>/is', '', $content);
+        $content = preg_replace('/<object\b[^>]*>(.*?)<\/object>/is', '', $content);
+        $content = preg_replace('/<embed\b[^>]*>(.*?)<\/embed>/is', '', $content);
+        $content = preg_replace('/on[a-z]+\s*=\s*(["\'])[^\1]*?\1/i', '', $content);
+        $content = preg_replace('/on[a-z]+\s*=\s*[^"\'\s>]+/i', '', $content);
+        $content = preg_replace('/href\s*=\s*(["\'])\s*javascript:[^\1]*?\1/i', 'href="#"', $content);
+
+        return $content;
     }
 
     public function show($slug)
