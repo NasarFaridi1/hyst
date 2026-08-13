@@ -189,15 +189,15 @@
     }
 
     .main-tab-btn:hover{
-        border-color:#C25A2A;
-        color:#C25A2A;
+        border-color:#0D0D0D;
+        color:#0D0D0D;
     }
 
     .main-tab-btn.active-main-tab{
-        background:#C25A2A;
-        border-color:#C25A2A;
+        background:#0D0D0D;
+        border-color:#0D0D0D;
         color:#fff;
-        box-shadow:0 4px 14px rgba(194,90,42,0.25);
+        box-shadow:0 4px 14px rgba(13,13,13,0.25);
     }
 
     /* Search bar */
