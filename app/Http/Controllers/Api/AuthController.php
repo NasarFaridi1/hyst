@@ -152,6 +152,18 @@ class AuthController extends Controller
 
     public function verifyByLink(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'token' => 'required',
+            'otp'   => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validator->errors()->first()
+            ], 422);
+        }
+
         $token = $request->token;
 
         $user = User::where('email_verify_token', $token)->first();
@@ -168,6 +180,20 @@ class AuthController extends Controller
                 'status' => true,
                 'message' => 'Your email is already verified.'
             ]);
+        }
+
+        if ($user->otp_expire_at && now()->gt($user->otp_expire_at)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'OTP has expired.'
+            ], 422);
+        }
+
+        if ((string)$user->email_otp !== (string)trim($request->otp)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Invalid OTP.'
+            ], 422);
         }
 
         $user->update([
