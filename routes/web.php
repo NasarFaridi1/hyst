@@ -21,6 +21,8 @@ use App\Http\Controllers\RestaurantAdmin\OrderController as RestaurantOrderContr
 
 use App\Http\Controllers\SitemapController;
 
+
+
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
 Route::get('/offline', function () {
@@ -1080,4 +1082,80 @@ Route::middleware(['auth', 'support'])
         Route::get('/orders', [\App\Http\Controllers\Support\OrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/{id}', [\App\Http\Controllers\Support\OrderController::class, 'show'])->name('orders.show');
         Route::get('/users', [\App\Http\Controllers\Support\UserController::class, 'index'])->name('users.index');
+    });
+
+
+
+
+
+
+
+
+
+
+
+
+    //marketing pages
+    Route::get('/crispy-dosa-marketingpage', function () {
+        return view('pages.crispydosa');
+    });
+    Route::get('/afrikana-peri-kitchen-marketingpage', function () {
+        return view('pages.afrikanaperikitchen');
+    });
+    Route::get('/americano-indian-fusion-marketingpage', function () {
+        return view('pages.americanoindian');
+    });
+    Route::get('/cake-boutique-marketingpage', function () {
+        return view('pages.cakeboutique');
+    });
+    Route::get('/chai-par-charcha-marketingpage', function () {
+        return view('pages.chaiparcharcha');
+    });
+    Route::get('/cinnamon-lounge-marketingpage', function () {
+        return view('pages.cinnamonlounge');
+    });
+    Route::get('/dragons-peri-peri-marketingpage', function () {
+        return view('pages.dragonsperiperi');
+    });
+    Route::get('/go-grill-marketingpage', function () {
+        return view('pages.gogrill');
+    });
+    Route::get('/hounslow-convenience-marketingpage', function () {
+        return view('pages.hounslowconvenience');
+    });
+    Route::get('/hounslow-pizza-marketingpage', function () {
+        return view('pages.hounslowpizza');
+    });
+    Route::get('/hyderabad-biryani-marketingpage', function () {
+        return view('pages.hyderabadbiryani');
+    });
+    Route::get('/italian-restaurant-marketingpage', function () {
+        return view('pages.italianrestaurant');
+    });
+    Route::get('/la-jawaab-marketingpage', function () {
+        return view('pages.lajawaab');
+    });
+    Route::get('/roosters-chicken-marketingpage', function () {
+        return view('pages.roosterschicken');
+    });
+    Route::get('/selekt-chicken-marketingpage', function () {
+        return view('pages.selektchicken');
+    });
+    Route::get('/smoke-pepper-marketingpage', function () {
+        return view('pages.smokepepper');
+    });
+    Route::get('/spicy-town-marketingpage', function () {
+        return view('pages.spicytown');
+    });
+    Route::get('/sports-bar-marketingpage', function () {
+        return view('pages.sportsbar');
+    });
+    Route::get('/the-royal-chilli-marketingpage', function () {
+        return view('pages.theroyalchilli');
+    });
+    Route::get('/urban-suger-marketingpage', function () {
+        return view('pages.urbansuger');
+    });
+    Route::get('/afghani-ice-cream-marketingpage', function () {
+        return view('pages.afghaniicecream');
     });
