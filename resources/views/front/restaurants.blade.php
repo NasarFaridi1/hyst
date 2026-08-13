@@ -160,6 +160,47 @@
     }
 
     /* Search bar */
+    /* Main Top Tabs */
+    .main-tabs-wrap{
+        display:flex;
+        gap:12px;
+        justify-content:center;
+        align-items:center;
+        margin-bottom:20px;
+        flex-wrap:wrap;
+    }
+
+    .main-tab-btn{
+        display:flex;
+        align-items:center;
+        gap:8px;
+        padding:10px 24px;
+        border-radius:999px;
+        background:#fff;
+        border:1px solid #E9E4D8;
+        color:#374151;
+        font-size:14px;
+        font-weight:600;
+        font-family:'Poppins',sans-serif;
+        cursor:pointer;
+        transition:all .2s ease;
+        box-shadow:0 2px 8px rgba(13,13,13,0.04);
+        user-select:none;
+    }
+
+    .main-tab-btn:hover{
+        border-color:#C25A2A;
+        color:#C25A2A;
+    }
+
+    .main-tab-btn.active-main-tab{
+        background:#C25A2A;
+        border-color:#C25A2A;
+        color:#fff;
+        box-shadow:0 4px 14px rgba(194,90,42,0.25);
+    }
+
+    /* Search bar */
     .restaurant-search-wrap{
         display:flex;
         align-items:center;
@@ -341,6 +382,19 @@
 <section id="restaurants" style="background:#FAF7F2; padding:20px 0;">
 
     <div style="max-width:1300px; margin:auto; padding:0 24px;">
+
+        <!-- MAIN TABS -->
+        <div class="main-tabs-wrap">
+            <button type="button" class="main-tab-btn active-main-tab" data-main-tab="restaurant">
+                <span>🍽️</span> Restaurant
+            </button>
+            <button type="button" class="main-tab-btn" data-main-tab="convenience">
+                <span>🏪</span> Convinience store
+            </button>
+            <button type="button" class="main-tab-btn" data-main-tab="party">
+                <span>🎂</span> Party and Cakes
+            </button>
+        </div>
 
         <div style="text-align:center; margin-bottom:15px;">
             <h1 class="page-title" style="font-size:24px; font-weight:600; margin:0 0 6px; color:#0D0D0D; font-family:'Poppins',sans-serif; letter-spacing:-.4px;">
@@ -620,25 +674,28 @@
         (function(){
 
             const searchInput = document.getElementById('restaurantSearch');
+            const mainTabs = document.querySelectorAll('.main-tab-btn');
             const categoryFilters = document.querySelectorAll('.category-filter');
             const quickChips = document.querySelectorAll('.filter-chip');
             const cards = document.querySelectorAll('.restaurant-card');
             const noResults = document.getElementById('noFilterResults');
 
-            let state = { search: '', categoryId: 'all', chip: 'all' };
+            let state = { search: '', categoryId: 'all', chip: 'all', mainTab: 'restaurant' };
 
             function applyFilters(){
                 let visibleCount = 0;
 
                 cards.forEach(card => {
                     const name = card.dataset.name || '';
-                    const categories = (card.dataset.categories || '').split(',');
+                    const categories = (card.dataset.categories || '').split(',').map(c => c.trim());
                     const dietary = (card.dataset.dietary || '').split(',');
                     const rating = parseFloat(card.dataset.rating || '0');
                     const hasOffer = card.dataset.hasOffer === '1';
 
                     let visible = true;
 
+                    if(state.mainTab === 'convenience' && !categories.includes('25')) visible = false;
+                    if(state.mainTab === 'party' && !categories.includes('6')) visible = false;
                     if(state.search && !name.includes(state.search)) visible = false;
                     if(state.categoryId !== 'all' && !categories.includes(state.categoryId)) visible = false;
                     if(state.chip === 'top-rated' && rating < 4.5) visible = false;
@@ -653,6 +710,15 @@
                     noResults.style.display = visibleCount === 0 ? 'block' : 'none';
                 }
             }
+
+            mainTabs.forEach(tab => {
+                tab.addEventListener('click', function(){
+                    mainTabs.forEach(x => x.classList.remove('active-main-tab'));
+                    this.classList.add('active-main-tab');
+                    state.mainTab = this.dataset.mainTab;
+                    applyFilters();
+                });
+            });
 
             if(searchInput){
                 searchInput.addEventListener('keyup', function(){
