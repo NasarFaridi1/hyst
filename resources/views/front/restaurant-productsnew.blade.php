@@ -847,7 +847,7 @@
     ============================================================ */
     .res-hero-section {
         position: relative;
-        min-height: 240px;
+        min-height: 260px;
         overflow: hidden;
         flex-shrink: 0;
         background: #111;
