@@ -446,6 +446,204 @@
         }
         .subtotal-val { font-size: 16px; }
     }
+
+    /* ── FOOD QUALITY DISCLAIMER MODAL ── */
+    .fq-modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(13, 13, 13, 0.65);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        z-index: 99999;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+        animation: fqFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .fq-modal-overlay.open {
+        display: flex;
+    }
+    @keyframes fqFadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    .fq-modal-card {
+        background: #ffffff;
+        width: 100%;
+        max-width: 520px;
+        border-radius: 24px;
+        padding: 28px 24px 24px;
+        position: relative;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        animation: fqSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    @keyframes fqSlideUp {
+        from { opacity: 0; transform: translateY(20px) scale(0.97); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .fq-modal-close {
+        position: absolute;
+        top: 18px;
+        right: 18px;
+        width: 36px;
+        height: 36px;
+        border: none;
+        border-radius: 50%;
+        background: #F3F4F6;
+        color: #4B5563;
+        font-size: 18px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s, color 0.2s;
+    }
+    .fq-modal-close:hover {
+        background: #E5E7EB;
+        color: #111827;
+    }
+    .fq-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #FFF5F0;
+        border: 1px solid #FAD7C8;
+        color: #C25A2A;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 4px 12px;
+        border-radius: 20px;
+        margin-bottom: 12px;
+    }
+    .fq-title {
+        font-size: 20px;
+        font-weight: 800;
+        color: #111827;
+        margin-bottom: 8px;
+        letter-spacing: -0.3px;
+    }
+    .fq-subtitle {
+        font-size: 13.5px;
+        color: #6B7280;
+        margin-bottom: 18px;
+        line-height: 1.4;
+    }
+    .fq-disclaimer-box {
+        background: #FFF8F6;
+        border: 1.5px solid #FAD7C8;
+        border-radius: 16px;
+        padding: 16px 18px;
+        margin-bottom: 20px;
+    }
+    .fq-disclaimer-box p {
+        font-size: 13.5px;
+        color: #374151;
+        line-height: 1.55;
+        margin-bottom: 10px;
+    }
+    .fq-disclaimer-box p:last-child {
+        margin-bottom: 0;
+    }
+    .fq-disclaimer-box strong {
+        color: #111827;
+        font-weight: 700;
+    }
+    .fq-checkbox-card {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 14px 16px;
+        background: #F9FAFB;
+        border: 1.5px solid #E5E7EB;
+        border-radius: 14px;
+        cursor: pointer;
+        transition: border-color 0.2s, background 0.2s;
+        margin-bottom: 22px;
+        user-select: none;
+    }
+    .fq-checkbox-card:hover {
+        border-color: #C25A2A;
+        background: #FFF5F0;
+    }
+    .fq-checkbox-card input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        accent-color: #C25A2A;
+        cursor: pointer;
+        margin-top: 2px;
+        flex-shrink: 0;
+    }
+    .fq-checkbox-card label {
+        font-size: 13.5px;
+        font-weight: 600;
+        color: #1F2937;
+        cursor: pointer;
+        line-height: 1.45;
+    }
+    .fq-actions {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+    }
+    .fq-btn-cancel {
+        flex: 1;
+        height: 48px;
+        border: 1.5px solid #E5E7EB;
+        border-radius: 14px;
+        background: #ffffff;
+        color: #4B5563;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background 0.2s, border-color 0.2s;
+    }
+    .fq-btn-cancel:hover {
+        background: #F9FAFB;
+        border-color: #D1D5DB;
+    }
+    .fq-btn-continue {
+        flex: 1.5;
+        height: 48px;
+        border: none;
+        border-radius: 14px;
+        background: #E5E7EB;
+        color: #9CA3AF;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: not-allowed;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+    }
+    .fq-btn-continue.active {
+        background: #C25A2A;
+        color: #ffffff;
+        cursor: pointer;
+        box-shadow: 0 4px 14px rgba(194, 90, 42, 0.35);
+    }
+    .fq-btn-continue.active:hover {
+        background: #a84b20;
+        transform: translateY(-1px);
+    }
+
+    @media (max-width: 580px) {
+        .fq-modal-card {
+            padding: 22px 18px 18px;
+            border-radius: 20px;
+        }
+        .fq-actions {
+            flex-direction: column-reverse;
+            gap: 10px;
+        }
+        .fq-btn-cancel, .fq-btn-continue {
+            width: 100%;
+        }
+    }
 </style>
 
 <div class="co-page">
@@ -937,6 +1135,45 @@
     </div>
 </div>
 
+<!-- ══════════ FOOD QUALITY DISCLAIMER MODAL ══════════ -->
+<div class="fq-modal-overlay" id="foodQualityModal">
+    <div class="fq-modal-card">
+        <button type="button" class="fq-modal-close" onclick="closeFoodQualityModal()" title="Close">✕</button>
+
+        <div class="fq-badge">
+            <span>🍲 Food & Quality Notice</span>
+        </div>
+
+        <div class="fq-title">Important Order Disclaimer</div>
+        <div class="fq-subtitle">Please acknowledge the following terms before placing your order.</div>
+
+        <div class="fq-disclaimer-box">
+            <p>
+                <strong>HYST is an online ordering platform</strong> connecting customers with partner restaurants and independent delivery providers.
+            </p>
+            <p>
+                Please note that <strong>HYST is not responsible for food quality, preparation time, taste, portion sizes, temperature, or food packaging</strong>. All food preparation, hygiene, and packaging are strictly the responsibility of the preparing restaurant.
+            </p>
+        </div>
+
+        <div class="fq-checkbox-card" onclick="document.getElementById('foodQualityCheckbox').click();">
+            <input type="checkbox" id="foodQualityCheckbox" onclick="event.stopPropagation();">
+            <label for="foodQualityCheckbox" onclick="event.stopPropagation();">
+                I understand and agree that HYST is not responsible for food quality or restaurant preparation, and I wish to place this order.
+            </label>
+        </div>
+
+        <div class="fq-actions">
+            <button type="button" class="fq-btn-cancel" onclick="closeFoodQualityModal()">
+                Back to Order
+            </button>
+            <button type="button" class="fq-btn-continue" id="disclaimerContinueBtn" disabled>
+                <span>Continue & Place Order →</span>
+            </button>
+        </div>
+    </div>
+</div>
+
 
 <script>
     (function () {
@@ -1251,9 +1488,60 @@
 
             }
 
+            if (!window.disclaimerAccepted) {
+                e.preventDefault();
+                window.openFoodQualityModal();
+                return;
+            }
+
             e.preventDefault();
             this.action = "{{ route('payment.pay') }}";
             this.submit();
+        });
+
+        window.disclaimerAccepted = false;
+
+        window.openFoodQualityModal = function() {
+            const modal = document.getElementById('foodQualityModal');
+            if (modal) {
+                modal.classList.add('open');
+                document.body.style.overflow = 'hidden';
+            }
+        };
+
+        window.closeFoodQualityModal = function() {
+            const modal = document.getElementById('foodQualityModal');
+            if (modal) {
+                modal.classList.remove('open');
+                document.body.style.overflow = '';
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const chk = document.getElementById('foodQualityCheckbox');
+            const btn = document.getElementById('disclaimerContinueBtn');
+            if (chk && btn) {
+                chk.addEventListener('change', function() {
+                    btn.disabled = !this.checked;
+                    if (this.checked) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+
+                btn.addEventListener('click', function() {
+                    if (chk.checked) {
+                        window.disclaimerAccepted = true;
+                        window.closeFoodQualityModal();
+                        const form = document.getElementById('checkoutForm');
+                        if (form) {
+                            form.action = "{{ route('payment.pay') }}";
+                            form.submit();
+                        }
+                    }
+                });
+            }
         });
 
         @if(count($cart) === 0)
