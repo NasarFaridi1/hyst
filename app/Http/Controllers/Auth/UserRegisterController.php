@@ -219,6 +219,14 @@ class UserRegisterController extends Controller
             'token' => 'required'
         ]);
 
+        $ipKey = 'resend-otp-ip:' . $request->ip();
+        if (RateLimiter::tooManyAttempts($ipKey, 3)) {
+            $seconds = RateLimiter::availableIn($ipKey);
+            return back()
+                ->with('message', "Too many OTP resend attempts. Please wait {$seconds} seconds before trying again.")
+                ->with('type', 'error');
+        }
+
         $user = User::where('email_verify_token', $request->token)->first();
 
         if (!$user) {
@@ -232,6 +240,17 @@ class UserRegisterController extends Controller
                 ->with('message', 'Your email is already verified.')
                 ->with('type', 'success');
         }
+
+        $userKey = 'resend-otp-user:' . $user->id;
+        if (RateLimiter::tooManyAttempts($userKey, 1)) {
+            $seconds = RateLimiter::availableIn($userKey);
+            return back()
+                ->with('message', "Please wait {$seconds} seconds before requesting a new verification code.")
+                ->with('type', 'error');
+        }
+
+        RateLimiter::hit($ipKey, 60);
+        RateLimiter::hit($userKey, 60);
 
         $otp = rand(100000, 999999);
 

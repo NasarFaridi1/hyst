@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\VerifyOtpMail;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\RateLimiter;
 use App\Models\Order;
 use App\Models\Notification;
 use Illuminate\Support\Str;
@@ -254,6 +255,15 @@ class AuthController extends Controller
             ], 422);
         }
 
+        $ipKey = 'resend-otp-ip:' . $request->ip();
+        if (RateLimiter::tooManyAttempts($ipKey, 3)) {
+            $seconds = RateLimiter::availableIn($ipKey);
+            return response()->json([
+                'status' => false,
+                'message' => "Too many OTP resend attempts. Please wait {$seconds} seconds before trying again."
+            ], 429);
+        }
+
         $user = User::where('email_verify_token', $request->token)->first();
 
         if (!$user) {
@@ -269,6 +279,18 @@ class AuthController extends Controller
                 'message' => 'Your email is already verified.'
             ]);
         }
+
+        $userKey = 'resend-otp-user:' . $user->id;
+        if (RateLimiter::tooManyAttempts($userKey, 1)) {
+            $seconds = RateLimiter::availableIn($userKey);
+            return response()->json([
+                'status' => false,
+                'message' => "Please wait {$seconds} seconds before requesting a new verification code."
+            ], 429);
+        }
+
+        RateLimiter::hit($ipKey, 60);
+        RateLimiter::hit($userKey, 60);
 
         $otp = rand(100000, 999999);
         $verifyToken = Str::random(64);
@@ -390,13 +412,22 @@ class AuthController extends Controller
             ], 422);
         }
 
-        $email = strtolower(trim($request->email));
-        $cacheKey = 'pwd_reset_cooldown_' . md5($email);
+        $ipKey = 'forgot-pwd-ip:' . $request->ip();
+        if (RateLimiter::tooManyAttempts($ipKey, 3)) {
+            $seconds = RateLimiter::availableIn($ipKey);
+            return response()->json([
+                'status' => false,
+                'message' => "Too many password reset attempts. Please wait {$seconds} seconds."
+            ], 429);
+        }
+        RateLimiter::hit($ipKey, 60);
 
-        if (Cache::has($cacheKey)) {
+        $email = strtolower(trim($request->email));
+        $emailKey = 'forgot-pwd-email:' . sha1($email);
+        if (RateLimiter::tooManyAttempts($emailKey, 2)) {
             return response()->json([
                 'status' => true,
-                'message' => 'Password reset link sent successfully.'
+                'message' => 'If an account with that email address exists, a password reset link has been sent.'
             ]);
         }
 
@@ -405,38 +436,37 @@ class AuthController extends Controller
             hash('sha256', $email)
         )->first();
 
-        if (!$user) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Email not found.'
-            ], 404);
-        }
+        if ($user) {
+            RateLimiter::hit($emailKey, 300);
 
-        Cache::put($cacheKey, true, 60);
+            $url = URL::temporarySignedRoute(
+                'password.reset',
+                now()->addMinutes(30),
+                [
+                    'email' => $user->email
+                ]
+            );
 
-        $url = URL::temporarySignedRoute(
-            'password.reset',
-            now()->addMinutes(30),
-            [
-                'email' => $user->email
-            ]
-        );
-
-        Mail::send(
-            'emails.reset-password',
-            [
-                'user' => $user,
-                'url' => $url
-            ],
-            function ($message) use ($user) {
-                $message->to($user->email)
-                        ->subject('Reset Your Password');
+            try {
+                Mail::send(
+                    'emails.reset-password',
+                    [
+                        'user' => $user,
+                        'url' => $url
+                    ],
+                    function ($message) use ($user) {
+                        $message->to($user->email)
+                                ->subject('Reset Your Password');
+                    }
+                );
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error('API Password reset mail error: ' . $e->getMessage());
             }
-        );
+        }
 
         return response()->json([
             'status' => true,
-            'message' => 'Password reset link sent successfully.'
+            'message' => 'If an account with that email address exists, a password reset link has been sent.'
         ]);
     }
 

@@ -56,6 +56,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
 
 class UsersController extends Controller
@@ -288,55 +289,62 @@ class UsersController extends Controller
     public function forgotPassword(Request $request)
     {
         $request->validate([
-            'email'=>'required|email'
+            'email' => 'required|email'
         ]);
 
-        $email = strtolower(trim($request->email));
-        $cacheKey = 'pwd_reset_cooldown_' . md5($email);
+        $ipKey = 'forgot-pwd-ip:' . $request->ip();
+        if (RateLimiter::tooManyAttempts($ipKey, 3)) {
+            $seconds = RateLimiter::availableIn($ipKey);
+            return back()
+                ->with('message', "Too many password reset attempts. Please wait {$seconds} seconds.")
+                ->with('type', 'error');
+        }
+        RateLimiter::hit($ipKey, 60);
 
-        if (Cache::has($cacheKey)) {
+        $email = strtolower(trim($request->email));
+        $emailKey = 'forgot-pwd-email:' . sha1($email);
+        if (RateLimiter::tooManyAttempts($emailKey, 2)) {
             return redirect('/login')
-                ->with('message', 'Password reset link has already been sent to your email. Please check your inbox.')
+                ->with('message', 'If an account with that email address exists, a password reset link has been sent to your email.')
                 ->with('type', 'success');
         }
 
         $user = User::where(
             'email_hash',
-            hash('sha256',$email)
+            hash('sha256', $email)
         )->first();
 
-        if (!$user) {
+        if ($user) {
+            RateLimiter::hit($emailKey, 300);
 
-            return back()
-                ->with('message', 'Invalid email address.')
-                ->with('type', 'error');
+            $url = URL::temporarySignedRoute(
+                'password.reset',
+                now()->addMinutes(30),
+                [
+                    'email' => $user->email
+                ]
+            );
+
+            try {
+                Mail::send(
+                    'emails.reset-password',
+                    [
+                        'user' => $user,
+                        'url' => $url
+                    ],
+                    function ($message) use ($user) {
+                        $message->to($user->email)
+                                ->subject('Reset Your Password');
+                    }
+                );
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error('Password reset mail error: ' . $e->getMessage());
+            }
         }
 
-        Cache::put($cacheKey, true, 60);
-
-        $url = URL::temporarySignedRoute(
-            'password.reset',
-            now()->addMinutes(30),
-            [
-                'email'=>$user->email
-            ]
-        );
-
-        Mail::send(
-            'emails.reset-password',
-            [
-                'user'=>$user,
-                'url'=>$url
-            ],
-            function($message) use($user){
-                $message->to($user->email)
-                        ->subject('Reset Your Password');
-            }
-        );
-
         return redirect('/login')
-        ->with('message', 'Password reset link has been sent to your email.')
-        ->with('type', 'success');
+            ->with('message', 'If an account with that email address exists, a password reset link has been sent to your email.')
+            ->with('type', 'success');
     }
 
     public function showResetPassword(Request $request)
