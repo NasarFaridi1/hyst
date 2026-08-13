@@ -839,12 +839,12 @@ Route::middleware(['auth', 'restaurant_admin'])
     });
     
 
-    Route::get(
-        '/sign-in',
-        [AdminLoginController::class, 'showLogin']
-    );
+    // Route::get(
+    //     '/sign-in',
+    //     [AdminLoginController::class, 'showLogin']
+    // );
 
-    Route::post('/admin/login',[AdminLoginController::class, 'login'])->name('admin.login');
+    // Route::post('/admin/login',[AdminLoginController::class, 'login'])->name('admin.login');
 
 
     Route::get('/cart-count', function () {
