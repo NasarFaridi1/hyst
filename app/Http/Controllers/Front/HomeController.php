@@ -66,11 +66,13 @@ class HomeController extends Controller
        
 
 
-        if (!$latitude || !$longitude) {
+        if (!$latitude || !$longitude || !is_numeric($latitude) || !is_numeric($longitude)) {
 
             $restaurants = Restaurant::where('status', 1)
-    ->latest()
-    ->get();
+                ->latest()
+                ->get();
+
+            $categories = RestaurantCategory::where('status', 'active')->orderBy('display_order')->get();
 
             return view(
                 'front.home',
@@ -78,34 +80,28 @@ class HomeController extends Controller
             );
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | ALL RESTAURANTS WITH DISTANCE
-        |--------------------------------------------------------------------------
-        */
+        try {
+            $lat = (float) $latitude;
+            $lng = (float) $longitude;
 
-        // $restaurants = Restaurant::select(
-        // $restaurants = Restaurant::with('featuredOffer')
-        $restaurants = Restaurant::with([
-            'featuredOffer',
-            'reviews'
-        ])
-        ->where('status', 1)
-            ->select(
-                        '*',
-                        DB::raw("
-                    (
-                        6371 * acos(
-                            cos(radians($latitude))
-                            * cos(radians(latitude))
-                            * cos(radians(longitude) - radians($longitude))
-                            + sin(radians($latitude))
-                            * sin(radians(latitude))
-                        )
-                    ) AS distance
-                ")
+            $restaurants = Restaurant::with([
+                'featuredOffer',
+                'reviews'
+            ])
+            ->where('status', 1)
+            ->select('*')
+            ->selectRaw("
+                (
+                    6371 * acos(
+                        cos(radians(?))
+                        * cos(radians(latitude))
+                        * cos(radians(longitude) - radians(?))
+                        + sin(radians(?))
+                        * sin(radians(latitude))
                     )
-                    ->orderByRaw("
+                ) AS distance
+            ", [$lat, $lng, $lat])
+            ->orderByRaw("
                 CASE
                     WHEN distance <= 5 THEN 0
                     ELSE 1
@@ -119,6 +115,13 @@ class HomeController extends Controller
                 END ASC
             ")
             ->get();
+        } catch (\Throwable $e) {
+            Log::error('Distance query error in front home: ' . $e->getMessage());
+
+            $restaurants = Restaurant::where('status', 1)
+                ->latest()
+                ->get();
+        }
 
         // Log::info('Restaurants Count: ' . $restaurants->count());
 
@@ -222,7 +225,7 @@ class HomeController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        if (!$latitude || !$longitude) {
+        if (!$latitude || !$longitude || !is_numeric($latitude) || !is_numeric($longitude)) {
 
             $restaurants = Restaurant::with([
                 'featuredOffer',
@@ -231,46 +234,50 @@ class HomeController extends Controller
 
         } else {
 
-            /*
-            |--------------------------------------------------------------------------
-            | RESTAURANTS WITH DISTANCE
-            |--------------------------------------------------------------------------
-            */
+            try {
+                $lat = (float) $latitude;
+                $lng = (float) $longitude;
 
-            $restaurants = Restaurant::with([
-                'featuredOffer',
-                'reviews',
-                'coupons' => function ($query) {
-                    $query->where('status', 'active')
-                        ->where(function ($q) {
-                            $q->whereNull('expires_at')
-                            ->orWhere('expires_at', '>=', now());
-                        })
-                        ->orderBy('value');
-                }
-            ])
-            ->select(
-                '*',
-                DB::raw("
+                $restaurants = Restaurant::with([
+                    'featuredOffer',
+                    'reviews',
+                    'coupons' => function ($query) {
+                        $query->where('status', 'active')
+                            ->where(function ($q) {
+                                $q->whereNull('expires_at')
+                                ->orWhere('expires_at', '>=', now());
+                            })
+                            ->orderBy('value');
+                    }
+                ])
+                ->select('*')
+                ->selectRaw("
                     (
                         6371 * acos(
-                            cos(radians($latitude))
+                            cos(radians(?))
                             * cos(radians(latitude))
-                            * cos(radians(longitude) - radians($longitude))
-                            + sin(radians($latitude))
+                            * cos(radians(longitude) - radians(?))
+                            + sin(radians(?))
                             * sin(radians(latitude))
                         )
                     ) AS distance
+                ", [$lat, $lng, $lat])
+                ->orderByRaw("
+                    CASE
+                        WHEN distance <= 5 THEN 0
+                        ELSE 1
+                    END
                 ")
-            )
-            ->orderByRaw("
-                CASE
-                    WHEN distance <= 5 THEN 0
-                    ELSE 1
-                END
-            ")
-            ->orderBy('distance')
-            ->get();
+                ->orderBy('distance')
+                ->get();
+            } catch (\Throwable $e) {
+                Log::error('Distance query error in front restaurants: ' . $e->getMessage());
+
+                $restaurants = Restaurant::with([
+                    'featuredOffer',
+                    'reviews'
+                ])->latest()->get();
+            }
         }
 
         /*

@@ -49,33 +49,61 @@ class HomeController extends Controller
             ]);
         }
 
-        // Restaurants sorted by distance
-        $restaurants = Restaurant::with([
+        if (!is_numeric($latitude) || !is_numeric($longitude)) {
+            $restaurants = Restaurant::with([
                 'featuredOffer',
                 'reviews'
-            ])
-            ->select(
-                '*',
-                DB::raw("
+            ])->latest()->get();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Home data fetched successfully.',
+                'data' => [
+                    'products' => $products,
+                    'categories' => $categories,
+                    'qr_code' => $qrCode,
+                    'restaurants' => $restaurants,
+                ]
+            ]);
+        }
+
+        try {
+            $lat = (float) $latitude;
+            $lng = (float) $longitude;
+
+            // Restaurants sorted by distance
+            $restaurants = Restaurant::with([
+                    'featuredOffer',
+                    'reviews'
+                ])
+                ->select('*')
+                ->selectRaw("
                     (
                         6371 * acos(
-                            cos(radians($latitude))
+                            cos(radians(?))
                             * cos(radians(latitude))
-                            * cos(radians(longitude) - radians($longitude))
-                            + sin(radians($latitude))
+                            * cos(radians(longitude) - radians(?))
+                            + sin(radians(?))
                             * sin(radians(latitude))
                         )
                     ) AS distance
+                ", [$lat, $lng, $lat])
+                ->orderByRaw("
+                    CASE
+                        WHEN distance <= 5 THEN 0
+                        ELSE 1
+                    END
                 ")
-            )
-            ->orderByRaw("
-                CASE
-                    WHEN distance <= 5 THEN 0
-                    ELSE 1
-                END
-            ")
-            ->orderBy('distance')
-            ->get();
+                ->orderBy('distance')
+                ->get();
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Distance query error in home: ' . $e->getMessage());
+
+            $restaurants = Restaurant::with([
+                'featuredOffer',
+                'reviews'
+            ])->latest()->get();
+        }
 
         return response()->json([
             'status' => true,
@@ -154,7 +182,7 @@ class HomeController extends Controller
         $latitude = $request->latitude;
         $longitude = $request->longitude;
 
-        if (!$latitude || !$longitude) {
+        if (!$latitude || !$longitude || !is_numeric($latitude) || !is_numeric($longitude)) {
 
             $restaurants = Restaurant::with([
                 'featuredOffer',
@@ -168,32 +196,42 @@ class HomeController extends Controller
             ]);
         }
 
-        $restaurants = Restaurant::with([
-                'featuredOffer',
-                'reviews'
-            ])
-            ->select(
-                '*',
-                DB::raw("
+        try {
+            $lat = (float) $latitude;
+            $lng = (float) $longitude;
+
+            $restaurants = Restaurant::with([
+                    'featuredOffer',
+                    'reviews'
+                ])
+                ->select('*')
+                ->selectRaw("
                     (
                         6371 * acos(
-                            cos(radians($latitude))
+                            cos(radians(?))
                             * cos(radians(latitude))
-                            * cos(radians(longitude) - radians($longitude))
-                            + sin(radians($latitude))
+                            * cos(radians(longitude) - radians(?))
+                            + sin(radians(?))
                             * sin(radians(latitude))
                         )
                     ) AS distance
+                ", [$lat, $lng, $lat])
+                ->orderByRaw("
+                    CASE
+                        WHEN distance <= 5 THEN 0
+                        ELSE 1
+                    END
                 ")
-            )
-            ->orderByRaw("
-                CASE
-                    WHEN distance <= 5 THEN 0
-                    ELSE 1
-                END
-            ")
-            ->orderBy('distance')
-            ->get();
+                ->orderBy('distance')
+                ->get();
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Distance query error in restaurants: ' . $e->getMessage());
+
+            $restaurants = Restaurant::with([
+                'featuredOffer',
+                'reviews'
+            ])->latest()->get();
+        }
 
         return response()->json([
             'status' => true,
