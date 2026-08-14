@@ -366,6 +366,25 @@
 
     /* Mobile */
     @media(max-width:768px){
+        .main-tabs-wrap{
+            flex-wrap: nowrap;
+            gap: 6px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .main-tabs-wrap::-webkit-scrollbar{
+            display: none;
+        }
+        .main-tab-btn{
+            flex: 1;
+            min-width: 0;
+            padding: 8px 4px;
+            font-size: 12px;
+            justify-content: center;
+            white-space: nowrap;
+            gap: 4px;
+        }
         .restaurant-grid{
             grid-template-columns:1fr;
             gap:14px;
@@ -375,6 +394,14 @@
     }
 
     @media(max-width:480px){
+        .main-tabs-wrap{
+            gap: 4px;
+        }
+        .main-tab-btn{
+            padding: 8px 2px;
+            font-size: 11px;
+            gap: 3px;
+        }
         .page-title{ font-size:21px !important; }
     }
 </style>
