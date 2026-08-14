@@ -366,24 +366,32 @@
 
     /* Mobile */
     @media(max-width:768px){
+        .restaurants-container{
+            padding: 0 16px !important;
+        }
         .main-tabs-wrap{
+            display: flex;
             flex-wrap: nowrap;
-            gap: 6px;
+            justify-content: flex-start;
+            gap: 8px;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
+            padding: 4px 4px 10px 4px;
+            margin-bottom: 16px;
             scrollbar-width: none;
         }
         .main-tabs-wrap::-webkit-scrollbar{
             display: none;
         }
         .main-tab-btn{
-            flex: 1;
-            min-width: 0;
-            padding: 8px 4px;
-            font-size: 12px;
-            justify-content: center;
+            flex-shrink: 0;
             white-space: nowrap;
-            gap: 4px;
+            padding: 9px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            gap: 6px;
+            border-radius: 999px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
         }
         .restaurant-grid{
             grid-template-columns:1fr;
@@ -393,14 +401,17 @@
         .filter-chips{ justify-content:flex-start; overflow-x:auto; flex-wrap:nowrap; padding-bottom:4px; }
     }
 
-    @media(max-width:480px){
+    @media(min-width:520px) and (max-width:768px){
         .main-tabs-wrap{
-            gap: 4px;
+            justify-content: center;
         }
+    }
+
+    @media(max-width:480px){
         .main-tab-btn{
-            padding: 8px 2px;
-            font-size: 11px;
-            gap: 3px;
+            padding: 8px 14px;
+            font-size: 12.5px;
+            gap: 5px;
         }
         .page-title{ font-size:21px !important; }
     }
@@ -408,7 +419,7 @@
 
 <section id="restaurants" style="background:#FAF7F2; padding:20px 0;">
 
-    <div style="max-width:1300px; margin:auto; padding:0 24px;">
+    <div style="max-width:1300px; margin:auto; padding:0 24px;" class="restaurants-container">
 
         <!-- MAIN TABS -->
         <div class="main-tabs-wrap">
