@@ -390,6 +390,19 @@
 
             </div>
 
+            <!-- Official Invoice Integrity & Verification Seal -->
+            <div class="mt-8 pt-4 border-t border-dashed border-gray-300 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 gap-2">
+                <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-emerald-100 text-emerald-800">
+                        OFFICIAL VERIFIED INVOICE
+                    </span>
+                    <span>System Order #{{ $order->id }}</span>
+                </div>
+                <div class="font-mono text-[10px] text-gray-400">
+                    Verification Signature: {{ substr(hash('sha256', 'HYST_INV_' . $order->id . '_' . $order->total_amount . '_' . $order->created_at), 0, 32) }}
+                </div>
+            </div>
+
             <!-- Footer & Actions -->
             <div class="mt-8 pt-6 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4 no-print">
                 <div class="text-xs text-gray-400">

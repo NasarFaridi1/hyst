@@ -5,6 +5,21 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Auth;
 use Jenssegers\Agent\Agent;
 
+if (!function_exists('isValidPublicIp')) {
+    function isValidPublicIp($ip)
+    {
+        if (!$ip || !is_string($ip)) {
+            return false;
+        }
+
+        return filter_var(
+            $ip,
+            FILTER_VALIDATE_IP,
+            FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE
+        ) !== false;
+    }
+}
+
 if (!function_exists('savePageVisit')) {
 
     function savePageVisit($request, $page, $restaurantId = null, $restaurantName = null, $orderId = null, $productId = null)
@@ -13,7 +28,7 @@ if (!function_exists('savePageVisit')) {
             $ip = $request->ip();
             $data = [];
 
-            if ($ip && $ip !== '127.0.0.1' && $ip !== '::1' && !str_starts_with($ip, '192.168.')) {
+            if (isValidPublicIp($ip)) {
                 $sessionGeoKey = 'ip_geo_' . md5($ip);
                 if (session()->has($sessionGeoKey)) {
                     $data = session()->get($sessionGeoKey, []);

@@ -43,13 +43,15 @@ class HomeController extends Controller
         if (!$latitude || !$longitude) {
             try {
                 $ip = $request->ip();
-                $response = Http::timeout(1)->get("http://ip-api.com/json/" . $ip);
-                if ($response->successful()) {
-                    $data = $response->json();
-                    $latitude = $data['lat'] ?? null;
-                    $longitude = $data['lon'] ?? null;
-                    if ($latitude && $longitude) {
-                        session(['user_lat' => $latitude, 'user_lon' => $longitude]);
+                if (isValidPublicIp($ip)) {
+                    $response = Http::timeout(1)->get("http://ip-api.com/json/" . $ip);
+                    if ($response->successful()) {
+                        $data = $response->json();
+                        $latitude = $data['lat'] ?? null;
+                        $longitude = $data['lon'] ?? null;
+                        if ($latitude && $longitude) {
+                            session(['user_lat' => $latitude, 'user_lon' => $longitude]);
+                        }
                     }
                 }
             } catch (\Exception $e) {
@@ -205,13 +207,15 @@ class HomeController extends Controller
         if (!$latitude || !$longitude) {
             try {
                 $ip = $request->ip();
-                $response = Http::timeout(1)->get("http://ip-api.com/json/" . $ip);
-                if ($response->successful()) {
-                    $data = $response->json();
-                    $latitude = $data['lat'] ?? null;
-                    $longitude = $data['lon'] ?? null;
-                    if ($latitude && $longitude) {
-                        session(['user_lat' => $latitude, 'user_lon' => $longitude]);
+                if (isValidPublicIp($ip)) {
+                    $response = Http::timeout(1)->get("http://ip-api.com/json/" . $ip);
+                    if ($response->successful()) {
+                        $data = $response->json();
+                        $latitude = $data['lat'] ?? null;
+                        $longitude = $data['lon'] ?? null;
+                        if ($latitude && $longitude) {
+                            session(['user_lat' => $latitude, 'user_lon' => $longitude]);
+                        }
                     }
                 }
             } catch (\Exception $e) {
