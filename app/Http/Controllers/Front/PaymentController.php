@@ -16,8 +16,9 @@ use App\Models\Payment;
 use App\Models\Restaurant;
 use App\Models\UserAddress;
 use App\Services\WorldpayService;
-
+use Illuminate\Mail\SendQueuedMailable;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class PaymentController extends Controller
@@ -34,150 +35,374 @@ class PaymentController extends Controller
     }
 
 
-    public function pay(Request $request)
-    {
+    // public function pay(Request $request)
+    // {
         
 
-        $request->validate([
+    //     $request->validate([
 
-            'restaurant_id' => 'required',
+    //         'restaurant_id' => 'required',
 
-            'amount' => 'required',
+    //         'amount' => 'required',
             
 
-        ]);
+    //     ]);
 
         
 
-        $address = null;
+    //     $address = null;
 
-        // if ($request->order_type == 'dine_in') {
+    //     // if ($request->order_type == 'dine_in') {
 
-        //     $address = UserAddress::where('user_id', Auth::id())
-        //         ->where('is_default', 1)
-        //         ->first();
+    //     //     $address = UserAddress::where('user_id', Auth::id())
+    //     //         ->where('is_default', 1)
+    //     //         ->first();
 
-        //     if (!$address) {
-        //         $address = UserAddress::where('user_id', Auth::id())
-        //             ->latest()
-        //             ->first();
-        //     }
+    //     //     if (!$address) {
+    //     //         $address = UserAddress::where('user_id', Auth::id())
+    //     //             ->latest()
+    //     //             ->first();
+    //     //     }
 
-        //     if (!$address) {
-        //         return redirect()
-        //             ->route('profile') // change to your profile route
-        //             ->with('error', 'Please Complete your profile before making a payment.');
-        //     }
-        // }
+    //     //     if (!$address) {
+    //     //         return redirect()
+    //     //             ->route('profile') // change to your profile route
+    //     //             ->with('error', 'Please Complete your profile before making a payment.');
+    //     //     }
+    //     // }
+
+    //     $restaurant = Restaurant::findOrFail(
+    //         $request->restaurant_id
+    //     );
+
+    //     try {
+
+    //         /*
+    //         |---------------------------------------------------
+    //         | Login
+    //         |---------------------------------------------------
+    //         */
+
+    //         $token = $this->worldpay->login($restaurant);
+
+            
+
+    //         /*
+    //         |---------------------------------------------------
+    //         | Generate HPP
+    //         |---------------------------------------------------
+    //         */
+
+    //         $reference = 'HYST-' . strtoupper(Str::random(12));
+
+    //         $hpp = $this->worldpay->generateHostedPayment(
+
+    //             $restaurant,
+
+    //             $token,
+
+    //             [
+
+    //                 'reference' => $reference,
+
+    //                 'description' => 'Online Order',
+
+    //                 'amount' => $request->amount,
+
+    //                 'user_id' => Auth::id(),
+
+    //                 'name' => Auth::user()->name,
+
+    //                 'email' => Auth::user()->email,
+
+    //                 'phone' => $request->phone ?? Auth::user()->phone,
+
+    //                 // 'address' => $request->address ?? Auth::user()->address,
+
+    //                 // 'postcode' => $request->postcode ?? Auth::user()->postcode,
+
+    //                 // 'state' => Auth::user()->state,
+
+    //                 // 'country' => Auth::user()->country,
+    //                 'address' => $request->order_type == 'dine_in'
+    //                     ? $restaurant->address
+    //                     : ($request->address ?? Auth::user()->address),
+
+    //                 'postcode' => $request->order_type == 'dine_in'
+    //                     ? $restaurant->postcode
+    //                     : ($request->postcode ?? Auth::user()->postcode),
+
+    //                 'state' => $request->order_type == 'dine_in'
+    //                     ? $restaurant->state
+    //                     : Auth::user()->state,
+
+    //                 'country' => $request->order_type == 'dine_in'
+    //                     ? $restaurant->country
+    //                     : Auth::user()->country,
+
+
+    //             ]
+
+    //         );
+
+    //         /*
+    //         |---------------------------------------------------
+    //         | Save Payment
+    //         |---------------------------------------------------
+    //         */
+
+    //         Payment::create([
+    //             'restaurant_id'   => $restaurant->id,
+    //             'transaction_id'  => $hpp['token'],   // webPageToken
+    //             'amount'          => $request->amount,
+    //             'payment_status'  => 'pending',
+    //             'payment_method'  => 'online',
+    //             'user_id'         => Auth::id(),
+    //             'checkout_data'   => json_encode($request->all()),
+    //         ]);
+
+            
+
+    //         return redirect()->away(
+    //             $hpp['redirectToUrl']
+    //         );
+
+    //     } catch (\Exception $e) {
+
+        
+
+    //         Log::error($e->getMessage());
+
+    //         return back()->with(
+
+    //             'error',
+
+    //             $e->getMessage()
+
+    //         );
+    //     }
+    // }
+
+    public function pay(Request $request)
+    {
+        $request->validate([
+            'restaurant_id' => 'required',
+            'amount' => 'required',
+        ]);
 
         $restaurant = Restaurant::findOrFail(
             $request->restaurant_id
         );
 
-        try {
+        $user = Auth::user();
 
-            /*
-            |---------------------------------------------------
-            | Login
-            |---------------------------------------------------
-            */
+        try {
 
             $token = $this->worldpay->login($restaurant);
 
-            
+            /*
+            |--------------------------------------------------------------------------
+            | Check whether user already has a saved Worldpay payer
+            |--------------------------------------------------------------------------
+            */
+
+            $payerReference = $user->worldpay_unique_reference;
 
             /*
-            |---------------------------------------------------
-            | Generate HPP
-            |---------------------------------------------------
+            |--------------------------------------------------------------------------
+            | FIRST PAYMENT
+            |--------------------------------------------------------------------------
+            */
+
+            if (!$payerReference) {
+
+                $payerReference = 'USER-' . $user->id;
+
+                $reference = 'HYST-' . strtoupper(Str::random(12));
+
+                $hpp = $this->worldpay->generateHostedPayment(
+                    $restaurant,
+                    $token,
+                    [
+                        'reference' => $reference,
+
+                        'description' => 'Online Order',
+
+                        'amount' => $request->amount,
+
+                        'user_id' => $user->id,
+
+                        'name' => $user->name,
+
+                        'email' => $user->email,
+
+                        'phone' => $request->phone ?? $user->phone,
+
+                        'address' => $request->order_type == 'dine_in'
+                            ? $restaurant->address
+                            : ($request->address ?? $user->address),
+
+                        'postcode' => $request->order_type == 'dine_in'
+                            ? $restaurant->postcode
+                            : ($request->postcode ?? $user->postcode),
+
+                        'state' => $request->order_type == 'dine_in'
+                            ? $restaurant->state
+                            : $user->state,
+
+                        'country' => $request->order_type == 'dine_in'
+                            ? $restaurant->country
+                            : $user->country,
+                    ]
+                );
+
+                /*
+                * Save our merchant-side reference.
+                */
+                $user->update([
+                    'worldpay_unique_reference' => $payerReference
+                ]);
+
+                Payment::create([
+                    'restaurant_id' => $restaurant->id,
+
+                    'transaction_id' => $hpp['token'],
+
+                    'amount' => $request->amount,
+
+                    'payment_status' => 'pending',
+
+                    'payment_method' => 'online',
+
+                    'user_id' => $user->id,
+
+                    'checkout_data' => json_encode($request->all()),
+                ]);
+
+                return redirect()->away(
+                    $hpp['redirectToUrl']
+                );
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | FUTURE PAYMENT USING SAVED CARD
+            |--------------------------------------------------------------------------
             */
 
             $reference = 'HYST-' . strtoupper(Str::random(12));
 
-            $hpp = $this->worldpay->generateHostedPayment(
-
+            $result = $this->worldpay->chargeSavedCard(
                 $restaurant,
-
                 $token,
-
+                $payerReference,
                 [
-
                     'reference' => $reference,
-
-                    'description' => 'Online Order',
 
                     'amount' => $request->amount,
 
-                    'user_id' => Auth::id(),
+                    'description' => 'Online Order',
 
-                    'name' => Auth::user()->name,
-
-                    'email' => Auth::user()->email,
-
-                    'phone' => $request->phone ?? Auth::user()->phone,
-
-                    // 'address' => $request->address ?? Auth::user()->address,
-
-                    // 'postcode' => $request->postcode ?? Auth::user()->postcode,
-
-                    // 'state' => Auth::user()->state,
-
-                    // 'country' => Auth::user()->country,
-                    'address' => $request->order_type == 'dine_in'
-                        ? $restaurant->address
-                        : ($request->address ?? Auth::user()->address),
-
-                    'postcode' => $request->order_type == 'dine_in'
-                        ? $restaurant->postcode
-                        : ($request->postcode ?? Auth::user()->postcode),
-
-                    'state' => $request->order_type == 'dine_in'
-                        ? $restaurant->state
-                        : Auth::user()->state,
-
-                    'country' => $request->order_type == 'dine_in'
-                        ? $restaurant->country
-                        : Auth::user()->country,
-
-
+                    'name' => $user->name,
                 ]
-
             );
 
+            Log::info('Worldpay Saved Card Response', $result);
+
             /*
-            |---------------------------------------------------
-            | Save Payment
-            |---------------------------------------------------
+            |--------------------------------------------------------------------------
+            | 3DS REQUIRED
+            |--------------------------------------------------------------------------
             */
 
-            Payment::create([
-                'restaurant_id'   => $restaurant->id,
-                'transaction_id'  => $hpp['token'],   // webPageToken
-                'amount'          => $request->amount,
-                'payment_status'  => 'pending',
-                'payment_method'  => 'online',
-                'user_id'         => Auth::id(),
-                'checkout_data'   => json_encode($request->all()),
-            ]);
+            if (!empty($result['redirectUrl'])) {
 
-            
+                // Save payment first
+                $payment = Payment::create([
+                    'restaurant_id' => $restaurant->id,
 
-            return redirect()->away(
-                $hpp['redirectToUrl']
+                    'transaction_id' =>
+                        $result['redirectId'] ?? $reference,
+
+                    'amount' => $request->amount,
+
+                    'payment_status' => 'pending',
+
+                    'payment_method' => 'online',
+
+                    'user_id' => $user->id,
+
+                    'checkout_data' => json_encode(
+                        $request->all()
+                    ),
+                ]);
+
+                return redirect()->away(
+                    $result['redirectUrl']
+                );
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | DIRECT SUCCESS
+            |--------------------------------------------------------------------------
+            */
+
+            if (($result['statusCode'] ?? null) === 'S') {
+
+                $payment = Payment::create([
+                    'restaurant_id' => $restaurant->id,
+                    'transaction_id' => $result['transactionId'] ?? $reference,
+                    'amount' => $request->amount,
+                    'payment_status' => 'paid',
+                    'payment_method' => 'online',
+                    'payment_transaction_id' => $result['transactionId'] ?? null,
+                    'user_id' => $user->id,
+                    'checkout_data' => json_encode($request->all()),
+                ]);
+
+                $data = json_decode(
+                    $payment->checkout_data,
+                    true
+                );
+
+                $newRequest = new Request($data);
+
+                app(OrderController::class)->placeOrder(
+                    $newRequest,
+                    $payment
+                );
+
+                return view(
+                    'front.checkout-success',
+                    compact('payment', 'result')
+                );
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | FAILED
+            |--------------------------------------------------------------------------
+            */
+
+            return back()->with(
+                'error',
+                $result['statusDescription']
+                    ?? 'Payment failed.'
             );
 
         } catch (\Exception $e) {
 
-        
-
-            \Log::error($e->getMessage());
+            Log::error(
+                'Worldpay payment error',
+                [
+                    'message' => $e->getMessage(),
+                ]
+            );
 
             return back()->with(
-
                 'error',
-
                 $e->getMessage()
-
             );
         }
     }
@@ -535,7 +760,7 @@ class PaymentController extends Controller
     public function success(Request $request)
     {
         // Log entire response for debugging
-        \Log::info('TransactWorld Response:', $request->all());
+        Log::info('TransactWorld Response:', $request->all());
 
         // Get key parameters from TransactWorld callback
         $transactionId = $request->input('merchantTransactionId');
@@ -547,12 +772,12 @@ class PaymentController extends Controller
         $payment = DB::table('payments')->where('transaction_id', $transactionId)->first();
 
         if ($status == 'N') {
-            \Log::error('Payment not found for Transaction ID: ' . $transactionId);
+            Log::error('Payment not found for Transaction ID: ' . $transactionId);
             return view('payment.failed', ['reason' => 'Payment not found']);
         }
 
         if (empty($payment)) {
-            \Log::error('Payment not found for Transaction ID: ' . $transactionId);
+            Log::error('Payment not found for Transaction ID: ' . $transactionId);
             return view('payment.failed', ['reason' => 'Payment not found']);
         }
 
@@ -595,7 +820,7 @@ class PaymentController extends Controller
         ];
 
         if (isset($paymentStudent->email) && !empty($paymentStudent->email)) {
-            Mail::to($paymentStudent->email)->send(new SendMail($studentMailData));
+            // Mail::to($paymentStudent->email)->send(new SendQueuedMailable($studentMailData));
         }
 
         $adminMailData = [
@@ -612,7 +837,7 @@ class PaymentController extends Controller
             'mailtype' => 7,
         ];
 
-        Mail::to('7daysinstructors@gmail.com')->send(new SendMail($adminMailData));
+        // Mail::to('7daysinstructors@gmail.com')->send(new SendQueuedMailable($adminMailData));
         return view('payment.success', compact('transactionId'));
     }
 
@@ -791,7 +1016,7 @@ class PaymentController extends Controller
 
     public function notify(Request $request)
     {
-        \Log::info('TransactWorld Notification:', $request->all());
+        Log::info('TransactWorld Notification:', $request->all());
         return response('OK', 200);
     }
 }

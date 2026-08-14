@@ -37,6 +37,7 @@ class User extends Authenticatable
         'postcode',
         'provider',      
         'provider_id',   
+        'worldpay_unique_reference'
 
         
     ];

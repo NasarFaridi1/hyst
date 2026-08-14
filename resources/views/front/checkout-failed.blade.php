@@ -247,7 +247,7 @@
 
     .btn-secondary-group {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr;
         gap: 12px;
     }
 
@@ -391,10 +391,10 @@
                         <i data-lucide="shopping-bag" style="width:16px; height:16px;"></i>
                         Return to Cart
                     </a>
-                    <a href="{{ url('/contact') }}" class="btn-support">
+                    {{-- <a href="{{ url('/contact') }}" class="btn-support">
                         <i data-lucide="headphones" style="width:16px; height:16px;"></i>
                         Contact Support
-                    </a>
+                    </a> --}}
                 </div>
             </div>
 
