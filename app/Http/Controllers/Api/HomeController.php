@@ -184,10 +184,51 @@ class HomeController extends Controller
 
         if (!$latitude || !$longitude || !is_numeric($latitude) || !is_numeric($longitude)) {
 
+            // $restaurants = Restaurant::with([
+            //     'featuredOffer',
+            //     'reviews'
+            // ])->latest()->get();
+
             $restaurants = Restaurant::with([
                 'featuredOffer',
                 'reviews'
-            ])->latest()->get();
+            ])
+            ->select([
+                'id',
+                'name',
+                'email',
+                'slug',
+                'phone',
+                'location',
+                'latitude',
+                'longitude',
+                'description',
+                'image',
+                'category_ids',
+                'status',
+                'dine_in',
+                'home_delivery',
+                'favorite_count',
+                'hygiene_rating',
+                'hygiene_certificate',
+                'working_days',
+                'opening_time',
+                'closing_time',
+                'restaurant_status',
+                'takeaway',
+                'display_order',
+                'address',
+                'city',
+                'state',
+                'country',
+                'postcode',
+                'self_delivery',
+                'allow_asap',
+                'allow_schedule',
+                'dietary_categories',
+            ])
+            ->latest()
+            ->get();
 
             return response()->json([
                 'status' => true,
@@ -204,7 +245,41 @@ class HomeController extends Controller
                     'featuredOffer',
                     'reviews'
                 ])
-                ->select('*')
+                ->select([
+                    'id',
+                    'name',
+                    'email',
+                    'slug',
+                    'phone',
+                    'location',
+                    'latitude',
+                    'longitude',
+                    'description',
+                    'image',
+                    'category_ids',
+                    'status',
+                    'dine_in',
+                    'home_delivery',
+                    'favorite_count',
+                    'hygiene_rating',
+                    'hygiene_certificate',
+                    'working_days',
+                    'opening_time',
+                    'closing_time',
+                    'restaurant_status',
+                    'takeaway',
+                    'display_order',
+                    'address',
+                    'city',
+                    'state',
+                    'country',
+                    'postcode',
+                    'self_delivery',
+                    'allow_asap',
+                    'allow_schedule',
+                    'dietary_categories',
+                ])
+
                 ->selectRaw("
                     (
                         6371 * acos(
@@ -244,9 +319,45 @@ class HomeController extends Controller
 
     public function restaurantProducts($slug)
     {
-        $restaurant = Restaurant::with('reviews')
-            ->where('slug', $slug)
-            ->first();
+        // $restaurant = Restaurant::with('reviews')
+        //     ->where('slug', $slug)
+        //     ->first();
+
+        $restaurant = Restaurant::select([
+            'id',
+            'name',
+            'slug',
+            'phone',
+            'location',
+            'latitude',
+            'longitude',
+            'description',
+            'image',
+            'category_ids',
+            'status',
+            'dine_in',
+            'home_delivery',
+            'hygiene_rating',
+            'hygiene_certificate',
+            'working_days',
+            'opening_time',
+            'closing_time',
+            'restaurant_status',
+            'takeaway',
+            'display_order',
+            'address',
+            'city',
+            'state',
+            'country',
+            'postcode',
+            'self_delivery',
+            'allow_asap',
+            'allow_schedule',
+            'dietary_categories',
+        ])
+        ->with('reviews')
+        ->where('slug', $slug)
+        ->first();
 
         if (!$restaurant) {
             return response()->json([
