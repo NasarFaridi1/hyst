@@ -738,15 +738,15 @@ class OrderController extends Controller
 
                 if (!empty($restaurant->latitude) && !empty($restaurant->longitude) && !empty($custLat) && !empty($custLng)) {
                     $selfDeliveryService = app(\App\Services\SelfDeliveryService::class);
-                    $distKm = $selfDeliveryService->distanceKm(
+                    $distMiles = $selfDeliveryService->distance(
                         (float) $restaurant->latitude,
                         (float) $restaurant->longitude,
                         (float) $custLat,
                         (float) $custLng
                     );
 
-                    if ($distKm > 10.0) {
-                        return back()->with('error', "Delivery Unavailable: Your delivery address is {$distKm} KM away from the restaurant. Orders in the United Kingdom can only be booked within a 10 KM radius.");
+                    if ($distMiles > 10.0) {
+                        return back()->with('error', "Delivery Unavailable: Your delivery address is {$distMiles} Miles away from the restaurant. Orders in the United Kingdom can only be booked within a 10 Miles radius.");
                     }
                 }
             }

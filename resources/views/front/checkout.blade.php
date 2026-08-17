@@ -680,7 +680,7 @@
 
                 <input type="hidden" name="restaurant_id" value="{{ $restaurant->id }}">
 
-                <!-- RESTAURANT ADDRESS & 10 KM RADIUS BANNER -->
+                <!-- RESTAURANT ADDRESS & 10 MILES RADIUS BANNER -->
                 <div class="co-card" style="background:#FAF7F2; border:1px solid #F0E4D8; margin-bottom:4px;">
                     <div style="display:flex; align-items:flex-start; gap:14px;">
                         <div style="width:42px; height:42px; border-radius:12px; background:#C25A2A; color:#fff; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; box-shadow:0 2px 8px rgba(194,90,42,0.25);">
@@ -690,14 +690,14 @@
                             <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
                                 <div style="font-weight:800; font-size:16px; color:#111827; font-family:'Poppins',sans-serif;">{{ $restaurant->name }}</div>
                                 <span style="background:#FFF5F0; border:1px solid #FAD7C8; color:#C25A2A; font-size:11.5px; font-weight:700; padding:4px 10px; border-radius:999px; display:inline-flex; align-items:center; gap:4px;">
-                                    📍 Max 10 KM Radius Limit
+                                    📍 Max 10 Miles Radius Limit
                                 </span>
                             </div>
                             <div style="font-size:13px; color:#4B5563; margin-top:4px; line-height:1.4;">
                                 📍 {{ $restaurant->address ?? 'Main Address' }}@if($restaurant->city), {{ $restaurant->city }}@endif @if($restaurant->postcode), {{ $restaurant->postcode }}@endif, United Kingdom
                             </div>
                             <div style="font-size:12px; color:#6B7280; margin-top:6px; background:#fff; padding:6px 12px; border-radius:8px; border:1px solid #E5E7EB; display:inline-block;">
-                                🇬🇧 Orders in the United Kingdom can only be booked within a <strong>10 KM radius</strong> of this restaurant.
+                                🇬🇧 Orders in the United Kingdom can only be booked within a <strong>10 Miles radius</strong> of this restaurant.
                             </div>
                         </div>
                     </div>

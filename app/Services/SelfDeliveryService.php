@@ -108,16 +108,17 @@ class SelfDeliveryService
         );
 
         $distanceMiles = round($distanceKm * 0.621371, 2);
-        $maxRadiusKm = 10.0;
+        $maxRadiusMiles = 10.0;
 
-        if ($distanceKm > $maxRadiusKm) {
+        if ($distanceMiles > $maxRadiusMiles) {
             return [
                 'success' => false,
                 'distance' => $distanceMiles,
                 'distance_km' => $distanceKm,
                 'distance_miles' => $distanceMiles,
-                'max_radius_km' => $maxRadiusKm,
-                'message' => "Delivery Unavailable: Your address is {$distanceKm} KM away from the restaurant. Orders in the United Kingdom can only be booked within a 10 KM radius.",
+                'max_radius_miles' => $maxRadiusMiles,
+                'max_radius_km' => round($maxRadiusMiles * 1.60934, 2),
+                'message' => "Delivery Unavailable: Your address is {$distanceMiles} Miles away from the restaurant. Orders in the United Kingdom can only be booked within a 10 Miles radius.",
             ];
         }
 
@@ -200,7 +201,9 @@ class SelfDeliveryService
 
             'distance_miles' => $distanceMiles,
 
-            'max_radius_km' => 10.0,
+            'max_radius_miles' => 10.0,
+
+            'max_radius_km' => 16.09,
 
             'delivery_charge' => round($deliveryCharge, 2),
 
