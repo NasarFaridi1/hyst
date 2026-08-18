@@ -163,13 +163,13 @@
                 <div class="partner-card" style="background:#fff; border-radius:24px; border:1px solid #EFEAE0; overflow:hidden; display:flex; flex-direction:column; transition:transform .3s ease, box-shadow .3s ease;">
                     <a href="https://platforms.worldpay.com/en" target="_blank" rel="noopener noreferrer" style="text-decoration:none; color:inherit; display:block;" title="Visit Worldpay Platform">
                         <div style="position:relative; width:100%; height:210px; background:#0F0B1E; overflow:hidden; display:flex; align-items:center; justify-content:center; padding:24px;">
-                            <img src="https://images.unsplash.com/photo-1556742049-0a670fc8078a?q=80&w=1000&auto=format&fit=crop" 
+                            <img src="{{asset('world-pay.png')}}" 
                                  alt="Worldpay Payment Partner" 
                                  style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0.35; filter:brightness(0.7); transition:transform .4s ease;"
                                  class="partner-banner-img">
                             <div style="position:relative; z-index:2; text-align:center;">
                                 <div style="background:rgba(255,255,255,0.96); backdrop-filter:blur(8px); border-radius:16px; padding:14px 28px; display:inline-flex; align-items:center; gap:12px; box-shadow:0 12px 30px rgba(0,0,0,0.25);">
-                                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Worldpay_logo_2019.svg/512px-Worldpay_logo_2019.svg.png" 
+                                    <img src="{{asset('worldpay.png')}}" 
                                          onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Worldpay_Logo.svg/512px-Worldpay_Logo.svg.png';"
                                          alt="Worldpay Logo" 
                                          style="height:32px; max-width:180px; object-fit:contain;">
@@ -217,13 +217,13 @@
                 <div class="partner-card" style="background:#fff; border-radius:24px; border:1px solid #EFEAE0; overflow:hidden; display:flex; flex-direction:column; transition:transform .3s ease, box-shadow .3s ease;">
                     <a href="https://merchants.uber.com/uber-direct.html" target="_blank" rel="noopener noreferrer" style="text-decoration:none; color:inherit; display:block;" title="Visit Uber Direct">
                         <div style="position:relative; width:100%; height:210px; background:#000000; overflow:hidden; display:flex; align-items:center; justify-content:center; padding:24px;">
-                            <img src="https://images.unsplash.com/photo-1526367790999-0150786686a2?q=80&w=1000&auto=format&fit=crop" 
+                            <img src="{{asset('uber-direct.jpg')}}" 
                                  alt="Uber Direct Delivery Partner" 
                                  style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0.35; filter:brightness(0.7); transition:transform .4s ease;"
                                  class="partner-banner-img">
                             <div style="position:relative; z-index:2; text-align:center;">
                                 <div style="background:rgba(255,255,255,0.96); backdrop-filter:blur(8px); border-radius:16px; padding:14px 28px; display:inline-flex; align-items:center; gap:10px; box-shadow:0 12px 30px rgba(0,0,0,0.25);">
-                                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/Uber_logo_2018.png/512px-Uber_logo_2018.png" 
+                                    <img src="{{asset('uber.jpg')}}" 
                                          onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Uber_logo_2018.svg/512px-Uber_logo_2018.svg.png';"
                                          alt="Uber Logo" 
                                          style="height:28px; max-width:140px; object-fit:contain;">
