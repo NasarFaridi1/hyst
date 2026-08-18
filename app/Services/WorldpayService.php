@@ -166,9 +166,9 @@ class WorldpayService
                 "Address" => [
                     "Line1" => $data['address'],
                     "Line2" => null,
-                    "Suburb" => null,
-                    "State" => $data['state'],
-                    "PostCode" => $data['postcode'],
+                    "Suburb" => "Testville",
+                    "State" => $data['state'] ?? 'QLD',
+                    "PostCode" => $data['postcode'] ?? '4001',
                     "Country" => $data['country'],
                 ],
             ],
