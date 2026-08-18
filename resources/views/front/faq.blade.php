@@ -98,14 +98,23 @@
                     <button class="faq-btn">Is online payment secure?</button>
                     <div class="faq-content">
                         <div style="padding:0 25px 22px;color:#fff;font-size:15px;line-height:1.9;">
-                            Absolutely. We use secure payment gateways to ensure every transaction
-                            is encrypted and protected.
+                            Absolutely. All payments on HYST are processed through <strong>Worldpay</strong> (<a href="https://platforms.worldpay.com/en" target="_blank" rel="noopener noreferrer" style="color:#C25A2A; text-decoration:underline;">platforms.worldpay.com</a>), a global payment processing leader. Every transaction uses end-to-end encryption and PCI DSS compliance to ensure your payment details are completely safe and protected.
                         </div>
                     </div>
                 </div>
 
                 <!-- 4 -->
                 <div style="background:#C25A2A;border:1px solid rgba(255,255,255,.08);border-radius:14px;margin-bottom:18px;overflow:hidden;">
+                    <button class="faq-btn">How does food delivery work with Uber Direct?</button>
+                    <div class="faq-content">
+                        <div style="padding:0 25px 22px;color:#fff;font-size:15px;line-height:1.9;">
+                            Our doorstep deliveries are powered by <strong>Uber Direct</strong> (<a href="https://merchants.uber.com/uber-direct.html" target="_blank" rel="noopener noreferrer" style="color:#fff; text-decoration:underline; font-weight:bold;">merchants.uber.com/uber-direct.html</a>). Once the restaurant prepares your order, a dedicated Uber courier picks up your meal and delivers it straight to your doorstep with real-time GPS tracking.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5 -->
+                <div style="background:#181818;border:1px solid rgba(255,255,255,.08);border-radius:14px;margin-bottom:18px;overflow:hidden;">
                     <button class="faq-btn">Can I cancel my order?</button>
                     <div class="faq-content">
                         <div style="padding:0 25px 22px;color:#fff;font-size:15px;line-height:1.9;">
@@ -115,30 +124,28 @@
                     </div>
                 </div>
 
-                <!-- 5 -->
-                <div style="background:#181818;border:1px solid rgba(255,255,255,.08);border-radius:14px;margin-bottom:18px;overflow:hidden;">
+                <!-- 6 -->
+                <div style="background:#C25A2A;border:1px solid rgba(255,255,255,.08);border-radius:14px;margin-bottom:18px;overflow:hidden;">
                     <button class="faq-btn">What payment methods do you accept?</button>
                     <div class="faq-content">
                         <div style="padding:0 25px 22px;color:#fff;font-size:15px;line-height:1.9;">
-                            We accept major debit and credit cards, along with popular digital
-                            wallets, so you can pay in whichever way is most convenient for you.
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 6 -->
-                <div style="background:#C25A2A;border:1px solid rgba(255,255,255,.08);border-radius:14px;margin-bottom:18px;overflow:hidden;">
-                    <button class="faq-btn">Can I track my order in real time?</button>
-                    <div class="faq-content">
-                        <div style="padding:0 25px 22px;color:#fff;font-size:15px;line-height:1.9;">
-                            Yes. Once your order is confirmed, you can track its status from
-                            preparation through to delivery directly from your account.
+                            Through Worldpay, we accept all major debit and credit cards, along with popular digital wallet payments, so you can check out smoothly and securely.
                         </div>
                     </div>
                 </div>
 
                 <!-- 7 -->
                 <div style="background:#181818;border:1px solid rgba(255,255,255,.08);border-radius:14px;margin-bottom:18px;overflow:hidden;">
+                    <button class="faq-btn">Can I track my order in real time?</button>
+                    <div class="faq-content">
+                        <div style="padding:0 25px 22px;color:#fff;font-size:15px;line-height:1.9;">
+                            Yes. Thanks to Uber Direct's delivery tracking system, you can follow your order live from kitchen preparation all the way to your doorstep.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 8 -->
+                <div style="background:#C25A2A;border:1px solid rgba(255,255,255,.08);border-radius:14px;margin-bottom:18px;overflow:hidden;">
                     <button class="faq-btn">What if my order arrives incorrect or late?</button>
                     <div class="faq-content">
                         <div style="padding:0 25px 22px;color:#fff;font-size:15px;line-height:1.9;">
@@ -149,8 +156,8 @@
                     </div>
                 </div>
 
-                <!-- 8 -->
-                <div style="background:#C25A2A;border:1px solid rgba(255,255,255,.08);border-radius:14px;overflow:hidden;">
+                <!-- 9 -->
+                <div style="background:#181818;border:1px solid rgba(255,255,255,.08);border-radius:14px;overflow:hidden;">
                     <button class="faq-btn">How do I contact customer support?</button>
                     <div class="faq-content">
                         <div style="padding:0 25px 22px;color:#fff;font-size:15px;line-height:1.9;">
@@ -216,17 +223,26 @@
 
                 <!-- 5 -->
                 <div style="background:#181818;border:1px solid rgba(255,255,255,.08);border-radius:14px;margin-bottom:18px;overflow:hidden;">
-                    <button class="faq-btn">How and when do I get paid?</button>
+                    <button class="faq-btn">How does payment processing & payout work with Worldpay?</button>
                     <div class="faq-content">
                         <div style="padding:0 25px 22px;color:#fff;font-size:15px;line-height:1.9;">
-                            Payments are settled directly to your account on a regular payout
-                            schedule, with no hidden deductions since we don't take commission.
+                            HYST integrates directly with <strong>Worldpay</strong> (<a href="https://platforms.worldpay.com/en" target="_blank" rel="noopener noreferrer" style="color:#C25A2A; text-decoration:underline;">platforms.worldpay.com</a>) for enterprise payment processing. Customer payments are verified instantly and earnings are deposited directly into your designated account on a reliable payout schedule with full transparency and zero commission fees.
                         </div>
                     </div>
                 </div>
 
                 <!-- 6 -->
                 <div style="background:#C25A2A;border:1px solid rgba(255,255,255,.08);border-radius:14px;margin-bottom:18px;overflow:hidden;">
+                    <button class="faq-btn">How does delivery dispatch work with Uber Direct?</button>
+                    <div class="faq-content">
+                        <div style="padding:0 25px 22px;color:#fff;font-size:15px;line-height:1.9;">
+                            You don't need to hire or manage your own delivery drivers! Our partnership with <strong>Uber Direct</strong> (<a href="https://merchants.uber.com/uber-direct.html" target="_blank" rel="noopener noreferrer" style="color:#fff; text-decoration:underline; font-weight:bold;">merchants.uber.com/uber-direct.html</a>) automatically dispatches an Uber courier as soon as order preparation starts, delivering meals fast and hot to your customers.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 7 -->
+                <div style="background:#181818;border:1px solid rgba(255,255,255,.08);border-radius:14px;margin-bottom:18px;overflow:hidden;">
                     <button class="faq-btn">Is there a signup or listing fee?</button>
                     <div class="faq-content">
                         <div style="padding:0 25px 22px;color:#fff;font-size:15px;line-height:1.9;">
@@ -236,8 +252,8 @@
                     </div>
                 </div>
 
-                <!-- 7 -->
-                <div style="background:#181818;border:1px solid rgba(255,255,255,.08);border-radius:14px;margin-bottom:18px;overflow:hidden;">
+                <!-- 8 -->
+                <div style="background:#C25A2A;border:1px solid rgba(255,255,255,.08);border-radius:14px;margin-bottom:18px;overflow:hidden;">
                     <button class="faq-btn">Can I pause or stop taking orders temporarily?</button>
                     <div class="faq-content">
                         <div style="padding:0 25px 22px;color:#fff;font-size:15px;line-height:1.9;">
@@ -248,8 +264,8 @@
                     </div>
                 </div>
 
-                <!-- 8 -->
-                <div style="background:#C25A2A;border:1px solid rgba(255,255,255,.08);border-radius:14px;overflow:hidden;">
+                <!-- 9 -->
+                <div style="background:#181818;border:1px solid rgba(255,255,255,.08);border-radius:14px;overflow:hidden;">
                     <button class="faq-btn">What support do you provide restaurant partners?</button>
                     <div class="faq-content">
                         <div style="padding:0 25px 22px;color:#fff;font-size:15px;line-height:1.9;">
