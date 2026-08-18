@@ -196,9 +196,7 @@ class HomeController extends Controller
             ->select([
                 'id',
                 'name',
-                'email',
                 'slug',
-                'phone',
                 'location',
                 'latitude',
                 'longitude',
@@ -248,9 +246,7 @@ class HomeController extends Controller
                 ->select([
                     'id',
                     'name',
-                    'email',
                     'slug',
-                    'phone',
                     'location',
                     'latitude',
                     'longitude',
