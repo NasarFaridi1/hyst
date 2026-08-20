@@ -193,21 +193,34 @@
     /* ── OPTION SELECTORS (ORDER TYPE) ── */
     .ot-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-        gap: 10px;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+    }
+    @media (max-width: 1024px) {
+        .ot-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    @media (max-width: 480px) {
+        .ot-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
     }
 
     .ot-label {
         border: 2px solid var(--border);
-        border-radius: 12px;
-        padding: 10px 12px;
+        border-radius: 14px;
+        padding: 12px 14px;
         cursor: pointer;
-        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
         display: flex;
         align-items: center;
         gap: 10px;
         background: #fff;
         position: relative;
+        min-height: 72px;
+        width: 100%;
     }
     .ot-label input[type=radio] { display: none; }
     .ot-label:hover { border-color: var(--primary-border); background: var(--primary-light); transform: translateY(-1px); }
@@ -219,30 +232,40 @@
     }
     .ot-label .selected-badge {
         display: none;
-        margin-left: auto;
+        position: absolute;
+        top: 6px;
+        right: 6px;
         background: var(--primary);
         color: #fff;
         font-size: 10px;
         font-weight: 700;
-        padding: 3px 8px;
+        padding: 2px 7px;
         border-radius: 20px;
+        line-height: 1.2;
+        white-space: nowrap;
+        box-shadow: 0 2px 5px rgba(194, 90, 42, 0.25);
     }
     .ot-label.checked .selected-badge { display: inline-block; }
     .ot-label.checked .ot-icon { background: #FFD8C9; }
 
     .ot-icon {
-        width: 34px;
-        height: 34px;
-        border-radius: 8px;
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
         background: #F3F4F6;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 16px;
+        font-size: 18px;
         flex-shrink: 0;
     }
-    .ot-title { font-size: 13px; font-weight: 700; color: var(--text); }
-    .ot-sub   { font-size: 10px; color: var(--muted); margin-top: 1px; }
+    .ot-text-wrap {
+        flex: 1;
+        min-width: 0;
+        padding-right: 12px;
+    }
+    .ot-title { font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.2; }
+    .ot-sub   { font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
     .radio-dot {
         width: 20px;
@@ -798,7 +821,7 @@
                         <label class="ot-label" id="ot-dinein">
                             <input type="radio" name="order_type" value="dine_in">
                             <div class="ot-icon">🍽️</div>
-                            <div>
+                            <div class="ot-text-wrap">
                                 <div class="ot-title">Dine In</div>
                                 <div class="ot-sub">Eat at restaurant</div>
                             </div>
@@ -810,7 +833,7 @@
                         <label class="ot-label" id="ot-tablebook">
                             <input type="radio" name="order_type" value="table_book">
                             <div class="ot-icon">🪑</div>
-                            <div>
+                            <div class="ot-text-wrap">
                                 <div class="ot-title">Table Booking</div>
                                 <div class="ot-sub">Book a table</div>
                             </div>
@@ -822,7 +845,7 @@
                         <label class="ot-label" id="ot-takeaway">
                             <input type="radio" name="order_type" value="takeaway">
                             <div class="ot-icon">🥡</div>
-                            <div>
+                            <div class="ot-text-wrap">
                                 <div class="ot-title">Takeaway</div>
                                 <div class="ot-sub">Pick up your order</div>
                             </div>
@@ -830,17 +853,6 @@
                         </label>
                         @endif
 
-                        {{-- @if($restaurant->home_delivery)
-                        <label class="ot-label checked" id="ot-delivery">
-                            <input type="radio" name="order_type" value="delivery" checked>
-                            <div class="ot-icon">🚚</div>
-                            <div>
-                                <div class="ot-title">Home Delivery</div>
-                                <div class="ot-sub">Delivered to door</div>
-                            </div>
-                            <span class="selected-badge">✓ Selected</span>
-                        </label>
-                        @endif --}}
                         @php
                             $showDelivery = $restaurant->home_delivery &&
                                 (
@@ -853,7 +865,7 @@
                             <label class="ot-label checked" id="ot-delivery">
                                 <input type="radio" name="order_type" value="delivery" checked>
                                 <div class="ot-icon">🚚</div>
-                                <div>
+                                <div class="ot-text-wrap">
                                     <div class="ot-title">Home Delivery</div>
                                     <div class="ot-sub">Delivered to door</div>
                                 </div>
@@ -956,16 +968,26 @@
                 <input type="hidden" name="hyst_charge" value="{{ $hystCharge }}">
 
                 @if(auth()->check() && auth()->user()->worldpay_unique_reference)
-                    <div style="background:#F9FAFB; border:1px solid #E5E7EB; border-radius:12px; padding:16px; margin-top:16px;">
-                        <h4 style="font-size:14px; font-weight:700; margin-bottom:10px; color:#1F2937;">Payment Card Option</h4>
-                        <label style="display:flex; align-items:center; gap:8px; margin-bottom:8px; cursor:pointer; font-size:13px; font-weight:500; color:#374151;">
-                            <input type="radio" name="use_saved_card" value="1" checked style="accent-color:#C25A2A;">
-                            <span>💳 Pay with Saved Card</span>
-                        </label>
-                        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:13px; font-weight:500; color:#374151;">
-                            <input type="radio" name="use_saved_card" value="0" style="accent-color:#C25A2A;">
-                            <span>➕ Pay with New Credit / Debit Card</span>
-                        </label>
+                    <div class="co-card" style="margin-top:16px;">
+                        <div class="co-card-title" style="margin-bottom:14px;">
+                            <span>💳 Payment Card Option</span>
+                        </div>
+                        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px;">
+                            <label class="pay-option-card checked" id="payOptionSaved" style="display:flex !important; justify-content:flex-start !important; align-items:center !important; gap:12px !important; border:2px solid var(--primary); border-radius:12px; padding:12px 14px; cursor:pointer; background:linear-gradient(135deg, #FFF7F3 0%, #FFEFE6 100%); position:relative; width:100%;">
+                                <input type="radio" name="use_saved_card" value="1" checked style="accent-color:#C25A2A; width:18px; height:18px; flex-shrink:0;">
+                                <div style="display:flex; flex-direction:column; gap:2px; text-align:left; flex:1;">
+                                    <span style="font-size:13px; font-weight:700; color:#1F2937;">💳 Pay with Saved Card</span>
+                                    <span style="font-size:11px; color:#6B7280;">Use your saved card details</span>
+                                </div>
+                            </label>
+                            <label class="pay-option-card" id="payOptionNew" style="display:flex !important; justify-content:flex-start !important; align-items:center !important; gap:12px !important; border:2px solid #E5E7EB; border-radius:12px; padding:12px 14px; cursor:pointer; background:#fff; position:relative; width:100%;">
+                                <input type="radio" name="use_saved_card" value="0" style="accent-color:#C25A2A; width:18px; height:18px; flex-shrink:0;">
+                                <div style="display:flex; flex-direction:column; gap:2px; text-align:left; flex:1;">
+                                    <span style="font-size:13px; font-weight:700; color:#1F2937;">➕ Pay with New Card</span>
+                                    <span style="font-size:11px; color:#6B7280;">Enter credit or debit card details</span>
+                                </div>
+                            </label>
+                        </div>
                     </div>
                 @else
                     <input type="hidden" name="use_saved_card" value="0">
@@ -1307,6 +1329,23 @@
 
             description.addEventListener('input', updateCounter);
         }
+
+        /* ── PAYMENT CARD OPTION HIGHLIGHT ── */
+        document.querySelectorAll('input[name="use_saved_card"]').forEach(function(radio) {
+            radio.addEventListener('change', function () {
+                document.querySelectorAll('.pay-option-card').forEach(function(card) {
+                    card.style.borderColor = '#E5E7EB';
+                    card.style.background = '#fff';
+                    card.classList.remove('checked');
+                });
+                var parentLabel = this.closest('.pay-option-card');
+                if (parentLabel) {
+                    parentLabel.style.borderColor = 'var(--primary)';
+                    parentLabel.style.background = 'linear-gradient(135deg, #FFF7F3 0%, #FFEFE6 100%)';
+                    parentLabel.classList.add('checked');
+                }
+            });
+        });
 
         /* ── ORDER TYPE RADIO HIGHLIGHT & SYNC ── */
         document.querySelectorAll('.ot-label').forEach(function(label) {
