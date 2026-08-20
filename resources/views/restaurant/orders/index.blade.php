@@ -42,6 +42,10 @@
                     </th>
 
                     <th class="p-5 text-left">
+                        Type
+                    </th>
+
+                    <th class="p-5 text-left">
                         Status
                     </th>
                     <th class="p-5 text-left">
@@ -73,6 +77,20 @@
                         <td class="p-5">
 
                             £{{ $order->total_amount }}
+
+                        </td>
+
+                        <td class="p-5">
+
+                            @if($order->order_type === 'table_book')
+                                <span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-xs font-bold">🪑 Table Book</span>
+                            @elseif($order->order_type === 'takeaway')
+                                <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold">🥡 Takeaway</span>
+                            @elseif($order->order_type === 'dine_in')
+                                <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-bold">🍽️ Dine In</span>
+                            @else
+                                <span class="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-xs font-bold">🚚 Delivery</span>
+                            @endif
 
                         </td>
 

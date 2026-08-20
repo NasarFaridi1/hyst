@@ -80,7 +80,42 @@
 
             </p>
 
+            <p class="mb-3">
+
+                <strong>Order Type:</strong>
+                <span class="capitalize font-semibold text-purple-700">{{ str_replace('_', ' ', $order->order_type) }}</span>
+
+            </p>
+
         </div>
+
+        @if($order->order_type === 'table_book')
+        <div class="bg-purple-50 border border-purple-200 rounded-2xl shadow p-8">
+
+            <h2 class="text-xl font-bold text-purple-900 mb-5">
+
+                🪑 Table Reservation
+
+            </h2>
+
+            <p class="mb-2 text-sm text-purple-900">
+                <strong>Date:</strong> {{ $order->booking_date ? \Carbon\Carbon::parse($order->booking_date)->format('d M Y') : 'N/A' }}
+            </p>
+
+            <p class="mb-2 text-sm text-purple-900">
+                <strong>Time:</strong> {{ $order->booking_time ? \Carbon\Carbon::parse($order->booking_time)->format('h:i A') : 'N/A' }}
+            </p>
+
+            <p class="mb-2 text-sm text-purple-900">
+                <strong>Guests:</strong> {{ $order->number_of_people ?? 'N/A' }} Persons
+            </p>
+
+            <p class="text-sm text-purple-900">
+                <strong>Occasion:</strong> <span class="bg-purple-200 text-purple-800 px-3 py-1 rounded-lg text-xs font-bold">🎉 {{ $order->occasion ?? 'N/A' }}</span>
+            </p>
+
+        </div>
+        @endif
 
 
 

@@ -78,6 +78,10 @@ class Order extends Model
 
         'is_scheduled',
         'scheduled_for',
+        'booking_date',
+        'booking_time',
+        'number_of_people',
+        'occasion',
         'preparation_minutes',
         'description',
         'loyalty_reward_id',

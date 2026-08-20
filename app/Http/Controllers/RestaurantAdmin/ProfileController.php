@@ -76,6 +76,8 @@ class ProfileController extends Controller
 
             'dine_in' => $request->dine_in,
 
+            'table_book' => $request->table_book,
+
             'home_delivery' => $request->home_delivery,
 
             'hygiene_rating' => $request->hygiene_rating,

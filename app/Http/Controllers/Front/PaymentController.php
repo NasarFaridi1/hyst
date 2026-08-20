@@ -126,19 +126,19 @@ class PaymentController extends Controller
             $userEmail = $user ? $user->email : ($request->email ?? 'guest@example.com');
             $userPhone = $request->phone ?? ($user ? $user->phone : '');
 
-            $addressLine = $request->order_type == 'dine_in'
+            $addressLine = ($request->order_type == 'dine_in' || $request->order_type == 'table_book')
                 ? $restaurant->address
                 : ($request->address ?? ($user ? $user->address : ''));
 
-            $postcode = $request->order_type == 'dine_in'
+            $postcode = ($request->order_type == 'dine_in' || $request->order_type == 'table_book')
                 ? $restaurant->postcode
                 : ($request->postcode ?? ($user ? $user->postcode : ''));
 
-            $state = $request->order_type == 'dine_in'
+            $state = ($request->order_type == 'dine_in' || $request->order_type == 'table_book')
                 ? $restaurant->state
                 : ($user ? $user->state : '');
 
-            $country = $request->order_type == 'dine_in'
+            $country = ($request->order_type == 'dine_in' || $request->order_type == 'table_book')
                 ? $restaurant->country
                 : ($user ? $user->country : 'GB');
 

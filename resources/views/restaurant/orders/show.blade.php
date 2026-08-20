@@ -375,10 +375,15 @@
         @php
             $isTakeaway = $order->order_type === 'takeaway';
             $isDelivery = $order->order_type === 'delivery';
+            $isTableBook = $order->order_type === 'table_book';
             $isScheduled = $order->is_scheduled && $order->scheduled_for;
         @endphp
 
-        @if($isTakeaway)
+        @if($isTableBook)
+            <span style="background:#F3E8FF; border:1.5px solid #C084FC; color:#6B21A8; padding:6px 14px; border-radius:20px; font-size:13px; font-weight:700; display:inline-flex; align-items:center; gap:6px;">
+                <span>🪑</span> Table Booking
+            </span>
+        @elseif($isTakeaway)
             @if($isScheduled)
                 <span style="background:#FEF3C7; border:1.5px solid #F59E0B; color:#78350F; padding:6px 14px; border-radius:20px; font-size:13px; font-weight:700; display:inline-flex; align-items:center; gap:6px;">
                     <span>📅</span> Schedule Takeaway • {{ \Carbon\Carbon::parse($order->scheduled_for)->format('d M Y, h:i A') }}
@@ -522,6 +527,31 @@
         </div>
       </div>
     </div>
+
+    {{-- Table Booking Info --}}
+    @if($order->order_type === 'table_book')
+    <div class="od-card" style="background:#FAF5FF; border-color:#E9D5FF;">
+      <div class="card-eyebrow" style="color:#7E22CE;">🪑 Table Reservation Details</div>
+      <div class="info-row">
+        <div class="info-item">
+          <span class="info-label">Booking Date</span>
+          <span class="info-val" style="font-weight:700;">{{ $order->booking_date ? \Carbon\Carbon::parse($order->booking_date)->format('d M Y') : 'N/A' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Booking Time</span>
+          <span class="info-val" style="font-weight:700;">{{ $order->booking_time ? \Carbon\Carbon::parse($order->booking_time)->format('h:i A') : 'N/A' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Guests</span>
+          <span class="info-val" style="font-weight:700; color:#6B21A8;">{{ $order->number_of_people ?? 'N/A' }} Persons</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Occasion</span>
+          <span class="info-val" style="font-weight:700; color:#7E22CE; background:#F3E8FF; padding:3px 10px; border-radius:12px;">🎉 {{ $order->occasion ?? 'N/A' }}</span>
+        </div>
+      </div>
+    </div>
+    @endif
 
     {{-- Delivery Info --}}
     @if($order->stuart_job_id)

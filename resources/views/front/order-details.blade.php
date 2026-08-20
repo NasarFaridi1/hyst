@@ -1974,6 +1974,8 @@
                                 Takeaway Details
                             @elseif($order->order_type == 'dine_in')
                                 Dine-In Details
+                            @elseif($order->order_type == 'table_book')
+                                Table Booking Details
                             @else
                                 Delivery Details
                             @endif
@@ -1984,26 +1986,45 @@
                                 <span style="font-weight:700; text-transform:capitalize;">{{ str_replace('_', ' ', $order->order_type) }}</span>
                             </div>
 
-                            <div class="od-info-item" style="align-items:flex-start;">
-                                <label style="margin-top:6px;">{{ $order->order_type == 'takeaway' ? 'Pick Up Time' : 'Order Time' }}</label>
-                                <span>
-                                    @if($order->is_scheduled && $order->scheduled_for)
-                                        <div style="background:linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%); border:1px solid #C7D2FE; padding:10px 14px; border-radius:12px; display:inline-flex; align-items:center; gap:10px;">
-                                            <span style="font-size:20px;">📅</span>
-                                            <div>
-                                                <div style="font-size:10px; font-weight:700; color:#4338CA; text-transform:uppercase; letter-spacing:0.5px;">Scheduled Order</div>
-                                                <div style="font-size:13px; font-weight:700; color:#1E1B4B; margin-top:1px;">
-                                                    {{ \Carbon\Carbon::parse($order->scheduled_for)->format('l, d M Y @ h:i A') }}
+                            @if($order->order_type == 'table_book')
+                                <div class="od-info-item">
+                                    <label>Booking Date</label>
+                                    <span style="font-weight:700;">{{ $order->booking_date ? \Carbon\Carbon::parse($order->booking_date)->format('d M Y') : '—' }}</span>
+                                </div>
+                                <div class="od-info-item">
+                                    <label>Booking Time</label>
+                                    <span style="font-weight:700;">{{ $order->booking_time ? \Carbon\Carbon::parse($order->booking_time)->format('h:i A') : '—' }}</span>
+                                </div>
+                                <div class="od-info-item">
+                                    <label>Guests</label>
+                                    <span style="font-weight:700;">{{ $order->number_of_people ?? '—' }} Persons</span>
+                                </div>
+                                <div class="od-info-item">
+                                    <label>Occasion</label>
+                                    <span style="font-weight:700; color:#6B21A8; background:#F3E8FF; padding:4px 10px; border-radius:12px; border:1px solid #E9D5FF;">🎉 {{ $order->occasion ?? '—' }}</span>
+                                </div>
+                            @else
+                                <div class="od-info-item" style="align-items:flex-start;">
+                                    <label style="margin-top:6px;">{{ $order->order_type == 'takeaway' ? 'Pick Up Time' : 'Order Time' }}</label>
+                                    <span>
+                                        @if($order->is_scheduled && $order->scheduled_for)
+                                            <div style="background:linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%); border:1px solid #C7D2FE; padding:10px 14px; border-radius:12px; display:inline-flex; align-items:center; gap:10px;">
+                                                <span style="font-size:20px;">📅</span>
+                                                <div>
+                                                    <div style="font-size:10px; font-weight:700; color:#4338CA; text-transform:uppercase; letter-spacing:0.5px;">Scheduled Order</div>
+                                                    <div style="font-size:13px; font-weight:700; color:#1E1B4B; margin-top:1px;">
+                                                        {{ \Carbon\Carbon::parse($order->scheduled_for)->format('l, d M Y @ h:i A') }}
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    @else
-                                        <span style="display:inline-flex; align-items:center; gap:6px; background:#ECFDF5; border:1px solid #A7F3D0; color:#065F46; padding:6px 14px; border-radius:20px; font-size:13px; font-weight:600;">
-                                            <span>⚡</span> As Soon As Possible (ASAP)
-                                        </span>
-                                    @endif
-                                </span>
-                            </div>
+                                        @else
+                                            <span style="display:inline-flex; align-items:center; gap:6px; background:#ECFDF5; border:1px solid #A7F3D0; color:#065F46; padding:6px 14px; border-radius:20px; font-size:13px; font-weight:600;">
+                                                <span>⚡</span> As Soon As Possible (ASAP)
+                                            </span>
+                                        @endif
+                                    </span>
+                                </div>
+                            @endif
 
                             <div class="od-info-item">
                                 <label>Phone</label>

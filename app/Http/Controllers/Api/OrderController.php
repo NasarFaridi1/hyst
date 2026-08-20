@@ -218,6 +218,10 @@ class OrderController extends Controller
             'phone'          => 'required_if:payment_method,Cash On Delivery',
             'address'        => 'nullable|required_if:order_type,delivery',
             'pincode'        => 'nullable|required_if:order_type,delivery',
+            'booking_date'   => 'nullable|required_if:order_type,table_book|date',
+            'booking_time'   => 'nullable|required_if:order_type,table_book',
+            'number_of_people' => 'nullable|required_if:order_type,table_book|numeric|min:1',
+            'occasion'       => 'nullable|required_if:order_type,table_book',
         ]);
 
         Log::info('VALIDATION SUCCESS');
@@ -410,6 +414,10 @@ class OrderController extends Controller
             'loyalty_reward_id' => $appliedLoyaltyReward?->id,
             'loyalty_discount'  => $loyaltyRewardDiscount,
             'delivery_provider' => $restaurant->self_delivery ? 'self' : 'uber',
+            'booking_date'      => $request->order_type === 'table_book' ? $request->booking_date : null,
+            'booking_time'      => $request->order_type === 'table_book' ? $request->booking_time : null,
+            'number_of_people'  => $request->order_type === 'table_book' ? $request->number_of_people : null,
+            'occasion'          => $request->order_type === 'table_book' ? $request->occasion : null,
         ]);
 
         if ($appliedLoyaltyReward && $loyaltyRewardDiscount > 0) {

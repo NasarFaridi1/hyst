@@ -267,7 +267,7 @@
 
                 <div class="border-t border-gray-100 pt-6">
                     <h3 class="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4">Service & Delivery Methods</h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-gray-600 mb-1.5">
                                 🍽️ Dine In
@@ -275,6 +275,16 @@
                             <select name="dine_in" class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-[#C25A2A] outline-none bg-gray-50/50 focus:bg-white">
                                 <option value="1" {{ $restaurant->dine_in ? 'selected' : '' }}>Enable</option>
                                 <option value="0" {{ !$restaurant->dine_in ? 'selected' : '' }}>Disable</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-600 mb-1.5">
+                                🪑 Table Booking
+                            </label>
+                            <select name="table_book" class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-[#C25A2A] outline-none bg-gray-50/50 focus:bg-white">
+                                <option value="1" {{ $restaurant->table_book ? 'selected' : '' }}>Enable</option>
+                                <option value="0" {{ !$restaurant->table_book ? 'selected' : '' }}>Disable</option>
                             </select>
                         </div>
 

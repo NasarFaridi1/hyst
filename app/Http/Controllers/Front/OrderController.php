@@ -377,6 +377,11 @@ class OrderController extends Controller
 
                 'pincode' => 'nullable',
 
+                'booking_date' => 'nullable|required_if:order_type,table_book|date',
+                'booking_time' => 'nullable|required_if:order_type,table_book',
+                'number_of_people' => 'nullable|required_if:order_type,table_book|numeric|min:1',
+                'occasion' => 'nullable|required_if:order_type,table_book',
+
             ]);
 
             Log::info('VALIDATION SUCCESS');
@@ -724,6 +729,11 @@ class OrderController extends Controller
                 }
             }
 
+            if ($request->order_type === 'dine_in' || $request->order_type === 'table_book') {
+                $addressVal = $addressVal ?: $restaurant->address;
+                $postcodeVal = $postcodeVal ?: $restaurant->postcode;
+            }
+
             if ($request->order_type === 'delivery') {
                 $custLat = $request->latitude;
                 $custLng = $request->longitude;
@@ -811,6 +821,10 @@ class OrderController extends Controller
                 'delivery_provider' => $restaurant->self_delivery ? 'self' : 'uber',
                 'is_scheduled' => $request->boolean('is_scheduled'),
                 'scheduled_for' => $request->scheduled_for,
+                'booking_date' => $request->order_type === 'table_book' ? $request->booking_date : null,
+                'booking_time' => $request->order_type === 'table_book' ? $request->booking_time : null,
+                'number_of_people' => $request->order_type === 'table_book' ? $request->number_of_people : null,
+                'occasion' => $request->order_type === 'table_book' ? $request->occasion : null,
                 'description'=> $request->description,
                 
             ]);

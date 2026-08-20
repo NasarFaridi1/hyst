@@ -806,6 +806,18 @@
                         </label>
                         @endif
 
+                        @if($restaurant->table_book)
+                        <label class="ot-label" id="ot-tablebook">
+                            <input type="radio" name="order_type" value="table_book">
+                            <div class="ot-icon">🪑</div>
+                            <div>
+                                <div class="ot-title">Table Booking</div>
+                                <div class="ot-sub">Book a table</div>
+                            </div>
+                            <span class="selected-badge">✓ Selected</span>
+                        </label>
+                        @endif
+
                         @if($restaurant->takeaway)
                         <label class="ot-label" id="ot-takeaway">
                             <input type="radio" name="order_type" value="takeaway">
@@ -848,6 +860,43 @@
                                 <span class="selected-badge">✓ Selected</span>
                             </label>
                         @endif
+                    </div>
+
+                    <!-- TABLE BOOKING FIELDS INCLUSION -->
+                    <div id="tableBookingFields" style="display:none; margin-top:20px; padding:20px; background:#FAF5FF; border:1.5px solid #E9D5FF; border-radius:16px;">
+                        <div style="font-size:15px; font-weight:700; color:#581C87; margin-bottom:14px; display:flex; align-items:center; gap:8px;">
+                            <span style="font-size:18px;">🪑</span> Table Reservation Details
+                        </div>
+                        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:14px;">
+                            <div>
+                                <label style="display:block; font-size:12px; font-weight:700; color:#4C1D95; margin-bottom:6px;">Booking Date *</label>
+                                <input type="date" name="booking_date" id="booking_date" min="{{ date('Y-m-d') }}" value="{{ date('Y-m-d') }}"
+                                       style="width:100%; border:1px solid #D8B4FE; border-radius:10px; padding:10px 12px; font-size:13px; outline:none; background:#fff;">
+                            </div>
+                            <div>
+                                <label style="display:block; font-size:12px; font-weight:700; color:#4C1D95; margin-bottom:6px;">Booking Time *</label>
+                                <input type="time" name="booking_time" id="booking_time" value="19:00"
+                                       style="width:100%; border:1px solid #D8B4FE; border-radius:10px; padding:10px 12px; font-size:13px; outline:none; background:#fff;">
+                            </div>
+                            <div>
+                                <label style="display:block; font-size:12px; font-weight:700; color:#4C1D95; margin-bottom:6px;">Number of People *</label>
+                                <input type="number" name="number_of_people" id="number_of_people" min="1" max="50" value="2" placeholder="e.g. 4"
+                                       style="width:100%; border:1px solid #D8B4FE; border-radius:10px; padding:10px 12px; font-size:13px; outline:none; background:#fff;">
+                            </div>
+                            <div>
+                                <label style="display:block; font-size:12px; font-weight:700; color:#4C1D95; margin-bottom:6px;">Occasion *</label>
+                                <select name="occasion" id="occasion"
+                                        style="width:100%; border:1px solid #D8B4FE; border-radius:10px; padding:10px 12px; font-size:13px; outline:none; background:#fff;">
+                                    <option value="Birthday">Birthday</option>
+                                    <option value="Family Dinner" selected>Family Dinner</option>
+                                    <option value="Anniversary">Anniversary</option>
+                                    <option value="Business Meeting">Business Meeting</option>
+                                    <option value="Date Night">Date Night</option>
+                                    <option value="Celebration">Celebration / Party</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- DELIVERY ADDRESS INCLUSION -->
@@ -1199,8 +1248,8 @@
             const orderType = orderTypeInput ? orderTypeInput.value : 'delivery';
             const placeBtns = document.querySelectorAll('.co-place-btn, .mobile-footer-btn');
 
-            // Dine In or Takeaway: No delivery address validation required
-            if (orderType === 'dine_in' || orderType === 'takeaway') {
+            // Dine In, Takeaway, or Table Booking: No delivery address validation required
+            if (orderType === 'dine_in' || orderType === 'takeaway' || orderType === 'table_book') {
                 placeBtns.forEach(btn => {
                     btn.disabled = false;
                     btn.style.opacity = '1';
@@ -1315,6 +1364,46 @@
                 var deliveryRow = document.getElementById('deliveryChargeRow');
                 var addr        = document.getElementById('address');
                 var pin         = document.getElementById('postcode');
+
+                var tbBox       = document.getElementById('tableBookingFields');
+
+                if (this.value === 'table_book') {
+                    if (tbBox) tbBox.style.display = 'block';
+                    if (df) df.classList.add('co-hidden');
+                    if (deliveryRow) deliveryRow.style.display = "none";
+                    if (addr) addr.required = false;
+                    if (pin) pin.required = false;
+
+                    updateScheduleUI('table_book');
+
+                    // Clear selected address UI
+                    document.querySelectorAll('.address-option-row').forEach(row => {
+                        row.classList.remove('selected');
+                    });
+
+                    // Clear hidden address fields
+                    if (document.getElementById('address_id')) document.getElementById('address_id').value = "";
+                    if (document.getElementById('address')) document.getElementById('address').value = "";
+                    if (document.getElementById('pincode')) document.getElementById('pincode').value = "";
+                    if (document.getElementById('city')) document.getElementById('city').value = "";
+                    if (document.getElementById('state')) document.getElementById('state').value = "";
+                    if (document.getElementById('country')) document.getElementById('country').value = "";
+                    if (document.getElementById('latitude')) document.getElementById('latitude').value = "";
+                    if (document.getElementById('longitude')) document.getElementById('longitude').value = "";
+
+                    // Clear delivery charge
+                    if (document.getElementById("delivery_charge")) document.getElementById("delivery_charge").value = 0;
+                    if (document.getElementById("deliveryChargeText")) document.getElementById("deliveryChargeText").innerHTML = "£0.00";
+                    if (document.getElementById("uber_quote_id")) document.getElementById("uber_quote_id").value = "";
+
+                    const quoteBox = document.getElementById("uberQuoteStatus");
+                    if (quoteBox) {
+                        quoteBox.style.display = "none";
+                        quoteBox.innerHTML = "";
+                    }
+                } else {
+                    if (tbBox) tbBox.style.display = 'none';
+                }
 
                 if (this.value === 'delivery') {
                     if (df) df.classList.remove('co-hidden');

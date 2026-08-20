@@ -23,6 +23,7 @@ class Restaurant extends Model
         'category_ids',
         'status',
         'dine_in',
+        'table_book',
         'home_delivery',
         'transactworld_member_id',
         'transactworld_account_id',

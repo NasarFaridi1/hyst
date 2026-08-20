@@ -175,6 +175,7 @@
                         <tr>
                             <th>Order ID</th>
                             <th>Amount</th>
+                            <th>Type</th>
                             <th>Date</th>
                             <th>Status</th>
                             <th>Action</th>
@@ -185,6 +186,17 @@
                         <tr>
                             <td><span class="order-id">#{{ $order->id }}</span></td>
                             <td><span class="order-amount">£{{ $order->total_amount }}</span></td>
+                            <td>
+                                @if($order->order_type === 'table_book')
+                                    <span class="badge" style="background:#F3E8FF; color:#6B21A8;">🪑 Table Book</span>
+                                @elseif($order->order_type === 'takeaway')
+                                    <span class="badge" style="background:#DBEAFE; color:#1D4ED8;">🥡 Takeaway</span>
+                                @elseif($order->order_type === 'dine_in')
+                                    <span class="badge" style="background:#F3F4F6; color:#374151;">🍽️ Dine In</span>
+                                @else
+                                    <span class="badge" style="background:#FFEDD5; color:#C2410C;">🚚 Delivery</span>
+                                @endif
+                            </td>
                             <td><span class="order-date">{{ $order->created_at->format('d M Y') }}</span></td>
                             <td>
                                 @if($order->status == 'pending')
