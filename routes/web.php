@@ -259,6 +259,9 @@ Route::post(
 Route::get('/payment/callback',[PaymentController::class,'callback'])
     ->name('payment.callback');
 
+Route::get('/payment/3ds/callback/{redirectId}', [PaymentController::class, 'threeDSCallback'])
+    ->name('payment.3ds.callback');
+
 Route::match(
     ['get', 'post'],
     '/payment/notify',

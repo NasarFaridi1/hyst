@@ -906,6 +906,22 @@
                 <input type="hidden" name="service_charge" value="{{ $serviceCharge }}">
                 <input type="hidden" name="hyst_charge" value="{{ $hystCharge }}">
 
+                @if(auth()->check() && auth()->user()->worldpay_unique_reference)
+                    <div style="background:#F9FAFB; border:1px solid #E5E7EB; border-radius:12px; padding:16px; margin-top:16px;">
+                        <h4 style="font-size:14px; font-weight:700; margin-bottom:10px; color:#1F2937;">Payment Card Option</h4>
+                        <label style="display:flex; align-items:center; gap:8px; margin-bottom:8px; cursor:pointer; font-size:13px; font-weight:500; color:#374151;">
+                            <input type="radio" name="use_saved_card" value="1" checked style="accent-color:#C25A2A;">
+                            <span>💳 Pay with Saved Card</span>
+                        </label>
+                        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:13px; font-weight:500; color:#374151;">
+                            <input type="radio" name="use_saved_card" value="0" style="accent-color:#C25A2A;">
+                            <span>➕ Pay with New Credit / Debit Card</span>
+                        </label>
+                    </div>
+                @else
+                    <input type="hidden" name="use_saved_card" value="0">
+                @endif
+
             </div>
             <!-- ══════════ END LEFT ══════════ -->
 

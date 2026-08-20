@@ -97,4 +97,14 @@ return [
 
     ],
 
+    'worldpay' => [
+        'environment' => env('WORLDPAY_ENV', 'sandbox'),
+        'auth_url'    => env('WORLDPAY_ENV') === 'production'
+                            ? 'https://auth.paymentsapi.io'
+                            : 'https://sandbox.auth.paymentsapi.io',
+        'api_url'     => env('WORLDPAY_ENV') === 'production'
+                            ? 'https://rest.paymentsapi.io'
+                            : 'https://sandbox.rest.paymentsapi.io',
+    ],
+
 ];
