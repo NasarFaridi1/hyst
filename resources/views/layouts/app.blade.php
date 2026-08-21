@@ -153,7 +153,17 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('js/notification-sound.js') }}"></script>
     @php
-        $restaurantSoundFile = optional(auth()->user()?->restaurant)->notification_sound ?? 'hyst_notification.mp3';
+        $restaurantSoundFile = 'hyst_notification.mp3';
+        if (auth()->check()) {
+            $u = auth()->user();
+            $rId = $u->restaurant_id;
+            if ($rId) {
+                $rObj = \App\Models\Restaurant::find($rId);
+                if ($rObj && !empty($rObj->notification_sound)) {
+                    $restaurantSoundFile = $rObj->notification_sound;
+                }
+            }
+        }
     @endphp
     <script>
         window.RESTAURANT_SOUND_URL = "{{ asset('sounds/' . $restaurantSoundFile) }}";
@@ -554,8 +564,10 @@
         onMessage(messaging, (payload) => {
             console.log('MESSAGE RECEIVED', payload);
 
+            const payloadSound = payload.data?.sound_url || payload.data?.sound || window.RESTAURANT_SOUND_URL;
+
             if (typeof window.playNotificationSound === 'function') {
-                window.playNotificationSound();
+                window.playNotificationSound({ soundUrl: payloadSound });
             }
 
             const title = payload.notification?.title || payload.data?.title || 'New Notification';

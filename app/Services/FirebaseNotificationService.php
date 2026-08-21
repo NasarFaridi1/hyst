@@ -27,7 +27,7 @@ class FirebaseNotificationService
         }
     }
 
-    public function send($token, $title, $body, $targetUrl = '/my-orders')
+    public function send($token, $title, $body, $targetUrl = '/my-orders', $soundUrl = null)
     {
         try {
             if (!$this->messaging) {
@@ -40,10 +40,22 @@ class FirebaseNotificationService
                 return false;
             }
 
+            // Resolve sound file name and full URL
+            $soundFileName = 'hyst_notification.mp3';
+            if (!empty($soundUrl)) {
+                $soundFileName = basename($soundUrl);
+                if (!str_starts_with($soundUrl, 'http://') && !str_starts_with($soundUrl, 'https://')) {
+                    $soundUrl = asset('sounds/' . ltrim($soundFileName, '/'));
+                }
+            } else {
+                $soundUrl = asset('sounds/hyst_notification.mp3');
+            }
+
             \Log::info('FCM SEND START', [
                 'token' => substr($token, 0, 20) . '...',
                 'title' => $title,
                 'body'  => $body,
+                'sound' => $soundFileName,
             ]);
 
             $url = url($targetUrl);
@@ -54,6 +66,8 @@ class FirebaseNotificationService
                     'title'        => (string)$title,
                     'body'         => (string)$body,
                     'click_action' => $url,
+                    'sound_url'    => $soundUrl,
+                    'sound'        => $soundFileName,
                 ])
                 ->withWebPushConfig([
                     'headers' => [
@@ -64,6 +78,7 @@ class FirebaseNotificationService
                         'body'  => (string)$body,
                         'icon'  => asset('/images/icons/icon-192x192.png'),
                         'badge' => asset('/images/icons/icon-72x72.png'),
+                        'sound' => $soundUrl,
                     ],
                     'fcm_options' => [
                         'link' => $url,
@@ -80,11 +95,12 @@ class FirebaseNotificationService
                                 'title' => (string)$title,
                                 'body'  => (string)$body,
                             ],
-                            'sound'             => 'default',
+                            'sound'             => $soundFileName,
                             'badge'             => 1,
                             'content-available' => 1,
                             'mutable-content'   => 1,
                             'url'               => $url,
+                            'sound_url'         => $soundUrl,
                         ],
                     ],
                 ]);

@@ -522,6 +522,10 @@ class OrderController extends Controller
 
             $firebase = new FirebaseNotificationService();
 
+            $orderRestaurant = \App\Models\Restaurant::find($order->restaurant_id);
+            $restSoundFile = $orderRestaurant?->notification_sound ?? 'hyst_notification.mp3';
+            $restSoundUrl = asset('sounds/' . $restSoundFile);
+
             $restaurantAdmins = User::where('restaurant_id', $order->restaurant_id)
                 ->whereNotNull('fcm_token')
                 ->where('fcm_token', '!=', '')
@@ -534,7 +538,8 @@ class OrderController extends Controller
                     $admin->fcm_token,
                     'New Order Received! 🛍️',
                     'You received a new order #' . $order->id . ' for £' . number_format($order->total_amount ?? $order->amount ?? 0, 2) . '.',
-                    '/restaurant/orders'
+                    '/restaurant/orders',
+                    $restSoundUrl
                 );
             }
 
@@ -543,7 +548,8 @@ class OrderController extends Controller
                     $restaurantAdmin->fcm_token,
                     'New Order Received! 🛍️',
                     'You received a new order #' . $order->id . ' for £' . number_format($order->total_amount ?? $order->amount ?? 0, 2) . '.',
-                    '/restaurant/orders'
+                    '/restaurant/orders',
+                    $restSoundUrl
                 );
             }
         }

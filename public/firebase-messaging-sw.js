@@ -23,11 +23,12 @@ if (firebaseConfig.apiKey && firebaseConfig.projectId) {
 
             // Ensure notification is displayed on devices (including iOS Safari & Android)
             const notificationTitle = payload.notification?.title || payload.data?.title || 'HYST Order Update';
+            const bgSound = payload.data?.sound_url || payload.data?.sound || '/sounds/hyst_notification.mp3';
             const notificationOptions = {
                 body: payload.notification?.body || payload.data?.body || 'You have an order update.',
                 icon: '/images/icons/icon-192x192.png',
                 badge: '/images/icons/icon-72x72.png',
-                sound: '/sounds/hyst_notification.mp3',
+                sound: bgSound,
                 vibrate: [200, 100, 200, 100, 200],
                 data: payload.data || { click_action: payload.fcmOptions?.link || '/my-orders' },
                 actions: [

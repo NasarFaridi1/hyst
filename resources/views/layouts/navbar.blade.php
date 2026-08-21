@@ -290,7 +290,7 @@ function fetchNotifications()
 
         if (lastUnreadCount !== null && data.unreadCount > lastUnreadCount) {
             if (typeof window.playNotificationSound === 'function') {
-                window.playNotificationSound();
+                window.playNotificationSound({ soundUrl: window.RESTAURANT_SOUND_URL });
             }
         }
         lastUnreadCount = data.unreadCount;
