@@ -320,24 +320,68 @@
                     </div>
                 </div>
 
-                <div class="border-t border-gray-100 pt-6 mt-6">
+                           <div class="border-t border-gray-100 pt-6 mt-6">
                     <h3 class="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4">🔔 Order Alert Ringtone</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
-                        <div>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 items-end">
+                        <div class="lg:col-span-1">
                             <label class="block text-xs font-bold text-gray-600 mb-1.5">
                                 Select Ringtone Sound
                             </label>
                             <select name="notification_sound" id="notification_sound_select" class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-[#C25A2A] outline-none bg-gray-50/50 focus:bg-white">
                                 <option value="hyst_notification.mp3" {{ ($restaurant->notification_sound ?? 'hyst_notification.mp3') == 'hyst_notification.mp3' ? 'selected' : '' }}>Default Chime 🔔</option>
+                                <option value="hyst_voice.mp3" {{ ($restaurant->notification_sound ?? '') == 'hyst_voice.mp3' ? 'selected' : '' }}>HYST Voice ("HYST Notification") 🗣️</option>
+                                <option value="hyst_voice_order.mp3" {{ ($restaurant->notification_sound ?? '') == 'hyst_voice_order.mp3' ? 'selected' : '' }}>HYST Voice ("New Order Received") 📢</option>
                                 <option value="cash_register.mp3" {{ ($restaurant->notification_sound ?? '') == 'cash_register.mp3' ? 'selected' : '' }}>Cash Register 💰</option>
                                 <option value="loud_alarm.mp3" {{ ($restaurant->notification_sound ?? '') == 'loud_alarm.mp3' ? 'selected' : '' }}>Loud Alarm 🚨</option>
                                 <option value="bell_ring.mp3" {{ ($restaurant->notification_sound ?? '') == 'bell_ring.mp3' ? 'selected' : '' }}>Service Bell 🛎️</option>
                             </select>
                         </div>
-                        <div>
-                            <button type="button" onclick="previewRingtoneSound()" class="w-full sm:w-auto px-5 py-3 bg-gray-900 hover:bg-[#C25A2A] text-white font-bold rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-sm">
-                                <span>▶</span> Test & Preview Sound
+                        <div class="flex flex-wrap sm:flex-nowrap gap-2 lg:col-span-2">
+                            <button type="button" onclick="previewRingtoneSound()" class="w-full sm:w-auto px-4 py-3 bg-gray-900 hover:bg-[#C25A2A] text-white font-bold rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-sm">
+                                <span>▶</span> Test & Preview
                             </button>
+                            
+                            <a id="download_ringtone_btn" 
+                               href="/sounds/{{ $restaurant->notification_sound ?? 'hyst_notification.mp3' }}" 
+                               download="{{ $restaurant->notification_sound ?? 'hyst_notification.mp3' }}" 
+                               class="w-full sm:w-auto px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-sm">
+                                <span>⬇️</span> Download Ringtone MP3
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- 📲 MOBILE RINGTONE SETTING INSTRUCTIONS -->
+                    <div class="mt-5 bg-orange-50/60 border border-orange-200/80 rounded-xl p-4 text-gray-700 text-xs leading-relaxed">
+                        <div class="flex items-center gap-2 font-bold text-gray-900 text-sm mb-2">
+                            <span>📲 How to Set Custom Ringtone on iPhone & Android Devices</span>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+                            <!-- iPhone / iOS Guide -->
+                            <div class="bg-white rounded-lg p-3.5 border border-orange-100 shadow-2xs">
+                                <div class="font-bold text-gray-900 flex items-center gap-1.5 mb-1.5 text-xs">
+                                    <span> iPhone (iOS) Setting Instructions:</span>
+                                </div>
+                                <ol class="list-decimal list-inside space-y-1.5 text-gray-600">
+                                    <li>Click <strong>Download Ringtone MP3</strong> above to save the sound file to iPhone Downloads.</li>
+                                    <li>Open the free <strong>GarageBand</strong> app on iPhone (or iTunes / Finder on Mac).</li>
+                                    <li>Import the downloaded audio file, long-press the track, and tap <strong>Share &gt; Ringtone</strong>.</li>
+                                    <li>Go to <strong>Settings &gt; Sounds &amp; Haptics &gt; Text Tone / Ringtone</strong> and select your new <strong>HYST Ringtone</strong>!</li>
+                                </ol>
+                            </div>
+
+                            <!-- Android Guide -->
+                            <div class="bg-white rounded-lg p-3.5 border border-orange-100 shadow-2xs">
+                                <div class="font-bold text-gray-900 flex items-center gap-1.5 mb-1.5 text-xs">
+                                    <span>🤖 Android Device Setting Instructions:</span>
+                                </div>
+                                <ol class="list-decimal list-inside space-y-1.5 text-gray-600">
+                                    <li>Click <strong>Download Ringtone MP3</strong> above to save the audio file to your device.</li>
+                                    <li>Go to <strong>Settings &gt; Sound &amp; Vibration &gt; Notification Sound</strong> (or Ringtone).</li>
+                                    <li>Tap <strong>+ Add Custom Sound</strong> (or <em>My Sounds / Custom Tone</em>).</li>
+                                    <li>Select the downloaded HYST ringtone file from your <strong>Downloads</strong> folder and tap <strong>Done</strong>!</li>
+                                </ol>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -353,6 +397,18 @@
                             audio.play().catch(e => console.log(e));
                         }
                     }
+
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const selectEl = document.getElementById('notification_sound_select');
+                        const downloadBtn = document.getElementById('download_ringtone_btn');
+                        if (selectEl && downloadBtn) {
+                            selectEl.addEventListener('change', function() {
+                                const selectedFile = this.value || 'hyst_notification.mp3';
+                                downloadBtn.href = '/sounds/' + selectedFile;
+                                downloadBtn.setAttribute('download', selectedFile);
+                            });
+                        }
+                    });
                 </script>
             </div>
 
