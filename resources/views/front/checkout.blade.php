@@ -442,32 +442,88 @@
         box-shadow: 0 4px 15px rgba(194, 90, 42, 0.3);
     }
 
-    /* ── RESPONSIVE STYLING ── */
-    @media (max-width: 900px) {
-        .co-wrap { grid-template-columns: 1fr; }
+    /* ── RESPONSIVE STYLING (ALL BREAKPOINTS) ── */
+    @media (max-width: 1024px) {
+        .co-wrap { grid-template-columns: 1fr; gap: 14px; }
         .co-right { position: static; }
         .mobile-footer { display: block; }
-        .co-page { padding-bottom: 120px; }
+        .co-page { padding-bottom: 130px; }
+    }
+
+    @media (max-width: 768px) {
+        .co-header h1 { font-size: 20px; }
+        .co-breadcrumb { font-size: 12px; }
+        .co-card { padding: 16px 14px; border-radius: 14px; }
     }
 
     @media (max-width: 580px) {
-        .co-page { padding: 16px 12px 120px; }
-        .co-card { padding: 18px 14px; border-radius: 16px; }
+        .co-page { padding: 10px 8px 130px; overflow-x: hidden; }
+        .co-card { padding: 14px 12px; border-radius: 12px; }
         
         .co-item {
-            grid-template-columns: 72px 1fr;
-            gap: 12px;
-        }
-        .co-item-img { width: 72px; height: 72px; }
-        .co-item-right {
-            grid-column: 1 / -1;
-            flex-direction: row;
+            display: flex;
             align-items: center;
-            justify-content: space-between;
-            padding-top: 6px;
-            border-top: 1px dashed var(--border-soft);
+            gap: 10px;
+            padding: 10px 0;
         }
-        .subtotal-val { font-size: 16px; }
+        .co-item-img { width: 54px; height: 54px; border-radius: 8px; flex-shrink: 0; }
+        .co-item-name { font-size: 13px; line-height: 1.2; }
+        .subtotal-val { font-size: 13.5px; font-weight: 700; }
+        .qty-num { font-size: 12px; min-width: 18px; }
+
+        .pay-option-grid {
+            grid-template-columns: 1fr !important;
+            gap: 10px !important;
+        }
+        .tb-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 10px !important;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .ot-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+        .ot-label {
+            padding: 8px 6px;
+            min-height: 62px;
+            border-radius: 10px;
+            gap: 6px;
+        }
+        .ot-icon {
+            width: 32px;
+            height: 32px;
+            font-size: 15px;
+            border-radius: 8px;
+        }
+        .ot-title { font-size: 11.5px; }
+        .ot-sub   { font-size: 9px; }
+        .ot-label .selected-badge {
+            font-size: 8px;
+            top: 4px;
+            right: 4px;
+            padding: 1px 5px;
+        }
+        
+        .mobile-footer-amount { font-size: 19px; }
+        .mobile-footer-btn { padding: 12px 18px; font-size: 14px; }
+    }
+
+    @media (max-width: 360px) {
+        .tb-grid {
+            grid-template-columns: 1fr !important;
+        }
+        .co-page { padding: 8px 4px 130px; }
+        .co-card { padding: 12px 8px; }
+        .ot-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+        }
+        .ot-label { padding: 6px 4px; }
+        .ot-title { font-size: 10.5px; }
+        .ot-sub { font-size: 8px; }
     }
 
     /* ── FOOD QUALITY DISCLAIMER MODAL ── */
@@ -879,7 +935,7 @@
                         <div style="font-size:15px; font-weight:700; color:#581C87; margin-bottom:14px; display:flex; align-items:center; gap:8px;">
                             <span style="font-size:18px;">🪑</span> Table Reservation Details
                         </div>
-                        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:14px;">
+                        <div class="tb-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:14px;">
                             <div>
                                 <label style="display:block; font-size:12px; font-weight:700; color:#4C1D95; margin-bottom:6px;">Booking Date *</label>
                                 <input type="date" name="booking_date" id="booking_date" min="{{ date('Y-m-d') }}" value="{{ date('Y-m-d') }}"
@@ -972,7 +1028,7 @@
                         <div class="co-card-title" style="margin-bottom:14px;">
                             <span>💳 Payment Card Option</span>
                         </div>
-                        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px;">
+                        <div class="pay-option-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px;">
                             <label class="pay-option-card checked" id="payOptionSaved" style="display:flex !important; justify-content:flex-start !important; align-items:center !important; gap:12px !important; border:2px solid var(--primary); border-radius:12px; padding:12px 14px; cursor:pointer; background:linear-gradient(135deg, #FFF7F3 0%, #FFEFE6 100%); position:relative; width:100%;">
                                 <input type="radio" name="use_saved_card" value="1" checked style="accent-color:#C25A2A; width:18px; height:18px; flex-shrink:0;">
                                 <div style="display:flex; flex-direction:column; gap:2px; text-align:left; flex:1;">

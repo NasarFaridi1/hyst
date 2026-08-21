@@ -501,13 +501,18 @@
     }
     .dt-label .selected-badge {
         display: none;
-        margin-left: auto;
+        position: absolute;
+        top: 6px;
+        right: 6px;
         background: var(--primary);
         color: #fff;
         font-size: 10px;
         font-weight: 700;
-        padding: 3px 8px;
+        padding: 2px 7px;
         border-radius: 20px;
+        line-height: 1.2;
+        white-space: nowrap;
+        box-shadow: 0 2px 5px rgba(194, 90, 42, 0.25);
     }
     .dt-label.checked .selected-badge { display: inline-block; }
     .dt-label.checked .ot-icon { background: #FFD8C9; }
