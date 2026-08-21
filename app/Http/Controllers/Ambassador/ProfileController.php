@@ -79,7 +79,7 @@ class ProfileController extends Controller
 
             'profile_image' => 'nullable|image|mimes:jpg,jpeg,png,jpg,webp',
 
-            'password' => 'nullable|confirmed|min:6',
+            'password' => ['nullable', 'confirmed', new \App\Rules\PasswordComplexity()],
 
         ]);
 

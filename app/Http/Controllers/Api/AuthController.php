@@ -23,7 +23,7 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'name'     => 'required|string|max:255',
             'email'    => 'required|email',
-            'password' => 'required|min:6',
+            'password' => ['required', new \App\Rules\PasswordComplexity()],
         ]);
 
         if ($validator->fails()) {
@@ -32,13 +32,6 @@ class AuthController extends Controller
                 'message' => $validator->errors()->first(),
                 'errors' => $validator->errors()
             ], 422);
-        }
-        //check password strength 
-        if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/', $request->password)) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.'
-            ]);
         }
 
         $email = strtolower(trim($request->email));
@@ -474,7 +467,7 @@ class AuthController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
-            'password' => 'required|min:6|confirmed'
+            'password' => ['required', 'confirmed', new \App\Rules\PasswordComplexity()]
         ]);
 
         if ($validator->fails()) {

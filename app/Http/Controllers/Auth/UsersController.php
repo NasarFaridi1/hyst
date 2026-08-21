@@ -357,8 +357,8 @@ class UsersController extends Controller
     public function resetPassword(Request $request)
     {
         $request->validate([
-            'email'=>'required|email',
-            'password'=>'required'
+            'email' => 'required|email',
+            'password' => ['required', new \App\Rules\PasswordComplexity()]
         ]);
 
         $user = User::where(

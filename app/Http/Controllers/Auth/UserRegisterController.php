@@ -89,7 +89,7 @@ class UserRegisterController extends Controller
         $validator = Validator::make($request->all(), [
             'name'     => 'required',
             'email'    => 'required|email',
-            'password' => 'required|min:6',
+            'password' => ['required', new \App\Rules\PasswordComplexity()],
         ]);
 
         if ($validator->fails()) {

@@ -124,7 +124,7 @@ class RestaurantController extends Controller
                 'name' => 'required|string|max:255',
                 'email' => 'required|email',
                 'phone' => 'required|string|max:20',
-                'password' => 'required|string|min:6',
+                'password' => ['required', 'string', new \App\Rules\PasswordComplexity()],
                 'location' => 'required|string',
                 'city' => 'required|string',
                 'state' => 'required|string',

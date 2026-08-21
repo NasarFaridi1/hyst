@@ -121,7 +121,7 @@ class ProfileController extends Controller
     {
         $request->validate([
             'current_password' => 'required',
-            'new_password' => 'required|string|min:8|confirmed',
+            'new_password' => ['required', 'string', 'confirmed', new \App\Rules\PasswordComplexity()],
         ]);
 
         $user = auth()->user();

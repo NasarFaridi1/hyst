@@ -77,7 +77,7 @@ class RestaurantController extends Controller
 
             'phone' => 'required',
 
-            'password' => 'required|min:6',
+            'password' => ['required', new \App\Rules\PasswordComplexity()],
 
             'location' => 'required',
 
