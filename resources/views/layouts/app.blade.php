@@ -152,6 +152,12 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('js/notification-sound.js') }}"></script>
+    @php
+        $restaurantSoundFile = optional(auth()->user()?->restaurant)->notification_sound ?? 'hyst_notification.mp3';
+    @endphp
+    <script>
+        window.RESTAURANT_SOUND_URL = "{{ asset('sounds/' . $restaurantSoundFile) }}";
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"

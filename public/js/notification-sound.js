@@ -77,7 +77,7 @@
 
         // 2. HTML5 Audio File Playback (/sounds/hyst_notification.mp3)
         try {
-            const audioPath = options.soundUrl || '/sounds/hyst_notification.mp3';
+            const audioPath = options.soundUrl || (typeof window.RESTAURANT_SOUND_URL !== 'undefined' && window.RESTAURANT_SOUND_URL ? window.RESTAURANT_SOUND_URL : '/sounds/hyst_notification.mp3');
             const audio = new Audio(audioPath);
             audio.volume = options.volume || 1.0;
             const promise = audio.play();

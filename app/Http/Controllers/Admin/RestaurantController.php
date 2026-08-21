@@ -310,6 +310,7 @@ class RestaurantController extends Controller
             'dietary_categories' => $request->dietary_categories ?? [],
             'dine_in' => $request->has('dine_in') ? $request->dine_in : $restaurant->dine_in,
             'table_book' => $request->has('table_book') ? $request->table_book : $restaurant->table_book,
+            'notification_sound' => $request->has('notification_sound') ? $request->notification_sound : ($restaurant->notification_sound ?? 'hyst_notification.mp3'),
             
             'status' => $request->status,
             'hygiene_rating' => $request->hygiene_rating,

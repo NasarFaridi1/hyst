@@ -319,6 +319,41 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="border-t border-gray-100 pt-6 mt-6">
+                    <h3 class="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4">🔔 Order Alert Ringtone</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-600 mb-1.5">
+                                Select Ringtone Sound
+                            </label>
+                            <select name="notification_sound" id="notification_sound_select" class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-[#C25A2A] outline-none bg-gray-50/50 focus:bg-white">
+                                <option value="hyst_notification.mp3" {{ ($restaurant->notification_sound ?? 'hyst_notification.mp3') == 'hyst_notification.mp3' ? 'selected' : '' }}>Default Chime 🔔</option>
+                                <option value="cash_register.mp3" {{ ($restaurant->notification_sound ?? '') == 'cash_register.mp3' ? 'selected' : '' }}>Cash Register 💰</option>
+                                <option value="loud_alarm.mp3" {{ ($restaurant->notification_sound ?? '') == 'loud_alarm.mp3' ? 'selected' : '' }}>Loud Alarm 🚨</option>
+                                <option value="bell_ring.mp3" {{ ($restaurant->notification_sound ?? '') == 'bell_ring.mp3' ? 'selected' : '' }}>Service Bell 🛎️</option>
+                            </select>
+                        </div>
+                        <div>
+                            <button type="button" onclick="previewRingtoneSound()" class="w-full sm:w-auto px-5 py-3 bg-gray-900 hover:bg-[#C25A2A] text-white font-bold rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-sm">
+                                <span>▶</span> Test & Preview Sound
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <script>
+                    function previewRingtoneSound() {
+                        const selectEl = document.getElementById('notification_sound_select');
+                        const soundFile = selectEl ? selectEl.value : 'hyst_notification.mp3';
+                        if (typeof window.playNotificationSound === 'function') {
+                            window.playNotificationSound({ soundUrl: '/sounds/' + soundFile });
+                        } else {
+                            const audio = new Audio('/sounds/' + soundFile);
+                            audio.play().catch(e => console.log(e));
+                        }
+                    }
+                </script>
             </div>
 
             <!-- 4. MEDIA & HYGIENE CERTIFICATION CARD -->

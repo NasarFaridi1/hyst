@@ -24,6 +24,7 @@ class Restaurant extends Model
         'status',
         'dine_in',
         'table_book',
+        'notification_sound',
         'home_delivery',
         'transactworld_member_id',
         'transactworld_account_id',

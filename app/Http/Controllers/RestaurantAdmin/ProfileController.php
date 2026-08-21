@@ -91,6 +91,7 @@ class ProfileController extends Controller
             'closing_time' => $request->closing_time,
             'allow_asap' => $request->input('allow_asap', 1),
             'allow_schedule' => $request->input('allow_schedule', 1),
+            'notification_sound' => $request->input('notification_sound', 'hyst_notification.mp3'),
             'dietary_categories' => $request->input('dietary_categories', []),
         ]);
 
