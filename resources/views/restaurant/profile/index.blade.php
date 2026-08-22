@@ -366,7 +366,7 @@
                                     <li>Click <strong>Download Ringtone MP3</strong> above to save the sound file to iPhone Downloads.</li>
                                     <li>Open the free <strong>GarageBand</strong> app on iPhone (or iTunes / Finder on Mac).</li>
                                     <li>Import the downloaded audio file, long-press the track, and tap <strong>Share &gt; Ringtone</strong>.</li>
-                                    <li>Go to <strong>Settings &gt; Sounds &amp; Haptics &gt; Text Tone / Ringtone</strong> and select your new <strong>HYST Ringtone</strong>!</li>
+                                    <li>Go to <strong>Settings &gt; Sounds &amp; Haptics &gt; Default Alerts / Text Tone / Ringtone </strong> and select your new <strong>HYST Ringtone</strong>!</li>
                                 </ol>
                             </div>
 
