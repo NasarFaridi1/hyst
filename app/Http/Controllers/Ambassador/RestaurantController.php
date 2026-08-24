@@ -220,6 +220,15 @@ class RestaurantController extends Controller
                     'Restaurant submitted successfully. Waiting for admin approval.'
                 );
 
+        } catch (\Illuminate\Validation\ValidationException $e) {
+
+            DB::rollBack();
+
+            return back()
+                ->withErrors($e->validator)
+                ->withInput()
+                ->with('error', $e->validator->errors()->first());
+
         } catch (\Exception $e) {
 
             DB::rollBack();

@@ -78,21 +78,49 @@
                     class="w-full border border-gray-300 rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
 
                 </div>
-                <div class="">
-
+                <!-- Password -->
+                <div>
                     <label class="font-semibold block mb-2">
-
-                        Password
-
+                        Password <span class="text-red-500">*</span>
                     </label>
-
-                    <input
-                    type="password"
-                    name="password"
-                    required
-                    placeholder="Enter password"
-                    class="w-full border border-gray-300 rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
-
+                    <div class="relative">
+                        <input
+                            type="password"
+                            name="password"
+                            id="admin_restaurant_password"
+                            required
+                            placeholder="e.g. HystPass123!"
+                            class="w-full border border-gray-300 rounded-xl p-4 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-500 @error('password') border-red-500 @enderror">
+                        <button type="button" 
+                                onclick="togglePasswordVisibility('admin_restaurant_password', 'pw_eye_icon_admin')"
+                                class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                                title="Toggle password visibility">
+                            <svg id="pw_eye_icon_admin" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                        </button>
+                    </div>
+                    @error('password')
+                        <p class="text-red-500 text-xs font-bold mt-1.5 flex items-center gap-1">
+                            <span>⚠️</span> {{ $message }}
+                        </p>
+                    @enderror
+                    <div class="mt-2.5 p-3.5 bg-blue-50/60 border border-blue-100 rounded-xl text-xs text-gray-700">
+                        <p class="font-bold text-gray-800 mb-1 flex items-center gap-1">
+                            <span>🔒</span> Password Requirements:
+                        </p>
+                        <ul class="list-disc list-inside space-y-0.5 text-gray-600">
+                            <li>Minimum 8 characters</li>
+                            <li>At least 1 uppercase letter (A-Z)</li>
+                            <li>At least 1 lowercase letter (a-z)</li>
+                            <li>At least 1 number (0-9)</li>
+                            <li>At least 1 special character (@$!%*?& or symbols)</li>
+                        </ul>
+                        <p class="mt-2 text-blue-700 font-semibold">
+                            💡 Example Password: <code class="bg-white px-2 py-0.5 rounded border border-blue-200 text-blue-900 font-mono">HystPass123!</code>
+                        </p>
+                    </div>
                 </div>
 
                 <!-- Phone -->
@@ -633,4 +661,22 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
+
+function togglePasswordVisibility(inputId, iconId) {
+    const input = document.getElementById(inputId);
+    const icon = document.getElementById(iconId);
+    if (!input) return;
+    
+    if (input.type === 'password') {
+        input.type = 'text';
+        if (icon) {
+            icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+        }
+    } else {
+        input.type = 'password';
+        if (icon) {
+            icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+        }
+    }
+}
 </script>

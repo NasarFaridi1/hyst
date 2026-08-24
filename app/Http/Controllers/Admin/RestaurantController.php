@@ -231,7 +231,10 @@ class RestaurantController extends Controller
 
             DB::rollBack();
 
-            return back()->with('error', $e->errors()); // See validation errors
+            return back()
+                ->withErrors($e->validator)
+                ->withInput()
+                ->with('error', $e->validator->errors()->first());
 
         } catch (\Exception $e) {
 
