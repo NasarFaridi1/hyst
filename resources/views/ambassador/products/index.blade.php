@@ -308,6 +308,7 @@
                     <th>Product</th>
                     <th>Category</th>
                     <th>Price</th>
+                    <th>Type</th>
                     <th>Status</th>
                     <th class="center">Actions</th>
                 </tr>
@@ -338,6 +339,17 @@
                     </td>
                     <td>
                         <span class="price-tag">£{{ number_format($product->price, 2) }}</span>
+                    </td>
+                    <td>
+                        @if(($product->product_type ?? 'veg') === 'veg')
+                            <span class="badge badge-active" style="background:#E8F7EF; color:#1F8F55;">
+                                🟢 Veg
+                            </span>
+                        @else
+                            <span class="badge badge-inactive" style="background:#FEF0EE; color:#D94F3D;">
+                                🔴 Non-Veg
+                            </span>
+                        @endif
                     </td>
                     <td>
                         @if($product->status)

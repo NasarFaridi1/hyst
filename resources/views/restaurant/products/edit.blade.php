@@ -59,6 +59,24 @@
 
                         <label class="font-bold block mb-2">
 
+                            Product Type (Veg / Non-Veg)
+
+                        </label>
+
+                        <select name="product_type" class="w-full border p-4 rounded-xl">
+
+                            <option value="veg" {{ ($product->product_type ?? 'veg') == 'veg' ? 'selected' : '' }}>🟢 Vegetarian (Veg)</option>
+
+                            <option value="non_veg" {{ ($product->product_type ?? '') == 'non_veg' ? 'selected' : '' }}>🔴 Non-Vegetarian (Non-Veg)</option>
+
+                        </select>
+
+                    </div>
+
+                    <div>
+
+                        <label class="font-bold block mb-2">
+
                             Price(Regular)
 
                         </label>

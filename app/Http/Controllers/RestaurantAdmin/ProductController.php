@@ -131,6 +131,8 @@ class ProductController extends Controller
 
             'currency' => 'Pound',
 
+            'product_type' => $request->product_type ?? 'veg',
+
             'status' => 1
         ]);
 
@@ -221,7 +223,9 @@ class ProductController extends Controller
 
             'image' => $image,
 
-            'price' => $request->price
+            'price' => $request->price,
+
+            'product_type' => $request->product_type ?? 'veg'
         ]);
 
 

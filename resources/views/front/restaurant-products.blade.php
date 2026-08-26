@@ -992,8 +992,17 @@
 
                         <div style="padding:16px;">
                             <h3
-                                style="font-weight:700; font-size:15px; margin:0 0 6px; line-height:1.3; color:#0D0D0D; font-family:'Poppins',sans-serif;">
-                                {{ $product->name }}
+                                style="font-weight:700; font-size:15px; margin:0 0 6px; line-height:1.3; color:#0D0D0D; font-family:'Poppins',sans-serif; display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                                <span>{{ $product->name }}</span>
+                                @if(($product->product_type ?? 'veg') === 'veg')
+                                    <span style="display:inline-flex; align-items:center; gap:4px; padding:2px 7px; border-radius:6px; font-size:10.5px; font-weight:700; background:#ECFDF5; color:#047857; border:1px solid #A7F3D0; flex-shrink:0;">
+                                        <span style="width:6px; height:6px; border-radius:50%; background:#059669; display:inline-block;"></span> Veg
+                                    </span>
+                                @else
+                                    <span style="display:inline-flex; align-items:center; gap:4px; padding:2px 7px; border-radius:6px; font-size:10.5px; font-weight:700; background:#FFF1F2; color:#B91C1C; border:1px solid #FECDD3; flex-shrink:0;">
+                                        <span style="width:6px; height:6px; border-radius:50%; background:#DC2626; display:inline-block;"></span> Non-Veg
+                                    </span>
+                                @endif
                             </h3>
                             
                             <p style="color:#6B7280; font-size:13px; line-height:1.55; margin:0 0 14px;">

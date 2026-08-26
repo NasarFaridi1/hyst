@@ -170,6 +170,20 @@
                         </div>
                     </div>
 
+                    {{-- Product Type --}}
+                    <div class="form-group">
+                        <label class="field-label">Product Type</label>
+                        <div class="field-wrap">
+                            <span class="field-icon">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>
+                            </span>
+                            <select name="product_type" class="field-select">
+                                <option value="veg" {{ old('product_type')=='veg' ? 'selected' : '' }}>🟢 Vegetarian (Veg)</option>
+                                <option value="non_veg" {{ old('product_type')=='non_veg' ? 'selected' : '' }}>🔴 Non-Vegetarian (Non-Veg)</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <div class="form-divider"></div>
 
                     {{-- Description --}}

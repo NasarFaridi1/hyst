@@ -41,6 +41,13 @@
             @endforeach
           </select>
         </div>
+        <div>
+          <label class="block text-xs uppercase tracking-wide text-gray-400 font-medium mb-2">Product Type</label>
+          <select name="product_type" class="w-full border border-gray-200 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="veg" {{ ($product->product_type ?? 'veg') == 'veg' ? 'selected' : '' }}>🟢 Vegetarian (Veg)</option>
+            <option value="non_veg" {{ ($product->product_type ?? '') == 'non_veg' ? 'selected' : '' }}>🔴 Non-Vegetarian (Non-Veg)</option>
+          </select>
+        </div>
       </div>
 
       <div class="mt-4">

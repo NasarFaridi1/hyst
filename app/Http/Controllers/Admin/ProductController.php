@@ -97,6 +97,7 @@ class ProductController extends Controller
             'image' => $image,
             'price' => $request->price,
             'currency' => 'EUR',
+            'product_type' => $request->product_type ?? 'veg',
             'status' => 1
         ]);
 
@@ -187,7 +188,8 @@ class ProductController extends Controller
             'slug' => Str::slug($request->name),
             'description' => $request->description,
             'image' => $image,
-            'price' => $request->price
+            'price' => $request->price,
+            'product_type' => $request->product_type ?? 'veg'
         ]);
 
         return redirect()

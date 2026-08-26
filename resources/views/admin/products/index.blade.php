@@ -56,6 +56,7 @@
           <!-- <th class="text-left px-4 py-3 text-xs uppercase tracking-wide text-gray-400 font-medium">Vendor</th> -->
           <th class="text-left px-4 py-3 text-xs uppercase tracking-wide text-gray-400 font-medium">Category</th>
           <th class="text-left px-4 py-3 text-xs uppercase tracking-wide text-gray-400 font-medium">Price</th>
+          <th class="text-left px-4 py-3 text-xs uppercase tracking-wide text-gray-400 font-medium">Type</th>
           <th class="text-left px-4 py-3 text-xs uppercase tracking-wide text-gray-400 font-medium">Actions</th>
         </tr>
       </thead>
@@ -78,6 +79,17 @@
             </span>
           </td>
           <td class="px-4 py-3 text-sm font-medium">£{{ $product->price }}</td>
+          <td class="px-4 py-3">
+            @if(($product->product_type ?? 'veg') === 'veg')
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span> Veg
+              </span>
+            @else
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-rose-600"></span> Non-Veg
+              </span>
+            @endif
+          </td>
           <td class="px-4 py-3">
             <a href="{{ route('admin.products.edit',$product->id) }}" class="inline-flex items-center gap-1 bg-yellow-100 text-yellow-800 px-3 py-1 rounded-lg text-xs font-medium mr-1">Edit</a>
             <form method="POST" action="{{ route('admin.products.destroy',$product->id) }}" class="inline">

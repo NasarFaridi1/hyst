@@ -64,6 +64,24 @@
 
                     </div>
 
+                    <div>
+
+                        <label class="font-bold block mb-2">
+
+                            Product Type (Veg / Non-Veg)
+
+                        </label>
+
+                        <select name="product_type" class="w-full border p-4 rounded-xl">
+
+                            <option value="veg">🟢 Vegetarian (Veg)</option>
+
+                            <option value="non_veg">🔴 Non-Vegetarian (Non-Veg)</option>
+
+                        </select>
+
+                    </div>
+
                     {{-- <div>
 
                         <label class="font-bold block mb-2">

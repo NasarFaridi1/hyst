@@ -137,6 +137,8 @@ public function store(Request $request,$restaurantId)
 
         'image'=>$image,
 
+        'product_type'=>$request->product_type ?? 'veg',
+
         'status'=>$request->status,
 
     ]);
@@ -247,6 +249,8 @@ public function update(Request $request,$restaurantId,$productId)
         'price' => $request->price,
 
         'image' => $image,
+
+        'product_type' => $request->product_type ?? 'veg',
 
         'status' => $request->status,
 

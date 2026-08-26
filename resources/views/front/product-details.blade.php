@@ -73,15 +73,29 @@
 
                 <div>
 
-                    <!-- CATEGORY TAG -->
-                    @if($product->category)
-                        <div
-                            style="display:inline-flex; align-items:center; gap:6px; background:#FFF0EC; border:1px solid rgba(232,55,14,0.2); padding:6px 14px; border-radius:999px; margin-bottom:18px;">
-                            <i data-lucide="tag" style="width:12px; height:12px; color:#C25A2A;"></i>
-                            <span
-                                style="font-size:12px; font-weight:600; color:#C25A2A; font-family:'Poppins',sans-serif;">{{ $product->category->name }}</span>
-                        </div>
-                    @endif
+                    <!-- CATEGORY & PRODUCT TYPE TAGS -->
+                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:18px; flex-wrap:wrap;">
+                        @if($product->category)
+                            <div
+                                style="display:inline-flex; align-items:center; gap:6px; background:#FFF0EC; border:1px solid rgba(232,55,14,0.2); padding:6px 14px; border-radius:999px;">
+                                <i data-lucide="tag" style="width:12px; height:12px; color:#C25A2A;"></i>
+                                <span
+                                    style="font-size:12px; font-weight:600; color:#C25A2A; font-family:'Poppins',sans-serif;">{{ $product->category->name }}</span>
+                            </div>
+                        @endif
+
+                        @if(($product->product_type ?? 'veg') === 'veg')
+                            <div style="display:inline-flex; align-items:center; gap:6px; background:#ECFDF5; border:1px solid #A7F3D0; padding:6px 14px; border-radius:999px;">
+                                <span style="width:8px; height:8px; border-radius:50%; background:#059669; display:inline-block;"></span>
+                                <span style="font-size:12px; font-weight:700; color:#047857; font-family:'Poppins',sans-serif;">Vegetarian (Veg)</span>
+                            </div>
+                        @else
+                            <div style="display:inline-flex; align-items:center; gap:6px; background:#FFF1F2; border:1px solid #FECDD3; padding:6px 14px; border-radius:999px;">
+                                <span style="width:8px; height:8px; border-radius:50%; background:#DC2626; display:inline-block;"></span>
+                                <span style="font-size:12px; font-weight:700; color:#B91C1C; font-family:'Poppins',sans-serif;">Non-Vegetarian (Non-Veg)</span>
+                            </div>
+                        @endif
+                    </div>
 
                     <h1
                         style="font-family:'Poppins',sans-serif; font-size:36px; font-weight:800; color:#0D0D0D; margin:0 0 14px; line-height:1.2; letter-spacing:-.5px;">

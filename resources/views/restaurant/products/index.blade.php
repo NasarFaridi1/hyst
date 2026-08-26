@@ -89,6 +89,10 @@
                     Price
                 </th>
 
+                <th class="p-5 text-left">
+                    Type
+                </th>
+
                 <th class="p-5 text-left">Allergy&Dietary</th>
 
 
@@ -139,6 +143,18 @@
 
                     £{{ $product->price }}
 
+                </td>
+
+                <td class="p-5">
+                    @if(($product->product_type ?? 'veg') === 'veg')
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            <span class="w-2 h-2 rounded-full bg-emerald-600"></span> Veg
+                        </span>
+                    @else
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                            <span class="w-2 h-2 rounded-full bg-rose-600"></span> Non-Veg
+                        </span>
+                    @endif
                 </td>
 
                 <td class="p-5">
