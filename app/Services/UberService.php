@@ -15,9 +15,54 @@ class UberService
         return config('services.uber.base_url', 'https://api.uber.com/v1');
     }
 
-    private function getCustomerId()
+    private function getCustomerId($restaurant = null)
     {
+        if ($restaurant && !empty($restaurant->uber_organization_id)) {
+            return $restaurant->uber_organization_id;
+        }
         return config('services.uber.customer_id');
+    }
+
+    /**
+     * Create New Org (Uber Direct Organizations API)
+     * Endpoint: POST /v1/direct/organizations
+     */
+    public function createOrganization($restaurant, $billingType = 'CENTRALIZED')
+    {
+        $payload = [
+            "name"         => $restaurant->name,
+            "billing_type" => $billingType,
+            "address"      => [
+                "street_address" => [(string) $restaurant->address],
+                "city"           => (string) $restaurant->city,
+                "state"          => (string) $restaurant->state,
+                "zip_code"       => (string) $restaurant->postcode,
+                "country"        => (string) ($restaurant->country ?: 'GB'),
+            ],
+        ];
+
+        Log::info('Uber Create Organization Payload', $payload);
+
+        $response = Http::withToken($this->token())
+            ->acceptJson()
+            ->post(
+                $this->getBaseUrl() . '/direct/organizations',
+                $payload
+            );
+
+        Log::info('Uber Create Organization Response', [
+            'status' => $response->status(),
+            'body'   => $response->json(),
+        ]);
+
+        $data = $response->json();
+        if ($response->successful() && !empty($data['organization_id'])) {
+            $restaurant->update([
+                'uber_organization_id' => $data['organization_id']
+            ]);
+        }
+
+        return $data;
     }
 
     public function token()
@@ -109,7 +154,7 @@ class UberService
         $response = Http::withToken($this->token())
             ->acceptJson()
             ->post(
-                $this->getBaseUrl() . '/customers/' . $this->getCustomerId() . '/delivery_quotes',
+                $this->getBaseUrl() . '/customers/' . $this->getCustomerId($restaurant) . '/delivery_quotes',
                 $payload
             );
 
@@ -175,7 +220,7 @@ class UberService
         $response = Http::withToken($this->token())
             ->acceptJson()
             ->post(
-                $this->getBaseUrl() . '/customers/' . $this->getCustomerId() . '/delivery_quotes',
+                $this->getBaseUrl() . '/customers/' . $this->getCustomerId($restaurant) . '/delivery_quotes',
                 $payload
             );
 
@@ -301,7 +346,7 @@ class UberService
         $response = Http::withToken($this->token())
             ->acceptJson()
             ->post(
-                $this->getBaseUrl() . "/customers/" . $this->getCustomerId() . "/deliveries",
+                $this->getBaseUrl() . "/customers/" . $this->getCustomerId($restaurant) . "/deliveries",
                 $payload
             );
 
@@ -316,7 +361,7 @@ class UberService
     /**
      * Get Delivery Details / Real-time Status
      */
-    public function getDelivery($deliveryId)
+    public function getDelivery($deliveryId, $restaurant = null)
     {
         if (empty($deliveryId)) {
             return null;
@@ -325,7 +370,7 @@ class UberService
         $response = Http::withToken($this->token())
             ->acceptJson()
             ->get(
-                $this->getBaseUrl() . "/customers/" . $this->getCustomerId() . "/deliveries/" . $deliveryId
+                $this->getBaseUrl() . "/customers/" . $this->getCustomerId($restaurant) . "/deliveries/" . $deliveryId
             );
 
         Log::info('Uber Get Delivery Response', [
@@ -340,7 +385,7 @@ class UberService
     /**
      * Cancel Delivery API
      */
-    public function cancelDelivery($deliveryId, $reason = null)
+    public function cancelDelivery($deliveryId, $reason = null, $restaurant = null)
     {
         if (empty($deliveryId)) {
             return [
@@ -361,7 +406,7 @@ class UberService
         $response = Http::withToken($this->token())
             ->acceptJson()
             ->post(
-                $this->getBaseUrl() . "/customers/" . $this->getCustomerId() . "/deliveries/" . $deliveryId . "/cancel",
+                $this->getBaseUrl() . "/customers/" . $this->getCustomerId($restaurant) . "/deliveries/" . $deliveryId . "/cancel",
                 $payload
             );
 

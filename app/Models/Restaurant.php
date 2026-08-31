@@ -57,7 +57,7 @@ class Restaurant extends Model
         'worldpay_username',
 
         'worldpay_password',
-
+        'uber_organization_id',
         'self_delivery',
         'allow_asap',
         'allow_schedule',
