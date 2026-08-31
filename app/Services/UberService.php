@@ -65,6 +65,81 @@ class UberService
         return $data;
     }
 
+    /**
+     * Get Organization Details (Uber Direct Organizations API)
+     * Endpoint: GET /v1/direct/organizations/{organization_id}
+     */
+    public function getOrganization($orgId = null)
+    {
+        $organizationId = $orgId ?: config('services.uber.customer_id');
+
+        if (empty($organizationId)) {
+            return [
+                'success' => false,
+                'message' => 'No organization ID provided'
+            ];
+        }
+
+        $response = Http::withToken($this->token())
+            ->acceptJson()
+            ->get(
+                $this->getBaseUrl() . '/direct/organizations/' . $organizationId
+            );
+
+        Log::info('Uber Get Organization Response', [
+            'organization_id' => $organizationId,
+            'status'          => $response->status(),
+            'body'            => $response->json(),
+        ]);
+
+        return $response->json();
+    }
+
+    /**
+     * Invite New User to Organization (Uber Direct Organizations API)
+     * Endpoint: POST /v1/direct/organizations/{organization_id}/memberships/invite
+     */
+    public function inviteUserToOrganization($email, $firstName = '', $lastName = '', $orgId = null, $role = 'ADMIN')
+    {
+        $organizationId = $orgId ?: config('services.uber.customer_id');
+
+        if (empty($organizationId)) {
+            return [
+                'success' => false,
+                'message' => 'No organization ID provided'
+            ];
+        }
+
+        $payload = [
+            "user_details" => array_filter([
+                "email"      => $email,
+                "first_name" => $firstName,
+                "last_name"  => $lastName,
+                "role"       => $role
+            ])
+        ];
+
+        Log::info('Uber Invite User Payload', [
+            'organization_id' => $organizationId,
+            'payload'         => $payload,
+        ]);
+
+        $response = Http::withToken($this->token())
+            ->acceptJson()
+            ->post(
+                $this->getBaseUrl() . '/direct/organizations/' . $organizationId . '/memberships/invite',
+                $payload
+            );
+
+        Log::info('Uber Invite User Response', [
+            'organization_id' => $organizationId,
+            'status'          => $response->status(),
+            'body'            => $response->json(),
+        ]);
+
+        return $response->json();
+    }
+
     public function token()
     {
         if (Cache::has('uber_token')) {
@@ -292,9 +367,9 @@ class UberService
         $pickupNotes = $restaurant->pickup_notes
             ?? 'Please pick up at restaurant main counter.';
 
-        $payload = [
-            "quote_id" => $request->uber_quote_id ?? $order->uber_quote_id,
+        $quoteId = $request->uber_quote_id ?? $order->uber_quote_id ?? null;
 
+        $payload = [
             "pickup_name" => $restaurant->name,
             "pickup_address" => $this->formatAddress(
                 $restaurant->address,
@@ -341,6 +416,13 @@ class UberService
             "external_store_id" => (string) $restaurant->id,
         ];
 
+        // Include quote_id ONLY if present
+        if (!empty($quoteId)) {
+            $payload["quote_id"] = $quoteId;
+        } else {
+            Log::info('Executing Create Delivery request without quote_id present', ['order_id' => $order->id]);
+        }
+
         Log::info('Uber Delivery Payload', $payload);
 
         $response = Http::withToken($this->token())
@@ -356,6 +438,18 @@ class UberService
         ]);
 
         return $response->json();
+    }
+
+    /**
+     * Create Delivery explicitly without a quote_id present
+     */
+    public function createDeliveryWithoutQuote($order, $restaurant, $request = null)
+    {
+        $dummyRequest = $request ?: new \Illuminate\Http\Request();
+        $dummyRequest->uber_quote_id = null;
+        $order->uber_quote_id = null;
+
+        return $this->createDelivery($order, $restaurant, $dummyRequest);
     }
 
     /**
