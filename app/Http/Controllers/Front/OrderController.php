@@ -1178,12 +1178,10 @@ class OrderController extends Controller
 
                     //later we will get the quote id from the request and use it to create the delivery
 
-                    if(!isset($quote['id'])){
-
-                        throw new \Exception(
-                            'Uber Quote Failed : '.json_encode($request->uber_quote_id)
-                        );
-
+                    if (empty($request->uber_quote_id) && empty($order->uber_quote_id)) {
+                        Log::warning('No Uber quote ID provided for order delivery', [
+                            'order_id' => $order->id
+                        ]);
                     }
 
                     $uberdelivery = $uber->createDelivery(
@@ -1196,62 +1194,26 @@ class OrderController extends Controller
                         'delivery' => $uberdelivery,
                     ]);
 
+                    if (!empty($uberdelivery) && isset($uberdelivery['id'])) {
+                        $order->update([
+                            'delivery_provider'    => 'uber',
+                            'uber_delivery_id'     => $uberdelivery['id'],
+                            'uber_quote_id'        => $request->uber_quote_id ?? $uberdelivery['quote_id'] ?? null,
+                            'uber_tracking_url'    => $uberdelivery['tracking_url'] ?? null,
+                            'uber_delivery_status' => $uberdelivery['status'] ?? 'pending',
+                            'deliverable_action'   => $request->deliverable_action ?? 'deliverable_action_meet_at_door',
+                            'undeliverable_action' => $request->undeliverable_action ?? 'leave_at_door',
+                            'dropoff_notes'        => $request->dropoff_notes ?? $order->description ?? null,
+                        ]);
+                    }
                 } catch (\Throwable $e) {
 
                     Log::error('Uber delivery process failed', [
                         'order_id' => $order->id ?? null,
-                        'message' => $e->getMessage(),
-                        'file' => $e->getFile(),
-                        'line' => $e->getLine(),
-                        'trace' => $e->getTraceAsString(),
-                    ]);
-
-                    // throw $e; // Remove this if you don't want the exception to propagate
-                }
-
-                // Log::info('DELIVERY RESPONSE', [
-
-                //     'delivery' =>
-                //         $delivery
-                // ]);
-
-                // if ($delivery) {
-
-                //     $order->update([
-
-                //         'delivery_provider' => 'stuart',
-
-                //         'stuart_job_id' =>
-
-                //             $delivery['id']
-                //             ?? null,
-
-                //         'tracking_url' =>
-
-                //             $delivery['deliveries'][0]['tracking_url']
-                //             ?? null,
-
-                //         'delivery_status' =>
-
-                //             $delivery['status']
-                //             ?? 'searching',
-                //     ]);
-                // }
-
-                // if($uberdelivery){
-                if($quote = $request->uber_quote_id){
-
-                    $order->update([
-                        'delivery_provider' => 'uber',
-
-                        // 'uber_delivery_id'=>$uberdelivery['id'],
-
-                        // 'uber_tracking_url'=>$uberdelivery['tracking_url'],
-
-                        // 'uber_delivery_status'=>$uberdelivery['status'],
-
-                        'uber_quote_id'=>$request->uber_quote_id,
-
+                        'message'  => $e->getMessage(),
+                        'file'     => $e->getFile(),
+                        'line'     => $e->getLine(),
+                        'trace'    => $e->getTraceAsString(),
                     ]);
                 }
             }
@@ -1741,13 +1703,27 @@ class OrderController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | CANCEL ORDER
+        | CANCEL ORDER & UBER DELIVERY
         |--------------------------------------------------------------------------
         */
+
+        if (!empty($order->uber_delivery_id) && $order->uber_delivery_status !== 'canceled') {
+            try {
+                $uber = new UberService();
+                $uber->cancelDelivery($order->uber_delivery_id, 'Customer cancelled order');
+            } catch (\Throwable $e) {
+                Log::error('Uber Cancel Delivery Failed in Front OrderController', [
+                    'order_id' => $order->id,
+                    'uber_delivery_id' => $order->uber_delivery_id,
+                    'error' => $e->getMessage()
+                ]);
+            }
+        }
 
         $order->update([
 
             'delivery_status' => 'canceled',
+            'uber_delivery_status' => 'canceled',
 
             'status' => 'cancelled'
 

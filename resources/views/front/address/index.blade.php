@@ -854,19 +854,26 @@
 
         }
 
-        // NOTE: adjust these field names to match whatever UberService::quote()
-        // actually returns. Common Uber Direct quote fields are guessed here.
         function renderQuote(q) {
             const fee      = q.fee ?? q.delivery_fee ?? q.amount;
-            const currency = q.currency ?? q.currency_code ?? 'GBP';
-            const eta      = q.duration ?? q.dropoff_eta ?? q.estimated_delivery_time;
+            const currency = q.currency ?? q.currency_type ?? q.currency_code ?? 'GBP';
+            const currencySymbol = currency === 'GBP' ? '£' : (currency === 'USD' ? '$' : currency + ' ');
+            const eta      = q.dropoff_eta ?? q.pickup_eta ?? q.duration ?? q.estimated_delivery_time;
 
-            let html = '<div class="uber-quote-row"><strong>Delivery available</strong></div>';
+            let html = '<div class="uber-quote-row" style="font-weight:700; color:#15803D;">✅ Uber Delivery Available</div>';
             if (fee !== undefined && fee !== null) {
-                const amount = typeof fee === 'number' ? (fee / 100).toFixed(2) : fee;
-                html += `<div class="uber-quote-row">Delivery fee: ${currency} ${amount}</div>`;
+                const amount = typeof fee === 'number' ? (fee / 100).toFixed(2) : parseFloat(fee).toFixed(2);
+                html += `<div class="uber-quote-row" style="margin-top:2px;">Delivery fee: <strong>${currencySymbol}${amount}</strong></div>`;
             }
-            if (eta) html += `<div class="uber-quote-row">Estimated time: ${eta}</div>`;
+            if (eta) {
+                let formattedEta = eta;
+                if (typeof eta === 'string' && eta.includes('T')) {
+                    try {
+                        formattedEta = new Date(eta).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    } catch(e) {}
+                }
+                html += `<div class="uber-quote-row" style="font-size:12px; color:#4B5563;">Est. Arrival: <strong>${formattedEta}</strong></div>`;
+            }
             return html;
         }
 

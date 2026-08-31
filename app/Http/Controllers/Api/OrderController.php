@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use App\Services\FirebaseNotificationService;
 use App\Services\StuartService;
+use App\Services\UberService;
 
 
 
@@ -900,8 +901,22 @@ class OrderController extends Controller
             ], 400);
         }
 
+        if (!empty($order->uber_delivery_id) && $order->uber_delivery_status !== 'canceled') {
+            try {
+                $uber = new UberService();
+                $uber->cancelDelivery($order->uber_delivery_id, 'Customer cancelled order via API');
+            } catch (\Throwable $e) {
+                Log::error('Uber Cancel Delivery Failed in Api OrderController', [
+                    'order_id' => $order->id,
+                    'uber_delivery_id' => $order->uber_delivery_id,
+                    'error' => $e->getMessage()
+                ]);
+            }
+        }
+
         $order->update([
             'delivery_status' => 'canceled',
+            'uber_delivery_status' => 'canceled',
             'status' => 'cancelled'
         ]);
 

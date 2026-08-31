@@ -1015,6 +1015,42 @@
                             0 / 500
                         </small>
                     </div>
+
+                    <!-- Delivery Options (Uber Direct) -->
+                    <div id="uberDeliveryOptions" style="margin-top:20px; padding-top:16px; border-top:1px solid #F3F4F6;">
+                        <div style="font-size:13px; font-weight:700; color:#1F2937; margin-bottom:12px; display:flex; align-items:center; gap:6px;">
+                            <span>🚚 Delivery Options & Instructions</span>
+                        </div>
+
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+                            <div>
+                                <label for="deliverable_action" style="display:block; font-size:12px; font-weight:600; color:#4B5563; margin-bottom:4px;">
+                                    Dropoff Handover
+                                </label>
+                                <select id="deliverable_action" name="deliverable_action" style="width:100%; border:1px solid #E5E7EB; border-radius:8px; padding:8px 10px; font-size:13px; outline:none; background:#fff; cursor:pointer;">
+                                    <option value="deliverable_action_meet_at_door" selected>🚪 Meet at door</option>
+                                    <option value="deliverable_action_leave_at_door">📦 Leave at door</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label for="undeliverable_action" style="display:block; font-size:12px; font-weight:600; color:#4B5563; margin-bottom:4px;">
+                                    If Not Answered
+                                </label>
+                                <select id="undeliverable_action" name="undeliverable_action" style="width:100%; border:1px solid #E5E7EB; border-radius:8px; padding:8px 10px; font-size:13px; outline:none; background:#fff; cursor:pointer;">
+                                    <option value="leave_at_door" selected>📦 Leave at door</option>
+                                    <option value="return">↩️ Return to restaurant</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="dropoff_notes" style="display:block; font-size:12px; font-weight:600; color:#4B5563; margin-bottom:4px;">
+                                Courier Dropoff Instructions
+                            </label>
+                            <input type="text" id="dropoff_notes" name="dropoff_notes" placeholder="e.g. Ring bell, gate code 1234, 2nd floor black door" maxlength="255" style="width:100%; border:1px solid #E5E7EB; border-radius:8px; padding:8px 12px; font-size:13px; outline:none; background:#fff;">
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Hidden Payment Method (Always Online) -->

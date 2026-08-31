@@ -55,6 +55,9 @@ class Order extends Model
         'uber_driver_lat',
         'uber_driver_lng',
         'courier_imminent',
+        'deliverable_action',
+        'undeliverable_action',
+        'dropoff_notes',
 
         // Guest Order
         'is_guest',

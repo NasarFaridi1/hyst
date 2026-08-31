@@ -13,6 +13,7 @@ use App\Services\FirebaseNotificationService;
 use Illuminate\Support\Facades\Http;
 use App\Models\OrderCompletionEvidence;
 use App\Services\WorldpayService;
+use App\Services\UberService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -336,6 +337,21 @@ class OrderController extends Controller
         if ($request->status === 'cancelled') {
             $data['cancel_reason'] = $request->cancel_reason;
             $data['cancelled_by'] = 'restaurant';
+            $data['delivery_status'] = 'canceled';
+            $data['uber_delivery_status'] = 'canceled';
+
+            if (!empty($order->uber_delivery_id) && $order->uber_delivery_status !== 'canceled') {
+                try {
+                    $uber = new UberService();
+                    $uber->cancelDelivery($order->uber_delivery_id, $request->cancel_reason ?? 'Restaurant cancelled order');
+                } catch (\Throwable $e) {
+                    Log::error('Uber Cancel Delivery Failed in RestaurantAdmin OrderController', [
+                        'order_id' => $order->id,
+                        'uber_delivery_id' => $order->uber_delivery_id,
+                        'error' => $e->getMessage()
+                    ]);
+                }
+            }
         }
 
         $order->update($data);

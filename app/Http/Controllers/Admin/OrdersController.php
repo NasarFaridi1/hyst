@@ -9,6 +9,8 @@ use App\Models\Complaint;
 use App\Models\Message;
 use App\Models\OrderCompletionEvidence;
 use App\Models\ComplaintMessage;
+use App\Services\UberService;
+use Illuminate\Support\Facades\Log;
 
 
 class OrdersController extends Controller
@@ -168,10 +170,29 @@ class OrdersController extends Controller
     {
         $order = Order::findOrFail($id);
 
-        $order->update([
-
+        $updateData = [
             'status' => $request->status
-        ]);
+        ];
+
+        if ($request->status === 'cancelled') {
+            $updateData['delivery_status'] = 'canceled';
+            $updateData['uber_delivery_status'] = 'canceled';
+
+            if (!empty($order->uber_delivery_id) && $order->uber_delivery_status !== 'canceled') {
+                try {
+                    $uber = new UberService();
+                    $uber->cancelDelivery($order->uber_delivery_id, 'Admin cancelled order');
+                } catch (\Throwable $e) {
+                    Log::error('Uber Cancel Delivery Failed in Admin OrdersController', [
+                        'order_id' => $order->id,
+                        'uber_delivery_id' => $order->uber_delivery_id,
+                        'error' => $e->getMessage()
+                    ]);
+                }
+            }
+        }
+
+        $order->update($updateData);
 
         return back()->with(
             'success',
