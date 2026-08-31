@@ -1178,23 +1178,23 @@ class OrderController extends Controller
 
                     //later we will get the quote id from the request and use it to create the delivery
 
-                    // if(!isset($quote['id'])){
+                    if(!isset($quote['id'])){
 
-                    //     throw new \Exception(
-                    //         'Uber Quote Failed : '.json_encode($quote)
-                    //     );
+                        throw new \Exception(
+                            'Uber Quote Failed : '.json_encode($request->uber_quote_id)
+                        );
 
-                    // }
+                    }
 
-                    // $uberdelivery = $uber->createDelivery(
-                    //     $order,
-                    //     $restaurant,
-                    //     $request
-                    // );
+                    $uberdelivery = $uber->createDelivery(
+                        $order,
+                        $restaurant,
+                        $request
+                    );
 
-                    // Log::info('Uber delivery created successfully', [
-                    //     'delivery' => $uberdelivery,
-                    // ]);
+                    Log::info('Uber delivery created successfully', [
+                        'delivery' => $uberdelivery,
+                    ]);
 
                 } catch (\Throwable $e) {
 

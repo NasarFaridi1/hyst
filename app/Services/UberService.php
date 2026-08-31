@@ -271,6 +271,15 @@ class UberService
 
                 "price" => (int) round($item->total * 100), // pence
 
+                "size" => "small",
+
+                "weight" => 0,
+                "dimensions" => [
+                    "length" => 20,
+                    "height" => 20,
+                    "depth" => 20
+                ],
+
             ];
         }
 
@@ -280,9 +289,6 @@ class UberService
             "quote_id" => $request->uber_quote_id,
 
             "pickup_name" => $restaurant->name,
-
-            "pickup_business_name" => $restaurant->name,
-
             "pickup_address" => json_encode([
                 "street_address" => [$restaurant->address],
                 "city" => $restaurant->city,
@@ -290,12 +296,8 @@ class UberService
                 "zip_code" => $restaurant->postcode,
                 "country" => $restaurant->country,
             ]),
-
             "pickup_phone_number" => $restaurant->phone,
 
-            "pickup_latitude" => (float) $restaurant->latitude,
-
-            "pickup_longitude" => (float) $restaurant->longitude,
 
             "dropoff_name" => $name,
 
@@ -309,15 +311,31 @@ class UberService
 
             "dropoff_phone_number" => $order->phone ?? $request->phone ?? $phone,
 
+
+            "manifest_items" => $items,
+
+
+            "pickup_business_name" => $restaurant->name,
+
+            "pickup_latitude" => (float) $restaurant->latitude,
+
+            "pickup_longitude" => (float) $restaurant->longitude,
+
+            "pickup_notes" => "Follow big green 'Pickup' signs in the parking lot",
+
+
             "dropoff_latitude" => (float) $request->latitude ?? $latitude,
 
             "dropoff_longitude" => (float) $request->longitude ?? $longitude,
+            "dropoff_notes" => "Second floor, black door to the right.",
 
-            "manifest_items" => $items,
+            "deliverable_action" => "deliverable_action_meet_at_door",
 
             "manifest_reference" => "ORDER-" . $order->id,
 
             "manifest_total_value" => (int) round($order->total_amount * 100),
+
+            "undeliverable_action" => "leave_at_door",
 
             "pickup_ready_dt"     => $times['pickupReady']->toISOString(),
             "pickup_deadline_dt"  => $times['pickupDeadline']->toISOString(),
