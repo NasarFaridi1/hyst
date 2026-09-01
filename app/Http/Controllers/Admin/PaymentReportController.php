@@ -311,8 +311,8 @@ class PaymentReportController extends Controller
         $filename = 'payment_report_' . Carbon::now()->format('Y_m_d_His') . '.csv';
 
         $headers = [
-            'Content-Type'        => 'text/csv; charset=UTF-8',
-            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            'Content-Type'        => 'application/vnd.ms-excel; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
             'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0',
             'Pragma'              => 'public',
             'Expires'             => '0',
@@ -366,5 +366,105 @@ class PaymentReportController extends Controller
         };
 
         return response()->streamDownload($callback, $filename, $headers);
+    }
+
+    /**
+     * Export payment history report as printable PDF document.
+     */
+    public function exportPdf(Request $request)
+    {
+        $query = Payment::with(['order', 'order.user', 'user', 'restaurant']);
+
+        $datePreset = $request->input('preset', '');
+        $startDate  = $request->input('start_date');
+        $endDate    = $request->input('end_date');
+
+        if ($datePreset) {
+            switch ($datePreset) {
+                case 'today':
+                    $startDate = Carbon::today()->format('Y-m-d');
+                    $endDate   = Carbon::today()->format('Y-m-d');
+                    break;
+                case 'yesterday':
+                    $startDate = Carbon::yesterday()->format('Y-m-d');
+                    $endDate   = Carbon::yesterday()->format('Y-m-d');
+                    break;
+                case 'this_week':
+                    $startDate = Carbon::now()->startOfWeek()->format('Y-m-d');
+                    $endDate   = Carbon::now()->endOfWeek()->format('Y-m-d');
+                    break;
+                case 'this_month':
+                    $startDate = Carbon::now()->startOfMonth()->format('Y-m-d');
+                    $endDate   = Carbon::now()->endOfMonth()->format('Y-m-d');
+                    break;
+                case 'last_30':
+                    $startDate = Carbon::now()->subDays(30)->format('Y-m-d');
+                    $endDate   = Carbon::now()->format('Y-m-d');
+                    break;
+            }
+        }
+
+        if ($startDate) {
+            $query->whereDate('created_at', '>=', $startDate);
+        }
+
+        if ($endDate) {
+            $query->whereDate('created_at', '<=', $endDate);
+        }
+
+        $restaurantId = $request->input('restaurant_id');
+        $restaurantName = 'All Restaurants';
+        if ($restaurantId) {
+            $query->where('restaurant_id', $restaurantId);
+            $restObj = Restaurant::find($restaurantId);
+            if ($restObj) {
+                $restaurantName = $restObj->name;
+            }
+        }
+
+        if ($request->input('payment_status')) {
+            $query->where('payment_status', $request->input('payment_status'));
+        }
+
+        if ($request->input('payment_method')) {
+            $query->where('payment_method', $request->input('payment_method'));
+        }
+
+        $search = $request->input('search');
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('order_id', 'like', "%{$search}%")
+                  ->orWhere('transaction_id', 'like', "%{$search}%")
+                  ->orWhere('payment_transaction_id', 'like', "%{$search}%")
+                  ->orWhere('secondary_transaction_id', 'like', "%{$search}%")
+                  ->orWhereHas('user', function ($uq) use ($search) {
+                      $uq->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $summaryQuery = clone $query;
+        $totalTransactions = $summaryQuery->count();
+        $totalGrossAmount  = (float) (clone $summaryQuery)->sum('amount');
+        $totalRefunded     = (float) (clone $summaryQuery)->sum('refunded_amount');
+        $netRevenue        = $totalGrossAmount - $totalRefunded;
+        $paidCount         = (clone $summaryQuery)->where('payment_status', 'paid')->count();
+        $paidAmount        = (float) (clone $summaryQuery)->where('payment_status', 'paid')->sum('amount');
+
+        $payments = $query->latest()->get();
+
+        return view('admin.payments.pdf', compact(
+            'payments',
+            'startDate',
+            'endDate',
+            'restaurantName',
+            'totalTransactions',
+            'totalGrossAmount',
+            'totalRefunded',
+            'netRevenue',
+            'paidCount',
+            'paidAmount'
+        ));
     }
 }

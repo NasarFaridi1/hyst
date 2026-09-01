@@ -623,6 +623,7 @@ Route::middleware(['auth', 'super_admin'])
         Route::get('/payments', [PaymentReportController::class, 'index'])->name('payments.index');
         Route::get('/payments/realtime', [PaymentReportController::class, 'realtimeData'])->name('payments.realtime');
         Route::get('/payments/export', [PaymentReportController::class, 'exportCsv'])->name('payments.export');
+        Route::get('/payments/export-pdf', [PaymentReportController::class, 'exportPdf'])->name('payments.export-pdf');
 
     });
 

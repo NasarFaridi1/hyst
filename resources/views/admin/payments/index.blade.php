@@ -79,8 +79,10 @@
     .pr-chart-box { position: relative; height: 320px; width: 100%; }
 
     /* Action Buttons */
-    .btn-export { background: #10B981; color: #FFFFFF; padding: 10px 18px; border-radius: 10px; font-weight: 700; font-size: 0.875rem; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: background 0.15s; }
-    .btn-export:hover { background: #059669; }
+    .btn-export-excel { background: #10B981; color: #FFFFFF; padding: 10px 16px; border-radius: 10px; font-weight: 700; font-size: 0.875rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: background 0.15s; }
+    .btn-export-excel:hover { background: #059669; color: #FFFFFF; }
+    .btn-export-pdf { background: #EF4444; color: #FFFFFF; padding: 10px 16px; border-radius: 10px; font-weight: 700; font-size: 0.875rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: background 0.15s; }
+    .btn-export-pdf:hover { background: #DC2626; color: #FFFFFF; }
     .btn-search { background: #2563EB; color: #FFFFFF; padding: 8px 18px; border-radius: 8px; font-weight: 700; border: none; cursor: pointer; font-size: 0.875rem; }
     .btn-search:hover { background: #1D4ED8; }
     .btn-reset { background: #6B7280; color: #FFFFFF; padding: 8px 18px; border-radius: 8px; font-weight: 700; text-decoration: none; font-size: 0.875rem; }
@@ -103,9 +105,13 @@
             <span class="pr-badge-live">
                 <span class="dot"></span> Real-Time Production Active
             </span>
-            <a href="{{ route('admin.payments.export', request()->query()) }}" download class="btn-export">
+            <a href="{{ route('admin.payments.export', request()->query()) }}" target="_blank" class="btn-export-excel">
                 <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                Export CSV Report
+                Export Excel (.csv)
+            </a>
+            <a href="{{ route('admin.payments.export-pdf', request()->query()) }}" target="_blank" class="btn-export-pdf">
+                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                Export PDF Report
             </a>
         </div>
     </div>
