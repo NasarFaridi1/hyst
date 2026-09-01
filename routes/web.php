@@ -10,6 +10,7 @@ use App\Http\Controllers\Front\ProfileController as FrontProfileController;
 use App\Http\Controllers\RestaurantAdmin\ItemController;
 use App\Http\Controllers\RestaurantAdmin\OfferController;
 use App\Http\Controllers\Admin\PageVisitController;
+use App\Http\Controllers\Admin\PaymentReportController;
 use App\Http\Controllers\RestaurantAdmin\RestaurantPaymentController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Front\HomeController;
@@ -618,6 +619,10 @@ Route::middleware(['auth', 'super_admin'])
 
         Route::resource('gift-cards', GiftCardController::class);
 
+        // Payment History & Production Report
+        Route::get('/payments', [PaymentReportController::class, 'index'])->name('payments.index');
+        Route::get('/payments/realtime', [PaymentReportController::class, 'realtimeData'])->name('payments.realtime');
+        Route::get('/payments/export', [PaymentReportController::class, 'exportCsv'])->name('payments.export');
 
     });
 

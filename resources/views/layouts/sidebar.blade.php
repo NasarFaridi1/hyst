@@ -286,6 +286,14 @@
                 <span>Complaints</span>
             </a>
 
+            <a href="{{ route('admin.payments.index') }}"
+            class="sidebar-item {{ str_contains($current,'admin/payments') ? 'active' : '' }}">
+                <div class="sidebar-icon">
+                    <i data-lucide="credit-card"></i>
+                </div>
+                <span>Payment Report</span>
+            </a>
+
             
 
         @endif
