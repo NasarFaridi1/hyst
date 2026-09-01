@@ -67,6 +67,8 @@ return [
 
         'auth_url' => env('UBER_AUTH_URL'),
 
+        'signing_key' => env('UBER_SIGNING_KEY', env('UBER_CLIENT_SECRET')),
+
     ],
     'firebase' => [
 
