@@ -93,6 +93,9 @@ class ProfileController extends Controller
             'allow_schedule' => $request->input('allow_schedule', 1),
             'notification_sound' => $request->input('notification_sound', 'hyst_notification.mp3'),
             'dietary_categories' => $request->input('dietary_categories', []),
+            'worldpay_business_id' => $request->worldpay_business_id,
+            'worldpay_username' => $request->worldpay_username,
+            'worldpay_password' => $request->worldpay_password,
         ]);
 
         return back()->with(

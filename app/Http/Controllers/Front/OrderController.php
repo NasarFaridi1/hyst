@@ -1508,10 +1508,11 @@ class OrderController extends Controller
         )->findOrFail($id);
 
         return response()->json([
-            'status'          => $order->status,
-            'delivery_status' => $order->delivery_status,
-            'cancel_reason' => $order->cancel_reason,
-            
+            'status'               => $order->status,
+            'delivery_status'      => $order->delivery_status,
+            'uber_delivery_status' => $order->uber_delivery_status,
+            'cancel_reason'        => $order->cancel_reason,
+            'tracking_url'         => $order->uber_tracking_url ?? $order->tracking_url,
         ]);
     }
 

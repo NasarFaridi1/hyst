@@ -1281,44 +1281,17 @@
             
 
             {{-- LIVE TRACK BUTTON --}}
-            {{-- @if($order->tracking_url)
+            @php
+                $trackingUrl = $order->uber_tracking_url ?? $order->tracking_url;
+            @endphp
+
+            @if($trackingUrl)
             <div style="margin-bottom:20px;">
-                <button type="button" onclick="openTracking()"  class="track-btn">
+                <a href="{{ $trackingUrl }}" target="_blank" rel="noopener noreferrer" class="track-btn">
                      Track Live Delivery
-                </button>
-                <div id="trackingContainer" style="display:none;" class="track-iframe-wrap">
-                    <object
-                        data="{{ $order->tracking_url }}"
-                        width="100%"
-                        height="600">
-                    </object>
-                </div>
-            </div>
-            @endif --}}
-
-            @if($order->uber_tracking_url)
-
-            <div style="margin-bottom:20px;">
-                <button type="button" onclick="openTracking()"  class="track-btn">
-                     Track Live Delivery
-                </button>
-            </div>    
-
-            @endif
-            
-
-            
-            {{-- @if($order->tracking_url)
-
-                <a
-                    href="{{ $order->tracking_url }}"
-                    target="_blank"
-                    class="track-btn"
-                >
-                    Track Live Delivery
                 </a>
-
-            @endif --}}
+            </div> 
+            @endif
 
             {{-- DRIVER DETAILS --}}
             @if($order->driver_name)
@@ -2483,14 +2456,14 @@
         document.body.style.overflow = '';
     }
 
-    @if($order->tracking_url)
     function openTracking() {
-        var c = document.getElementById('trackingContainer');
-        var f = document.getElementById('trackingFrame');
-        c.style.display = c.style.display === 'none' ? 'block' : 'none';
-        if(f.src === '') f.src = "{{ $order->tracking_url }}";
+        @php
+            $tUrl = $order->uber_tracking_url ?? $order->tracking_url;
+        @endphp
+        @if($tUrl)
+            window.open("{{ $tUrl }}", "_blank");
+        @endif
     }
-    @endif
 
     // Star rating text
     document.addEventListener('DOMContentLoaded', function() {

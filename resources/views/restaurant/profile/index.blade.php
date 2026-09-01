@@ -467,6 +467,48 @@
                 </div>
             </div>
 
+            <!-- 5. PAYMENT GATEWAY SETTINGS CARD -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
+                <div class="flex items-center gap-3 pb-5 mb-6 border-b border-gray-100">
+                    <div class="w-10 h-10 rounded-xl bg-orange-50 text-[#C25A2A] flex items-center justify-center font-bold">
+                        💳
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold text-gray-900">Payment Gateway Settings</h2>
+                        <p class="text-xs text-gray-500">Configure your Worldpay payment gateway credentials</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Worldpay Business ID -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
+                            Worldpay Business ID
+                        </label>
+                        <input type="text" name="worldpay_business_id" value="{{ old('worldpay_business_id', $restaurant->worldpay_business_id) }}" placeholder="example: 90809"
+                            class="w-full border border-gray-200 rounded-xl p-3.5 text-sm text-gray-900 focus:ring-2 focus:ring-[#C25A2A] focus:border-[#C25A2A] outline-none transition bg-gray-50/50 focus:bg-white">
+                    </div>
+
+                    <!-- Worldpay Username -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
+                            Worldpay Username
+                        </label>
+                        <input type="text" name="worldpay_username" value="{{ old('worldpay_username', $restaurant->worldpay_username) }}" placeholder="example: 90809.1"
+                            class="w-full border border-gray-200 rounded-xl p-3.5 text-sm text-gray-900 focus:ring-2 focus:ring-[#C25A2A] focus:border-[#C25A2A] outline-none transition bg-gray-50/50 focus:bg-white">
+                    </div>
+
+                    <!-- Worldpay Password -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
+                            Worldpay Password
+                        </label>
+                        <input type="text" name="worldpay_password" value="{{ old('worldpay_password', $restaurant->worldpay_password) }}" placeholder="example: dsgfdhdfhag51621gsdf"
+                            class="w-full border border-gray-200 rounded-xl p-3.5 text-sm text-gray-900 focus:ring-2 focus:ring-[#C25A2A] focus:border-[#C25A2A] outline-none transition bg-gray-50/50 focus:bg-white">
+                    </div>
+                </div>
+            </div>
+
             <!-- Submit Button -->
             <div class="flex justify-end pt-2">
                 <button type="submit" class="w-full md:w-auto bg-[#C25A2A] hover:bg-[#A84B22] text-white font-bold text-base px-10 py-4 rounded-xl shadow-lg hover:shadow-xl transition transform active:scale-95 flex items-center justify-center gap-2">
@@ -476,7 +518,7 @@
             </div>
         </form>
 
-        <!-- 5. SECURITY / CHANGE PASSWORD CARD -->
+        <!-- 6. SECURITY / CHANGE PASSWORD CARD -->
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 mt-10">
             <div class="flex items-center gap-3 pb-5 mb-6 border-b border-gray-100">
                 <div class="w-10 h-10 rounded-xl bg-gray-100 text-gray-800 flex items-center justify-center font-bold">
