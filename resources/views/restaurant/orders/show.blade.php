@@ -587,7 +587,7 @@
         $restaurantTrackUrl = $order->uber_tracking_url ?? $order->tracking_url;
       @endphp
       @if($restaurantTrackUrl)
-        <a href="{{ $restaurantTrackUrl }}" target="_blank" class="track-link">
+        <a href="{{ $restaurantTrackUrl }}" target="_blank" rel="noopener noreferrer" onclick="window.open(this.href, '_blank'); return false;" class="track-link">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
           Track delivery →
         </a>
