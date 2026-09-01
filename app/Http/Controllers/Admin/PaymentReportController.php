@@ -344,7 +344,7 @@ class PaymentReportController extends Controller
 
                 fputcsv($file, [
                     $payment->id,
-                    '#' . $payment->order_id,
+                    $payment->order_id ? '#' . $payment->order_id : 'N/A',
                     $payment->restaurant->name ?? 'N/A',
                     $customerName,
                     $customerEmail,

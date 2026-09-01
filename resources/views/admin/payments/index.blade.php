@@ -257,9 +257,13 @@
                             <tr>
                                 <td class="font-bold">#{{ $payment->id }}</td>
                                 <td>
-                                    <a href="{{ route('admin.orders.show', $payment->order_id) }}" class="text-blue-600 font-bold hover:underline">
-                                        #{{ $payment->order_id }}
-                                    </a>
+                                    @if($payment->order_id)
+                                        <a href="{{ route('admin.orders.show', $payment->order_id) }}" class="text-blue-600 font-bold hover:underline">
+                                            #{{ $payment->order_id }}
+                                        </a>
+                                    @else
+                                        <span class="text-gray-400">N/A</span>
+                                    @endif
                                 </td>
                                 <td class="font-medium">{{ $payment->restaurant->name ?? 'N/A' }}</td>
                                 <td>
