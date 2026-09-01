@@ -311,15 +311,18 @@ class PaymentReportController extends Controller
         $filename = 'payment_report_' . Carbon::now()->format('Y_m_d_His') . '.csv';
 
         $headers = [
-            'Content-Type'        => 'text/csv',
+            'Content-Type'        => 'text/csv; charset=UTF-8',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
-            'Pragma'              => 'no-cache',
             'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0',
+            'Pragma'              => 'public',
             'Expires'             => '0',
         ];
 
         $callback = function () use ($payments) {
             $file = fopen('php://output', 'w');
+
+            // UTF-8 BOM for Excel / OS compatibility
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
 
             // Header row
             fputcsv($file, [
@@ -362,6 +365,6 @@ class PaymentReportController extends Controller
             fclose($file);
         };
 
-        return response()->stream($callback, 200, $headers);
+        return response()->streamDownload($callback, $filename, $headers);
     }
 }
