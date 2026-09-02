@@ -330,7 +330,7 @@ class UberService
                     "quantity" => (int) $item->quantity,
                     "price"    => (int) round(($item->total ?? 0) * 100), // pence
                     "size"     => "small",
-                    "weight"   => 0,
+                    "weight"   => 1,
                     "dimensions" => [
                         "length" => 20,
                         "height" => 20,
