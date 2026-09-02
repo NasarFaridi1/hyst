@@ -5,10 +5,24 @@
 <div class="max-w-5xl mx-auto bg-white rounded shadow p-8">
 
     <h1 class="text-3xl font-bold mb-8">
-
         Edit Restaurant
-
     </h1>
+
+    @if(session('error'))
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6 font-semibold">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    @if($errors->any())
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+            <ul class="list-disc pl-5 font-medium">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 
     <form method="POST"
         action="{{ route('admin.restaurants.update',$restaurant->id) }}"
@@ -16,6 +30,35 @@
 
         @csrf
         @method('PUT')
+
+        <!-- Login Credentials Card -->
+        <div class="mb-8 bg-blue-50/70 p-6 rounded-2xl border border-blue-200">
+            <h3 class="font-bold text-gray-800 text-lg mb-4 flex items-center gap-2">
+                <svg width="22" height="22" fill="none" stroke="#2563EB" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 0121 9z"/></svg>
+                Restaurant Admin Account Login Credentials
+            </h3>
+            <div class="grid grid-cols-2 gap-5">
+                <div>
+                    <label class="font-semibold block mb-1">Login Email Address</label>
+                    <input type="email"
+                    name="email"
+                    required
+                    value="{{ old('email', $restaurant->email) }}"
+                    class="w-full border border-gray-300 p-3 rounded-xl bg-white focus:ring-2 focus:ring-blue-500">
+                    <p class="text-xs text-gray-500 mt-1">Changes the login email for this restaurant's admin user.</p>
+                </div>
+
+                <div>
+                    <label class="font-semibold block mb-1">New Password <span class="text-xs font-normal text-gray-500">(Leave blank to keep current)</span></label>
+                    <input type="password"
+                    name="password"
+                    placeholder="Enter new password if changing"
+                    class="w-full border border-gray-300 p-3 rounded-xl bg-white focus:ring-2 focus:ring-blue-500"
+                    autocomplete="new-password">
+                    <p class="text-xs text-gray-500 mt-1">Min 8 chars: uppercase, lowercase, number & special character (@$!%*?&).</p>
+                </div>
+            </div>
+        </div>
 
         <div class="grid grid-cols-2 gap-5">
 
@@ -26,19 +69,7 @@
                 <input type="text"
                 name="name"
                 required
-                value="{{ $restaurant->name }}"
-                class="w-full border p-3 rounded">
-
-            </div>
-
-            <div>
-
-                <label>Email</label>
-
-                <input type="email"
-                name="email"
-                required
-                value="{{ $restaurant->email }}"
+                value="{{ old('name', $restaurant->name) }}"
                 class="w-full border p-3 rounded">
 
             </div>
@@ -50,7 +81,7 @@
                 <input type="text"
                 name="phone"
                 required
-                value="{{ $restaurant->phone }}"
+                value="{{ old('phone', $restaurant->phone) }}"
                 class="w-full border p-3 rounded">
 
             </div>

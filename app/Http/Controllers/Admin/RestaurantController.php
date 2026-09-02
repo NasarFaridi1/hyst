@@ -260,91 +260,144 @@ class RestaurantController extends Controller
     {
         $restaurant = Restaurant::findOrFail($id);
 
-        $image = $restaurant->image;
-
-        if ($request->hasFile('image')) {
-
-            $file = $request->file('image');
-
-            $imageName = time().'_'.$file->getClientOriginalName();
-
-            $file->move(public_path('storage/restaurants'), $imageName);
-
-            $image = 'restaurants/'.$imageName;
-        }
-
-        $certificate = $restaurant->hygiene_certificate;
-
-        if ($request->hasFile('hygiene_certificate')) {
-
-            // Delete old certificate
-            if (
-                $restaurant->hygiene_certificate &&
-                file_exists(public_path($restaurant->hygiene_certificate))
-            ) {
-                unlink(public_path($restaurant->hygiene_certificate));
-            }
-
-            $file = $request->file('hygiene_certificate');
-
-            $fileName = time().'_'.$file->getClientOriginalName();
-
-            $file->move(public_path('restaurant-certificates'), $fileName);
-
-            $certificate = 'restaurant-certificates/'.$fileName;
-        }
-
-
-        $restaurant->update([
-
-            'name' => $request->name,
-
-            'email' => $request->email,
-
-            'phone' => $request->phone,
-
-            'location' => $request->location,
-
-            'description' => $request->description,
-
-            'image' => $image,
-
-            'category_ids'=>$request->category_ids,
-            'dietary_categories' => $request->dietary_categories ?? [],
-            'dine_in' => $request->has('dine_in') ? $request->dine_in : $restaurant->dine_in,
-            'table_book' => $request->has('table_book') ? $request->table_book : $restaurant->table_book,
-            'notification_sound' => $request->has('notification_sound') ? $request->notification_sound : ($restaurant->notification_sound ?? 'hyst_notification.mp3'),
-            
-            'status' => $request->status,
-            'hygiene_rating' => $request->hygiene_rating,
-            'hygiene_certificate' => $certificate,
-            'city' => $request->city,
-            'state' => $request->state,
-            'country' => $request->country,
-            'postcode' => $request->postcode,
-            'longitude' => $request->longitude,
-            'latitude' => $request->latitude,
-            'address' => $request->location,
-            'worldpay_business_id' => $request->worldpay_business_id,
-            'worldpay_username' => $request->worldpay_username,
-            'worldpay_password' => $request->worldpay_password,
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email',
+            'password' => ['nullable', 'string', new \App\Rules\PasswordComplexity()],
+            'phone' => 'required|string|max:20',
+            'location' => 'required|string',
+            'city' => 'required|string',
+            'state' => 'required|string',
+            'country' => 'required|string',
+            'postcode' => 'required|string',
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+            'description' => 'required|string',
+            'category_ids' => 'required|array|min:1',
+            'dietary_categories' => 'nullable|array',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp',
+            'hygiene_certificate' => 'nullable|file|mimes:pdf,jpeg,png,jpg,gif,svg,webp',
+            'hygiene_rating' => 'required|numeric|between:0,5',
         ]);
 
-        if ((int)$request->status === 1) {
-            $user = User::where('restaurant_id', $restaurant->id)
-                ->orWhere('email', $restaurant->email)
+        $user = User::where('restaurant_id', $restaurant->id)
+            ->orWhere('email', $restaurant->email)
+            ->first();
+
+        if ($request->email !== $restaurant->email) {
+            $emailExist = User::where('email_hash', hash('sha256', $request->email))
+                ->where('id', '!=', $user ? $user->id : 0)
                 ->first();
+
+            if ($emailExist) {
+                return back()->withInput()->with('error', 'The email address is already in use by another user.');
+            }
+        }
+
+        DB::beginTransaction();
+
+        try {
+            $image = $restaurant->image;
+
+            if ($request->hasFile('image')) {
+                $file = $request->file('image');
+                $imageName = time().'_'.$file->getClientOriginalName();
+                $file->move(public_path('storage/restaurants'), $imageName);
+                $image = 'restaurants/'.$imageName;
+            }
+
+            $certificate = $restaurant->hygiene_certificate;
+
+            if ($request->hasFile('hygiene_certificate')) {
+                if (
+                    $restaurant->hygiene_certificate &&
+                    file_exists(public_path($restaurant->hygiene_certificate))
+                ) {
+                    unlink(public_path($restaurant->hygiene_certificate));
+                }
+
+                $file = $request->file('hygiene_certificate');
+                $fileName = time().'_'.$file->getClientOriginalName();
+                $file->move(public_path('restaurant-certificates'), $fileName);
+                $certificate = 'restaurant-certificates/'.$fileName;
+            }
+
+            $restaurant->update([
+                'name' => $request->name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'location' => $request->location,
+                'description' => $request->description,
+                'image' => $image,
+                'category_ids' => $request->category_ids,
+                'dietary_categories' => $request->dietary_categories ?? [],
+                'dine_in' => $request->has('dine_in') ? $request->dine_in : $restaurant->dine_in,
+                'table_book' => $request->has('table_book') ? $request->table_book : $restaurant->table_book,
+                'notification_sound' => $request->has('notification_sound') ? $request->notification_sound : ($restaurant->notification_sound ?? 'hyst_notification.mp3'),
+                'status' => $request->status,
+                'hygiene_rating' => $request->hygiene_rating,
+                'hygiene_certificate' => $certificate,
+                'city' => $request->city,
+                'state' => $request->state,
+                'country' => $request->country,
+                'postcode' => $request->postcode,
+                'longitude' => $request->longitude,
+                'latitude' => $request->latitude,
+                'address' => $request->location,
+                'worldpay_business_id' => $request->worldpay_business_id,
+                'worldpay_username' => $request->worldpay_username,
+                'worldpay_password' => $request->worldpay_password,
+            ]);
+
             if ($user) {
-                $user->update([
+                $userData = [
+                    'name' => $request->name,
+                    'email' => $request->email,
+                    'phone' => $request->phone,
+                ];
+
+                if ($request->filled('password')) {
+                    $userData['password'] = Hash::make($request->password);
+                }
+
+                if ((int)$request->status === 1) {
+                    $userData['email_verified'] = 1;
+                    $userData['email_verified_at'] = $user->email_verified_at ?? now();
+                }
+
+                $user->update($userData);
+            } else {
+                User::create([
+                    'name' => $request->name,
+                    'email' => $request->email,
+                    'password' => Hash::make($request->filled('password') ? $request->password : Str::random(12)),
+                    'role' => 'restaurant_admin',
+                    'restaurant_id' => $restaurant->id,
+                    'phone' => $request->phone,
                     'email_verified' => 1,
                     'email_verified_at' => now(),
                 ]);
             }
-        }
 
-        return redirect()
-            ->route('admin.restaurants.index')
-            ->with('success','Restaurant Updated');
+            DB::commit();
+
+            return redirect()
+                ->route('admin.restaurants.index')
+                ->with('success', 'Restaurant & Admin User Credentials Updated Successfully');
+
+        } catch (ValidationException $e) {
+            DB::rollBack();
+            return back()
+                ->withErrors($e->validator)
+                ->withInput()
+                ->with('error', $e->validator->errors()->first());
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error($e);
+            return back()
+                ->withInput()
+                ->with('error', $e->getMessage());
+        }
     }
 
 
