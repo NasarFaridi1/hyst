@@ -203,7 +203,7 @@ class PaymentReportController extends Controller
         $pendingCount = (clone $todayQuery)->where('payment_status', 'pending')->count();
         $refundedAmount = (float) (clone $todayQuery)->sum('refunded_amount');
 
-        $recentPayments = Payment::with(['restaurant:id,name', 'order:id,user_id,guest_name', 'user:id,name'])
+        $recentPayments = Payment::with(['restaurant:id,name', 'order', 'user:id,name'])
             ->when($restaurantId, function ($q) use ($restaurantId) {
                 $q->where('restaurant_id', $restaurantId);
             })
@@ -211,16 +211,24 @@ class PaymentReportController extends Controller
             ->take(5)
             ->get()
             ->map(function ($p) {
+                $platformCharge = (float) (($p->order->hyst_charge ?? 0) + ($p->order->service_charge ?? 0));
+                $deliveryCharge = (float) ($p->order->delivery_charge ?? 0);
+                $totalAmount = (float) ($p->amount ?? $p->order->total_amount ?? 0);
+                $restaurantAmount = max($totalAmount - $platformCharge - $deliveryCharge, 0);
+
                 return [
-                    'id'             => $p->id,
-                    'order_id'       => $p->order_id,
-                    'restaurant'     => $p->restaurant->name ?? 'N/A',
-                    'customer'       => $p->order->user->name ?? $p->user->name ?? $p->order->guest_name ?? 'Guest',
-                    'amount'         => number_format($p->amount, 2),
-                    'payment_status' => $p->payment_status,
-                    'payment_method' => $p->payment_method,
-                    'time'           => $p->created_at->format('H:i:s'),
-                    'date'           => $p->created_at->format('d M Y')
+                    'id'                => $p->id,
+                    'order_id'          => $p->order_id,
+                    'restaurant'        => $p->restaurant->name ?? 'N/A',
+                    'customer'          => $p->order->user->name ?? $p->user->name ?? $p->order->guest_name ?? 'Guest',
+                    'platform_charge'   => number_format($platformCharge, 2),
+                    'delivery_charge'   => number_format($deliveryCharge, 2),
+                    'restaurant_amount' => number_format($restaurantAmount, 2),
+                    'amount'            => number_format($totalAmount, 2),
+                    'payment_status'    => $p->payment_status,
+                    'payment_method'    => $p->payment_method,
+                    'time'              => $p->created_at->format('H:i:s'),
+                    'date'              => $p->created_at->format('d M Y')
                 ];
             });
 
@@ -332,9 +340,12 @@ class PaymentReportController extends Controller
                 'Customer Name',
                 'Customer Email',
                 'Payment Method',
-                'Status',
-                'Amount (£)',
+                'Platform Charge (£)',
+                'Delivery Charge (£)',
+                'Restaurant Amount (£)',
+                'Total Amount (£)',
                 'Refunded (£)',
+                'Status',
                 'Transaction ID',
                 'Payment Transaction ID',
                 'Secondary Transaction ID',
@@ -345,6 +356,11 @@ class PaymentReportController extends Controller
                 $customerName = $payment->order->user->name ?? $payment->user->name ?? $payment->order->guest_name ?? 'Guest';
                 $customerEmail = $payment->order->user->email ?? $payment->user->email ?? $payment->order->guest_email ?? 'N/A';
 
+                $platformCharge = (float) (($payment->order->hyst_charge ?? 0) + ($payment->order->service_charge ?? 0));
+                $deliveryCharge = (float) ($payment->order->delivery_charge ?? 0);
+                $totalAmount = (float) ($payment->amount ?? $payment->order->total_amount ?? 0);
+                $restaurantAmount = max($totalAmount - $platformCharge - $deliveryCharge, 0);
+
                 fputcsv($file, [
                     $payment->id,
                     $payment->order_id ? '#' . $payment->order_id : 'N/A',
@@ -352,9 +368,12 @@ class PaymentReportController extends Controller
                     $customerName,
                     $customerEmail,
                     $payment->payment_method ?? 'N/A',
-                    ucfirst($payment->payment_status),
-                    number_format($payment->amount, 2),
+                    number_format($platformCharge, 2),
+                    number_format($deliveryCharge, 2),
+                    number_format($restaurantAmount, 2),
+                    number_format($totalAmount, 2),
                     number_format($payment->refunded_amount ?? 0, 2),
+                    ucfirst($payment->payment_status),
                     $payment->transaction_id ?? 'N/A',
                     $payment->payment_transaction_id ?? 'N/A',
                     $payment->secondary_transaction_id ?? 'N/A',

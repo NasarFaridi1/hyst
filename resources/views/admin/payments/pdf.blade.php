@@ -201,7 +201,10 @@
                 <th>Restaurant</th>
                 <th>Customer</th>
                 <th>Method</th>
-                <th>Amount</th>
+                <th>Platform Charge</th>
+                <th>Delivery Charge</th>
+                <th>Restaurant Amount</th>
+                <th>Total Amount</th>
                 <th>Refunded</th>
                 <th>Status</th>
                 <th>Date & Time</th>
@@ -209,13 +212,22 @@
         </thead>
         <tbody>
             @forelse($payments as $payment)
+                @php
+                    $platformCharge = (float) (($payment->order->hyst_charge ?? 0) + ($payment->order->service_charge ?? 0));
+                    $deliveryCharge = (float) ($payment->order->delivery_charge ?? 0);
+                    $totalAmount = (float) ($payment->amount ?? $payment->order->total_amount ?? 0);
+                    $restaurantAmount = max($totalAmount - $platformCharge - $deliveryCharge, 0);
+                @endphp
                 <tr>
                     <td><strong>#{{ $payment->id }}</strong></td>
                     <td>{{ $payment->order_id ? '#' . $payment->order_id : 'N/A' }}</td>
                     <td>{{ $payment->restaurant->name ?? 'N/A' }}</td>
                     <td>{{ $payment->order->user->name ?? $payment->user->name ?? $payment->order->guest_name ?? 'Guest' }}</td>
                     <td>{{ ucfirst($payment->payment_method ?? 'N/A') }}</td>
-                    <td><strong>£{{ number_format($payment->amount, 2) }}</strong></td>
+                    <td style="color:#2563EB; font-weight:700;">£{{ number_format($platformCharge, 2) }}</td>
+                    <td style="color:#4F46E5; font-weight:700;">£{{ number_format($deliveryCharge, 2) }}</td>
+                    <td style="color:#10B981; font-weight:700;">£{{ number_format($restaurantAmount, 2) }}</td>
+                    <td><strong>£{{ number_format($totalAmount, 2) }}</strong></td>
                     <td>{{ ($payment->refunded_amount ?? 0) > 0 ? '£' . number_format($payment->refunded_amount, 2) : '-' }}</td>
                     <td>
                         @if($payment->payment_status == 'paid')
@@ -232,7 +244,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="9" style="text-align: center; padding: 20px;">No payment records found.</td>
+                    <td colspan="12" style="text-align: center; padding: 20px;">No payment records found.</td>
                 </tr>
             @endforelse
         </tbody>

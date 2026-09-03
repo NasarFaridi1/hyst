@@ -251,7 +251,10 @@
                             <th>Restaurant</th>
                             <th>Customer</th>
                             <th>Method</th>
-                            <th>Amount</th>
+                            <th>Platform Charge</th>
+                            <th>Delivery Charge</th>
+                            <th>Restaurant Amount</th>
+                            <th>Total Amount</th>
                             <th>Refunded</th>
                             <th>Status</th>
                             <th>Transaction Ref</th>
@@ -260,6 +263,12 @@
                     </thead>
                     <tbody>
                         @forelse($payments as $payment)
+                            @php
+                                $platformCharge = (float) (($payment->order->hyst_charge ?? 0) + ($payment->order->service_charge ?? 0));
+                                $deliveryCharge = (float) ($payment->order->delivery_charge ?? 0);
+                                $totalAmount = (float) ($payment->amount ?? $payment->order->total_amount ?? 0);
+                                $restaurantAmount = max($totalAmount - $platformCharge - $deliveryCharge, 0);
+                            @endphp
                             <tr>
                                 <td class="font-bold">#{{ $payment->id }}</td>
                                 <td>
@@ -281,7 +290,10 @@
                                         {{ ucfirst($payment->payment_method ?? 'N/A') }}
                                     </span>
                                 </td>
-                                <td class="font-extrabold text-gray-900">£{{ number_format($payment->amount, 2) }}</td>
+                                <td class="font-bold text-blue-600">£{{ number_format($platformCharge, 2) }}</td>
+                                <td class="font-bold text-indigo-600">£{{ number_format($deliveryCharge, 2) }}</td>
+                                <td class="font-bold text-green-600">£{{ number_format($restaurantAmount, 2) }}</td>
+                                <td class="font-extrabold text-gray-900">£{{ number_format($totalAmount, 2) }}</td>
                                 <td>
                                     @if(($payment->refunded_amount ?? 0) > 0)
                                         <span class="text-purple-700 font-bold">£{{ number_format($payment->refunded_amount, 2) }}</span>
@@ -309,7 +321,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="10" class="text-center py-12 text-gray-500 font-medium">
+                                <td colspan="13" class="text-center py-12 text-gray-500 font-medium">
                                     No payment records match the selected filters.
                                 </td>
                             </tr>
