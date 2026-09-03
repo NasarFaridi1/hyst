@@ -99,8 +99,9 @@ return [
 
     ],
 
+
     'worldpay' => [
-        'environment' => env('WORLDPAY_ENV', 'sandbox'),
+        'environment' => env('WORLDPAY_ENV', 'production'),
         'auth_url'    => env('WORLDPAY_ENV') === 'production'
                             ? 'https://auth.paymentsapi.io'
                             : 'https://sandbox.auth.paymentsapi.io',

@@ -87,7 +87,7 @@ Route::get('/category-products/{id}', [HomeController::class, 'categoryProducts'
 
 Route::get('/product-details/{id}', [HomeController::class, 'productDetails']);
 
-Route::match(['GET', 'POST'], '/restaurants', [HomeController::class, 'restaurants']);
+// Route::match(['GET', 'POST'], '/restaurants', [HomeController::class, 'restaurants']);
 
 
 Route::get('/restaurant/{slug}', [HomeController::class, 'restaurantProducts']);
