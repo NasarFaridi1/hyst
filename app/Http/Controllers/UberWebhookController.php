@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\UberWebhookLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Services\FirebaseNotificationService;
@@ -24,18 +25,16 @@ class UberWebhookController extends Controller
         // 1. Signature Verification (HMAC-SHA256 via X-Uber-Signature header)
         $signatureHeader = $request->header('X-Uber-Signature') ?? $request->header('x-uber-signature');
         $signingKey = config('services.uber.signing_key');
+        $signatureValid = true;
 
         if ($signatureHeader && $signingKey) {
             $expectedSignature = hash_hmac('sha256', $rawContent, $signingKey);
             if (!hash_equals($expectedSignature, $signatureHeader)) {
+                $signatureValid = false;
                 Log::warning('Uber Webhook Signature Mismatch', [
                     'received' => $signatureHeader,
                     'expected' => $expectedSignature
                 ]);
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Invalid webhook signature'
-                ], 401);
             }
         }
 
@@ -57,13 +56,13 @@ class UberWebhookController extends Controller
             ?? $payload['manifest_reference']
             ?? null;
 
-        if (!$deliveryId && !$externalOrderId) {
-            Log::warning('Uber Webhook: Missing delivery_id and external_order_id', $payload);
-            return response()->json([
-                'success' => false,
-                'message' => 'Missing delivery ID or external order ID in payload'
-            ], 400);
-        }
+        $status = $meta['status']
+            ?? $payload['status']
+            ?? $data['status']
+            ?? $payload['event_type']
+            ?? null;
+
+        $eventType = $payload['event_type'] ?? $payload['kind'] ?? 'delivery.status_changed';
 
         // 3. Find Order in Database
         $order = null;
@@ -78,6 +77,41 @@ class UberWebhookController extends Controller
             }
         }
 
+        // 4. Log Webhook Response to Database with Date & Time
+        try {
+            UberWebhookLog::create([
+                'order_id'          => $order?->id,
+                'delivery_id'       => $deliveryId,
+                'external_order_id' => $externalOrderId,
+                'event_type'        => $eventType,
+                'status'            => $status,
+                'payload'           => $payload,
+                'headers'           => $request->headers->all(),
+                'signature_valid'   => $signatureValid,
+                'ip_address'        => $request->ip(),
+                'received_at'       => now(),
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Failed to store Uber Webhook in database log table', [
+                'error' => $e->getMessage()
+            ]);
+        }
+
+        if (!$signatureValid) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid webhook signature'
+            ], 401);
+        }
+
+        if (!$deliveryId && !$externalOrderId) {
+            Log::warning('Uber Webhook: Missing delivery_id and external_order_id', $payload);
+            return response()->json([
+                'success' => false,
+                'message' => 'Missing delivery ID or external order ID in payload'
+            ], 400);
+        }
+
         if (!$order) {
             Log::warning('Uber Webhook: Order not found in database', [
                 'delivery_id'       => $deliveryId,
@@ -85,24 +119,17 @@ class UberWebhookController extends Controller
             ]);
             return response()->json([
                 'success' => true,
-                'message' => 'Order not found, webhook acknowledged'
+                'message' => 'Order not found, webhook logged and acknowledged'
             ], 200);
         }
 
-        // 4. Parse Status & Courier Info
-        $status = $meta['status']
-            ?? $payload['status']
-            ?? $data['status']
-            ?? $payload['event_type']
-            ?? null;
-
+        // 5. Parse Courier Info & Build Order Update Data
         $courier = $data['courier'] ?? $payload['courier'] ?? $meta['courier'] ?? [];
         $pickup  = $data['pickup'] ?? $payload['pickup'] ?? [];
         $dropoff = $data['dropoff'] ?? $payload['dropoff'] ?? [];
 
         $trackingUrl = $data['tracking_url'] ?? $payload['tracking_url'] ?? $order->uber_tracking_url;
 
-        // 5. Build Order Update Data
         $updateData = [
             'uber_delivery_id'     => $order->uber_delivery_id ?: $deliveryId,
             'uber_delivery_status' => $status ?: $order->uber_delivery_status,
@@ -172,7 +199,7 @@ class UberWebhookController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Webhook processed successfully'
+            'message' => 'Webhook processed and stored in database successfully'
         ], 200);
     }
 }
