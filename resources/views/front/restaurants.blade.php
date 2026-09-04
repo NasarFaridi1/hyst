@@ -492,8 +492,8 @@
             <div class="filter-chip" data-filter="vegan">
                 🌱 Vegan
             </div>
-            <div class="filter-chip" data-filter="vegetable">
-                🥗 Vegetable
+            <div class="filter-chip" data-filter="vegetarian">
+                🥗 Vegetarian
             </div>
             <div class="filter-chip" data-filter="top-rated">
                 <i data-lucide="star" style="width:14px; height:14px;"></i> Top Rated 4.5+
@@ -618,8 +618,8 @@
                                 <span style="background:#FEF3C7; color:#92400E; font-size:10px; font-weight:700; padding:2px 7px; border-radius:12px; font-family:'Poppins',sans-serif;">🌙 Halal</span>
                             @elseif($dCat === 'vegan')
                                 <span style="background:#DCFCE7; color:#166534; font-size:10px; font-weight:700; padding:2px 7px; border-radius:12px; font-family:'Poppins',sans-serif;">🌱 Vegan</span>
-                            @elseif($dCat === 'vegetable')
-                                <span style="background:#E0E7FF; color:#3730A3; font-size:10px; font-weight:700; padding:2px 7px; border-radius:12px; font-family:'Poppins',sans-serif;">🥗 Vegetable</span>
+                            @elseif($dCat === 'vegetable' || $dCat === 'vegetarian')
+                                <span style="background:#E0E7FF; color:#3730A3; font-size:10px; font-weight:700; padding:2px 7px; border-radius:12px; font-family:'Poppins',sans-serif;">🥗 Vegetarian</span>
                             @endif
                         @endforeach
                     </div>
@@ -701,6 +701,14 @@
 
 </div>
 
+        <!-- LOAD MORE BUTTON -->
+        <div id="loadMoreContainer" style="display:none; text-align:center; margin-top:36px; margin-bottom:16px;">
+            <button id="loadMoreBtn" type="button" style="display:inline-flex; align-items:center; justify-content:center; gap:8px; background:#C25A2A; color:#ffffff; font-family:'Poppins',sans-serif; font-weight:700; font-size:15px; padding:14px 32px; border-radius:14px; border:none; cursor:pointer; transition:all 0.2s ease; box-shadow:0 4px 14px rgba(194,90,42,0.25);">
+                <span>View All Restaurants</span>
+                <i data-lucide="chevron-down" style="width:18px; height:18px;"></i>
+            </button>
+        </div>
+
         <div id="noFilterResults" style="display:none; grid-column:1/-1; text-align:center; background:#fff; padding:60px 20px; border-radius:24px; box-shadow:0 5px 20px rgba(0,0,0,0.06); margin-top:28px;">
             <h3 style="font-size:20px; margin-bottom:8px; color:#0D0D0D; font-family:'Poppins',sans-serif; font-weight:700;">No matches for that filter</h3>
             <p style="color:#6B7280; font-size:14px; margin:0;">Try a different category or clear your search.</p>
@@ -717,11 +725,15 @@
             const quickChips = document.querySelectorAll('.filter-chip');
             const cards = document.querySelectorAll('.restaurant-card');
             const noResults = document.getElementById('noFilterResults');
+            const loadMoreContainer = document.getElementById('loadMoreContainer');
+            const loadMoreBtn = document.getElementById('loadMoreBtn');
 
             let state = { search: '', categoryId: 'all', chip: 'all', mainTab: 'restaurant' };
+            let showAll = false;
+            const INITIAL_LIMIT = 16;
 
             function applyFilters(){
-                let visibleCount = 0;
+                let matchingCount = 0;
 
                 cards.forEach(card => {
                     const name = card.dataset.name || '';
@@ -738,15 +750,48 @@
                     if(state.categoryId !== 'all' && !categories.includes(state.categoryId)) visible = false;
                     if(state.chip === 'top-rated' && rating < 4.5) visible = false;
                     if(state.chip === 'offers' && !hasOffer) visible = false;
-                    if(['halal', 'vegan', 'vegetable'].includes(state.chip) && !dietary.includes(state.chip)) visible = false;
+                    if(['halal', 'vegan', 'vegetarian', 'vegetable'].includes(state.chip)){
+                        if((state.chip === 'vegetarian' || state.chip === 'vegetable') && !dietary.includes('vegetarian') && !dietary.includes('vegetable')) visible = false;
+                        else if(state.chip !== 'vegetarian' && state.chip !== 'vegetable' && !dietary.includes(state.chip)) visible = false;
+                    }
 
-                    card.style.display = visible ? '' : 'none';
-                    if(visible) visibleCount++;
+                    if(visible){
+                        matchingCount++;
+                        if(!showAll && !state.search && matchingCount > INITIAL_LIMIT){
+                            card.style.display = 'none';
+                        } else {
+                            card.style.display = '';
+                        }
+                    } else {
+                        card.style.display = 'none';
+                    }
                 });
 
                 if(noResults){
-                    noResults.style.display = visibleCount === 0 ? 'block' : 'none';
+                    noResults.style.display = matchingCount === 0 ? 'block' : 'none';
                 }
+
+                if(loadMoreContainer){
+                    if(!showAll && !state.search && matchingCount > INITIAL_LIMIT){
+                        loadMoreContainer.style.display = 'block';
+                        if(loadMoreBtn){
+                            const remaining = matchingCount - INITIAL_LIMIT;
+                            const btnSpan = loadMoreBtn.querySelector('span');
+                            if(btnSpan){
+                                btnSpan.textContent = `View All Restaurants (${remaining} more)`;
+                            }
+                        }
+                    } else {
+                        loadMoreContainer.style.display = 'none';
+                    }
+                }
+            }
+
+            if(loadMoreBtn){
+                loadMoreBtn.addEventListener('click', function(){
+                    showAll = true;
+                    applyFilters();
+                });
             }
 
             mainTabs.forEach(tab => {
@@ -782,6 +827,8 @@
                     applyFilters();
                 });
             });
+
+            applyFilters();
 
         })();
     </script>

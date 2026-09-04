@@ -275,8 +275,8 @@
                     <span>🌱 Vegan</span>
                 </label>
                 <label class="flex items-center gap-2 cursor-pointer font-medium text-gray-700">
-                    <input type="checkbox" name="dietary_categories[]" value="vegetable" {{ in_array('vegetable', $savedDietary) ? 'checked' : '' }} class="w-4 h-4 text-blue-600 rounded">
-                    <span>🥗 Vegetable</span>
+                    <input type="checkbox" name="dietary_categories[]" value="vegetarian" {{ (in_array('vegetarian', $savedDietary) || in_array('vegetable', $savedDietary)) ? 'checked' : '' }} class="w-4 h-4 text-blue-600 rounded">
+                    <span>🥗 Vegetarian</span>
                 </label>
             </div>
             <small class="text-gray-500">Select any or all dietary categories served by this restaurant.</small>
