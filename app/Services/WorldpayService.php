@@ -93,6 +93,38 @@ class WorldpayService
         $suburb = !empty($data['suburb']) ? $data['suburb'] : (!empty($data['city']) ? $data['city'] : 'London');
         $state = !empty($data['state']) ? $data['state'] : 'Greater London';
 
+        // Prepare Disbursements for extra charges (delivery charge, platform fee, service fee, etc.)
+        if (!empty($data['disbursements']) && is_array($data['disbursements'])) {
+            $disbursements = $data['disbursements'];
+        } else {
+            $deliveryCharge = (float) ($data['delivery_charge'] ?? 0);
+            $platformCharge = (float) ($data['platform_charge'] ?? 0);
+            $serviceCharge  = (float) ($data['service_charge'] ?? 0);
+            $hystCharge     = (float) ($data['hyst_charge'] ?? 0);
+            $extraCharge    = (float) ($data['extra_charge'] ?? 0);
+
+            $calculatedExtraAmount = $deliveryCharge + $platformCharge + $serviceCharge + $hystCharge + $extraCharge;
+
+            if (isset($data['disbursement_amount'])) {
+                $disbursementAmount = (float) $data['disbursement_amount'];
+            } elseif ($calculatedExtraAmount > 0) {
+                $disbursementAmount = $calculatedExtraAmount;
+            } else {
+                $disbursementAmount = (float) ($data['default_disbursement_amount'] ?? 2.25);
+            }
+
+            $businessId = $data['disbursement_business_id'] ?? $data['business_id'] ?? 24785;
+            $type = $data['disbursement_type'] ?? 'MISC_FEE';
+
+            $disbursements = [
+                [
+                    "BusinessId" => (int) $businessId,
+                    "Type"       => $type,
+                    "Amount"     => (float) $disbursementAmount,
+                ]
+            ];
+        }
+
         $payload = [
             "ReturnUrl" => route('payment.callback'),
             "CardAuthorizationType" => "RECURRING",
@@ -103,6 +135,7 @@ class WorldpayService
                 "Description" => $data['description'] ?? 'Online Order',
                 "Amount" => (float) $data['amount'],
                 "ServiceDate" => now()->toIso8601String(),
+                "Disbursements" => $disbursements,
             ],
             "Payer" => [
                 "SavePayer" => true,
