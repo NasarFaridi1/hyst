@@ -88,7 +88,9 @@ class Order extends Model
         'preparation_minutes',
         'description',
         'loyalty_reward_id',
-        'loyalty_discount'
+        'loyalty_discount',
+        'referral_code',
+        'referral_discount'
     ];
 
     public function user()
@@ -146,5 +148,10 @@ class Order extends Model
     public function complaints()
     {
         return $this->hasMany(Complaint::class);
+    }
+
+    public function referralUsage()
+    {
+        return $this->hasOne(ReferralUsage::class, 'referee_order_id');
     }
 }

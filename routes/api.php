@@ -73,6 +73,9 @@ Route::middleware('api.token')->group(function () {
 
     Route::get('/loyalty/rewards', [OrderController::class, 'customerLoyaltyRewards']);
 
+    Route::get('/referral/my-code', [\App\Http\Controllers\Api\ReferralController::class, 'myCode']);
+    Route::post('/referral/validate', [\App\Http\Controllers\Api\ReferralController::class, 'validateCode']);
+
 });
 
 Route::post(

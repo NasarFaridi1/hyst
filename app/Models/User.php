@@ -119,5 +119,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(GiftCardTransaction::class);
     }
-    
+
+    public function referralCodes()
+    {
+        return $this->hasMany(ReferralCode::class);
+    }
+
+    public function referralUsages()
+    {
+        return $this->hasMany(ReferralUsage::class, 'referee_id');
+    }
 }

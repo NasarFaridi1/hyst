@@ -759,6 +759,9 @@ Route::middleware(['auth', 'restaurant_admin'])
         [RestaurantComplaintController::class,'updateComplaintStatus'])
         ->name('complaint.status');
 
+        Route::get('/referral-settings', [\App\Http\Controllers\RestaurantAdmin\ReferralSettingController::class, 'index'])->name('referral.settings');
+        Route::post('/referral-settings', [\App\Http\Controllers\RestaurantAdmin\ReferralSettingController::class, 'update'])->name('referral.settings.update');
+
         Route::post(
             '/restaurant/complaint/{id}/message',
             [RestaurantComplaintController::class, 'sendMessage']

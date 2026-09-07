@@ -366,6 +366,28 @@ class OrderController extends Controller
             }
         }
 
+        $referralService = app(\App\Services\ReferralService::class);
+        $referralDiscount = 0;
+        $validatedReferralCode = null;
+        $referralSetting = null;
+
+        if (auth()->check() && $request->filled('referral_code')) {
+            $referralRes = $referralService->validateReferralCode(
+                $request->input('referral_code'),
+                auth()->user(),
+                $restaurantId,
+                $finalTotal
+            );
+
+            if ($referralRes['valid']) {
+                $referralDiscount = $referralRes['discount_amount'];
+                $validatedReferralCode = $referralRes['referral_code'];
+                $referralSetting = $referralRes['setting'];
+                $discount   += $referralDiscount;
+                $finalTotal  = max(0, $finalTotal - $referralDiscount);
+            }
+        }
+
         $serviceCharge  = 0.12;
         $deliveryCharge = 0.12;
         $hystCharge     = 0.25;
@@ -414,12 +436,18 @@ class OrderController extends Controller
             'offer_title'       => $orderOffer?->title ?? ($discount > 0 ? 'Offer Discount' : null),
             'loyalty_reward_id' => $appliedLoyaltyReward?->id,
             'loyalty_discount'  => $loyaltyRewardDiscount,
+            'referral_code'     => $validatedReferralCode?->code,
+            'referral_discount' => $referralDiscount,
             'delivery_provider' => $restaurant->self_delivery ? 'self' : 'uber',
             'booking_date'      => $request->order_type === 'table_book' ? $request->booking_date : null,
             'booking_time'      => $request->order_type === 'table_book' ? $request->booking_time : null,
             'number_of_people'  => $request->order_type === 'table_book' ? $request->number_of_people : null,
             'occasion'          => $request->order_type === 'table_book' ? $request->occasion : null,
         ]);
+
+        if ($validatedReferralCode && $referralDiscount > 0 && $referralSetting) {
+            $referralService->applyReferralToOrder($order, $validatedReferralCode, $referralDiscount, $referralSetting);
+        }
 
         if ($appliedLoyaltyReward && $loyaltyRewardDiscount > 0) {
             $loyaltyService->processRedemption($order, $appliedLoyaltyReward->id, max(0, $originalTotal - $discount + $loyaltyRewardDiscount));

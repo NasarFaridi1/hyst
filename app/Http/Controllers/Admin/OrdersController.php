@@ -194,6 +194,16 @@ class OrdersController extends Controller
 
         $order->update($updateData);
 
+        $referralService = app(\App\Services\ReferralService::class);
+        if ($request->status === 'completed') {
+            $referralService->processOrderCompletion($order);
+            if ($order->user) {
+                $referralService->getOrCreateCodeForUser($order->user, $order->restaurant_id);
+            }
+        } elseif ($request->status === 'cancelled') {
+            $referralService->processOrderCancellation($order);
+        }
+
         return back()->with(
             'success',
             'Order Status Updated'
