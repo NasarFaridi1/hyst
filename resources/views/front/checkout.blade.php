@@ -1016,8 +1016,9 @@
                         </small>
                     </div>
 
+                    @if(!$restaurant->self_delivery)
                     <!-- Delivery Options (Uber Direct) -->
-                    <div id="uberDeliveryOptions" style="margin-top:20px; padding-top:16px; border-top:1px solid #F3F4F6;">
+                    <div id="uberDeliveryOptions" style="margin-top:20px; padding-top:16px; border-top:1px solid #F3F4F6; display:none;">
                         <div style="font-size:13px; font-weight:700; color:#1F2937; margin-bottom:12px; display:flex; align-items:center; gap:6px;">
                             <span>🚚 Delivery Options & Instructions</span>
                         </div>
@@ -1051,6 +1052,7 @@
                             <input type="text" id="dropoff_notes" name="dropoff_notes" placeholder="e.g. Ring bell, gate code 1234, 2nd floor black door" maxlength="255" style="width:100%; border:1px solid #E5E7EB; border-radius:8px; padding:8px 12px; font-size:13px; outline:none; background:#fff;">
                         </div>
                     </div>
+                    @endif
                 </div>
 
                 <!-- Hidden Payment Method (Always Online) -->
@@ -1497,6 +1499,11 @@
                 var pin         = document.getElementById('postcode');
 
                 var tbBox       = document.getElementById('tableBookingFields');
+                var uberDevOpts = document.getElementById('uberDeliveryOptions');
+
+                if (uberDevOpts) {
+                    uberDevOpts.style.display = (this.value === 'delivery') ? 'block' : 'none';
+                }
 
                 if (this.value === 'table_book') {
                     if (tbBox) tbBox.style.display = 'block';
