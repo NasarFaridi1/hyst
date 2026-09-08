@@ -33,12 +33,27 @@ class ReferralSettingController extends Controller
             ->latest()
             ->paginate(15);
 
-        return response()->json([
-            'status' => true,
-            'data' => [
-                'setting' => $setting,
-                'usages' => $referralUsages,
-            ]
+        $stats = [
+            'completed_count' => ReferralUsage::where('restaurant_id', $restaurantId)->where('status', 'completed')->count(),
+            'pending_count' => ReferralUsage::where('restaurant_id', $restaurantId)->where('status', 'pending')->count(),
+            'total_rewards' => ReferralUsage::where('restaurant_id', $restaurantId)->where('status', 'completed')->sum('referrer_reward_amount'),
+        ];
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'status' => true,
+                'data' => [
+                    'setting' => $setting,
+                    'usages' => $referralUsages,
+                    'stats' => $stats,
+                ]
+            ]);
+        }
+
+        return view('restaurant.referral.index', [
+            'setting' => $setting,
+            'usages' => $referralUsages,
+            'stats' => $stats,
         ]);
     }
 
@@ -66,14 +81,18 @@ class ReferralSettingController extends Controller
                 'min_order_amount' => $request->min_order_amount,
                 'referrer_reward_type' => $request->referrer_reward_type,
                 'referrer_reward_value' => $request->referrer_reward_value,
-                'is_active' => $request->is_active,
+                'is_active' => (bool) $request->is_active,
             ]
         );
 
-        return response()->json([
-            'status' => true,
-            'message' => 'Referral settings updated successfully.',
-            'setting' => $setting,
-        ]);
+        if ($request->wantsJson()) {
+            return response()->json([
+                'status' => true,
+                'message' => 'Referral settings updated successfully.',
+                'setting' => $setting,
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Referral settings updated successfully!');
     }
 }

@@ -382,6 +382,15 @@
                 <span>Loyalty Rules</span>
             </a>
 
+            {{-- Referral Settings --}}
+            <a href="/referral-settings"
+            class="sidebar-item {{ str_contains($current,'referral-settings') ? 'active' : '' }}">
+                <div class="sidebar-icon">
+                    <i data-lucide="users-round"></i>
+                </div>
+                <span>Referral</span>
+            </a>
+
             {{-- 9. Category --}}
             <a href="/restaurant/categories"
             class="sidebar-item {{ str_contains($current,'restaurant/categories') ? 'active' : '' }}">
