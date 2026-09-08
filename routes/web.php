@@ -319,6 +319,9 @@ Route::get('/offers/{id}', [FrontMarketingBannerController::class, 'show'])
 Route::post('/offers/contact', [FrontMarketingBannerController::class, 'contact'])
     ->name('front.banners.contact');
 
+Route::post('/referral/apply', [\App\Http\Controllers\Front\OrderController::class, 'applyReferralCode'])
+    ->name('referral.apply');
+
 // Register in routes/web.php:
 Route::get('/offers', [FrontMarketingBannerController::class, 'index'])
      ->name('front.banners.index');

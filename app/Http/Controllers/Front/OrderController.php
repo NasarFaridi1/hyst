@@ -691,7 +691,27 @@ class OrderController extends Controller
                 }
             }
 
-            $subtotalAfterDiscounts = max($subtotalAfterOffers - $couponDiscount - $giftCardDiscount - $loyaltyRewardDiscount, 0);
+            $referralService = app(\App\Services\ReferralService::class);
+            $referralDiscount = 0;
+            $validatedReferralCode = null;
+            $referralSetting = null;
+
+            if ($userId && $request->filled('referral_code')) {
+                $referralRes = $referralService->validateReferralCode(
+                    $request->input('referral_code'),
+                    auth()->user(),
+                    $restaurantId,
+                    $originalTotal
+                );
+
+                if ($referralRes['valid']) {
+                    $referralDiscount = $referralRes['discount_amount'];
+                    $validatedReferralCode = $referralRes['referral_code'];
+                    $referralSetting = $referralRes['setting'];
+                }
+            }
+
+            $subtotalAfterDiscounts = max($subtotalAfterOffers - $couponDiscount - $giftCardDiscount - $loyaltyRewardDiscount - $referralDiscount, 0);
 
             $finalTotal =
                 $subtotalAfterDiscounts
@@ -818,6 +838,8 @@ class OrderController extends Controller
                 'gift_card_amount' => $giftCardDiscount,
                 'loyalty_reward_id' => $appliedLoyaltyReward?->id,
                 'loyalty_discount' => $loyaltyRewardDiscount,
+                'referral_code' => $validatedReferralCode?->code,
+                'referral_discount' => $referralDiscount,
                 'delivery_provider' => $restaurant->self_delivery ? 'self' : 'uber',
                 'is_scheduled' => $request->boolean('is_scheduled'),
                 'scheduled_for' => $request->scheduled_for,
@@ -828,6 +850,10 @@ class OrderController extends Controller
                 'description'=> $request->description,
                 
             ]);
+
+            if ($validatedReferralCode && $referralDiscount > 0 && $referralSetting) {
+                $referralService->applyReferralToOrder($order, $validatedReferralCode, $referralDiscount, $referralSetting);
+            }
 
             if ($giftCard && $giftCardDiscount > 0) {
                 $giftCard->decrement('balance', $giftCardDiscount);
@@ -2010,5 +2036,48 @@ class OrderController extends Controller
             'success',
             'Evidence uploaded successfully.'
         );
+    }
+
+    public function applyReferralCode(Request $request)
+    {
+        $request->validate([
+            'code' => 'required|string',
+            'restaurant_id' => 'required',
+        ]);
+
+        $code = strtoupper(trim($request->code));
+        $restaurantId = (int) $request->restaurant_id;
+
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please log in to use a referral code.'
+            ]);
+        }
+
+        $cart = session()->get('cart', []);
+        $subtotal = 0;
+        foreach ($cart as $item) {
+            $itemPrice = ($item['base_price'] ?? 0) + ($item['addon_total'] ?? 0);
+            $subtotal += $itemPrice * ($item['quantity'] ?? 1);
+        }
+
+        $referralService = app(\App\Services\ReferralService::class);
+        $result = $referralService->validateReferralCode($code, $user, $restaurantId, $subtotal);
+
+        if (!$result['valid']) {
+            return response()->json([
+                'success' => false,
+                'message' => $result['message'],
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => $result['message'],
+            'discount' => $result['discount_amount'],
+            'referral_code' => $result['referral_code']->code,
+        ]);
     }
 }

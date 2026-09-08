@@ -1149,10 +1149,24 @@
                         </div>
                     @endif
 
-                    <!-- ── PROMOTIONS & COUPONS (UPPER SIDE) ── -->
+                    <!-- ── PROMOTIONS & REFERRALS (UPPER SIDE) ── -->
                     <div style="background:#FAF9F6; border:1px solid var(--border); border-radius:14px; padding:14px; margin-bottom:16px;">
                         <div style="font-size:13px; font-weight:700; color:#374151; margin-bottom:10px; display:flex; align-items:center; gap:6px;">
-                            <span>🏷️ Have a Coupon or Gift Card?</span>
+                            <span>🏷️ Have a Referral Code, Coupon, or Gift Card?</span>
+                        </div>
+
+                        <!-- Dedicated Referral Code Input -->
+                        <div style="margin-bottom:12px; padding:10px; background:#FFF5F0; border:1px dashed #C25A2A; border-radius:10px;">
+                            <label style="display:block; font-size:11px; font-weight:700; color:#C25A2A; margin-bottom:4px; text-transform:uppercase;">
+                                🎁 Referral Code from a Friend
+                            </label>
+                            <div style="display:flex; gap:8px;">
+                                <input type="text" id="referral_code_input" class="co-input" placeholder="Enter Referral Code (e.g. ALEX-9821)" style="text-transform:uppercase; padding:9px 12px; font-size:13px; background:#fff; border:1px solid #FAD7C8;">
+                                <button type="button" id="applyReferralCode" class="co-place-btn" style="width:90px; padding:9px 12px; font-size:12px; background:#C25A2A; box-shadow:none;">
+                                    Apply
+                                </button>
+                            </div>
+                            <div id="referralMessage" style="margin-top:6px; font-size:12px; font-weight:600;"></div>
                         </div>
 
                         <!-- Coupon Input -->
@@ -1224,6 +1238,15 @@
                         </div>
                     @endif
 
+                    <div class="summary-row" id="referralRow" style="display:none;">
+                        <span class="sr-label" style="color:#C25A2A; font-weight:600;">
+                            🎁 Referral Discount
+                        </span>
+                        <span class="sr-value green" id="referralDiscountText" style="color:#C25A2A; font-weight:700;">
+                            -£0.00
+                        </span>
+                    </div>
+
                     <div class="summary-row" id="couponRow" style="display:none;">
                         <span class="sr-label" style="color:#25D366;">
                             🏷️ Coupon Discount
@@ -1256,6 +1279,8 @@
                     <input type="hidden" id="raw_cart_subtotal" value="{{ $originalTotal }}">
                     <input type="hidden" id="offer_discount" value="{{ $discount }}">
                     <input type="hidden" id="loyalty_discount" value="{{ $loyaltyDiscount ?? 0 }}">
+                    <input type="hidden" id="referralCodeHidden" name="referral_code">
+                    <input type="hidden" id="referralDiscountHidden" name="referral_discount" value="0">
                     <input type="hidden" id="delivery_charge" name="delivery_charge" value="0">
                     <input type="hidden" id="hyst_charge" name="hyst_charge" value="0">
                     <input type="hidden" id="uber_quote_id" name="uber_quote_id" value="">
@@ -1810,6 +1835,49 @@
         }
     }
 
+    let referralDiscount = 0;
+
+    document.getElementById('applyReferralCode').onclick = function () {
+        const refCode = document.getElementById('referral_code_input').value;
+        if (!refCode || refCode.trim() === '') {
+            document.getElementById('referralMessage').innerHTML = "<span style='color:#DC2626;'>Please enter a referral code.</span>";
+            return;
+        }
+
+        fetch("{{ route('referral.apply') }}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+            },
+            body: JSON.stringify({
+                code: refCode,
+                restaurant_id: "{{ $restaurant->id }}"
+            })
+        })
+        .then(r => r.json())
+        .then(res => {
+            if (!res.success) {
+                referralDiscount = 0;
+                document.getElementById('referralMessage').innerHTML = "<span style='color:#DC2626;'>" + res.message + "</span>";
+                document.getElementById("referralRow").style.display = "none";
+                document.getElementById("referralDiscountHidden").value = 0;
+                document.getElementById("referralCodeHidden").value = "";
+                updateGrandTotal();
+                return;
+            }
+
+            referralDiscount = parseFloat(res.discount);
+            document.getElementById('referralMessage').innerHTML = "<span style='color:#16A34A;'>✓ Referral Code Applied! (£" + referralDiscount.toFixed(2) + " OFF)</span>";
+            document.getElementById("referralRow").style.display = "flex";
+            document.getElementById("referralDiscountText").innerHTML = "-£" + referralDiscount.toFixed(2);
+            document.getElementById("referralCodeHidden").value = res.referral_code;
+            document.getElementById("referralDiscountHidden").value = referralDiscount;
+            updateGrandTotal();
+            updateTotalSaving();
+        });
+    };
+
     let couponDiscount = 0;
 
     document.getElementById('applyCoupon').onclick = function () {
@@ -1944,7 +2012,8 @@
 
         let subtotalAfterOffer = Math.max(rawSubtotal - offerDiscount, 0);
         let subtotalAfterLoyalty = Math.max(subtotalAfterOffer - loyaltyDiscount, 0);
-        let subtotalAfterCoupon = Math.max(subtotalAfterLoyalty - couponDiscount, 0);
+        let subtotalAfterReferral = Math.max(subtotalAfterLoyalty - referralDiscount, 0);
+        let subtotalAfterCoupon = Math.max(subtotalAfterReferral - couponDiscount, 0);
         let finalSubtotal = Math.max(subtotalAfterCoupon - giftCardDiscount, 0);
 
         let orderType = document.querySelector('input[name="order_type"]:checked');
