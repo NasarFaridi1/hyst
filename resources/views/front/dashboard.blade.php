@@ -338,34 +338,48 @@
                 </div>
             </div>
 
-            {{-- STAT CARDS --}}
-            {{-- <div class="stat-grid">
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><path stroke-linecap="round" d="M1 10h22"/></svg>
+            {{-- REFERRAL CODE & REWARDS CARD --}}
+            <div class="table-card mb-6" style="margin-bottom: 24px; padding: 20px 24px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+                    <div>
+                        <div class="dash-eyebrow" style="margin-bottom: 4px;">Earn Discount Rewards</div>
+                        <h2 style="font-family: 'Poppins', sans-serif; font-size: 18px; font-weight: 700; color: #0D0D0D; margin: 0;">
+                            Refer Friends to Hyst
+                        </h2>
+                        <p style="font-size: 13px; color: #6B7280; margin-top: 4px;">
+                            Share your referral code with friends. They get a discount on their first order, and you earn rewards!
+                        </p>
                     </div>
-                    <div class="stat-label">My Orders</div>
-                    <div class="stat-value">
-                        {{ \App\Models\Order::where('user_id', auth()->id())->count() }}
+
+                    <div style="display: flex; align-items: center; gap: 12px; background: #FAF7F2; border: 1px dashed #C25A2A; padding: 10px 16px; border-radius: 12px;">
+                        <div>
+                            <span style="font-size: 10.5px; font-weight: 700; color: #9CA3AF; text-transform: uppercase;">Your Code</span>
+                            <div style="font-family: 'Poppins', sans-serif; font-size: 18px; font-weight: 800; color: #C25A2A; letter-spacing: 0.05em;">
+                                {{ $referralCode->code ?? 'N/A' }}
+                            </div>
+                        </div>
+                        <button onclick="navigator.clipboard.writeText('{{ $referralCode->code ?? '' }}'); alert('Referral code copied!');" 
+                                style="background: #C25A2A; color: #fff; border: none; padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;">
+                            Copy Code
+                        </button>
                     </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.66 0-3 .9-3 2s1.34 2 3 2 3 .9 3 2-1.34 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V6m0 10v2"/><circle cx="12" cy="12" r="9"/></svg>
+
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 18px; padding-top: 16px; border-top: 1px solid #F0F0EC;">
+                    <div style="background: #F9FAFB; padding: 12px 16px; border-radius: 12px;">
+                        <span style="font-size: 11px; color: #6B7280; font-weight: 600; text-transform: uppercase;">Successful Referrals</span>
+                        <div style="font-family: 'Poppins', sans-serif; font-size: 20px; font-weight: 800; color: #111827; margin-top: 2px;">
+                            {{ $referralStats['total_referrals'] ?? 0 }}
+                        </div>
                     </div>
-                    <div class="stat-label">Total Spent</div>
-                    <div class="stat-value green">
-                        £{{ number_format(\App\Models\Payment::where('user_id', auth()->id())->where('payment_status','paid')->sum('amount'), 2) }}
+                    <div style="background: #ECFDF5; padding: 12px 16px; border-radius: 12px;">
+                        <span style="font-size: 11px; color: #047857; font-weight: 600; text-transform: uppercase;">Total Rewards Earned</span>
+                        <div style="font-family: 'Poppins', sans-serif; font-size: 20px; font-weight: 800; color: #047857; margin-top: 2px;">
+                            £{{ number_format($referralStats['total_earned'] ?? 0, 2) }}
+                        </div>
                     </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path stroke-linecap="round" stroke-linejoin="round" d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
-                    </div>
-                    <div class="stat-label">Cart Items</div>
-                    <div class="stat-value">{{ count(session('cart', [])) }}</div>
-                </div>
-            </div> --}}
+            </div>
 
             {{-- RECENT ORDERS --}}
             <div class="table-card">

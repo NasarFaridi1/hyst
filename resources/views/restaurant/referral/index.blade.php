@@ -13,7 +13,7 @@
     <!-- Header -->
     <div class="mb-6">
         <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
-            <i class="fas fa-users-rays text-[#C25A2A]"></i> Restaurant Referral Program Settings
+            <i class="fas fa-user-friends text-[#C25A2A]"></i> Restaurant Referral Program Settings
         </h2>
         <p class="text-sm text-gray-500 mt-1">
             Configure how your customers refer their friends to order from your restaurant. Set referee discounts, minimum order requirements, and referrer rewards!
@@ -38,7 +38,7 @@
                 <i class="fas fa-sliders text-[#C25A2A]"></i> Referral Settings & Rules
             </h3>
 
-            <form action="{{ route('referral.settings.update') }}" method="POST" class="space-y-5">
+            <form action="{{ route('restaurant.referral.settings.update') }}" method="POST" class="space-y-5">
                 @csrf
 
                 <!-- Enable/Disable Switch -->

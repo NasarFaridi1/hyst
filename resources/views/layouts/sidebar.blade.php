@@ -383,10 +383,10 @@
             </a>
 
             {{-- Referral Settings --}}
-            <a href="/referral-settings"
-            class="sidebar-item {{ str_contains($current,'referral-settings') ? 'active' : '' }}">
+            <a href="/restaurant/referral-settings"
+            class="sidebar-item {{ str_contains($current,'restaurant/referral-settings') ? 'active' : '' }}">
                 <div class="sidebar-icon">
-                    <i data-lucide="users-round"></i>
+                    <i data-lucide="users"></i>
                 </div>
                 <span>Referral</span>
             </a>
