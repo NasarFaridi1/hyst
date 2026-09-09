@@ -561,6 +561,27 @@
 
         @endif
 
+        {{-- SYSTEM ADMIN --}}
+        @if(auth()->user()->role == 'system_admin')
+
+            <a href="/system-admin/dashboard"
+            class="sidebar-item {{ str_contains($current,'system-admin/dashboard') ? 'active' : '' }}">
+                <div class="sidebar-icon">
+                    <i data-lucide="layout-dashboard"></i>
+                </div>
+                <span>Dashboard</span>
+            </a>
+
+            <a href="/system-admin/product-charges"
+            class="sidebar-item {{ str_contains($current,'system-admin/product-charges') ? 'active' : '' }}">
+                <div class="sidebar-icon">
+                    <i data-lucide="percent"></i>
+                </div>
+                <span>Product Charges</span>
+            </a>
+
+        @endif
+
         <form method="POST" action="{{ route('logout') }}">
             @csrf
 

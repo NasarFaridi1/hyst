@@ -489,6 +489,15 @@ Route::middleware(['auth'])
 
     });
 
+Route::middleware(['auth', 'system_admin'])
+    ->prefix('system-admin')
+    ->name('system_admin.')
+    ->group(function () {
+        Route::get('/dashboard', [\App\Http\Controllers\SystemAdmin\DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/product-charges', [\App\Http\Controllers\SystemAdmin\ProductChargeController::class, 'index'])->name('product-charges.index');
+        Route::post('/product-charges', [\App\Http\Controllers\SystemAdmin\ProductChargeController::class, 'storeOrUpdate'])->name('product-charges.update');
+    });
+
 Route::middleware(['auth', 'super_admin'])
     ->prefix('admin')
     ->name('admin.')

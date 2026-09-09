@@ -2025,16 +2025,8 @@
             isDelivery = true;
         }
 
-        let hyst = 0;
-        if (finalSubtotal < 20) {
-            hyst = 1.00;
-        } else if (finalSubtotal < 50) {
-            hyst = 2.00;
-        } else if (finalSubtotal < 100) {
-            hyst = 4.00;
-        } else {
-            hyst = 8.00;
-        }
+        let hystPct = {{ $hystPercentage ?? 0 }};
+        let hyst = hystPct > 0 ? ((finalSubtotal * hystPct) / 100) : 0;
 
         let hystInput = document.getElementById("hyst_charge");
         if (hystInput) hystInput.value = hyst.toFixed(2);

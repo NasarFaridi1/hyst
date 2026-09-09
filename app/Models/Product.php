@@ -68,4 +68,20 @@ class Product extends Model
     {
         return $this->hasMany(ProductAddon::class);
     }
+
+    public function getHystPercentageAttribute(): float
+    {
+        return \App\Models\ProductCharge::getActivePercentage();
+    }
+
+    public function getHystChargeAmountAttribute(): float
+    {
+        $pct = $this->hyst_percentage;
+        return $pct > 0 ? round(($this->price * $pct) / 100, 2) : 0.0;
+    }
+
+    public function getFrontendPriceAttribute(): float
+    {
+        return (float) ($this->price + $this->hyst_charge_amount);
+    }
 }

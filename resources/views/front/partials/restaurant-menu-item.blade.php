@@ -17,14 +17,24 @@
 
     $spicyLevel = $product->spicy_level ?? 0;
 
-    // Build variants array exactly as old view: data-variants='@json($product->variants)'
-    $variants = $product->variants ?? collect();
-    $addons   = $product->addons   ?? collect();
+    // Build variants array with HYST charge percentage applied
+    $rawVariants = $product->variants ?? collect();
+    $addons      = $product->addons   ?? collect();
+    $hystPct     = \App\Models\ProductCharge::getActivePercentage();
+
+    $variants = $rawVariants->map(function($v) use ($hystPct) {
+        $vCopy = clone $v;
+        if ($hystPct > 0) {
+            $vCopy->price = round($v->price + ($v->price * $hystPct / 100), 2);
+        }
+        return $vCopy;
+    });
 
     $hasCustom = $variants->count() || $addons->count();
 
-    // Price: first variant price if exists, else product price
-    $price = $variants->count() ? $variants->first()->price : ($product->price ?? 0);
+    // Price: first variant price if exists, else product price (with HYST charge percentage added)
+    $rawBasePrice = $rawVariants->count() ? $rawVariants->first()->price : ($product->price ?? 0);
+    $price = $hystPct > 0 ? round($rawBasePrice + ($rawBasePrice * $hystPct / 100), 2) : $rawBasePrice;
 
     $avgRating = $product->reviews_avg_rating ?? null;
 

@@ -111,6 +111,10 @@ class AdminLoginController extends Controller
                 return redirect('/admin/dashboard');
             }
 
+            if ($user->role == 'system_admin') {
+                return redirect('/system-admin/dashboard');
+            }
+
             if ($user->role == 'restaurant_admin') {
                 return redirect('/restaurant/dashboard');
             }

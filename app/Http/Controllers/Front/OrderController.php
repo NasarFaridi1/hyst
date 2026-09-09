@@ -305,7 +305,16 @@ class OrderController extends Controller
 
             $serviceCharge = 0;
             $deliveryCharge = 0;
-            $hystCharge = 0;
+            
+            $hystPercentage = \App\Models\ProductCharge::getActivePercentage();
+            $calculatedHystCharge = 0;
+            foreach ($cart as $item) {
+                $qty = $item['quantity'] ?? 1;
+                $bPrice = $item['base_price'] ?? 0;
+                $itemHyst = $item['hyst_charge_per_unit'] ?? ($hystPercentage > 0 ? round(($bPrice * $hystPercentage) / 100, 2) : 0);
+                $calculatedHystCharge += ($itemHyst * $qty);
+            }
+            $hystCharge = $calculatedHystCharge;
 
             $finalTotal +=
                 $deliveryCharge +
@@ -333,6 +342,7 @@ class OrderController extends Controller
                     'serviceCharge',
                     'deliveryCharge',
                     'hystCharge',
+                    'hystPercentage',
                     'addresses',
                     'activeLoyaltyReward',
                     'loyaltyDiscount',
@@ -592,7 +602,18 @@ class OrderController extends Controller
 
             $serviceCharge = (float) $request->service_charge;
             $deliveryCharge = (float) $request->delivery_charge;
-            $hystCharge = (float) $request->hyst_charge;
+
+            $hystPct = \App\Models\ProductCharge::getActivePercentage();
+            $calculatedHystCharge = 0;
+            foreach ($cart as $item) {
+                $qty = $item['quantity'] ?? 1;
+                $bPrice = $item['base_price'] ?? 0;
+                $itemHyst = $item['hyst_charge_per_unit'] ?? ($hystPct > 0 ? round(($bPrice * $hystPct) / 100, 2) : 0);
+                $calculatedHystCharge += ($itemHyst * $qty);
+            }
+            $hystCharge = ($request->filled('hyst_charge') && (float)$request->hyst_charge > 0)
+                ? (float) $request->hyst_charge
+                : $calculatedHystCharge;
 
             $couponDiscount = 0;
             $coupon = null;

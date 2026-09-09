@@ -54,8 +54,8 @@ class CartController extends Controller
 
             $unitPrice =
                 ($row['base_price'] ?? 0)
-                +
-                ($row['addon_total'] ?? 0);
+                + ($row['hyst_charge_per_unit'] ?? 0)
+                + ($row['addon_total'] ?? 0);
 
             $lineTotal = $unitPrice * $qty;
 
@@ -204,63 +204,34 @@ class CartController extends Controller
             ? $variant->price
             : $product->price;
 
-        $finalPrice = $basePrice + $addonTotal;
+        $hystPct = \App\Models\ProductCharge::getActivePercentage();
+        $hystChargePerUnit = $hystPct > 0 ? round(($basePrice * $hystPct) / 100, 2) : 0.0;
+        $unitPriceWithHyst = $basePrice + $hystChargePerUnit;
 
-        
+        $finalPrice = $unitPriceWithHyst + $addonTotal;
 
         if (
             isset(
-            
              $cart[$cartKey]
         )
-        
         ) {
-
-            
-
-            // $cart[
-            //     $cartKey
-            // ]['quantity']++;
-                $cart[$cartKey]['quantity'] += $quantity;
-           
-
+            $cart[$cartKey]['quantity'] += $quantity;
         } else {
-
-            // $cart[
-            //     $product->id
-            // ] = [
             $cart[
                 $cartKey
             ] = [
-            
                 'cart_key' => $cartKey,
-
                 'restaurant_id' => $product->restaurant_id,
-
                 'id' => $product->id,
-
                 'name' => $product->name,
                 'variant_id' => $variant?->id,
-
                 'variant_name' => $variant?->name,
-
-                // 'price' => $product->price,
-                // 'price' => $variant
-                // ? $variant->price
-                // : $product->price,
-
                 'addons' => $addonItems,
-
                 'price' => $finalPrice,
-
                 'base_price' => $basePrice,
-
+                'hyst_charge_per_unit' => $hystChargePerUnit,
                 'addon_total' => $addonTotal,
-
                 'image' => $product->image,
-
-                // 'quantity' => 1
-
                 'quantity' => $quantity
             ];
         }
