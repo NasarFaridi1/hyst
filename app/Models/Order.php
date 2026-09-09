@@ -33,6 +33,7 @@ class Order extends Model
         'service_charge',
         'delivery_charge',
         'hyst_charge',
+        'product_charge',
         'cancel_reason',
         'cancelled_by',
 

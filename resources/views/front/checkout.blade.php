@@ -1265,6 +1265,11 @@
                         </span>
                     </div>
 
+                    <div class="summary-row" id="productChargeRow" style="{{ ($productChargeTotal ?? 0) > 0 ? '' : 'display:none;' }}">
+                        <span class="sr-label">Product Additional Charge ({{ $hystPercentage ?? 0 }}%)</span>
+                        <span class="sr-value" id="productChargeText">£{{ number_format($productChargeTotal ?? 0, 2) }}</span>
+                    </div>
+
                     <div class="summary-row" id="deliveryChargeRow">
                         <span class="sr-label">Delivery Charge</span>
                         <span class="sr-value" id="deliveryChargeText">£0.00</span>
@@ -1283,6 +1288,7 @@
                     <input type="hidden" id="referralDiscountHidden" name="referral_discount" value="0">
                     <input type="hidden" id="delivery_charge" name="delivery_charge" value="0">
                     <input type="hidden" id="hyst_charge" name="hyst_charge" value="0">
+                    <input type="hidden" id="product_charge" name="product_charge" value="{{ $productChargeTotal ?? 0 }}">
                     <input type="hidden" id="uber_quote_id" name="uber_quote_id" value="">
                     <input type="hidden" id="cartSubtotal" value="{{ max($originalTotal - $discount - ($loyaltyDiscount ?? 0), 0) }}">
                     <input type="hidden" id="couponIdHidden" name="coupon_id">
@@ -2025,8 +2031,16 @@
             isDelivery = true;
         }
 
-        let hystPct = {{ $hystPercentage ?? 0 }};
-        let hyst = hystPct > 0 ? ((finalSubtotal * hystPct) / 100) : 0;
+        let hyst = 0;
+        if (finalSubtotal < 20) {
+            hyst = 1.00;
+        } else if (finalSubtotal < 50) {
+            hyst = 2.00;
+        } else if (finalSubtotal < 100) {
+            hyst = 4.00;
+        } else {
+            hyst = 8.00;
+        }
 
         let hystInput = document.getElementById("hyst_charge");
         if (hystInput) hystInput.value = hyst.toFixed(2);
@@ -2034,7 +2048,21 @@
         let hystText = document.getElementById("hystChargeText");
         if (hystText) hystText.innerHTML = "£" + hyst.toFixed(2);
 
-        let total = finalSubtotal + delivery + hyst;
+        let productChargePct = {{ $hystPercentage ?? 0 }};
+        let productCharge = productChargePct > 0 ? parseFloat(((subtotalAfterOffer) * productChargePct / 100).toFixed(2)) : 0;
+
+        let productChargeInput = document.getElementById("product_charge");
+        if (productChargeInput) productChargeInput.value = productCharge.toFixed(2);
+
+        let productChargeText = document.getElementById("productChargeText");
+        if (productChargeText) productChargeText.innerHTML = "£" + productCharge.toFixed(2);
+
+        let productChargeRow = document.getElementById("productChargeRow");
+        if (productChargeRow) {
+            productChargeRow.style.display = productCharge > 0 ? "" : "none";
+        }
+
+        let total = finalSubtotal + delivery + hyst + productCharge;
 
         if (document.getElementById("subtotalAfterOfferText")) {
             document.getElementById("subtotalAfterOfferText").innerHTML = "£" + subtotalAfterOffer.toFixed(2);

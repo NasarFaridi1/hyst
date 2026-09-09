@@ -2353,8 +2353,16 @@
                 {{-- Hyst Charge --}}
                 @if($order->hyst_charge > 0)
                 <div class="items-total-row" style="display:flex; justify-content:space-between; align-items:center; padding:18px 28px; border-top:1px solid #F0EDE8;">
-                    <span class="items-total-label" style="font-size:15px; font-weight:700; color:#111827;">Hyst Charge</span>
+                    <span class="items-total-label" style="font-size:15px; font-weight:700; color:#111827;">Operation Charge</span>
                     <span class="item-total" style="font-size:15px; font-weight:700; color:#C25A2A;">£{{ number_format($order->hyst_charge, 2) }}</span>
+                </div>
+                @endif
+
+                {{-- Product Additional Charge --}}
+                @if(($order->product_charge ?? 0) > 0)
+                <div class="items-total-row" style="display:flex; justify-content:space-between; align-items:center; padding:18px 28px; border-top:1px solid #F0EDE8;">
+                    <span class="items-total-label" style="font-size:15px; font-weight:700; color:#111827;">Product Additional Charge</span>
+                    <span class="item-total" style="font-size:15px; font-weight:700; color:#C25A2A;">£{{ number_format($order->product_charge, 2) }}</span>
                 </div>
                 @endif
 

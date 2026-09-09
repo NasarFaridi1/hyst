@@ -266,8 +266,14 @@
                 @endif
                 @if($order->hyst_charge > 0)
                 <tr>
-                    <td colspan="3" class="p-4 text-right font-semibold text-gray-600">Hyst Charge</td>
+                    <td colspan="3" class="p-4 text-right font-semibold text-gray-600">Operation Charge</td>
                     <td class="p-4 font-bold text-gray-800">£{{ number_format($order->hyst_charge, 2) }}</td>
+                </tr>
+                @endif
+                @if(($order->product_charge ?? 0) > 0)
+                <tr>
+                    <td colspan="3" class="p-4 text-right font-semibold text-gray-600">Product Additional Charge</td>
+                    <td class="p-4 font-bold text-gray-800">£{{ number_format($order->product_charge, 2) }}</td>
                 </tr>
                 @endif
                 @if(($order->offer_discount ?? 0) > 0)

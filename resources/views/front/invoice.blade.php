@@ -344,6 +344,13 @@
                     </div>
                     @endif
 
+                    @if(($order->product_charge ?? 0) > 0)
+                    <div class="flex justify-between items-center pb-1">
+                        <span class="font-medium text-gray-600">Product Additional Charge</span>
+                        <span class="font-bold text-gray-900">£{{ number_format($order->product_charge, 2) }}</span>
+                    </div>
+                    @endif
+
                     <!-- Discounts -->
                     @if(($order->offer_discount ?? 0) > 0)
                     <div class="flex justify-between items-center pb-1 text-red-600">

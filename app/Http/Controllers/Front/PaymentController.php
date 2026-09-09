@@ -160,6 +160,7 @@ class PaymentController extends Controller
                     'delivery_charge' => $request->delivery_charge ?? 0,
                     'service_charge'  => $request->service_charge ?? 0,
                     'hyst_charge'     => $request->hyst_charge ?? 0,
+                    'product_charge'  => $request->product_charge ?? 0,
                     'platform_charge' => $request->platform_charge ?? 0,
                     'extra_charge'    => $request->extra_charge ?? 0,
                     'disbursements'   => $request->disbursements ?? null,

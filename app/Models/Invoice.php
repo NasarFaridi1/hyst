@@ -17,7 +17,8 @@ class Invoice extends Model
         'invoice_date',
         'service_charge',
         'delivery_charge',
-        'hyst_charge'
+        'hyst_charge',
+        'product_charge'
     ];
 
     protected $casts = [
