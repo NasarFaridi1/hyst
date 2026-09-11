@@ -101,9 +101,10 @@ class WorldpayService
             $platformCharge = (float) ($data['platform_charge'] ?? 0);
             $serviceCharge  = (float) ($data['service_charge'] ?? 0);
             $hystCharge     = (float) ($data['hyst_charge'] ?? 0);
+            $productCharge  = (float) ($data['product_charge'] ?? 0);
             $extraCharge    = (float) ($data['extra_charge'] ?? 0);
 
-            $calculatedExtraAmount = $deliveryCharge + $platformCharge + $serviceCharge + $hystCharge + $extraCharge;
+            $calculatedExtraAmount = $deliveryCharge + $platformCharge + $serviceCharge + $hystCharge + $productCharge + $extraCharge;
 
             if (isset($data['disbursement_amount'])) {
                 $disbursementAmount = (float) $data['disbursement_amount'];

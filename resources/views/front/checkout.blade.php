@@ -1194,8 +1194,8 @@
 
                     @foreach($cart as $cartKey => $item)
                     @php
-                        $itemPrice = $item['price'] ?? (($item['base_price'] ?? 0) + ($item['hyst_charge_per_unit'] ?? 0) + ($item['addon_total'] ?? 0));
-                        $subtotal = $itemPrice * ($item['quantity'] ?? 1);
+                        $itemPrice = $item['base_price'] + ($item['addon_total'] ?? 0);
+                        $subtotal = $item['subtotal'] ?? ($itemPrice * $item['quantity']);
                     @endphp
                     <div class="summary-row" id="summary-item-{{ $cartKey }}" style="font-size:13px;">
                         <span class="sr-label" style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; padding-right:8px;">

@@ -5,7 +5,7 @@
 @php
     $isAdmin = auth()->check() &&
         in_array(auth()->user()->role, ['super_admin', 'restaurant_admin']);
-    
+    $hystPct = \App\Models\ProductCharge::getActivePercentage();
 @endphp
 
     <section style="background:#F5F5F0; padding:60px 0 80px;">
@@ -189,6 +189,9 @@
                             ">
 
                                 @foreach($product->variants as $variant)
+                                    @php
+                                        $vPriceWithCharge = $hystPct > 0 ? round($variant->price + ($variant->price * $hystPct / 100), 2) : $variant->price;
+                                    @endphp
 
                                     <label style="
                                         display:flex;
@@ -212,7 +215,7 @@
                                                 type="radio"
                                                 name="variantSelect"
                                                 value="{{ $variant->id }}"
-                                                data-price="{{ $variant->price }}"
+                                                data-price="{{ $vPriceWithCharge }}"
                                                 style="
                                                     width:18px;
                                                     height:18px;
@@ -235,7 +238,7 @@
                                             font-weight:700;
                                             color:#111827;
                                         ">
-                                            £{{ number_format($variant->price,2) }}
+                                            £{{ number_format($vPriceWithCharge, 2) }}
                                         </span>
 
                                     </label>
@@ -252,7 +255,7 @@
                     <div style="display:flex; align-items:baseline; gap:10px; margin-bottom:24px;">
                         <span
                             style="font-family:'Poppins',sans-serif; font-size:42px; font-weight:800; color:#C25A2A; line-height:1;">
-                            £{{ $product->price }}
+                            £{{ number_format($product->frontend_price, 2) }}
                         </span>
                         <span style="font-size:14px; color:#9CA3AF; font-weight:500;">per serving</span>
                     </div>

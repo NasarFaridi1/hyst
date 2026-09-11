@@ -277,7 +277,7 @@ class CartController extends Controller
             $cart[$cartKey]['addon_total'] = $addonTotal;
 
             $cart[$cartKey]['price'] =
-                $cart[$cartKey]['base_price'] + $addonTotal;
+                $cart[$cartKey]['base_price'] + ($cart[$cartKey]['hyst_charge_per_unit'] ?? 0) + $addonTotal;
 
             session()->put('cart',$cart);
         }
@@ -296,10 +296,10 @@ class CartController extends Controller
 
         if ($request->expectsJson() || $request->ajax() || $request->wantsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
             $item = $cart[$cartKey] ?? null;
-            $itemPrice = $item ? ($item['base_price'] + ($item['addon_total'] ?? 0)) : 0;
+            $itemPrice = $item ? (($item['base_price'] ?? 0) + ($item['hyst_charge_per_unit'] ?? 0) + ($item['addon_total'] ?? 0)) : 0;
             $itemSubtotal = $item ? ($itemPrice * $item['quantity']) : 0;
             $originalTotal = collect($cart)->sum(function($i) {
-                return ($i['base_price'] + ($i['addon_total'] ?? 0)) * $i['quantity'];
+                return (($i['base_price'] ?? 0) + ($i['hyst_charge_per_unit'] ?? 0) + ($i['addon_total'] ?? 0)) * $i['quantity'];
             });
 
             return response()->json([
@@ -331,10 +331,10 @@ class CartController extends Controller
 
         if ($request->expectsJson() || $request->ajax() || $request->wantsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
             $item = $cart[$cartKey] ?? null;
-            $itemPrice = $item ? ($item['base_price'] + ($item['addon_total'] ?? 0)) : 0;
+            $itemPrice = $item ? (($item['base_price'] ?? 0) + ($item['hyst_charge_per_unit'] ?? 0) + ($item['addon_total'] ?? 0)) : 0;
             $itemSubtotal = $item ? ($itemPrice * $item['quantity']) : 0;
             $originalTotal = collect($cart)->sum(function($i) {
-                return ($i['base_price'] + ($i['addon_total'] ?? 0)) * $i['quantity'];
+                return (($i['base_price'] ?? 0) + ($i['hyst_charge_per_unit'] ?? 0) + ($i['addon_total'] ?? 0)) * $i['quantity'];
             });
 
             return response()->json([
@@ -362,7 +362,7 @@ class CartController extends Controller
 
         if ($request->expectsJson() || $request->ajax() || $request->wantsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
             $originalTotal = collect($cart)->sum(function($i) {
-                return ($i['base_price'] + ($i['addon_total'] ?? 0)) * $i['quantity'];
+                return (($i['base_price'] ?? 0) + ($i['hyst_charge_per_unit'] ?? 0) + ($i['addon_total'] ?? 0)) * $i['quantity'];
             });
 
             return response()->json([
