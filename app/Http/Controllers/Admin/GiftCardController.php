@@ -111,7 +111,7 @@ class GiftCardController extends Controller
         }
 
         $subtotal = collect($cart)->sum(function($item){
-            return ($item['base_price'] + ($item['addon_total'] ?? 0))
+            return (($item['base_price'] ?? 0) + ($item['hyst_charge_per_unit'] ?? 0) + ($item['addon_total'] ?? 0))
                 * $item['quantity'];
         });
 

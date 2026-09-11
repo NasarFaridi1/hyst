@@ -188,6 +188,7 @@ class OrderController extends Controller
 
                             $itemPrice =
                                 ($item['base_price'] ?? 0)
+                                + ($item['hyst_charge_per_unit'] ?? 0)
                                 + ($item['addon_total'] ?? 0);
 
                             $offerProductsTotal +=
@@ -291,6 +292,7 @@ class OrderController extends Controller
 
                 $itemPrice =
                     ($item['base_price'] ?? 0)
+                    + ($item['hyst_charge_per_unit'] ?? 0)
                     + ($item['addon_total'] ?? 0);
 
                 $cart[$key]['final_price'] = $itemPrice;
@@ -928,7 +930,8 @@ class OrderController extends Controller
             foreach ($cart as $item) {
 
                 $itemPrice =
-                    $item['base_price']
+                    ($item['base_price'] ?? 0)
+                    + ($item['hyst_charge_per_unit'] ?? 0)
                     + ($item['addon_total'] ?? 0);
 
                 $orderItem = OrderItem::create([
@@ -2075,7 +2078,7 @@ class OrderController extends Controller
         $cart = session()->get('cart', []);
         $subtotal = 0;
         foreach ($cart as $item) {
-            $itemPrice = ($item['base_price'] ?? 0) + ($item['addon_total'] ?? 0);
+            $itemPrice = ($item['base_price'] ?? 0) + ($item['hyst_charge_per_unit'] ?? 0) + ($item['addon_total'] ?? 0);
             $subtotal += $itemPrice * ($item['quantity'] ?? 1);
         }
 
