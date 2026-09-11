@@ -1265,11 +1265,6 @@
                         </span>
                     </div>
 
-                    <div class="summary-row" id="productChargeRow" style="{{ ($productChargeTotal ?? 0) > 0 ? '' : 'display:none;' }}">
-                        <span class="sr-label">Product Additional Charge ({{ $hystPercentage ?? 0 }}%)</span>
-                        <span class="sr-value" id="productChargeText">£{{ number_format($productChargeTotal ?? 0, 2) }}</span>
-                    </div>
-
                     <div class="summary-row" id="deliveryChargeRow">
                         <span class="sr-label">Delivery Charge</span>
                         <span class="sr-value" id="deliveryChargeText">£0.00</span>
@@ -2054,15 +2049,7 @@
         let productChargeInput = document.getElementById("product_charge");
         if (productChargeInput) productChargeInput.value = productCharge.toFixed(2);
 
-        let productChargeText = document.getElementById("productChargeText");
-        if (productChargeText) productChargeText.innerHTML = "£" + productCharge.toFixed(2);
-
-        let productChargeRow = document.getElementById("productChargeRow");
-        if (productChargeRow) {
-            productChargeRow.style.display = productCharge > 0 ? "" : "none";
-        }
-
-        let total = finalSubtotal + delivery + hyst + productCharge;
+        let total = finalSubtotal + delivery + hyst;
 
         if (document.getElementById("subtotalAfterOfferText")) {
             document.getElementById("subtotalAfterOfferText").innerHTML = "£" + subtotalAfterOffer.toFixed(2);

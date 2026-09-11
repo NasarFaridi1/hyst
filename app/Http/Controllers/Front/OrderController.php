@@ -112,6 +112,7 @@ class OrderController extends Controller
 
                 $itemPrice =
                     ($item['base_price'] ?? 0)
+                    + ($item['hyst_charge_per_unit'] ?? 0)
                     + ($item['addon_total'] ?? 0);
 
                 $originalTotal +=
@@ -316,7 +317,6 @@ class OrderController extends Controller
             }
 
             $finalTotal +=
-                $productChargeTotal +
                 $deliveryCharge +
                 $hystCharge;
 
@@ -460,6 +460,7 @@ class OrderController extends Controller
             foreach ($cart as $item) {
                 $itemPrice =
                     $item['base_price']
+                    + ($item['hyst_charge_per_unit'] ?? 0)
                     + ($item['addon_total'] ?? 0);
 
                 $originalTotal +=
