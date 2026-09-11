@@ -385,8 +385,8 @@
                 @forelse($cart as $cartKey => $item)
                     {{-- @php $total += $item['price'] * $item['quantity']; @endphp --}}
                     @php
-                    $itemTotal = ($item['base_price'] + ($item['addon_total'] ?? 0))
-                                * $item['quantity'];
+                    $itemUnitPrice = ($item['base_price'] + ($item['hyst_charge_per_unit'] ?? 0) + ($item['addon_total'] ?? 0));
+                    $itemTotal = $itemUnitPrice * $item['quantity'];
 
                     $subtotal += $itemTotal;
                     @endphp
@@ -542,7 +542,7 @@
                                 £{{ number_format($itemTotal,2) }}
                             </div>
                             <div class="cart-item-each">
-                                £{{ number_format($item['base_price'] + ($item['addon_total'] ?? 0),2) }} each
+                                £{{ number_format($itemUnitPrice, 2) }} each
                             </div>
                             <a href="{{ url('/cart/remove/'.$cartKey) }}" class="cart-remove" data-cart-action="remove" data-cart-key="{{ $cartKey }}">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" d="M18 6L6 18M6 6l12 12"/></svg>
