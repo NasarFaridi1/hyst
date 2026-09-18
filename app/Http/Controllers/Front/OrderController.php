@@ -608,6 +608,11 @@ class OrderController extends Controller
             $deliveryCharge = (float) $request->delivery_charge;
             $hystCharge = (float) $request->hyst_charge;
 
+            if ($request->order_type === 'dine_in') {
+                $deliveryCharge = 0;
+                $hystCharge = 0;
+            }
+
             $couponDiscount = 0;
             $coupon = null;
 

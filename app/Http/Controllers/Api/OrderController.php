@@ -166,6 +166,12 @@ class OrderController extends Controller
         $deliveryCharge = 0.12;
         $hystCharge = 0.25;
 
+        if ($request->order_type === 'dine_in') {
+            $serviceCharge = 0.0;
+            $deliveryCharge = 0.0;
+            $hystCharge = 0.0;
+        }
+
         $finalTotal +=
         $serviceCharge +
         $deliveryCharge +
@@ -391,6 +397,12 @@ class OrderController extends Controller
         $serviceCharge  = 0.12;
         $deliveryCharge = 0.12;
         $hystCharge     = 0.25;
+
+        if ($request->order_type === 'dine_in') {
+            $serviceCharge  = 0.0;
+            $deliveryCharge = 0.0;
+            $hystCharge     = 0.0;
+        }
 
         $finalTotal += $serviceCharge + $deliveryCharge + $hystCharge;
 

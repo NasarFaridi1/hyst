@@ -157,6 +157,7 @@ class PaymentController extends Controller
                     'postcode'        => $postcode,
                     'state'           => $state,
                     'country'         => $country,
+                    'order_type'      => $request->order_type,
                     'delivery_charge' => $request->delivery_charge ?? 0,
                     'service_charge'  => $request->service_charge ?? 0,
                     'hyst_charge'     => $request->hyst_charge ?? 0,

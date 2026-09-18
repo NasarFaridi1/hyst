@@ -97,14 +97,16 @@ class WorldpayService
         if (!empty($data['disbursements']) && is_array($data['disbursements'])) {
             $disbursements = $data['disbursements'];
         } else {
-            $deliveryCharge = (float) ($data['delivery_charge'] ?? 0);
+            $isDineIn = ($data['order_type'] ?? '') === 'dine_in';
+            $deliveryCharge = $isDineIn ? 0.0 : (float) ($data['delivery_charge'] ?? 0);
             $platformCharge = (float) ($data['platform_charge'] ?? 0);
             $serviceCharge  = (float) ($data['service_charge'] ?? 0);
-            $hystCharge     = (float) ($data['hyst_charge'] ?? 0);
+            $hystCharge     = $isDineIn ? 0.0 : (float) ($data['hyst_charge'] ?? 0);
             $productCharge  = (float) ($data['product_charge'] ?? 0);
             $extraCharge    = (float) ($data['extra_charge'] ?? 0);
+            $miscFee        = $isDineIn ? 0.20 : 0.0;
 
-            $calculatedExtraAmount = $deliveryCharge + $platformCharge + $serviceCharge + $hystCharge + $productCharge + $extraCharge;
+            $calculatedExtraAmount = $deliveryCharge + $platformCharge + $serviceCharge + $hystCharge + $productCharge + $extraCharge + $miscFee;
 
             if (isset($data['disbursement_amount'])) {
                 $disbursementAmount = (float) $data['disbursement_amount'];

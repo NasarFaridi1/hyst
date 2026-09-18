@@ -2027,7 +2027,9 @@
         }
 
         let hyst = 0;
-        if (finalSubtotal < 20) {
+        if (orderType && orderType.value === 'dine_in') {
+            hyst = 0;
+        } else if (finalSubtotal < 20) {
             hyst = 1.00;
         } else if (finalSubtotal < 50) {
             hyst = 2.00;
