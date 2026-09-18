@@ -604,6 +604,10 @@ class OrderController extends Controller
                 }
             }
 
+            if ($request->order_type === 'takeaway' && $originalTotal > 250) {
+                return back()->with('error', 'Takeaway orders cannot exceed £250. Please adjust your order amount.');
+            }
+
             $serviceCharge = (float) $request->service_charge;
             $deliveryCharge = (float) $request->delivery_charge;
             $hystCharge = (float) $request->hyst_charge;
@@ -611,6 +615,18 @@ class OrderController extends Controller
             if ($request->order_type === 'dine_in') {
                 $deliveryCharge = 0;
                 $hystCharge = 0;
+            } elseif ($request->order_type === 'takeaway') {
+                $deliveryCharge = 0;
+                $subAfterOffer = max($originalTotal - $discount, 0);
+                if ($subAfterOffer < 20) {
+                    $hystCharge = 0.99;
+                } elseif ($subAfterOffer < 50) {
+                    $hystCharge = 1.99;
+                } elseif ($subAfterOffer < 100) {
+                    $hystCharge = 3.99;
+                } else {
+                    $hystCharge = round(3.99 + ($subAfterOffer * 0.05), 2);
+                }
             }
 
             $couponDiscount = 0;

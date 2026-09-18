@@ -162,6 +162,13 @@ class OrderController extends Controller
             $finalTotal = max(0, $finalTotal - $loyaltyDiscount);
         }
 
+        if ($request->order_type === 'takeaway' && $originalTotal > 250) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Takeaway orders cannot exceed £250. Please adjust your order amount.'
+            ], 422);
+        }
+
         $serviceCharge = 0.12;
         $deliveryCharge = 0.12;
         $hystCharge = 0.25;
@@ -170,6 +177,19 @@ class OrderController extends Controller
             $serviceCharge = 0.0;
             $deliveryCharge = 0.0;
             $hystCharge = 0.0;
+        } elseif ($request->order_type === 'takeaway') {
+            $serviceCharge = 0.0;
+            $deliveryCharge = 0.0;
+            $subAfterOffer = max(0, $originalTotal - $discount);
+            if ($subAfterOffer < 20) {
+                $hystCharge = 0.99;
+            } elseif ($subAfterOffer < 50) {
+                $hystCharge = 1.99;
+            } elseif ($subAfterOffer < 100) {
+                $hystCharge = 3.99;
+            } else {
+                $hystCharge = round(3.99 + ($subAfterOffer * 0.05), 2);
+            }
         }
 
         $finalTotal +=
@@ -394,6 +414,13 @@ class OrderController extends Controller
             }
         }
 
+        if ($request->order_type === 'takeaway' && $originalTotal > 250) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Takeaway orders cannot exceed £250. Please adjust your order amount.'
+            ], 422);
+        }
+
         $serviceCharge  = 0.12;
         $deliveryCharge = 0.12;
         $hystCharge     = 0.25;
@@ -402,6 +429,19 @@ class OrderController extends Controller
             $serviceCharge  = 0.0;
             $deliveryCharge = 0.0;
             $hystCharge     = 0.0;
+        } elseif ($request->order_type === 'takeaway') {
+            $serviceCharge  = 0.0;
+            $deliveryCharge = 0.0;
+            $subAfterOffer  = max(0, $originalTotal - $discount);
+            if ($subAfterOffer < 20) {
+                $hystCharge = 0.99;
+            } elseif ($subAfterOffer < 50) {
+                $hystCharge = 1.99;
+            } elseif ($subAfterOffer < 100) {
+                $hystCharge = 3.99;
+            } else {
+                $hystCharge = round(3.99 + ($subAfterOffer * 0.05), 2);
+            }
         }
 
         $finalTotal += $serviceCharge + $deliveryCharge + $hystCharge;

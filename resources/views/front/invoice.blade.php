@@ -338,10 +338,21 @@
                     @endif
 
                     @if($order->hyst_charge > 0)
-                    <div class="flex justify-between items-center pb-1">
-                        <span class="font-medium text-gray-600">Operational Charge (HYST)</span>
-                        <span class="font-bold text-gray-900">£{{ number_format($order->hyst_charge, 2) }}</span>
-                    </div>
+                        @if(($order->order_type ?? '') === 'takeaway' && $order->hyst_charge > 3.99)
+                        <div class="flex justify-between items-center pb-1">
+                            <span class="font-medium text-gray-600">Operational Charge</span>
+                            <span class="font-bold text-gray-900">£3.99</span>
+                        </div>
+                        <div class="flex justify-between items-center pb-1">
+                            <span class="font-medium text-gray-600">Handling Charge (5%)</span>
+                            <span class="font-bold text-gray-900">£{{ number_format($order->hyst_charge - 3.99, 2) }}</span>
+                        </div>
+                        @else
+                        <div class="flex justify-between items-center pb-1">
+                            <span class="font-medium text-gray-600">Operational Charge</span>
+                            <span class="font-bold text-gray-900">£{{ number_format($order->hyst_charge, 2) }}</span>
+                        </div>
+                        @endif
                     @endif
 
                     <!-- Discounts -->

@@ -1270,6 +1270,11 @@
                         <span class="sr-value" id="deliveryChargeText">£0.00</span>
                     </div>
 
+                    <div class="summary-row" id="handlingChargeRow" style="display:none;">
+                        <span class="sr-label">Handling Charge (5%)</span>
+                        <span class="sr-value" id="handlingChargeText">£0.00</span>
+                    </div>
+
                     <div class="summary-row">
                         <span class="sr-label">Operation Charge</span>
                         <span class="sr-value" id="hystChargeText">£0.00</span>
@@ -1311,6 +1316,10 @@
                         <span id="totalSavingText">🎉 You're saving £{{ number_format($orderOfferDiscount ?? 0, 2) }} on this order!</span>
                     </div>
                     @endif
+
+                    <div id="takeawayLimitAlert" style="display:none; background:#FEE2E2; border:1px solid #EF4444; border-radius:10px; padding:10px 14px; margin-bottom:12px; font-size:13px; font-weight:600; color:#991B1B;">
+                        ⚠️ Takeaway orders cannot exceed £250. Please adjust your order amount or choose another order type.
+                    </div>
 
                     <button type="submit" class="co-place-btn" form="checkoutForm">
                         <span>Place Order</span>
@@ -2027,8 +2036,20 @@
         }
 
         let hyst = 0;
+        let handlingCharge = 0;
         if (orderType && orderType.value === 'dine_in') {
             hyst = 0;
+        } else if (orderType && orderType.value === 'takeaway') {
+            if (finalSubtotal < 20) {
+                hyst = 0.99;
+            } else if (finalSubtotal < 50) {
+                hyst = 1.99;
+            } else if (finalSubtotal < 100) {
+                hyst = 3.99;
+            } else {
+                hyst = 3.99;
+                handlingCharge = parseFloat((finalSubtotal * 0.05).toFixed(2));
+            }
         } else if (finalSubtotal < 20) {
             hyst = 1.00;
         } else if (finalSubtotal < 50) {
@@ -2039,11 +2060,40 @@
             hyst = 8.00;
         }
 
+        let handlingRow = document.getElementById("handlingChargeRow");
+        let handlingText = document.getElementById("handlingChargeText");
+        if (handlingCharge > 0) {
+            if (handlingRow) handlingRow.style.display = "flex";
+            if (handlingText) handlingText.innerHTML = "£" + handlingCharge.toFixed(2);
+        } else {
+            if (handlingRow) handlingRow.style.display = "none";
+        }
+
+        let totalHystCharge = hyst + handlingCharge;
         let hystInput = document.getElementById("hyst_charge");
-        if (hystInput) hystInput.value = hyst.toFixed(2);
+        if (hystInput) hystInput.value = totalHystCharge.toFixed(2);
 
         let hystText = document.getElementById("hystChargeText");
         if (hystText) hystText.innerHTML = "£" + hyst.toFixed(2);
+
+        let limitAlert = document.getElementById("takeawayLimitAlert");
+        let placeBtns = document.querySelectorAll(".co-place-btn, .mobile-footer-btn");
+
+        if (orderType && orderType.value === 'takeaway' && finalSubtotal > 250) {
+            if (limitAlert) limitAlert.style.display = "block";
+            placeBtns.forEach(btn => {
+                btn.disabled = true;
+                btn.style.opacity = "0.5";
+                btn.style.cursor = "not-allowed";
+            });
+        } else {
+            if (limitAlert) limitAlert.style.display = "none";
+            placeBtns.forEach(btn => {
+                btn.disabled = false;
+                btn.style.opacity = "1";
+                btn.style.cursor = "pointer";
+            });
+        }
 
         let productChargePct = {{ $hystPercentage ?? 0 }};
         let productCharge = productChargePct > 0 ? parseFloat(((subtotalAfterOffer) * productChargePct / 100).toFixed(2)) : 0;
@@ -2051,7 +2101,7 @@
         let productChargeInput = document.getElementById("product_charge");
         if (productChargeInput) productChargeInput.value = productCharge.toFixed(2);
 
-        let total = finalSubtotal + delivery + hyst;
+        let total = finalSubtotal + delivery + totalHystCharge;
 
         if (document.getElementById("subtotalAfterOfferText")) {
             document.getElementById("subtotalAfterOfferText").innerHTML = "£" + subtotalAfterOffer.toFixed(2);
