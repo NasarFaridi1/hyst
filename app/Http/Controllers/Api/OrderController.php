@@ -162,10 +162,10 @@ class OrderController extends Controller
             $finalTotal = max(0, $finalTotal - $loyaltyDiscount);
         }
 
-        if ($request->order_type === 'takeaway' && $originalTotal > 250) {
+        if (($request->order_type === 'takeaway' || $request->order_type === 'delivery') && $originalTotal > 250) {
             return response()->json([
                 'status'  => false,
-                'message' => 'Takeaway orders cannot exceed £250. Please adjust your order amount.'
+                'message' => ucfirst($request->order_type) . ' orders cannot exceed £250. Please adjust your order amount.'
             ], 422);
         }
 
@@ -187,6 +187,36 @@ class OrderController extends Controller
                 $hystCharge = 1.99;
             } elseif ($subAfterOffer < 100) {
                 $hystCharge = 3.99;
+            } else {
+                $hystCharge = round(3.99 + ($subAfterOffer * 0.05), 2);
+            }
+        } elseif ($request->order_type === 'delivery') {
+            $subAfterOffer = max(0, $originalTotal - $discount);
+            $rawDelivery = (float) $request->input('delivery_charge', $deliveryCharge);
+            if ($subAfterOffer < 20) {
+                if ($rawDelivery > 3.99) {
+                    $offset = 1.99;
+                    $deliveryCharge = max(0, $rawDelivery - $offset);
+                    $hystCharge = 1.99 + $offset;
+                } else {
+                    $hystCharge = 1.99;
+                }
+            } elseif ($subAfterOffer < 50) {
+                if ($rawDelivery > 3.99) {
+                    $offset = 1.99;
+                    $deliveryCharge = max(0, $rawDelivery - $offset);
+                    $hystCharge = 1.99 + $offset;
+                } else {
+                    $hystCharge = 1.99;
+                }
+            } elseif ($subAfterOffer < 100) {
+                if ($rawDelivery > 3.99) {
+                    $offset = 1.00;
+                    $deliveryCharge = max(0, $rawDelivery - $offset);
+                    $hystCharge = 3.99 + $offset;
+                } else {
+                    $hystCharge = 3.99;
+                }
             } else {
                 $hystCharge = round(3.99 + ($subAfterOffer * 0.05), 2);
             }
@@ -414,10 +444,10 @@ class OrderController extends Controller
             }
         }
 
-        if ($request->order_type === 'takeaway' && $originalTotal > 250) {
+        if (($request->order_type === 'takeaway' || $request->order_type === 'delivery') && $originalTotal > 250) {
             return response()->json([
                 'status'  => false,
-                'message' => 'Takeaway orders cannot exceed £250. Please adjust your order amount.'
+                'message' => ucfirst($request->order_type) . ' orders cannot exceed £250. Please adjust your order amount.'
             ], 422);
         }
 
@@ -439,6 +469,36 @@ class OrderController extends Controller
                 $hystCharge = 1.99;
             } elseif ($subAfterOffer < 100) {
                 $hystCharge = 3.99;
+            } else {
+                $hystCharge = round(3.99 + ($subAfterOffer * 0.05), 2);
+            }
+        } elseif ($request->order_type === 'delivery') {
+            $subAfterOffer = max(0, $originalTotal - $discount);
+            $rawDelivery = (float) $request->input('delivery_charge', $deliveryCharge);
+            if ($subAfterOffer < 20) {
+                if ($rawDelivery > 3.99) {
+                    $offset = 1.99;
+                    $deliveryCharge = max(0, $rawDelivery - $offset);
+                    $hystCharge = 1.99 + $offset;
+                } else {
+                    $hystCharge = 1.99;
+                }
+            } elseif ($subAfterOffer < 50) {
+                if ($rawDelivery > 3.99) {
+                    $offset = 1.99;
+                    $deliveryCharge = max(0, $rawDelivery - $offset);
+                    $hystCharge = 1.99 + $offset;
+                } else {
+                    $hystCharge = 1.99;
+                }
+            } elseif ($subAfterOffer < 100) {
+                if ($rawDelivery > 3.99) {
+                    $offset = 1.00;
+                    $deliveryCharge = max(0, $rawDelivery - $offset);
+                    $hystCharge = 3.99 + $offset;
+                } else {
+                    $hystCharge = 3.99;
+                }
             } else {
                 $hystCharge = round(3.99 + ($subAfterOffer * 0.05), 2);
             }

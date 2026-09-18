@@ -2037,9 +2037,13 @@
 
         let hyst = 0;
         let handlingCharge = 0;
+        let displayDelivery = delivery;
+
         if (orderType && orderType.value === 'dine_in') {
             hyst = 0;
+            displayDelivery = 0;
         } else if (orderType && orderType.value === 'takeaway') {
+            displayDelivery = 0;
             if (finalSubtotal < 20) {
                 hyst = 0.99;
             } else if (finalSubtotal < 50) {
@@ -2050,15 +2054,49 @@
                 hyst = 3.99;
                 handlingCharge = parseFloat((finalSubtotal * 0.05).toFixed(2));
             }
-        } else if (finalSubtotal < 20) {
-            hyst = 1.00;
-        } else if (finalSubtotal < 50) {
-            hyst = 2.00;
-        } else if (finalSubtotal < 100) {
-            hyst = 4.00;
+        } else if (orderType && orderType.value === 'delivery') {
+            if (finalSubtotal < 20) {
+                if (delivery > 3.99) {
+                    let offset = 1.99;
+                    displayDelivery = Math.max(0, delivery - offset);
+                    hyst = 1.99 + offset;
+                } else {
+                    hyst = 1.99;
+                }
+            } else if (finalSubtotal < 50) {
+                if (delivery > 3.99) {
+                    let offset = 1.99;
+                    displayDelivery = Math.max(0, delivery - offset);
+                    hyst = 1.99 + offset;
+                } else {
+                    hyst = 1.99;
+                }
+            } else if (finalSubtotal < 100) {
+                if (delivery > 3.99) {
+                    let offset = 1.00;
+                    displayDelivery = Math.max(0, delivery - offset);
+                    hyst = 3.99 + offset;
+                } else {
+                    hyst = 3.99;
+                }
+            } else {
+                hyst = 3.99;
+                handlingCharge = parseFloat((finalSubtotal * 0.05).toFixed(2));
+            }
         } else {
-            hyst = 8.00;
+            if (finalSubtotal < 20) {
+                hyst = 1.00;
+            } else if (finalSubtotal < 50) {
+                hyst = 2.00;
+            } else if (finalSubtotal < 100) {
+                hyst = 4.00;
+            } else {
+                hyst = 8.00;
+            }
         }
+
+        let deliveryText = document.getElementById("deliveryChargeText");
+        if (deliveryText) deliveryText.innerHTML = "£" + displayDelivery.toFixed(2);
 
         let handlingRow = document.getElementById("handlingChargeRow");
         let handlingText = document.getElementById("handlingChargeText");
@@ -2079,8 +2117,12 @@
         let limitAlert = document.getElementById("takeawayLimitAlert");
         let placeBtns = document.querySelectorAll(".co-place-btn, .mobile-footer-btn");
 
-        if (orderType && orderType.value === 'takeaway' && finalSubtotal > 250) {
-            if (limitAlert) limitAlert.style.display = "block";
+        let currentType = orderType ? orderType.value : '';
+        if ((currentType === 'takeaway' || currentType === 'delivery') && finalSubtotal > 250) {
+            if (limitAlert) {
+                limitAlert.style.display = "block";
+                limitAlert.innerHTML = "⚠️ " + (currentType === 'takeaway' ? 'Takeaway' : 'Delivery') + " orders cannot exceed £250. Please adjust your order amount or choose another order type.";
+            }
             placeBtns.forEach(btn => {
                 btn.disabled = true;
                 btn.style.opacity = "0.5";
@@ -2101,7 +2143,7 @@
         let productChargeInput = document.getElementById("product_charge");
         if (productChargeInput) productChargeInput.value = productCharge.toFixed(2);
 
-        let total = finalSubtotal + delivery + totalHystCharge;
+        let total = finalSubtotal + displayDelivery + totalHystCharge;
 
         if (document.getElementById("subtotalAfterOfferText")) {
             document.getElementById("subtotalAfterOfferText").innerHTML = "£" + subtotalAfterOffer.toFixed(2);
