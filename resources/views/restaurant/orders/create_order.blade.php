@@ -81,7 +81,7 @@
                                     
                                     <div class="flex gap-3 items-start mb-2">
                                         @if($product->image)
-                                            <img src="{{ asset('storage/'.$product->image) }}"
+                                            <img src="{{ config('services.google_drive.image_url').$product->image }}"
                                                  alt="{{ $product->name }}"
                                                  class="w-14 h-14 object-cover rounded-lg flex-shrink-0 bg-gray-100">
                                         @else
