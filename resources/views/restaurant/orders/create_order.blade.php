@@ -182,10 +182,11 @@
                         <button type="button" onclick="clearCart()" class="text-xs text-red-500 hover:underline">Clear All</button>
                     </h3>
 
-                    <div id="cartList" class="flex-1 overflow-y-auto max-h-[300px] border-y border-gray-100 py-3 space-y-3">
+                    <div id="cartContainer" class="flex-1 overflow-y-auto max-h-[300px] border-y border-gray-100 py-3 space-y-3">
                         <div id="emptyCartNotice" class="text-center py-8 text-gray-400 text-xs">
                             No items added yet. Click "+ Add Item" on menu items on the left.
                         </div>
+                        <div id="cartList" class="space-y-3"></div>
                     </div>
 
                     {{-- Total Breakdown --}}
@@ -314,20 +315,13 @@
     }
 
     function toggleOrderTypeFields() {
-        const type = document.querySelector('input[name="order_type"]:checked').value;
+        const checked = document.querySelector('input[name="order_type"]:checked');
+        const type = checked ? checked.value : 'dine_in';
         const tableWrap = document.getElementById('tableNumWrap');
         const addressWrap = document.getElementById('addressWrap');
 
-        if (type === 'dine_in') {
-            tableWrap.style.display = 'block';
-            addressWrap.style.display = 'none';
-        } else if (type === 'delivery') {
-            tableWrap.style.display = 'none';
-            addressWrap.style.display = 'block';
-        } else {
-            tableWrap.style.display = 'none';
-            addressWrap.style.display = 'none';
-        }
+        if (tableWrap) tableWrap.style.display = (type === 'dine_in') ? 'block' : 'none';
+        if (addressWrap) addressWrap.style.display = (type === 'delivery') ? 'block' : 'none';
     }
 
     function handleProductClick(productId) {
@@ -501,18 +495,17 @@
         document.querySelectorAll('.cart-hidden-input').forEach(el => el.remove());
 
         if (cartItems.length === 0) {
-            emptyNotice.style.display = 'block';
-            list.innerHTML = '';
-            list.appendChild(emptyNotice);
-            document.getElementById('itemCount').innerText = 0;
-            document.getElementById('subtotalText').innerText = '£0.00';
-            document.getElementById('totalText').innerText = '£0.00';
-            btnSubmit.disabled = true;
+            if (emptyNotice) emptyNotice.style.display = 'block';
+            if (list) list.innerHTML = '';
+            if (document.getElementById('itemCount')) document.getElementById('itemCount').innerText = 0;
+            if (document.getElementById('subtotalText')) document.getElementById('subtotalText').innerText = '£0.00';
+            if (document.getElementById('totalText')) document.getElementById('totalText').innerText = '£0.00';
+            if (btnSubmit) btnSubmit.disabled = true;
             return;
         }
 
-        emptyNotice.style.display = 'none';
-        list.innerHTML = '';
+        if (emptyNotice) emptyNotice.style.display = 'none';
+        if (list) list.innerHTML = '';
 
         let subtotal = 0;
         let itemCount = 0;
@@ -550,48 +543,49 @@
                     <button type="button" onclick="removeCartItem(${index})" class="text-red-500 hover:text-red-700 font-bold px-1">✕</button>
                 </div>
             `;
-            list.appendChild(row);
+            if (list) list.appendChild(row);
 
             // Inject hidden inputs into form
             const form = document.getElementById('directOrderForm');
-            
-            const inputProd = document.createElement('input');
-            inputProd.type = 'hidden';
-            inputProd.className = 'cart-hidden-input';
-            inputProd.name = `items[${index}][product_id]`;
-            inputProd.value = item.product_id;
-            form.appendChild(inputProd);
+            if (form) {
+                const inputProd = document.createElement('input');
+                inputProd.type = 'hidden';
+                inputProd.className = 'cart-hidden-input';
+                inputProd.name = `items[${index}][product_id]`;
+                inputProd.value = item.product_id;
+                form.appendChild(inputProd);
 
-            const inputQty = document.createElement('input');
-            inputQty.type = 'hidden';
-            inputQty.className = 'cart-hidden-input';
-            inputQty.name = `items[${index}][quantity]`;
-            inputQty.value = item.quantity;
-            form.appendChild(inputQty);
+                const inputQty = document.createElement('input');
+                inputQty.type = 'hidden';
+                inputQty.className = 'cart-hidden-input';
+                inputQty.name = `items[${index}][quantity]`;
+                inputQty.value = item.quantity;
+                form.appendChild(inputQty);
 
-            if (item.variant_id) {
-                const inputVar = document.createElement('input');
-                inputVar.type = 'hidden';
-                inputVar.className = 'cart-hidden-input';
-                inputVar.name = `items[${index}][variant_id]`;
-                inputVar.value = item.variant_id;
-                form.appendChild(inputVar);
+                if (item.variant_id) {
+                    const inputVar = document.createElement('input');
+                    inputVar.type = 'hidden';
+                    inputVar.className = 'cart-hidden-input';
+                    inputVar.name = `items[${index}][variant_id]`;
+                    inputVar.value = item.variant_id;
+                    form.appendChild(inputVar);
+                }
+
+                item.addons.forEach((ad, aIdx) => {
+                    const inputAd = document.createElement('input');
+                    inputAd.type = 'hidden';
+                    inputAd.className = 'cart-hidden-input';
+                    inputAd.name = `items[${index}][addons][${aIdx}]`;
+                    inputAd.value = ad.id;
+                    form.appendChild(inputAd);
+                });
             }
-
-            item.addons.forEach((ad, aIdx) => {
-                const inputAd = document.createElement('input');
-                inputAd.type = 'hidden';
-                inputAd.className = 'cart-hidden-input';
-                inputAd.name = `items[${index}][addons][${aIdx}]`;
-                inputAd.value = ad.id;
-                form.appendChild(inputAd);
-            });
         });
 
-        document.getElementById('itemCount').innerText = itemCount;
-        document.getElementById('subtotalText').innerText = '£' + subtotal.toFixed(2);
-        document.getElementById('totalText').innerText = '£' + subtotal.toFixed(2);
-        btnSubmit.disabled = false;
+        if (document.getElementById('itemCount')) document.getElementById('itemCount').innerText = itemCount;
+        if (document.getElementById('subtotalText')) document.getElementById('subtotalText').innerText = '£' + subtotal.toFixed(2);
+        if (document.getElementById('totalText')) document.getElementById('totalText').innerText = '£' + subtotal.toFixed(2);
+        if (btnSubmit) btnSubmit.disabled = false;
     }
 
     function changeCartQty(index, delta) {
