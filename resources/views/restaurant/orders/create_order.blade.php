@@ -117,7 +117,7 @@
                                         </div>
 
                                         <button type="button"
-                                                onclick="openOptionsModal({{ json_encode($product) }})"
+                                                onclick="handleProductClick({{ $product->id }})"
                                                 class="bg-[#C25A2A] hover:bg-[#A3451E] text-white px-3 py-1.5 rounded-lg font-semibold text-xs transition duration-150">
                                             + Add Item
                                         </button>
@@ -288,6 +288,7 @@
 </div>
 
 <script>
+    const allProductsMap = @json($products->keyBy('id'));
     let cartItems = [];
     let currentModalProduct = null;
     let modalQty = 1;
@@ -326,6 +327,20 @@
         } else {
             tableWrap.style.display = 'none';
             addressWrap.style.display = 'none';
+        }
+    }
+
+    function handleProductClick(productId) {
+        const product = allProductsMap[productId];
+        if (!product) return;
+
+        const hasVariants = product.variants && product.variants.length > 0;
+        const hasAddons = product.addons && product.addons.length > 0;
+
+        if (hasVariants || hasAddons) {
+            openOptionsModal(product);
+        } else {
+            addItemToCart(product.id, product.name, null, null, parseFloat(product.price), [], 1);
         }
     }
 
@@ -433,20 +448,48 @@
             });
         });
 
-        const cartItem = {
-            key: Date.now() + '_' + Math.random().toString(36).substr(2, 5),
-            product_id: currentModalProduct.id,
-            name: currentModalProduct.name,
-            variant_id: variantId,
-            variant_name: variantName,
-            base_price: basePrice,
-            addons: selectedAddons,
-            quantity: modalQty
-        };
+        addItemToCart(
+            currentModalProduct.id,
+            currentModalProduct.name,
+            variantId,
+            variantName,
+            basePrice,
+            selectedAddons,
+            modalQty
+        );
 
-        cartItems.push(cartItem);
-        renderCart();
         closeOptionsModal();
+    }
+
+    function areAddonsEqual(addons1, addons2) {
+        if (addons1.length !== addons2.length) return false;
+        const ids1 = addons1.map(a => String(a.id)).sort();
+        const ids2 = addons2.map(a => String(a.id)).sort();
+        return ids1.every((id, idx) => id === ids2[idx]);
+    }
+
+    function addItemToCart(productId, name, variantId, variantName, basePrice, addons, qty) {
+        const existingIndex = cartItems.findIndex(item =>
+            item.product_id === productId &&
+            String(item.variant_id) === String(variantId) &&
+            areAddonsEqual(item.addons, addons)
+        );
+
+        if (existingIndex > -1) {
+            cartItems[existingIndex].quantity += qty;
+        } else {
+            cartItems.push({
+                product_id: productId,
+                name: name,
+                variant_id: variantId,
+                variant_name: variantName,
+                base_price: basePrice,
+                addons: addons,
+                quantity: qty
+            });
+        }
+
+        renderCart();
     }
 
     function renderCart() {
