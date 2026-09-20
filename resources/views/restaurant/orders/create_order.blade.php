@@ -135,31 +135,14 @@
 
                 {{-- Customer & Order Type Box --}}
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-                    <h3 class="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
-                        👤 Customer & Order Type
+                    <h3 class="text-base font-bold text-gray-900 mb-3 flex items-center justify-between">
+                        <span class="flex items-center gap-2">👤 Customer & Table Details</span>
+                        <span class="bg-amber-50 text-amber-800 border border-amber-200 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1">
+                            🍽️ Dine In Order
+                        </span>
                     </h3>
 
-                    {{-- Order Type Tabs --}}
-                    <div class="grid grid-cols-3 gap-2 mb-4 bg-gray-100 p-1.5 rounded-xl">
-                        <label class="cursor-pointer">
-                            <input type="radio" name="order_type" value="dine_in" checked onchange="toggleOrderTypeFields()" class="sr-only peer">
-                            <div class="text-center py-2 rounded-lg text-xs font-bold text-gray-600 peer-checked:bg-white peer-checked:text-[#C25A2A] peer-checked:shadow-sm transition">
-                                🍽️ Dine In
-                            </div>
-                        </label>
-                        <label class="cursor-pointer">
-                            <input type="radio" name="order_type" value="takeaway" onchange="toggleOrderTypeFields()" class="sr-only peer">
-                            <div class="text-center py-2 rounded-lg text-xs font-bold text-gray-600 peer-checked:bg-white peer-checked:text-[#C25A2A] peer-checked:shadow-sm transition">
-                                🛍️ Takeaway
-                            </div>
-                        </label>
-                        <label class="cursor-pointer">
-                            <input type="radio" name="order_type" value="delivery" onchange="toggleOrderTypeFields()" class="sr-only peer">
-                            <div class="text-center py-2 rounded-lg text-xs font-bold text-gray-600 peer-checked:bg-white peer-checked:text-[#C25A2A] peer-checked:shadow-sm transition">
-                                🚗 Delivery
-                            </div>
-                        </label>
-                    </div>
+                    <input type="hidden" name="order_type" value="dine_in">
 
                     {{-- Customer Info Inputs --}}
                     <div class="space-y-3">
@@ -175,31 +158,19 @@
 
                         <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-xs font-semibold text-gray-700 mb-1">Phone Number</label>
-                                <input type="text"
-                                       name="customer_phone"
-                                       placeholder="e.g. 07123456789"
-                                       class="w-full border border-gray-300 rounded-xl px-3.5 py-2 text-sm focus:ring-2 focus:ring-[#C25A2A] focus:outline-none">
-                            </div>
-                            <div id="tableNumWrap">
                                 <label class="block text-xs font-semibold text-gray-700 mb-1">Table Number</label>
                                 <input type="text"
                                        name="table_number"
                                        placeholder="e.g. Table 4"
                                        class="w-full border border-gray-300 rounded-xl px-3.5 py-2 text-sm focus:ring-2 focus:ring-[#C25A2A] focus:outline-none">
                             </div>
-                        </div>
-
-                        <div id="addressWrap" class="hidden">
-                            <label class="block text-xs font-semibold text-gray-700 mb-1">Delivery Address *</label>
-                            <input type="text"
-                                   name="address"
-                                   placeholder="Street Address, City"
-                                   class="w-full border border-gray-300 rounded-xl px-3.5 py-2 text-sm focus:ring-2 focus:ring-[#C25A2A] focus:outline-none">
-                            <input type="text"
-                                   name="pincode"
-                                   placeholder="Postcode"
-                                   class="w-full border border-gray-300 rounded-xl px-3.5 py-2 text-sm focus:ring-2 focus:ring-[#C25A2A] focus:outline-none mt-2">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-700 mb-1">Phone Number (Optional)</label>
+                                <input type="text"
+                                       name="customer_phone"
+                                       placeholder="e.g. 07123456789"
+                                       class="w-full border border-gray-300 rounded-xl px-3.5 py-2 text-sm focus:ring-2 focus:ring-[#C25A2A] focus:outline-none">
+                            </div>
                         </div>
                     </div>
                 </div>

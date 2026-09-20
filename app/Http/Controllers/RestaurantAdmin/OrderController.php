@@ -540,7 +540,7 @@ class OrderController extends Controller
         $restaurantId = auth()->user()->restaurant_id;
 
         $request->validate([
-            'order_type' => 'required|in:dine_in,takeaway,delivery',
+            'order_type' => 'required|in:dine_in',
             'payment_method' => 'required|string',
             'payment_status' => 'required|in:pending,paid',
             'customer_name' => 'required|string|max:255',
