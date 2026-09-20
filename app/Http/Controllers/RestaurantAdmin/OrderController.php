@@ -625,6 +625,8 @@ class OrderController extends Controller
                 $addressVal = $restaurant ? $restaurant->address : 'Counter / In-House';
             }
 
+            $initialOrderStatus = ($request->payment_status === 'paid') ? 'completed' : 'accepted';
+
             $order = Order::create([
                 'user_id' => $user?->id,
                 'is_guest' => !$user,
@@ -644,7 +646,7 @@ class OrderController extends Controller
                 'address' => $addressVal,
                 'pincode' => $request->pincode,
                 'payment_method' => $request->payment_method,
-                'status' => 'accepted',
+                'status' => $initialOrderStatus,
                 'order_from' => 'restaurant_pos',
                 'description' => $request->notes,
             ]);
@@ -714,9 +716,19 @@ class OrderController extends Controller
             $updateData = ['payment_status' => $request->payment_status];
             if ($request->filled('payment_method')) {
                 $updateData['payment_method'] = $request->payment_method;
-                $order->update(['payment_method' => $request->payment_method]);
             }
             $payment->update($updateData);
+        }
+
+        $orderUpdate = [];
+        if ($request->filled('payment_method')) {
+            $orderUpdate['payment_method'] = $request->payment_method;
+        }
+        if ($request->payment_status === 'paid') {
+            $orderUpdate['status'] = 'completed';
+        }
+        if (!empty($orderUpdate)) {
+            $order->update($orderUpdate);
         }
 
         if ($order->user_id) {
