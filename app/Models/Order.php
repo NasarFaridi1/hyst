@@ -91,7 +91,8 @@ class Order extends Model
         'loyalty_reward_id',
         'loyalty_discount',
         'referral_code',
-        'referral_discount'
+        'referral_discount',
+        'order_from'
     ];
 
     public function user()

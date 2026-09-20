@@ -10,13 +10,23 @@
 
     </h1>
 
-    <a
-        href="/restaurant/orders"
-        class="bg-black text-white px-6 py-3 rounded-xl">
+    <div class="flex items-center gap-3">
+        <a
+            href="{{ route('restaurant.orders.create_order') }}"
+            class="bg-[#C25A2A] hover:bg-[#A3451E] text-white px-6 py-3 rounded-xl font-bold transition shadow">
 
-        Today's Orders
+            + Create Direct Order
 
-    </a>
+        </a>
+
+        <a
+            href="/restaurant/orders"
+            class="bg-black text-white px-6 py-3 rounded-xl font-bold">
+
+            Today's Orders
+
+        </a>
+    </div>
 
 </div>
 

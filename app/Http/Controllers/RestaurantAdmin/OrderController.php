@@ -8,6 +8,13 @@ use App\Models\Message;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Review;
+use App\Models\Product;
+use App\Models\Category;
+use App\Models\OrderItem;
+use App\Models\OrderItemAddon;
+use App\Models\ProductVariant;
+use App\Models\ProductAddon;
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Services\FirebaseNotificationService;
 use Illuminate\Support\Facades\Http;
@@ -496,56 +503,237 @@ class OrderController extends Controller
         );
     }
 
-    public function updatePaymentStatus(
-        Request $request,
-        $id
-    ) {
-        $order = Order::where(
+    /*
+    |--------------------------------------------------------------------------
+    | CREATE DIRECT / OFFLINE ORDER (RESTAURANT POS)
+    |--------------------------------------------------------------------------
+    */
+    public function createOrder(Request $request)
+    {
+        $restaurantId = auth()->user()->restaurant_id;
 
-            'restaurant_id',
-            auth()->user()->restaurant_id
+        $categories = Category::where(function ($q) use ($restaurantId) {
+            $q->where('restaurant_id', $restaurantId)->orWhereNull('restaurant_id');
+        })
+        ->where('status', 1)
+        ->orderBy('name')
+        ->get();
 
-        )->findOrFail($id);
+        $products = Product::with(['category', 'variants', 'addons'])
+            ->where('restaurant_id', $restaurantId)
+            ->where('status', 1)
+            ->orderBy('name')
+            ->get();
 
-        Payment::where(
+        $customers = User::whereHas('orders', function ($q) use ($restaurantId) {
+            $q->where('restaurant_id', $restaurantId);
+        })
+        ->select('id', 'name', 'email', 'phone')
+        ->limit(20)
+        ->get();
 
-            'order_id',
-            $order->id
+        return view('restaurant.orders.create_order', compact('categories', 'products', 'customers'));
+    }
 
-        )->update([
+    public function storeOfflineOrder(Request $request)
+    {
+        $restaurantId = auth()->user()->restaurant_id;
 
-                    'payment_status' =>
-                        $request->payment_status
+        $request->validate([
+            'order_type' => 'required|in:dine_in,takeaway,delivery',
+            'payment_method' => 'required|string',
+            'payment_status' => 'required|in:pending,paid',
+            'customer_name' => 'required|string|max:255',
+            'customer_phone' => 'nullable|string|max:50',
+            'customer_email' => 'nullable|email|max:255',
+            'table_number' => 'nullable|string|max:50',
+            'address' => 'nullable|string|max:500',
+            'pincode' => 'nullable|string|max:20',
+            'items' => 'required|array|min:1',
+            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.variant_id' => 'nullable|integer',
+            'items.*.addons' => 'nullable|array',
+            'notes' => 'nullable|string|max:500',
+        ]);
 
+        return DB::transaction(function () use ($request, $restaurantId) {
+            $totalAmount = 0;
+            $itemsData = [];
+
+            foreach ($request->items as $itemInput) {
+                $product = Product::where('restaurant_id', $restaurantId)->findOrFail($itemInput['product_id']);
+
+                $unitPrice = (float) $product->price;
+                $variantName = null;
+                $variantId = null;
+
+                if (!empty($itemInput['variant_id'])) {
+                    $variant = ProductVariant::where('product_id', $product->id)->find($itemInput['variant_id']);
+                    if ($variant) {
+                        $unitPrice = (float) $variant->price;
+                        $variantName = $variant->name;
+                        $variantId = $variant->id;
+                    }
+                }
+
+                $addonTotal = 0;
+                $addonsList = [];
+                if (!empty($itemInput['addons']) && is_array($itemInput['addons'])) {
+                    $addons = ProductAddon::where('product_id', $product->id)
+                        ->whereIn('id', $itemInput['addons'])
+                        ->get();
+                    foreach ($addons as $ad) {
+                        $addonTotal += (float) $ad->price;
+                        $addonsList[] = [
+                            'addon_id' => $ad->id,
+                            'category_name' => $ad->category_name ?? 'Addon',
+                            'addon_name' => $ad->addon_name,
+                            'price' => (float) $ad->price,
+                        ];
+                    }
+                }
+
+                $itemUnitPrice = $unitPrice + $addonTotal;
+                $qty = (int) $itemInput['quantity'];
+                $itemSubtotal = $itemUnitPrice * $qty;
+                $totalAmount += $itemSubtotal;
+
+                $itemsData[] = [
+                    'product_id' => $product->id,
+                    'variant_id' => $variantId,
+                    'variant_name' => $variantName,
+                    'quantity' => $qty,
+                    'price' => $itemUnitPrice,
+                    'total' => $itemSubtotal,
+                    'addons' => $addonsList,
+                ];
+            }
+
+            $user = null;
+            if ($request->filled('user_id')) {
+                $user = User::find($request->user_id);
+            } elseif ($request->filled('customer_email')) {
+                $user = User::where('email', $request->customer_email)->first();
+            }
+
+            $addressVal = $request->address;
+            if ($request->order_type === 'dine_in' && $request->filled('table_number')) {
+                $addressVal = 'Table ' . $request->table_number;
+            } elseif (empty($addressVal)) {
+                $restaurant = \App\Models\Restaurant::find($restaurantId);
+                $addressVal = $restaurant ? $restaurant->address : 'Counter / In-House';
+            }
+
+            $order = Order::create([
+                'user_id' => $user?->id,
+                'is_guest' => !$user,
+                'guest_name' => $request->customer_name,
+                'guest_email' => $request->customer_email,
+                'guest_phone' => $request->customer_phone,
+                'guest_address' => $request->address,
+                'guest_postcode' => $request->pincode,
+                'restaurant_id' => $restaurantId,
+                'total_amount' => $totalAmount,
+                'service_charge' => 0,
+                'delivery_charge' => 0,
+                'hyst_charge' => 0,
+                'product_charge' => 0,
+                'order_type' => $request->order_type,
+                'phone' => $request->customer_phone,
+                'address' => $addressVal,
+                'pincode' => $request->pincode,
+                'payment_method' => $request->payment_method,
+                'status' => 'accepted',
+                'order_from' => 'restaurant_pos',
+                'description' => $request->notes,
+            ]);
+
+            foreach ($itemsData as $itemData) {
+                $orderItem = OrderItem::create([
+                    'order_id' => $order->id,
+                    'product_id' => $itemData['product_id'],
+                    'variant_id' => $itemData['variant_id'],
+                    'variant_name' => $itemData['variant_name'],
+                    'quantity' => $itemData['quantity'],
+                    'price' => $itemData['price'],
+                    'total' => $itemData['total'],
                 ]);
 
-        sendNotification(
+                foreach ($itemData['addons'] as $addonInfo) {
+                    OrderItemAddon::create([
+                        'order_item_id' => $orderItem->id,
+                        'addon_id' => $addonInfo['addon_id'],
+                        'category_name' => $addonInfo['category_name'],
+                        'addon_name' => $addonInfo['addon_name'],
+                        'price' => $addonInfo['price'],
+                    ]);
+                }
+            }
 
-            $order->user_id,
+            Payment::create([
+                'order_id' => $order->id,
+                'restaurant_id' => $restaurantId,
+                'user_id' => $user?->id,
+                'payment_method' => $request->payment_method,
+                'payment_type' => 'Offline',
+                'amount' => $totalAmount,
+                'payment_status' => $request->payment_status,
+            ]);
 
-            'payment_status',
+            return redirect()->route('restaurant.orders.show', $order->id)
+                ->with('success', 'Manual Direct Order #' . $order->id . ' created successfully.');
+        });
+    }
 
-            'Payment Status Updated',
+    public function updatePaymentStatus(Request $request, $id)
+    {
+        $order = Order::where(
+            'restaurant_id',
+            auth()->user()->restaurant_id
+        )->findOrFail($id);
 
-            'Payment status for order #' .
-            $order->id .
-            ' changed to ' .
-            ucfirst($request->payment_status),
+        $request->validate([
+            'payment_status' => 'required|string',
+            'payment_method' => 'nullable|string'
+        ]);
 
-            'order',
+        $payment = Payment::where('order_id', $order->id)->first();
 
-            $order->id,
+        if (!$payment) {
+            $payment = Payment::create([
+                'order_id' => $order->id,
+                'restaurant_id' => $order->restaurant_id,
+                'user_id' => $order->user_id,
+                'payment_method' => $request->payment_method ?? $order->payment_method ?? 'Cash',
+                'payment_type' => 'Offline',
+                'amount' => $order->total_amount,
+                'payment_status' => $request->payment_status
+            ]);
+        } else {
+            $updateData = ['payment_status' => $request->payment_status];
+            if ($request->filled('payment_method')) {
+                $updateData['payment_method'] = $request->payment_method;
+                $order->update(['payment_method' => $request->payment_method]);
+            }
+            $payment->update($updateData);
+        }
 
-            $order->id
-        );        
-        
+        if ($order->user_id) {
+            sendNotification(
+                $order->user_id,
+                'payment_status',
+                'Payment Status Updated',
+                'Payment status for order #' . $order->id . ' changed to ' . ucfirst($request->payment_status),
+                'order',
+                $order->id,
+                $order->id
+            );
+        }
 
         return back()->with(
-
             'success',
-
             'Payment Status Updated Successfully'
-
         );
     }
 

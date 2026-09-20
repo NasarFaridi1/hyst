@@ -740,6 +740,14 @@ Route::middleware(['auth', 'restaurant_admin'])
             [RestaurantOrderController::class, 'index']
         );
         Route::get(
+            '/orders/create-order',
+            [RestaurantOrderController::class, 'createOrder']
+        )->name('orders.create_order');
+        Route::post(
+            '/orders/store-offline',
+            [RestaurantOrderController::class, 'storeOfflineOrder']
+        )->name('orders.store_offline');
+        Route::get(
             '/all-orders',
             [RestaurantOrderController::class, 'allOrders']
         );

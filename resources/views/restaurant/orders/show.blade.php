@@ -797,6 +797,30 @@
 
       @endif
 
+      @if(optional($order->payment)->payment_status !== 'paid' && $order->status !== 'cancelled')
+        <div style="margin-top:16px; padding:14px; background:rgba(61,140,90,0.06); border:1px solid rgba(61,140,90,0.2); border-radius:12px;">
+          <div style="font-size:12px; font-weight:700; color:var(--green); margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+            <span>💵</span> Confirm Offline Payment
+          </div>
+          <form method="POST" action="{{ route('restaurant.orders.payment.status', $order->id) }}">
+            @csrf
+            <input type="hidden" name="payment_status" value="paid">
+            <div style="margin-bottom:10px;">
+              <label style="font-size:11px; font-weight:600; color:var(--muted); display:block; margin-bottom:4px;">Payment Method</label>
+              <select name="payment_method" style="width:100%; padding:7px 10px; border:1px solid rgba(194,90,42,0.2); border-radius:8px; font-size:12px; background:#fff;">
+                <option value="Cash" {{ ($order->payment_method ?? '') == 'Cash' ? 'selected' : '' }}>💵 Cash</option>
+                <option value="Card at Counter" {{ ($order->payment_method ?? '') == 'Card at Counter' ? 'selected' : '' }}>💳 Card at Counter / POS</option>
+                <option value="Pay at Counter" {{ ($order->payment_method ?? '') == 'Pay at Counter' ? 'selected' : '' }}>🏬 Pay at Counter</option>
+                <option value="Offline Payment">🏦 Direct Offline Payment</option>
+              </select>
+            </div>
+            <button type="submit" class="od-btn btn-accept" style="width:100%; justify-content:center;" onclick="return confirm('Confirm offline payment of £{{ number_format($order->total_amount, 2) }} received?')">
+              ✔ Mark Payment as Paid (£{{ number_format($order->total_amount, 2) }})
+            </button>
+          </form>
+        </div>
+      @endif
+
       @if($order->payment)
 
       <div style="margin-top:8px;font-size:13px;">
