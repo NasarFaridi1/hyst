@@ -2059,7 +2059,7 @@
                 if (delivery > 3.99) {
                     let offset = 1.99;
                     displayDelivery = Math.max(0, delivery - offset);
-                    hyst = 1.99 + offset;
+                    hyst = 0;
                 } else {
                     hyst = 1.99;
                 }
@@ -2067,7 +2067,7 @@
                 if (delivery > 3.99) {
                     let offset = 1.99;
                     displayDelivery = Math.max(0, delivery - offset);
-                    hyst = 1.99 + offset;
+                    hyst = 1.99;
                 } else {
                     hyst = 1.99;
                 }
