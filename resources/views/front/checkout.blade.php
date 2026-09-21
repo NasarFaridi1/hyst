@@ -2074,7 +2074,7 @@
             } else if (finalSubtotal < 100) {
                 if (delivery > 3.99) {
                     let offset = 1.00;
-                    displayDelivery = Math.max(0, delivery - offset);
+                    displayDelivery = Math.max(0, delivery);
                     hyst = 3.99 + offset;
                 } else {
                     hyst = 3.99;
