@@ -344,7 +344,7 @@
                             <span class="font-bold text-gray-900">£3.99</span>
                         </div>
                         <div class="flex justify-between items-center pb-1">
-                            <span class="font-medium text-gray-600">Handling Charge (5%)</span>
+                            <span class="font-medium text-gray-600">Handling Charge</span>
                             <span class="font-bold text-gray-900">£{{ number_format($order->hyst_charge - 3.99, 2) }}</span>
                         </div>
                         @else

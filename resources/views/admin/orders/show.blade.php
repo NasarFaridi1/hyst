@@ -271,7 +271,7 @@
                         <td class="p-4 font-bold text-gray-800">£3.99</td>
                     </tr>
                     <tr>
-                        <td colspan="3" class="p-4 text-right font-semibold text-gray-600">Handling Charge (5%)</td>
+                        <td colspan="3" class="p-4 text-right font-semibold text-gray-600">Handling Charge</td>
                         <td class="p-4 font-bold text-gray-800">£{{ number_format($order->hyst_charge - 3.99, 2) }}</td>
                     </tr>
                     @else

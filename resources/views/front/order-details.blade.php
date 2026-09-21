@@ -2358,7 +2358,7 @@
                             <span class="item-total" style="font-size:15px; font-weight:700; color:#C25A2A;">£3.99</span>
                         </div>
                         <div class="items-total-row" style="display:flex; justify-content:space-between; align-items:center; padding:18px 28px; border-top:1px solid #F0EDE8;">
-                            <span class="items-total-label" style="font-size:15px; font-weight:700; color:#111827;">Handling Charge (5%)</span>
+                            <span class="items-total-label" style="font-size:15px; font-weight:700; color:#111827;">Handling Charge</span>
                             <span class="item-total" style="font-size:15px; font-weight:700; color:#C25A2A;">£{{ number_format($order->hyst_charge - 3.99, 2) }}</span>
                         </div>
                     @else

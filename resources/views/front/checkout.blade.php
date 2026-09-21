@@ -1271,7 +1271,7 @@
                     </div>
 
                     <div class="summary-row" id="handlingChargeRow" style="display:none;">
-                        <span class="sr-label">Handling Charge (5%)</span>
+                        <span class="sr-label">Handling Charge</span>
                         <span class="sr-value" id="handlingChargeText">£0.00</span>
                     </div>
 
@@ -2111,8 +2111,17 @@
         let hystInput = document.getElementById("hyst_charge");
         if (hystInput) hystInput.value = totalHystCharge.toFixed(2);
 
+        let displayHyst = hyst;
+        if (orderType && orderType.value === 'delivery') {
+            if (finalSubtotal < 20) {
+                displayHyst = 1.99;
+            } else if (finalSubtotal < 50) {
+                displayHyst = 3.99;
+            }
+        }
+
         let hystText = document.getElementById("hystChargeText");
-        if (hystText) hystText.innerHTML = "£" + hyst.toFixed(2);
+        if (hystText) hystText.innerHTML = "£" + displayHyst.toFixed(2);
 
         let limitAlert = document.getElementById("takeawayLimitAlert");
         let placeBtns = document.querySelectorAll(".co-place-btn, .mobile-footer-btn");
