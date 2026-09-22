@@ -24,6 +24,48 @@
         </div>
     @endif
 
+    <!-- Uber Direct Membership Invite Card -->
+    <div class="mb-8 bg-gray-900 text-white p-6 rounded-2xl shadow-lg border border-black">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="font-bold text-white text-lg flex items-center gap-2">
+                <span class="bg-white text-black px-2 py-0.5 rounded text-xs font-black">UBER</span> Direct Organization Membership Invite
+            </h3>
+            @if(!empty($restaurant->uber_organization_id))
+                <span class="bg-green-500/20 text-green-300 text-xs font-semibold px-3 py-1 rounded-full border border-green-500/30">
+                    Org ID: {{ $restaurant->uber_organization_id }}
+                </span>
+            @endif
+        </div>
+
+        <form method="POST" action="{{ route('admin.restaurants.uber.invite', $restaurant->id) }}">
+            @csrf
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                <div class="md:col-span-2">
+                    <label class="text-xs font-semibold text-gray-300 block mb-1">Invite User Email Address</label>
+                    <input type="email" name="email" required placeholder="manager@restaurant.com" class="w-full text-sm border border-gray-700 bg-gray-800 text-white p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-gray-300 block mb-1">Role Type</label>
+                    <select name="role" class="w-full text-sm border border-gray-700 bg-gray-800 text-white p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="ADMIN">Admin (org_invite_admin)</option>
+                        <option value="EMPLOYEE">Employee (org_invite_employee)</option>
+                    </select>
+                </div>
+                <div>
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold p-3 rounded-xl transition flex items-center justify-center gap-2 text-sm shadow-md">
+                        ✉️ Send Uber Invite
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    @if(session('success'))
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6 font-semibold">
+            {{ session('success') }}
+        </div>
+    @endif
+
     <form method="POST"
         action="{{ route('admin.restaurants.update',$restaurant->id) }}"
         enctype="multipart/form-data">

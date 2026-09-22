@@ -191,13 +191,21 @@
                 @if($order->uber_driver_name)
                     <p class="text-xs text-gray-600 mb-1"><strong>Courier:</strong> {{ $order->uber_driver_name }} ({{ $order->uber_driver_phone ?? 'N/A' }})</p>
                 @endif
-                @if($order->uber_tracking_url)
-                    <div class="mb-4">
+                <div class="mb-4 flex items-center justify-between gap-2">
+                    @if($order->uber_tracking_url)
                         <a href="{{ $order->uber_tracking_url }}" target="_blank" class="inline-block text-xs text-blue-600 hover:underline font-semibold">
                             🔗 Live Courier Tracking ↗
                         </a>
-                    </div>
-                @endif
+                    @else
+                        <span></span>
+                    @endif
+                    <form method="POST" action="{{ route('admin.orders.uber.refresh', $order->id) }}" class="inline">
+                        @csrf
+                        <button type="submit" class="bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs px-2.5 py-1 rounded-lg font-semibold border transition" title="Fetch latest status from Uber API">
+                            🔄 Refresh
+                        </button>
+                    </form>
+                </div>
 
                 <!-- Actions: Update Dropoff Notes -->
                 <form method="POST" action="{{ route('admin.orders.uber.update', $order->id) }}" class="mb-4 pt-3 border-t border-gray-100">

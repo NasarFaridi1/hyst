@@ -63,6 +63,8 @@ use App\Http\Controllers\Admin\RestaurantRefundPolicyController;
 use App\Http\Controllers\Admin\RestaurantTermsConditionController;
 use App\Http\Controllers\Admin\GoogleDriveController;
 use App\Http\Controllers\Admin\UberAdminController;
+use App\Http\Controllers\RestaurantAdmin\PlatformOrderController;
+use App\Http\Controllers\Api\PlatformWebhookController;
 
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\RestaurantAdmin\RestaurantBannerController;
@@ -539,9 +541,11 @@ Route::middleware(['auth', 'super_admin'])
         );
         Route::resource('orders', OrdersController::class);
         Route::post('/orders/{id}/uber-update', [UberAdminController::class, 'updateDelivery'])->name('orders.uber.update');
+        Route::post('/orders/{id}/uber-refresh', [UberAdminController::class, 'refreshDeliveryStatus'])->name('orders.uber.refresh');
         Route::post('/orders/{id}/uber-refund', [UberAdminController::class, 'requestRefund'])->name('orders.uber.refund');
         Route::get('/orders/{id}/uber-proof', [UberAdminController::class, 'proofOfDelivery'])->name('orders.uber.proof');
         Route::post('/restaurants/{id}/uber-create-org', [UberAdminController::class, 'createOrganization'])->name('restaurants.uber.create_org');
+        Route::post('/restaurants/{id}/uber-invite', [UberAdminController::class, 'inviteMember'])->name('restaurants.uber.invite');
         Route::resource('complaint', AdminComplaintController::class);
 
 
@@ -649,10 +653,22 @@ Route::middleware(['auth', 'super_admin'])
         [RestaurantOrderController::class, 'sendMessage']
     )->name('restaurant.orders.message');
 
+// Multi-platform Order Ingestion Webhooks
+Route::post('/api/webhooks/ubereats/{restaurantId}', [PlatformWebhookController::class, 'handleUberEats']);
+Route::post('/api/webhooks/deliveroo/{restaurantId}', [PlatformWebhookController::class, 'handleDeliveroo']);
+Route::post('/api/webhooks/justeat/{restaurantId}', [PlatformWebhookController::class, 'handleJustEat']);
+
 Route::middleware(['auth', 'restaurant_admin'])
     ->prefix('restaurant')
     ->name('restaurant.')
     ->group(function () {
+
+        // Multi-Platform Orders Dashboard & Integration Setup
+        Route::get('/platform-orders', [PlatformOrderController::class, 'index'])->name('platform_orders.index');
+        Route::post('/platform-orders/save-credentials', [PlatformOrderController::class, 'saveCredentials'])->name('platform_orders.save_credentials');
+        Route::post('/platform-orders/{id}/accept', [PlatformOrderController::class, 'acceptOrder'])->name('platform_orders.accept');
+        Route::post('/platform-orders/{id}/mark-prepared', [PlatformOrderController::class, 'markPrepared'])->name('platform_orders.mark_prepared');
+        Route::post('/platform-orders/toggle-status', [PlatformOrderController::class, 'toggleStoreStatus'])->name('platform_orders.toggle_status');
 
         Route::get(
             '/dashboard',

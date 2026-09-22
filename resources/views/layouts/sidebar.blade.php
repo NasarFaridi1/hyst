@@ -312,11 +312,20 @@
 
             {{-- 2. Orders --}}
             <a href="/restaurant/orders"
-            class="sidebar-item {{ str_contains($current,'restaurant/orders') ? 'active' : '' }}">
+            class="sidebar-item {{ str_contains($current,'restaurant/orders') && !str_contains($current,'platform-orders') ? 'active' : '' }}">
                 <div class="sidebar-icon">
                     <i data-lucide="clipboard-list"></i>
                 </div>
                 <span>Orders</span>
+            </a>
+
+            {{-- 2.5 All Platforms Orders --}}
+            <a href="{{ route('restaurant.platform_orders.index') }}"
+            class="sidebar-item {{ str_contains($current,'platform-orders') ? 'active' : '' }}">
+                <div class="sidebar-icon">
+                    <i data-lucide="layers"></i>
+                </div>
+                <span>All Platforms Orders</span>
             </a>
 
             {{-- 3. Payment --}}
