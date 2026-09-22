@@ -346,7 +346,7 @@ class UberService
                 "quantity" => 1,
                 "price"    => (int) round($order->total_amount * 100),
                 "size"     => "small",
-                "weight"   => 0,
+                "weight"   => 1,
             ];
         }
 
@@ -505,6 +505,121 @@ class UberService
             );
 
         Log::info('Uber Cancel Delivery Response', [
+            'delivery_id' => $deliveryId,
+            'status'      => $response->status(),
+            'body'        => $response->json(),
+        ]);
+
+        return $response->json();
+    }
+
+    /**
+     * Update Delivery API (Uber Direct DaaS API)
+     * Endpoint: POST /v1/customers/{customer_id}/deliveries/{delivery_id}
+     * Allows updating dropoff_notes, dropoff_latitude, dropoff_longitude, order_reference, etc.
+     */
+    public function updateDelivery($deliveryId, array $data, $restaurant = null)
+    {
+        if (empty($deliveryId)) {
+            return [
+                'success' => false,
+                'message' => 'No delivery ID provided'
+            ];
+        }
+
+        $payload = array_filter([
+            'dropoff_notes'     => $data['dropoff_notes'] ?? null,
+            'dropoff_latitude'  => isset($data['dropoff_latitude']) ? (float) $data['dropoff_latitude'] : null,
+            'dropoff_longitude' => isset($data['dropoff_longitude']) ? (float) $data['dropoff_longitude'] : null,
+            'pickup_notes'      => $data['pickup_notes'] ?? null,
+            'order_reference'   => $data['order_reference'] ?? null,
+        ], fn($val) => !is_null($val));
+
+        Log::info('Uber Update Delivery Payload', [
+            'delivery_id' => $deliveryId,
+            'payload'     => $payload,
+        ]);
+
+        $response = Http::withToken($this->token())
+            ->acceptJson()
+            ->post(
+                $this->getBaseUrl() . "/customers/" . $this->getCustomerId($restaurant) . "/deliveries/" . $deliveryId,
+                $payload
+            );
+
+        Log::info('Uber Update Delivery Response', [
+            'delivery_id' => $deliveryId,
+            'status'      => $response->status(),
+            'body'        => $response->json(),
+        ]);
+
+        return $response->json();
+    }
+
+    /**
+     * Request Delivery Refund API (Uber Direct DaaS API)
+     * Endpoint: POST /v1/customers/{customer_id}/deliveries/{delivery_id}/refunds
+     */
+    public function requestRefund($deliveryId, $reason = 'damaged_items', $amount = null, $restaurant = null)
+    {
+        if (empty($deliveryId)) {
+            return [
+                'success' => false,
+                'message' => 'No delivery ID provided'
+            ];
+        }
+
+        $payload = array_filter([
+            'reason' => $reason,
+            'amount' => $amount ? (int) round($amount * 100) : null,
+        ]);
+
+        Log::info('Uber Request Refund Payload', [
+            'delivery_id' => $deliveryId,
+            'payload'     => $payload,
+        ]);
+
+        $response = Http::withToken($this->token())
+            ->acceptJson()
+            ->post(
+                $this->getBaseUrl() . "/customers/" . $this->getCustomerId($restaurant) . "/deliveries/" . $deliveryId . "/refunds",
+                $payload
+            );
+
+        Log::info('Uber Request Refund Response', [
+            'delivery_id' => $deliveryId,
+            'status'      => $response->status(),
+            'body'        => $response->json(),
+        ]);
+
+        return $response->json();
+    }
+
+    /**
+     * Get Proof of Delivery API (Uber Direct DaaS API)
+     * Endpoint: POST /v1/customers/{customer_id}/deliveries/{delivery_id}/proof-of-delivery
+     */
+    public function getProofOfDelivery($deliveryId, $type = 'picture', $restaurant = null)
+    {
+        if (empty($deliveryId)) {
+            return [
+                'success' => false,
+                'message' => 'No delivery ID provided'
+            ];
+        }
+
+        $payload = [
+            'type' => $type
+        ];
+
+        $response = Http::withToken($this->token())
+            ->acceptJson()
+            ->post(
+                $this->getBaseUrl() . "/customers/" . $this->getCustomerId($restaurant) . "/deliveries/" . $deliveryId . "/proof-of-delivery",
+                $payload
+            );
+
+        Log::info('Uber Proof of Delivery Response', [
             'delivery_id' => $deliveryId,
             'status'      => $response->status(),
             'body'        => $response->json(),

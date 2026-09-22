@@ -62,6 +62,7 @@ use App\Http\Controllers\Admin\RestaurantPolicyController;
 use App\Http\Controllers\Admin\RestaurantRefundPolicyController;
 use App\Http\Controllers\Admin\RestaurantTermsConditionController;
 use App\Http\Controllers\Admin\GoogleDriveController;
+use App\Http\Controllers\Admin\UberAdminController;
 
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\RestaurantAdmin\RestaurantBannerController;
@@ -537,6 +538,9 @@ Route::middleware(['auth', 'super_admin'])
             RestaurantCategoryController::class
         );
         Route::resource('orders', OrdersController::class);
+        Route::post('/orders/{id}/uber-update', [UberAdminController::class, 'updateDelivery'])->name('orders.uber.update');
+        Route::post('/orders/{id}/uber-refund', [UberAdminController::class, 'requestRefund'])->name('orders.uber.refund');
+        Route::get('/orders/{id}/uber-proof', [UberAdminController::class, 'proofOfDelivery'])->name('orders.uber.proof');
         Route::resource('complaint', AdminComplaintController::class);
 
 

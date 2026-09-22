@@ -117,12 +117,6 @@
         </div>
         @endif
 
-
-
-		
-		
-
-
         <div class="bg-white rounded-2xl shadow p-8">
 
             <h2 class="text-xl font-bold mb-5">
@@ -177,12 +171,66 @@
 
         </div>
 
+        <!-- Uber Direct Delivery Management Card -->
+        <div class="bg-white rounded-2xl shadow p-8 border border-gray-100">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+                    <span class="bg-black text-white px-2 py-0.5 rounded text-xs font-black">UBER</span> Direct
+                </h2>
+                @if($order->uber_delivery_status)
+                    <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-1 rounded-full capitalize">
+                        {{ str_replace('_', ' ', $order->uber_delivery_status) }}
+                    </span>
+                @endif
+            </div>
+
+            @if($order->uber_delivery_id)
+                <p class="text-xs text-gray-500 mb-2">
+                    <strong>Delivery ID:</strong> <br><span class="font-mono text-gray-700 bg-gray-100 px-1 py-0.5 rounded text-xs">{{ $order->uber_delivery_id }}</span>
+                </p>
+                @if($order->uber_driver_name)
+                    <p class="text-xs text-gray-600 mb-1"><strong>Courier:</strong> {{ $order->uber_driver_name }} ({{ $order->uber_driver_phone ?? 'N/A' }})</p>
+                @endif
+                @if($order->uber_tracking_url)
+                    <div class="mb-4">
+                        <a href="{{ $order->uber_tracking_url }}" target="_blank" class="inline-block text-xs text-blue-600 hover:underline font-semibold">
+                            🔗 Live Courier Tracking ↗
+                        </a>
+                    </div>
+                @endif
+
+                <!-- Actions: Update Dropoff Notes -->
+                <form method="POST" action="{{ route('admin.orders.uber.update', $order->id) }}" class="mb-4 pt-3 border-t border-gray-100">
+                    @csrf
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Update Dropoff Notes</label>
+                    <div class="flex gap-2">
+                        <input type="text" name="dropoff_notes" value="{{ $order->dropoff_notes }}" placeholder="e.g. Leave at front door" class="w-full text-xs border rounded-lg px-3 py-2">
+                        <button type="submit" class="bg-black text-white text-xs font-medium px-3 py-2 rounded-lg hover:bg-gray-800">Save</button>
+                    </div>
+                </form>
+
+                <!-- Actions: Request Refund -->
+                <form method="POST" action="{{ route('admin.orders.uber.refund', $order->id) }}" onsubmit="return confirm('Submit refund request to Uber for this delivery?');" class="pt-3 border-t border-gray-100">
+                    @csrf
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Uber Refund Request</label>
+                    <div class="flex items-center gap-2">
+                        <select name="reason" class="text-xs border rounded-lg p-2 w-full">
+                            <option value="damaged_items">Damaged Items</option>
+                            <option value="missing_items">Missing Items</option>
+                            <option value="late_delivery">Late Delivery</option>
+                        </select>
+                        <button type="submit" class="bg-red-600 text-white text-xs px-3 py-2 rounded-lg font-medium hover:bg-red-700 whitespace-nowrap">
+                            Refund
+                        </button>
+                    </div>
+                </form>
+            @else
+                <p class="text-xs text-gray-500 italic mt-4">No active Uber delivery associated with this order.</p>
+            @endif
+        </div>
+
     </div>
 
-	
-
-	
-	
 
 
 
