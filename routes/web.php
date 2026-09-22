@@ -541,6 +541,7 @@ Route::middleware(['auth', 'super_admin'])
         Route::post('/orders/{id}/uber-update', [UberAdminController::class, 'updateDelivery'])->name('orders.uber.update');
         Route::post('/orders/{id}/uber-refund', [UberAdminController::class, 'requestRefund'])->name('orders.uber.refund');
         Route::get('/orders/{id}/uber-proof', [UberAdminController::class, 'proofOfDelivery'])->name('orders.uber.proof');
+        Route::post('/restaurants/{id}/uber-create-org', [UberAdminController::class, 'createOrganization'])->name('restaurants.uber.create_org');
         Route::resource('complaint', AdminComplaintController::class);
 
 

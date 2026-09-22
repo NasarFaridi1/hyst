@@ -97,4 +97,20 @@ class UberAdminController extends Controller
 
         return response()->json($response);
     }
+
+    /**
+     * Create New Organization for a Restaurant
+     */
+    public function createOrganization(Request $request, $id)
+    {
+        $restaurant = Restaurant::findOrFail($id);
+
+        $response = $this->uberService->createOrganization($restaurant);
+
+        if (!empty($response['organization_id'])) {
+            return back()->with('success', 'Uber Organization created successfully! Org ID: ' . $response['organization_id']);
+        }
+
+        return back()->with('error', 'Failed to create Uber Organization: ' . ($response['message'] ?? json_encode($response)));
+    }
 }
