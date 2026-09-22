@@ -110,6 +110,10 @@
                 </th>
 
                 <th class="p-5 text-left">
+                    Uber Org
+                </th>
+
+                <th class="p-5 text-left">
                     Display Order
                 </th>
 
@@ -240,6 +244,21 @@
                             @csrf
                             <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow transition">
                                 Verify Email
+                            </button>
+                        </form>
+                    @endif
+                </td>
+
+                <td class="p-5 whitespace-nowrap">
+                    @if(!empty($restaurant->uber_organization_id))
+                        <span class="bg-black text-white px-3 py-1 rounded-full text-xs font-mono" title="{{ $restaurant->uber_organization_id }}">
+                            ✓ Org Active
+                        </span>
+                    @else
+                        <form method="POST" action="{{ route('admin.restaurants.uber.create_org', $restaurant->id) }}" class="inline">
+                            @csrf
+                            <button type="submit" onclick="return confirm('Register {{ addslashes($restaurant->name) }} as an Uber Organization?')" class="bg-black hover:bg-gray-800 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow transition whitespace-nowrap">
+                                + Create Uber Org
                             </button>
                         </form>
                     @endif
