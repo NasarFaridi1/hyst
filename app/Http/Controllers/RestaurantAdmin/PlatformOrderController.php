@@ -25,41 +25,59 @@ class PlatformOrderController extends Controller
     }
 
     /**
-     * Display All Platforms Orders Dashboard with Tabs
+     * Display All Platforms Orders Dashboard with Tabs (Live API Proxy Mode)
      */
     public function index(Request $request)
     {
         $restaurantId = auth()->user()->restaurant_id;
-
         $tab = $request->get('tab', 'all'); // 'all', 'ubereats', 'deliveroo', 'justeat'
 
-        $ordersQuery = Order::with(['items.product', 'user'])
-            ->where('restaurant_id', $restaurantId)
-            ->latest();
-
-        if ($tab !== 'all') {
-            $ordersQuery->where('platform_source', $tab);
-        } else {
-            $ordersQuery->whereIn('platform_source', ['ubereats', 'deliveroo', 'justeat', 'internal']);
-        }
-
-        $orders = $ordersQuery->paginate(15)->withQueryString();
-
-        // Platform counts
-        $counts = [
-            'all'       => Order::where('restaurant_id', $restaurantId)->count(),
-            'ubereats'  => Order::where('restaurant_id', $restaurantId)->where('platform_source', 'ubereats')->count(),
-            'deliveroo' => Order::where('restaurant_id', $restaurantId)->where('platform_source', 'deliveroo')->count(),
-            'justeat'   => Order::where('restaurant_id', $restaurantId)->where('platform_source', 'justeat')->count(),
-        ];
-
-        // Fetch saved credentials per platform
+        // Fetch saved credentials per platform for this restaurant
         $credentialsList = DB::table('restaurant_platform_credentials')
             ->where('restaurant_id', $restaurantId)
             ->get()
             ->keyBy('platform');
 
-        return view('restaurant.platform_orders.index', compact('orders', 'counts', 'credentialsList', 'tab'));
+        $liveOrders = [];
+
+        $ueCred = $credentialsList['ubereats'] ?? null;
+        $dlCred = $credentialsList['deliveroo'] ?? null;
+        $jeCred = $credentialsList['justeat'] ?? null;
+
+        // Fetch Live Orders via APIs dynamically without database storage
+        if ($tab === 'ubereats' || $tab === 'all') {
+            $ueOrders = $this->uberEats->fetchActiveOrders($ueCred);
+            foreach ($ueOrders as $o) {
+                $o['platform'] = 'ubereats';
+                $liveOrders[]  = $o;
+            }
+        }
+
+        if ($tab === 'deliveroo' || $tab === 'all') {
+            $dlOrders = $this->deliveroo->fetchActiveOrders($dlCred);
+            foreach ($dlOrders as $o) {
+                $o['platform'] = 'deliveroo';
+                $liveOrders[]  = $o;
+            }
+        }
+
+        if ($tab === 'justeat' || $tab === 'all') {
+            $jeOrders = $this->justEat->fetchActiveOrders($jeCred);
+            foreach ($jeOrders as $o) {
+                $o['platform'] = 'justeat';
+                $liveOrders[]  = $o;
+            }
+        }
+
+        // Live Counts
+        $counts = [
+            'all'       => count($liveOrders),
+            'ubereats'  => count(array_filter($liveOrders, fn($i) => ($i['platform'] ?? '') === 'ubereats')),
+            'deliveroo' => count(array_filter($liveOrders, fn($i) => ($i['platform'] ?? '') === 'deliveroo')),
+            'justeat'   => count(array_filter($liveOrders, fn($i) => ($i['platform'] ?? '') === 'justeat')),
+        ];
+
+        return view('restaurant.platform_orders.index', compact('liveOrders', 'counts', 'credentialsList', 'tab'));
     }
 
     /**
@@ -99,56 +117,51 @@ class PlatformOrderController extends Controller
     }
 
     /**
-     * Accept Platform Order
+     * Accept Platform Order via Platform API
      */
     public function acceptOrder(Request $request, $id)
     {
-        $order = Order::where('restaurant_id', auth()->user()->restaurant_id)->findOrFail($id);
+        $restaurantId = auth()->user()->restaurant_id;
+        $platform     = $request->input('platform', 'ubereats');
 
         $credentials = DB::table('restaurant_platform_credentials')
-            ->where('restaurant_id', $order->restaurant_id)
-            ->where('platform', $order->platform_source)
+            ->where('restaurant_id', $restaurantId)
+            ->where('platform', $platform)
             ->first();
 
-        if ($order->platform_source === 'ubereats') {
-            $this->uberEats->acceptOrder($order, $credentials);
-        } elseif ($order->platform_source === 'deliveroo') {
-            $this->deliveroo->acceptOrder($order, $request->prep_time ?? 15, $credentials);
-        } elseif ($order->platform_source === 'justeat') {
-            $this->justEat->acceptOrder($order, $request->prep_time ?? 15, $credentials);
+        if ($platform === 'ubereats') {
+            $this->uberEats->acceptOrder($id, $credentials);
+        } elseif ($platform === 'deliveroo') {
+            $this->deliveroo->acceptOrder($id, $request->prep_time ?? 15, $credentials);
+        } elseif ($platform === 'justeat') {
+            $this->justEat->acceptOrder($id, $request->prep_time ?? 15, $credentials);
         }
 
-        $order->update([
-            'status'                 => 'completed',
-            'platform_order_status'  => 'ACCEPTED',
-        ]);
-
-        return back()->with('success', 'Order #' . $order->id . ' accepted on ' . ucfirst($order->platform_source));
+        return back()->with('success', 'Order #' . $id . ' accepted on ' . ucfirst($platform));
     }
 
     /**
-     * Mark Order Prepared / Ready
+     * Mark Order Prepared / Ready via Platform API
      */
     public function markPrepared(Request $request, $id)
     {
-        $order = Order::where('restaurant_id', auth()->user()->restaurant_id)->findOrFail($id);
+        $restaurantId = auth()->user()->restaurant_id;
+        $platform     = $request->input('platform', 'ubereats');
 
         $credentials = DB::table('restaurant_platform_credentials')
-            ->where('restaurant_id', $order->restaurant_id)
-            ->where('platform', $order->platform_source)
+            ->where('restaurant_id', $restaurantId)
+            ->where('platform', $platform)
             ->first();
 
-        if ($order->platform_source === 'ubereats') {
-            $this->uberEats->markReadyForPickup($order, $credentials);
-        } elseif ($order->platform_source === 'deliveroo') {
-            $this->deliveroo->markPrepared($order, $credentials);
-        } elseif ($order->platform_source === 'justeat') {
-            $this->justEat->markReady($order, $credentials);
+        if ($platform === 'ubereats') {
+            $this->uberEats->markReadyForPickup($id, $credentials);
+        } elseif ($platform === 'deliveroo') {
+            $this->deliveroo->markPrepared($id, $credentials);
+        } elseif ($platform === 'justeat') {
+            $this->justEat->markReady($id, $credentials);
         }
 
-        $order->update(['platform_order_status' => 'PREPARED']);
-
-        return back()->with('success', 'Order #' . $order->id . ' marked PREPARED for courier collection.');
+        return back()->with('success', 'Order #' . $id . ' marked PREPARED for courier collection.');
     }
 
     /**

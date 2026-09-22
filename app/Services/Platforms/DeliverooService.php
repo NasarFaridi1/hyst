@@ -26,20 +26,32 @@ class DeliverooService
         return [];
     }
     /**
+     * Helper to extract order ID from string, object, or array
+     */
+    protected function getOrderId($order)
+    {
+        if (is_string($order)) return $order;
+        if (is_object($order)) return $order->platform_order_id ?? $order->id ?? null;
+        if (is_array($order)) return $order['id'] ?? $order['platform_order_id'] ?? null;
+        return null;
+    }
+
+    /**
      * Confirm / Accept Deliveroo Order
      */
     public function acceptOrder($order, $prepTimeMinutes, $credentials)
     {
-        $siteId = $credentials->store_id;
-        $token  = $credentials->client_secret;
+        $siteId  = $credentials->store_id ?? null;
+        $token   = $credentials->client_secret ?? null;
+        $orderId = $this->getOrderId($order);
 
-        if (empty($token) || empty($order->platform_order_id)) {
+        if (empty($token) || empty($orderId)) {
             return false;
         }
 
-        $url = "https://api.deliveroo.com/order/v1/orders/{$order->platform_order_id}/confirm";
+        $url = "https://api.deliveroo.com/order/v1/orders/{$orderId}/confirm";
         $response = Http::withToken($token)->post($url, [
-            'prep_time' => (int) ($prepTimeMinutes ?: $credentials->prep_time_minutes ?: 15)
+            'prep_time' => (int) ($prepTimeMinutes ?: ($credentials->prep_time_minutes ?? 15))
         ]);
 
         Log::info('Deliveroo Accept Order Response', ['status' => $response->status(), 'body' => $response->json()]);
@@ -52,12 +64,14 @@ class DeliverooService
      */
     public function markPrepared($order, $credentials)
     {
-        $token = $credentials->client_secret;
-        if (empty($token) || empty($order->platform_order_id)) {
+        $token   = $credentials->client_secret ?? null;
+        $orderId = $this->getOrderId($order);
+
+        if (empty($token) || empty($orderId)) {
             return false;
         }
 
-        $url = "https://api.deliveroo.com/order/v1/orders/{$order->platform_order_id}/mark_prepared";
+        $url = "https://api.deliveroo.com/order/v1/orders/{$orderId}/mark_prepared";
         $response = Http::withToken($token)->post($url);
 
         return $response->successful();
@@ -68,12 +82,14 @@ class DeliverooService
      */
     public function rejectOrder($order, $reason, $credentials)
     {
-        $token = $credentials->client_secret;
-        if (empty($token) || empty($order->platform_order_id)) {
+        $token   = $credentials->client_secret ?? null;
+        $orderId = $this->getOrderId($order);
+
+        if (empty($token) || empty($orderId)) {
             return false;
         }
 
-        $url = "https://api.deliveroo.com/order/v1/orders/{$order->platform_order_id}/reject";
+        $url = "https://api.deliveroo.com/order/v1/orders/{$orderId}/reject";
         $response = Http::withToken($token)->post($url, [
             'reason' => $reason ?: 'KITCHEN_TOO_BUSY'
         ]);

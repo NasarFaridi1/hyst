@@ -26,16 +26,29 @@ class JustEatService
         return [];
     }
     /**
+     * Helper to extract order ID from string, object, or array
+     */
+    protected function getOrderId($order)
+    {
+        if (is_string($order)) return $order;
+        if (is_object($order)) return $order->platform_order_id ?? $order->id ?? null;
+        if (is_array($order)) return $order['id'] ?? $order['platform_order_id'] ?? null;
+        return null;
+    }
+
+    /**
      * Accept Just Eat Order
      */
     public function acceptOrder($order, $prepTimeMinutes, $credentials)
     {
-        $token = $credentials->client_secret;
-        if (empty($token) || empty($order->platform_order_id)) {
+        $token   = $credentials->client_secret ?? null;
+        $orderId = $this->getOrderId($order);
+
+        if (empty($token) || empty($orderId)) {
             return false;
         }
 
-        $url = "https://connect.just-eat.com/orders/{$order->platform_order_id}/accept";
+        $url = "https://connect.just-eat.com/orders/{$orderId}/accept";
         $response = Http::withToken($token)->post($url, [
             'estimated_prep_time' => (int) ($prepTimeMinutes ?: 15)
         ]);
@@ -50,12 +63,14 @@ class JustEatService
      */
     public function markReady($order, $credentials)
     {
-        $token = $credentials->client_secret;
-        if (empty($token) || empty($order->platform_order_id)) {
+        $token   = $credentials->client_secret ?? null;
+        $orderId = $this->getOrderId($order);
+
+        if (empty($token) || empty($orderId)) {
             return false;
         }
 
-        $url = "https://connect.just-eat.com/orders/{$order->platform_order_id}/ready";
+        $url = "https://connect.just-eat.com/orders/{$orderId}/ready";
         $response = Http::withToken($token)->post($url);
 
         return $response->successful();
@@ -66,12 +81,14 @@ class JustEatService
      */
     public function rejectOrder($order, $reason, $credentials)
     {
-        $token = $credentials->client_secret;
-        if (empty($token) || empty($order->platform_order_id)) {
+        $token   = $credentials->client_secret ?? null;
+        $orderId = $this->getOrderId($order);
+
+        if (empty($token) || empty($orderId)) {
             return false;
         }
 
-        $url = "https://connect.just-eat.com/orders/{$order->platform_order_id}/reject";
+        $url = "https://connect.just-eat.com/orders/{$orderId}/reject";
         $response = Http::withToken($token)->post($url, [
             'reason' => $reason ?: 'RESTAURANT_BUSY'
         ]);

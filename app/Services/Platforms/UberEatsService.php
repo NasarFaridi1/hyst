@@ -56,16 +56,29 @@ class UberEatsService
     }
 
     /**
+     * Helper to extract order ID from string, object, or array
+     */
+    protected function getOrderId($order)
+    {
+        if (is_string($order)) return $order;
+        if (is_object($order)) return $order->platform_order_id ?? $order->id ?? null;
+        if (is_array($order)) return $order['id'] ?? $order['platform_order_id'] ?? null;
+        return null;
+    }
+
+    /**
      * Accept POS Order (Uber Eats)
      */
     public function acceptOrder($order, $credentials)
     {
-        $token = $this->token($credentials);
-        if (!$token || empty($order->platform_order_id)) {
+        $token   = $this->token($credentials);
+        $orderId = $this->getOrderId($order);
+
+        if (!$token || empty($orderId)) {
             return false;
         }
 
-        $url = "https://api.uber.com/v1/eats/orders/{$order->platform_order_id}/accept_pos_order";
+        $url = "https://api.uber.com/v1/eats/orders/{$orderId}/accept_pos_order";
         $response = Http::withToken($token)->post($url, [
             'reason' => 'ACCEPTED_BY_RESTAURANT'
         ]);
@@ -80,12 +93,14 @@ class UberEatsService
      */
     public function denyOrder($order, $reason, $credentials)
     {
-        $token = $this->token($credentials);
-        if (!$token || empty($order->platform_order_id)) {
+        $token   = $this->token($credentials);
+        $orderId = $this->getOrderId($order);
+
+        if (!$token || empty($orderId)) {
             return false;
         }
 
-        $url = "https://api.uber.com/v1/eats/orders/{$order->platform_order_id}/deny_pos_order";
+        $url = "https://api.uber.com/v1/eats/orders/{$orderId}/deny_pos_order";
         $response = Http::withToken($token)->post($url, [
             'reason' => [
                 'explanation' => $reason ?: 'ITEM_OUT_OF_STOCK'
@@ -100,12 +115,14 @@ class UberEatsService
      */
     public function markReadyForPickup($order, $credentials)
     {
-        $token = $this->token($credentials);
-        if (!$token || empty($order->platform_order_id)) {
+        $token   = $this->token($credentials);
+        $orderId = $this->getOrderId($order);
+
+        if (!$token || empty($orderId)) {
             return false;
         }
 
-        $url = "https://api.uber.com/v1/eats/orders/{$order->platform_order_id}/ready_for_pickup";
+        $url = "https://api.uber.com/v1/eats/orders/{$orderId}/ready_for_pickup";
         $response = Http::withToken($token)->post($url);
 
         return $response->successful();

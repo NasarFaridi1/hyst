@@ -135,55 +135,62 @@
                 </tr>
             </thead>
             <tbody class="divide-y text-sm">
-                @forelse($orders as $order)
+                @forelse($liveOrders as $order)
+                @php
+                    $pSource = is_array($order) ? ($order['platform'] ?? 'internal') : ($order->platform_source ?? 'internal');
+                    $pCode   = is_array($order) ? ($order['display_id'] ?? $order['id'] ?? '#ORDER') : ($order->platform_display_code ?: '#ORDER-' . $order->id);
+                    $pName   = is_array($order) ? ($order['customer']['name'] ?? 'Marketplace Customer') : ($order->user->name ?? 'Marketplace Customer');
+                    $pPhone  = is_array($order) ? ($order['customer']['phone'] ?? 'N/A') : ($order->phone ?? 'N/A');
+                    $pTotal  = is_array($order) ? ($order['total_amount'] ?? 0) : ($order->total_amount ?? 0);
+                    $pStatus = is_array($order) ? ($order['status'] ?? 'NEW') : ($order->platform_order_status ?: $order->status);
+                    $pId     = is_array($order) ? ($order['id'] ?? '') : $order->id;
+                @endphp
                 <tr class="hover:bg-gray-50/80 transition">
                     <td class="p-4">
-                        @if(($order->platform_source ?? 'internal') === 'ubereats')
+                        @if($pSource === 'ubereats')
                             <span class="bg-black text-white px-2.5 py-1 rounded text-xs font-black">🟢 UBER EATS</span>
-                        @elseif(($order->platform_source ?? 'internal') === 'deliveroo')
+                        @elseif($pSource === 'deliveroo')
                             <span class="bg-teal-600 text-white px-2.5 py-1 rounded text-xs font-black">🦘 DELIVEROO</span>
-                        @elseif(($order->platform_source ?? 'internal') === 'justeat')
+                        @elseif($pSource === 'justeat')
                             <span class="bg-red-600 text-white px-2.5 py-1 rounded text-xs font-black">🔴 JUST EAT</span>
                         @else
                             <span class="bg-orange-500 text-white px-2.5 py-1 rounded text-xs font-black">🌐 WEBSITE</span>
                         @endif
                     </td>
                     <td class="p-4 font-bold text-gray-900">
-                        {{ $order->platform_display_code ?: ('#ORDER-' . $order->id) }}
-                        <div class="text-xs font-normal text-gray-400">{{ $order->created_at->diffForHumans() }}</div>
+                        {{ $pCode }}
+                        <div class="text-xs font-normal text-gray-400">Live API Stream</div>
                     </td>
                     <td class="p-4">
-                        <div class="font-bold text-gray-800">{{ $order->user->name ?? 'Marketplace Customer' }}</div>
-                        <div class="text-xs text-gray-500">{{ $order->phone ?: 'No phone provided' }}</div>
+                        <div class="font-bold text-gray-800">{{ $pName }}</div>
+                        <div class="text-xs text-gray-500">{{ $pPhone }}</div>
                     </td>
                     <td class="p-4 max-w-xs truncate text-xs text-gray-600">
-                        @if($order->items && count($order->items) > 0)
-                            {{ implode(', ', $order->items->pluck('product.name')->toArray()) }}
-                        @else
-                            Order #{{ $order->id }} Items
-                        @endif
+                        Live Platform Items
                     </td>
                     <td class="p-4 font-extrabold text-gray-900">
-                        £{{ number_format($order->total_amount, 2) }}
+                        £{{ number_format($pTotal, 2) }}
                     </td>
                     <td class="p-4">
                         <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-1 rounded-full uppercase">
-                            {{ $order->platform_order_status ?: $order->status }}
+                            {{ $pStatus }}
                         </span>
                     </td>
                     <td class="p-4 text-center">
                         <div class="flex items-center justify-center gap-2">
                             <!-- Accept Order Form -->
-                            <form method="POST" action="{{ route('restaurant.platform_orders.accept', $order->id) }}" class="inline">
+                            <form method="POST" action="{{ route('restaurant.platform_orders.accept', $pId) }}" class="inline">
                                 @csrf
+                                <input type="hidden" name="platform" value="{{ $pSource }}">
                                 <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow">
                                     ✓ Accept
                                 </button>
                             </form>
 
                             <!-- Mark Prepared Form -->
-                            <form method="POST" action="{{ route('restaurant.platform_orders.mark_prepared', $order->id) }}" class="inline">
+                            <form method="POST" action="{{ route('restaurant.platform_orders.mark_prepared', $pId) }}" class="inline">
                                 @csrf
+                                <input type="hidden" name="platform" value="{{ $pSource }}">
                                 <button type="submit" class="bg-black hover:bg-gray-800 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow">
                                     🍳 Ready
                                 </button>
@@ -194,16 +201,12 @@
                 @empty
                 <tr>
                     <td colspan="7" class="p-8 text-center text-gray-400">
-                        No orders found for this platform selection.
+                        No active live orders found for this platform API selection. Please check your credentials in Integration Settings.
                     </td>
                 </tr>
                 @endforelse
             </tbody>
         </table>
-    </div>
-
-    <div class="mt-6">
-        {{ $orders->links() }}
     </div>
 
 </div>
