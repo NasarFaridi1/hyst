@@ -27,10 +27,37 @@ class UberService
      * Create New Org (Uber Direct Organizations API)
      * Endpoint: POST /v1/direct/organizations
      */
-    public function createOrganization($restaurant, $billingType = 'CENTRALIZED')
+    public function createOrganization($restaurant, $billingType = 'CENTRALIZED', $parentOrgId = null)
     {
+        $parentId = $parentOrgId ?: config('services.uber.customer_id');
+
+        $billingTypeEnum = ($billingType === 'CENTRALIZED' || $billingType === 'BILLING_TYPE_CENTRALIZED')
+            ? 'BILLING_TYPE_CENTRALIZED'
+            : 'BILLING_TYPE_DECENTRALIZED';
+
         $payload = [
-            "name"         => $restaurant->name,
+            "info" => [
+                "name"         => (string) $restaurant->name,
+                "billing_type" => $billingTypeEnum,
+                "merchant_type"=> "MERCHANT_TYPE_RESTAURANT",
+                "point_of_contact" => [
+                    "email"      => (string) ($restaurant->email ?: 'admin@hyst.com'),
+                    "first_name" => "Admin",
+                    "last_name"  => (string) $restaurant->name,
+                    "phone_details" => [
+                        "phone_number" => $this->formatPhone($restaurant->phone ?: '+442079460912')
+                    ]
+                ],
+                "address" => [
+                    "street1"      => (string) ($restaurant->address ?: 'Main Street'),
+                    "city"         => (string) ($restaurant->city ?: 'London'),
+                    "state"        => (string) ($restaurant->state ?: 'Greater London'),
+                    "zipcode"      => (string) ($restaurant->postcode ?: 'SW1A 1AA'),
+                    "country_iso2" => (string) ($restaurant->country ?: 'GB'),
+                ]
+            ],
+            // Flat fallback fields
+            "name"         => (string) $restaurant->name,
             "billing_type" => $billingType,
             "address"      => [
                 "street_address" => [(string) $restaurant->address],
@@ -40,6 +67,12 @@ class UberService
                 "country"        => (string) ($restaurant->country ?: 'GB'),
             ],
         ];
+
+        if (!empty($parentId)) {
+            $payload["hierarchy_info"] = [
+                "parent_organization_id" => (string) $parentId
+            ];
+        }
 
         Log::info('Uber Create Organization Payload', $payload);
 
@@ -56,9 +89,11 @@ class UberService
         ]);
 
         $data = $response->json();
-        if ($response->successful() && !empty($data['organization_id'])) {
+        $orgId = $data['organization_id'] ?? $data['info']['organization_id'] ?? null;
+
+        if ($response->successful() && !empty($orgId)) {
             $restaurant->update([
-                'uber_organization_id' => $data['organization_id']
+                'uber_organization_id' => $orgId
             ]);
         }
 
