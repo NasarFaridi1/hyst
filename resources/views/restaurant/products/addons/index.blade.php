@@ -6,11 +6,11 @@
 
     <div>
         <h1 class="text-3xl font-bold">
-            {{ $product->name }} - Addons
+            Restaurant Addons
         </h1>
 
         <p class="text-gray-500 mt-2">
-            Manage Product Addons
+            Manage Common Addons (Available Across All Products)
         </p>
     </div>
 
@@ -18,10 +18,10 @@
 
         <a href="{{ route('restaurant.products.index') }}"
            class="bg-gray-500 text-white px-5 py-3 rounded-lg">
-            Back
+            Back to Products
         </a>
 
-        <a href="{{ route('restaurant.products.addons.create',$product->id) }}"
+        <a href="{{ route('restaurant.addons.create') }}"
            class="bg-blue-600 text-white px-5 py-3 rounded-lg">
             + Add Addon
         </a>
@@ -46,7 +46,7 @@
 
 <th class="p-4 text-left">Category</th>
 
-<th class="p-4 text-left">Addon</th>
+<th class="p-4 text-left">Addon Name</th>
 
 <th class="p-4 text-left">Price</th>
 
@@ -98,13 +98,13 @@ Inactive
 
 <div class="flex justify-center gap-2">
 
-<a href="{{ route('restaurant.products.addons.edit',[$product->id,$addon->id]) }}"
+<a href="{{ route('restaurant.addons.edit', $addon->id) }}"
 class="bg-yellow-500 text-white px-4 py-2 rounded-lg">
 Edit
 </a>
 
 <form method="POST"
-action="{{ route('restaurant.products.addons.destroy',[$product->id,$addon->id]) }}">
+action="{{ route('restaurant.addons.destroy', $addon->id) }}">
 
 @csrf
 @method('DELETE')
@@ -130,7 +130,7 @@ Delete
 
 <td colspan="5" class="text-center py-12 text-gray-500">
 
-No Addons Found
+No Addons Found. Click "+ Add Addon" to create one.
 
 </td>
 

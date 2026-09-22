@@ -176,4 +176,9 @@ class Restaurant extends Model
     {
         return $this->hasMany(LoyaltyReward::class);
     }
+
+    public function addons()
+    {
+        return $this->hasMany(ProductAddon::class);
+    }
 }

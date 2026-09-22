@@ -4,60 +4,98 @@ namespace App\Http\Controllers\RestaurantAdmin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Product;
 use App\Models\ProductAddon;
 
 class ProductAddonController extends Controller
 {
-    public function index(Product $product)
+    private function getRestaurantId()
     {
-        $addons = $product->addons()->latest()->paginate(20);
-
-        return view('restaurant.products.addons.index', compact('product','addons'));
+        $user = auth()->user();
+        return $user->restaurant_id ?? optional($user->restaurant)->id;
     }
 
-    public function create(Product $product)
+    public function index()
     {
-        return view('restaurant.products.addons.create', compact('product'));
+        $restaurantId = $this->getRestaurantId();
+        $addons = ProductAddon::where('restaurant_id', $restaurantId)
+            ->latest()
+            ->paginate(20);
+
+        return view('restaurant.products.addons.index', compact('addons'));
     }
 
-    public function store(Request $request, Product $product)
+    public function create()
+    {
+        return view('restaurant.products.addons.create');
+    }
+
+    public function store(Request $request)
     {
         $request->validate([
-            'category_name'=>'required',
-            'addon_name'=>'required',
-            'price'=>'required|numeric'
+            'category_name' => 'required',
+            'addon_name'    => 'required',
+            'price'         => 'required|numeric|min:0'
         ]);
 
-        $product->addons()->create($request->all());
+        $restaurantId = $this->getRestaurantId();
 
-        return back()->with('success','Addon Added Successfully');
-    }
-
-    public function edit(Product $product, ProductAddon $addon)
-    {
-        return view('restaurant.products.addons.edit', compact('product','addon'));
-    }
-
-    public function update(Request $request, Product $product, ProductAddon $addon)
-    {
-        $request->validate([
-            'category_name'=>'required',
-            'addon_name'=>'required',
-            'price'=>'required|numeric'
+        ProductAddon::create([
+            'restaurant_id' => $restaurantId,
+            'category_name' => $request->category_name,
+            'addon_name'    => $request->addon_name,
+            'price'         => $request->price,
+            'status'        => $request->input('status', 1),
         ]);
-
-        $addon->update($request->all());
 
         return redirect()
-            ->route('restaurant.products.addons.index',$product->id)
-            ->with('success','Addon Updated');
+            ->route('restaurant.addons.index')
+            ->with('success', 'Addon Added Successfully');
     }
 
-    public function destroy(Product $product, ProductAddon $addon)
+    public function edit(ProductAddon $addon)
     {
+        $restaurantId = $this->getRestaurantId();
+        if ($addon->restaurant_id && $addon->restaurant_id != $restaurantId) {
+            abort(403);
+        }
+
+        return view('restaurant.products.addons.edit', compact('addon'));
+    }
+
+    public function update(Request $request, ProductAddon $addon)
+    {
+        $restaurantId = $this->getRestaurantId();
+        if ($addon->restaurant_id && $addon->restaurant_id != $restaurantId) {
+            abort(403);
+        }
+
+        $request->validate([
+            'category_name' => 'required',
+            'addon_name'    => 'required',
+            'price'         => 'required|numeric|min:0'
+        ]);
+
+        $addon->update([
+            'category_name' => $request->category_name,
+            'addon_name'    => $request->addon_name,
+            'price'         => $request->price,
+            'status'        => $request->input('status', 1),
+        ]);
+
+        return redirect()
+            ->route('restaurant.addons.index')
+            ->with('success', 'Addon Updated Successfully');
+    }
+
+    public function destroy(ProductAddon $addon)
+    {
+        $restaurantId = $this->getRestaurantId();
+        if ($addon->restaurant_id && $addon->restaurant_id != $restaurantId) {
+            abort(403);
+        }
+
         $addon->delete();
 
-        return back()->with('success','Addon Deleted');
+        return back()->with('success', 'Addon Deleted Successfully');
     }
 }

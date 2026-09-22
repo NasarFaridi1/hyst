@@ -6,12 +6,12 @@
 
 <h2 class="text-3xl font-bold mb-8">
 
-Add Addon
+Add Restaurant Addon
 
 </h2>
 
 <form method="POST"
-action="{{ route('restaurant.products.addons.store',$product->id) }}">
+action="{{ route('restaurant.addons.store') }}">
 
 @csrf
 
@@ -99,6 +99,10 @@ name="price"
 class="w-full border rounded-lg p-3 mt-2"
 value="{{ old('price') }}">
 
+@error('price')
+<p class="text-red-500">{{ $message }}</p>
+@enderror
+
 </div>
 
 <div class="mb-8">
@@ -130,7 +134,7 @@ Save Addon
 
 </button>
 
-<a href="{{ route('restaurant.products.addons.index',$product->id) }}"
+<a href="{{ route('restaurant.addons.index') }}"
 class="bg-gray-500 text-white px-6 py-3 rounded-lg">
 
 Cancel

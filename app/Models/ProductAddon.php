@@ -12,6 +12,7 @@ class ProductAddon extends Model
     protected $table = 'product_addons';
 
     protected $fillable = [
+        'restaurant_id',
         'product_id',
         'category_name',
         'addon_name',
@@ -23,6 +24,11 @@ class ProductAddon extends Model
         'price' => 'decimal:2',
         'status' => 'boolean',
     ];
+
+    public function restaurant()
+    {
+        return $this->belongsTo(Restaurant::class);
+    }
 
     public function product()
     {

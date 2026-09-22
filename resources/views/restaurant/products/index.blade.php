@@ -20,12 +20,16 @@
 
     </div>
 
-    <a href="/restaurant/products/create"
-    class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl">
-
-        Add Product
-
-    </a>
+    <div class="flex gap-3">
+        <a href="{{ route('restaurant.addons.index') }}"
+        class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl">
+            Manage Addons
+        </a>
+        <a href="/restaurant/products/create"
+        class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl">
+            Add Product
+        </a>
+    </div>
 
 </div>
 <div class="bg-white rounded-2xl shadow p-5 mb-6">
@@ -210,7 +214,7 @@
 
                     </a>
 
-                    <a href="{{ route('restaurant.products.addons.index',$product->id) }}"
+                    <a href="{{ route('restaurant.addons.index') }}"
                     class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg">
                         Addons
                     </a>

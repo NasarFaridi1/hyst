@@ -580,7 +580,10 @@ class OrderController extends Controller
                 $addonTotal = 0;
                 $addonsList = [];
                 if (!empty($itemInput['addons']) && is_array($itemInput['addons'])) {
-                    $addons = ProductAddon::where('product_id', $product->id)
+                    $addons = ProductAddon::where(function($q) use ($product) {
+                            $q->where('restaurant_id', $product->restaurant_id)
+                              ->orWhere('product_id', $product->id);
+                        })
                         ->whereIn('id', $itemInput['addons'])
                         ->get();
                     foreach ($addons as $ad) {

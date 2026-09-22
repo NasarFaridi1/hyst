@@ -66,7 +66,8 @@ class Product extends Model
 
     public function addons()
     {
-        return $this->hasMany(ProductAddon::class);
+        return $this->hasMany(ProductAddon::class, 'restaurant_id', 'restaurant_id')
+                    ->where('status', 1);
     }
 
     public function getHystPercentageAttribute(): float

@@ -6,12 +6,12 @@
 
 <h2 class="text-3xl font-bold mb-8">
 
-Edit Addon
+Edit Restaurant Addon
 
 </h2>
 
 <form method="POST"
-action="{{ route('restaurant.products.addons.update',[$product->id,$addon->id]) }}">
+action="{{ route('restaurant.addons.update', $addon->id) }}">
 
 @csrf
 @method('PUT')
@@ -58,6 +58,10 @@ action="{{ route('restaurant.products.addons.update',[$product->id,$addon->id]) 
 
     </select>
 
+    @error('category_name')
+        <p class="text-red-500 mt-1">{{ $message }}</p>
+    @enderror
+
 </div>
 
 <div class="mb-5">
@@ -72,7 +76,11 @@ Addon Name
 type="text"
 name="addon_name"
 class="w-full border rounded-lg p-3 mt-2"
-value="{{ old('addon_name',$addon->addon_name) }}">
+value="{{ old('addon_name', $addon->addon_name) }}">
+
+@error('addon_name')
+<p class="text-red-500 mt-1">{{ $message }}</p>
+@enderror
 
 </div>
 
@@ -89,7 +97,11 @@ type="number"
 step="0.01"
 name="price"
 class="w-full border rounded-lg p-3 mt-2"
-value="{{ old('price',$addon->price) }}">
+value="{{ old('price', $addon->price) }}">
+
+@error('price')
+<p class="text-red-500 mt-1">{{ $message }}</p>
+@enderror
 
 </div>
 
@@ -126,7 +138,7 @@ Update Addon
 
 </button>
 
-<a href="{{ route('restaurant.products.addons.index',$product->id) }}"
+<a href="{{ route('restaurant.addons.index') }}"
 class="bg-gray-500 text-white px-6 py-3 rounded-lg">
 
 Cancel

@@ -871,24 +871,15 @@ Route::post('/gift-card/apply', [GiftCardController::class, 'apply'])
     ->name('gift-card.apply');    
 
 Route::middleware(['auth', 'restaurant_admin'])
-    ->prefix('restaurant/products/{product}')
-    ->name('restaurant.products.addons.')
+    ->prefix('restaurant')
+    ->name('restaurant.addons.')
     ->group(function () {
-
         Route::get('/addons', [ProductAddonController::class,'index'])->name('index');
-
-        
-
         Route::get('/addons/create', [ProductAddonController::class,'create'])->name('create');
-
         Route::post('/addons', [ProductAddonController::class,'store'])->name('store');
-
         Route::get('/addons/{addon}/edit', [ProductAddonController::class,'edit'])->name('edit');
-
         Route::put('/addons/{addon}', [ProductAddonController::class,'update'])->name('update');
-
         Route::delete('/addons/{addon}', [ProductAddonController::class,'destroy'])->name('destroy');
-       
     });
     
 

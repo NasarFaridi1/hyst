@@ -68,7 +68,10 @@ class CartCalculationTest extends TestCase
             return;
         }
 
-        $addon = ProductAddon::where('product_id', $product->id)->first();
+        $addon = ProductAddon::where(function($q) use ($product) {
+            $q->where('restaurant_id', $product->restaurant_id)
+              ->orWhere('product_id', $product->id);
+        })->first();
         $addonIds = $addon ? [$addon->id] : [];
 
         $response = $this->postJson('/cart/add', [
