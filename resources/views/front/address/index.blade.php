@@ -797,13 +797,17 @@
 
                 let distKm = data.data.distance_km ? parseFloat(data.data.distance_km).toFixed(1) : (parseFloat(data.data.distance) * 1.60934).toFixed(1);
                 let distMiles = parseFloat(data.data.distance).toFixed(1);
+                let slabInfo = '';
+                if (data.data.slab) {
+                    slabInfo = ` • Delivery Zone: ${parseFloat(data.data.slab.from_distance).toFixed(2)} - ${parseFloat(data.data.slab.to_distance).toFixed(2)} Miles`;
+                }
 
                 let html = '';
                 html += '<div style="display:flex; align-items:flex-start; gap:10px;">';
                 html += '  <span style="font-size:20px; flex-shrink:0;">✅</span>';
                 html += '  <div>';
-                html += '    <div style="font-weight:700; font-size:14px; color:#065F46;">Delivery Eligible (Within 10 Miles Radius)</div>';
-                html += `    <div style="font-size:12.5px; color:#047857; margin-top:2px;">Distance from restaurant: <strong>${distMiles} Miles</strong> (${distKm} KM) • Max Limit: 10.0 Miles</div>`;
+                html += '    <div style="font-weight:700; font-size:14px; color:#065F46;">Delivery Eligible</div>';
+                html += `    <div style="font-size:12.5px; color:#047857; margin-top:2px;">Distance from restaurant: <strong>${distMiles} Miles</strong> (${distKm} KM)${slabInfo}</div>`;
                 if (data.data.free_delivery) {
                     html += '    <div style="font-size:12.5px; color:#047857; margin-top:2px; font-weight:700;">Delivery Charge: FREE</div>';
                 } else {
@@ -838,7 +842,7 @@
                 errHtml += '  <span style="font-size:20px; flex-shrink:0;">🚫</span>';
                 errHtml += '  <div>';
                 errHtml += '    <div style="font-weight:700; font-size:14px; color:#991B1B;">Delivery Unavailable</div>';
-                errHtml += `    <div style="font-size:12.5px; color:#B91C1C; margin-top:2px;">${err.message || 'Your address is outside the 10 Miles delivery radius.'}</div>`;
+                errHtml += `    <div style="font-size:12.5px; color:#B91C1C; margin-top:2px;">${err.message || 'Your address is outside the delivery radius of this restaurant.'}</div>`;
                 errHtml += '  </div>';
                 errHtml += '</div>';
 

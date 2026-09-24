@@ -326,6 +326,10 @@ class UserAddressController extends Controller
 
                 'max_radius_km' => $result['max_radius_km'] ?? 16.09,
 
+                'restaurant_min_miles' => $result['restaurant_min_miles'] ?? null,
+
+                'restaurant_max_miles' => $result['restaurant_max_miles'] ?? null,
+
                 'delivery_charge' => $result['delivery_charge'],
 
                 'free_delivery' => $result['free_delivery'],

@@ -126,9 +126,13 @@ class SelfDeliveryService
 
         /*
         |--------------------------------------------------------------------------
-        | Find Slab
+        | Find Slab & Boundaries
         |--------------------------------------------------------------------------
         */
+
+        $chargesQuery = RestaurantDeliveryCharge::where('restaurant_id', $restaurant->id);
+        $minDist = $chargesQuery->min('from_distance');
+        $maxDist = $chargesQuery->max('to_distance');
 
         $slab = $this->getDeliverySlab(
             $restaurant,
@@ -136,25 +140,35 @@ class SelfDeliveryService
         );
 
         if (!$slab) {
+            if (is_null($maxDist)) {
+                $message = "Delivery Unavailable: This restaurant has not set up self delivery distance ranges yet.";
+            } elseif ($distanceMiles > $maxDist) {
+                $message = "Delivery Unavailable: Your address is {$distanceMiles} Miles away. {$restaurant->name} accepts self delivery only up to " . number_format((float)$maxDist, 2) . " Miles.";
+            } elseif ($distanceMiles < $minDist) {
+                $message = "Delivery Unavailable: Your address is {$distanceMiles} Miles away. {$restaurant->name} accepts self delivery starting from " . number_format((float)$minDist, 2) . " Miles.";
+            } else {
+                $message = "Delivery Unavailable: Delivery is not available for your address distance ({$distanceMiles} Miles).";
+            }
 
             return [
 
                 'success' => false,
 
-                'message' =>
-                    'Delivery is not available for your address.',
+                'message' => $message,
 
-                'distance' =>
-                    $distance,
+                'distance' => $distance,
 
-                'delivery_charge' =>
-                    0,
+                'distance_miles' => $distanceMiles,
 
-                'free_delivery' =>
-                    false,
+                'restaurant_min_miles' => !is_null($minDist) ? (float) $minDist : null,
 
-                'slab' =>
-                    null,
+                'restaurant_max_miles' => !is_null($maxDist) ? (float) $maxDist : null,
+
+                'delivery_charge' => 0,
+
+                'free_delivery' => false,
+
+                'slab' => null,
 
             ];
         }
@@ -204,6 +218,10 @@ class SelfDeliveryService
             'max_radius_miles' => 10.0,
 
             'max_radius_km' => 16.09,
+
+            'restaurant_min_miles' => (float) $minDist,
+
+            'restaurant_max_miles' => (float) $maxDist,
 
             'delivery_charge' => round($deliveryCharge, 2),
 
