@@ -768,15 +768,40 @@
                         <div style="flex:1; min-width:0;">
                             <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
                                 <div style="font-weight:800; font-size:16px; color:#111827; font-family:'Poppins',sans-serif;">{{ $restaurant->name }}</div>
-                                <span style="background:#FFF5F0; border:1px solid #FAD7C8; color:#C25A2A; font-size:11.5px; font-weight:700; padding:4px 10px; border-radius:999px; display:inline-flex; align-items:center; gap:4px;">
-                                    📍 Max 10 Miles Radius Limit
-                                </span>
+                                <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                                    <span style="background:#FFF5F0; border:1px solid #FAD7C8; color:#C25A2A; font-size:11.5px; font-weight:700; padding:4px 10px; border-radius:999px; display:inline-flex; align-items:center; gap:4px;">
+                                        📍 Max 10 Miles Radius Limit
+                                    </span>
+                                    @if($restaurant->self_delivery && $restaurant->deliveryCharges()->exists())
+                                        @php
+                                            $maxSelfDeliveryMiles = $restaurant->deliveryCharges()->max('to_distance');
+                                        @endphp
+                                        @if($maxSelfDeliveryMiles)
+                                        <span style="background:#ECFDF5; border:1px solid #A7F3D0; color:#047857; font-size:11.5px; font-weight:700; padding:4px 10px; border-radius:999px; display:inline-flex; align-items:center; gap:4px;">
+                                            🛵 Self Delivery: Up to {{ number_format($maxSelfDeliveryMiles, 2) }} Miles
+                                        </span>
+                                        @endif
+                                    @endif
+                                </div>
                             </div>
                             <div style="font-size:13px; color:#4B5563; margin-top:4px; line-height:1.4;">
                                 📍 {{ $restaurant->address ?? 'Main Address' }}@if($restaurant->city), {{ $restaurant->city }}@endif @if($restaurant->postcode), {{ $restaurant->postcode }}@endif, United Kingdom
                             </div>
-                            <div style="font-size:12px; color:#6B7280; margin-top:6px; background:#fff; padding:6px 12px; border-radius:8px; border:1px solid #E5E7EB; display:inline-block;">
-                                🇬🇧 Orders in the United Kingdom can only be booked within a <strong>10 Miles radius</strong> of this restaurant.
+                            <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:6px;">
+                                <div style="font-size:12px; color:#6B7280; background:#fff; padding:6px 12px; border-radius:8px; border:1px solid #E5E7EB; display:inline-block;">
+                                    🇬🇧 Orders in the United Kingdom can only be booked within a <strong>10 Miles radius</strong> of this restaurant.
+                                </div>
+                                @if($restaurant->self_delivery && $restaurant->deliveryCharges()->exists())
+                                    @php
+                                        $maxSelfDeliveryMiles = $restaurant->deliveryCharges()->max('to_distance');
+                                        $minSelfDeliveryMiles = $restaurant->deliveryCharges()->min('from_distance');
+                                    @endphp
+                                    @if($maxSelfDeliveryMiles)
+                                    <div style="font-size:12px; color:#047857; background:#ECFDF5; padding:6px 12px; border-radius:8px; border:1px solid #A7F3D0; display:inline-block;">
+                                        🛵 <strong>Self Delivery Zone:</strong> This restaurant accepts self delivery between <strong>{{ number_format($minSelfDeliveryMiles, 2) }} - {{ number_format($maxSelfDeliveryMiles, 2) }} Miles</strong>.
+                                    </div>
+                                    @endif
+                                @endif
                             </div>
                         </div>
                     </div>
