@@ -1204,4 +1204,71 @@ class OrderController extends Controller
             'data' => $evidence
         ]);
     }
+
+    /**
+     * Customer Update Delivery Notes (dropoff_notes) for active Uber Direct delivery via API
+     */
+    public function updateDropoffNotes(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'dropoff_notes' => 'required|string|max:280',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validator->errors()->first(),
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $order = Order::where('user_id', auth()->id())->find($id);
+
+        if (!$order) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Order not found.'
+            ], 404);
+        }
+
+        $blockedStatuses = ['dropoff_imminent', 'completed', 'delivered', 'cancelled'];
+        $currentStatus = strtolower($order->uber_delivery_status ?? $order->status ?? '');
+        if (in_array($currentStatus, $blockedStatuses)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Delivery instructions cannot be updated at this stage of delivery.'
+            ], 422);
+        }
+
+        if (!empty($order->uber_delivery_id)) {
+            try {
+                $uberService = app(UberService::class);
+                $response = $uberService->updateDelivery(
+                    $order->uber_delivery_id,
+                    ['dropoff_notes' => $request->dropoff_notes],
+                    $order->restaurant
+                );
+
+                if (isset($response['code']) && $response['code'] === 'invalid_params') {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Uber delivery update notice: ' . ($response['message'] ?? 'Invalid parameters')
+                    ], 422);
+                }
+            } catch (\Throwable $e) {
+                Log::warning("API Customer Uber update delivery note warning for Order #{$id}: " . $e->getMessage());
+            }
+        }
+
+        $order->update(['dropoff_notes' => $request->dropoff_notes]);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Delivery instructions updated & sent to driver successfully!',
+            'data' => [
+                'order_id' => $order->id,
+                'dropoff_notes' => $order->dropoff_notes,
+            ]
+        ]);
+    }
 }

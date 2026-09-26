@@ -420,6 +420,11 @@ Route::middleware(['auth'])->group(function () {
         [OrderController::class, 'orderStatus']
     )->middleware('auth');
 
+    Route::post(
+        '/my-orders/{id}/update-dropoff-notes',
+        [OrderController::class, 'updateDropoffNotes']
+    )->middleware('auth')->name('my.orders.update_notes');
+
 
     Route::post(
 

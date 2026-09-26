@@ -55,6 +55,7 @@ Route::middleware('api.token')->group(function () {
     Route::get('/my-orders', [OrderController::class, 'myOrders']);
 
     Route::get('/my-orders/{id}', [OrderController::class, 'orderDetails']);
+    Route::post('/my-orders/{id}/update-dropoff-notes', [OrderController::class, 'updateDropoffNotes']);
     Route::get('/orders/{id}/status', [OrderController::class, 'orderStatus']);
 
     Route::get('/transactions', [OrderController::class, 'transactions']);

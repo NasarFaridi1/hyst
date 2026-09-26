@@ -2010,6 +2010,21 @@
                                 <label>Address</label>
                                 <span>{{ $order->address ?? '—' }}</span>
                             </div>
+                            <div class="od-info-item" style="grid-column: 1 / -1;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                    <label style="margin:0;">Delivery Instructions (Dropoff Notes)</label>
+                                    @php
+                                        $blockedStatusList = ['dropoff_imminent', 'completed', 'delivered', 'cancelled'];
+                                        $isNotesEditable = !in_array(strtolower($order->uber_delivery_status ?? $order->status ?? ''), $blockedStatusList);
+                                    @endphp
+                                    @if($isNotesEditable)
+                                        <button type="button" onclick="openNotesModal()" style="background:none; border:none; color:#16A34A; font-size:12px; font-weight:700; cursor:pointer; padding:0; text-decoration:underline;">
+                                            ✏️ Edit Instructions
+                                        </button>
+                                    @endif
+                                </div>
+                                <span id="display_dropoff_notes">{{ $order->dropoff_notes ?: 'No specific instructions provided.' }}</span>
+                            </div>
                             @endif
                         </div>
                     </div>
@@ -2506,7 +2521,57 @@
             'complaintsHistoryModal'
         ).style.display = 'none';
     }
-    
+</script>
+
+<!-- UPDATE DELIVERY NOTES MODAL -->
+<div id="notesModalBg" class="review-modal-bg">
+    <div class="review-modal">
+        <div class="rmodal-header">
+            <div>
+                <h2>✏️ Edit Delivery Instructions</h2>
+                <p>Add gate codes, building instructions, or landmark details for the driver.</p>
+            </div>
+            <button type="button" onclick="closeNotesModal()" class="rmodal-close">&times;</button>
+        </div>
+        <form id="updateNotesForm" method="POST" action="{{ route('my.orders.update_notes', $order->id) }}">
+            @csrf
+            <div class="rmodal-body">
+                <label class="r-label">Instructions / Dropoff Notes (Max 280 chars)</label>
+                <textarea name="dropoff_notes" id="input_dropoff_notes" class="r-textarea" rows="4" maxlength="280" placeholder="e.g. Ring doorbell #3B, gate code 1234, leave at front door">{{ $order->dropoff_notes }}</textarea>
+                <div style="font-size:11px; color:#888; text-align:right; margin-top:4px;" id="notesCharCounter">0 / 280</div>
+            </div>
+            <div class="rmodal-footer" style="padding: 0 26px 24px;">
+                <button type="button" onclick="closeNotesModal()" class="rmodal-cancel">Cancel</button>
+                <button type="submit" class="rmodal-submit">Save & Send to Driver</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openNotesModal() {
+    var bg = document.getElementById('notesModalBg');
+    if (bg) bg.style.display = 'flex';
+    var txt = document.getElementById('input_dropoff_notes');
+    if (txt) updateNotesCounter(txt.value.length);
+}
+function closeNotesModal() {
+    var bg = document.getElementById('notesModalBg');
+    if (bg) bg.style.display = 'none';
+}
+document.addEventListener('DOMContentLoaded', function() {
+    var txt = document.getElementById('input_dropoff_notes');
+    if (txt) {
+        updateNotesCounter(txt.value.length);
+        txt.addEventListener('input', function() {
+            updateNotesCounter(this.value.length);
+        });
+    }
+});
+function updateNotesCounter(len) {
+    var counter = document.getElementById('notesCharCounter');
+    if (counter) counter.innerText = len + ' / 280';
+}
 </script>
 
 @endsection
