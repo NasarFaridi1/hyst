@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\UberApiLog;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -21,6 +22,84 @@ class UberService
             return $restaurant->uber_organization_id;
         }
         return config('services.uber.customer_id');
+    }
+
+    /**
+     * Recursively sanitize sensitive keys in array payload for security
+     */
+    protected function sanitizeData($data)
+    {
+        if (!is_array($data)) {
+            return $data;
+        }
+
+        $sensitiveKeys = [
+            'client_secret',
+            'access_token',
+            'refresh_token',
+            'signing_key',
+            'password',
+            'secret',
+            'token',
+            'api_key',
+        ];
+
+        foreach ($data as $key => $value) {
+            $keyLower = strtolower((string) $key);
+
+            if (in_array($keyLower, $sensitiveKeys)) {
+                $data[$key] = '***MASKED***';
+            } elseif (is_array($value)) {
+                $data[$key] = $this->sanitizeData($value);
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * Log Uber API calls to Database safely with sensitive data masking
+     */
+    public function recordLog(array $data): void
+    {
+        try {
+            $requestPayload = isset($data['request_payload']) ? $this->sanitizeData($data['request_payload']) : null;
+            $responsePayload = isset($data['response_payload']) ? $this->sanitizeData($data['response_payload']) : null;
+
+            $headers = $data['request_headers'] ?? [];
+            $sanitizedHeaders = [];
+            foreach ($headers as $key => $value) {
+                $headerStr = is_numeric($key) ? $value : "{$key}: {$value}";
+                if (str_contains(strtolower($headerStr), 'authorization')) {
+                    $sanitizedHeaders[] = 'Authorization: Bearer ***MASKED***';
+                } else {
+                    $sanitizedHeaders[] = $headerStr;
+                }
+            }
+
+            if (is_string($responsePayload)) {
+                $decoded = json_decode($responsePayload, true);
+                $responsePayload = ($decoded !== null) ? $this->sanitizeData($decoded) : ['raw' => $responsePayload];
+            }
+
+            UberApiLog::create([
+                'restaurant_id'     => $data['restaurant_id'] ?? null,
+                'order_id'          => $data['order_id'] ?? null,
+                'delivery_id'       => $data['delivery_id'] ?? null,
+                'action'            => $data['action'],
+                'endpoint_url'      => $data['endpoint_url'],
+                'http_method'       => $data['http_method'] ?? 'POST',
+                'http_status_code'  => $data['http_status_code'] ?? null,
+                'request_headers'   => $sanitizedHeaders,
+                'request_payload'   => $requestPayload,
+                'response_payload'  => $responsePayload,
+                'error_message'     => $data['error_message'] ?? null,
+                'ip_address'        => request()->ip(),
+                'execution_time_ms' => $data['execution_time_ms'] ?? null,
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Uber Audit Log Save Error: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -76,22 +155,38 @@ class UberService
 
         Log::info('Uber Create Organization Payload', $payload);
 
-        $response = Http::withToken($this->token())
+        $url = $this->getBaseUrl() . '/direct/organizations';
+        $token = $this->token();
+        $startTime = microtime(true);
+
+        $response = Http::withToken($token)
             ->acceptJson()
-            ->post(
-                $this->getBaseUrl() . '/direct/organizations',
-                $payload
-            );
+            ->post($url, $payload);
+
+        $executionTimeMs = (int) round((microtime(true) - $startTime) * 1000);
+        $data = $response->json();
+
+        $this->recordLog([
+            'restaurant_id'     => $restaurant->id ?? null,
+            'action'            => 'CREATE_ORGANIZATION',
+            'endpoint_url'      => $url,
+            'http_method'       => 'POST',
+            'http_status_code'  => $response->status(),
+            'request_headers'   => ['Content-Type: application/json', 'Authorization: Bearer ' . $token],
+            'request_payload'   => $payload,
+            'response_payload'  => $data,
+            'error_message'     => $response->failed() ? ('HTTP ' . $response->status() . ': ' . $response->body()) : null,
+            'execution_time_ms' => $executionTimeMs,
+        ]);
 
         Log::info('Uber Create Organization Response', [
             'status' => $response->status(),
-            'body'   => $response->json(),
+            'body'   => $data,
         ]);
 
-        $data = $response->json();
         $orgId = $data['organization_id'] ?? $data['info']['organization_id'] ?? null;
 
-        if ($response->successful() && !empty($orgId)) {
+        if ($response->successful() && !empty($orgId) && $restaurant) {
             $restaurant->update([
                 'uber_organization_id' => $orgId
             ]);
@@ -115,19 +210,36 @@ class UberService
             ];
         }
 
-        $response = Http::withToken($this->token())
+        $url = $this->getBaseUrl() . '/direct/organizations/' . $organizationId;
+        $token = $this->token();
+        $startTime = microtime(true);
+
+        $response = Http::withToken($token)
             ->acceptJson()
-            ->get(
-                $this->getBaseUrl() . '/direct/organizations/' . $organizationId
-            );
+            ->get($url);
+
+        $executionTimeMs = (int) round((microtime(true) - $startTime) * 1000);
+        $data = $response->json();
+
+        $this->recordLog([
+            'action'            => 'GET_ORGANIZATION',
+            'endpoint_url'      => $url,
+            'http_method'       => 'GET',
+            'http_status_code'  => $response->status(),
+            'request_headers'   => ['Accept: application/json', 'Authorization: Bearer ' . $token],
+            'request_payload'   => ['organization_id' => $organizationId],
+            'response_payload'  => $data,
+            'error_message'     => $response->failed() ? ('HTTP ' . $response->status()) : null,
+            'execution_time_ms' => $executionTimeMs,
+        ]);
 
         Log::info('Uber Get Organization Response', [
             'organization_id' => $organizationId,
             'status'          => $response->status(),
-            'body'            => $response->json(),
+            'body'            => $data,
         ]);
 
-        return $response->json();
+        return $data;
     }
 
     /**
@@ -159,20 +271,36 @@ class UberService
             'payload'         => $payload,
         ]);
 
-        $response = Http::withToken($this->token())
+        $url = $this->getBaseUrl() . '/direct/organizations/' . $organizationId . '/memberships/invite';
+        $token = $this->token();
+        $startTime = microtime(true);
+
+        $response = Http::withToken($token)
             ->acceptJson()
-            ->post(
-                $this->getBaseUrl() . '/direct/organizations/' . $organizationId . '/memberships/invite',
-                $payload
-            );
+            ->post($url, $payload);
+
+        $executionTimeMs = (int) round((microtime(true) - $startTime) * 1000);
+        $data = $response->json();
+
+        $this->recordLog([
+            'action'            => 'INVITE_USER_ORGANIZATION',
+            'endpoint_url'      => $url,
+            'http_method'       => 'POST',
+            'http_status_code'  => $response->status(),
+            'request_headers'   => ['Content-Type: application/json', 'Authorization: Bearer ' . $token],
+            'request_payload'   => $payload,
+            'response_payload'  => $data,
+            'error_message'     => $response->failed() ? ('HTTP ' . $response->status()) : null,
+            'execution_time_ms' => $executionTimeMs,
+        ]);
 
         Log::info('Uber Invite User Response', [
             'organization_id' => $organizationId,
             'status'          => $response->status(),
-            'body'            => $response->json(),
+            'body'            => $data,
         ]);
 
-        return $response->json();
+        return $data;
     }
 
     public function token()
@@ -181,22 +309,38 @@ class UberService
             return Cache::get('uber_token');
         }
 
-        $response = Http::asForm()->post(
-            'https://auth.uber.com/oauth/v2/token',
-            [
-                'client_id'     => config('services.uber.client_id'),
-                'client_secret' => config('services.uber.client_secret'),
-                'grant_type'    => 'client_credentials',
-                'scope'         => 'eats.deliveries direct.organizations',
-            ]
-        );
+        $url = 'https://auth.uber.com/oauth/v2/token';
+        $startTime = microtime(true);
+
+        $payload = [
+            'client_id'     => config('services.uber.client_id'),
+            'client_secret' => config('services.uber.client_secret'),
+            'grant_type'    => 'client_credentials',
+            'scope'         => 'eats.deliveries direct.organizations',
+        ];
+
+        $response = Http::asForm()->post($url, $payload);
+        $executionTimeMs = (int) round((microtime(true) - $startTime) * 1000);
+        $data = $response->json();
+
+        $this->recordLog([
+            'action'            => 'OAUTH_TOKEN',
+            'endpoint_url'      => $url,
+            'http_method'       => 'POST',
+            'http_status_code'  => $response->status(),
+            'request_headers'   => ['Content-Type: application/x-www-form-urlencoded'],
+            'request_payload'   => $payload,
+            'response_payload'  => $data,
+            'error_message'     => $response->failed() ? ('Uber token generation failed: ' . $response->body()) : null,
+            'execution_time_ms' => $executionTimeMs,
+        ]);
 
         Log::info('Uber Token Status', [
             'status' => $response->status(),
         ]);
 
         Log::info('Uber Token Response', [
-            'body' => $response->json(),
+            'body' => $data,
         ]);
 
         if ($response->failed()) {
@@ -261,19 +405,36 @@ class UberService
 
         Log::info('Uber Quote Payload', $payload);
 
-        $response = Http::withToken($this->token())
+        $url = $this->getBaseUrl() . '/customers/' . $this->getCustomerId($restaurant) . '/delivery_quotes';
+        $token = $this->token();
+        $startTime = microtime(true);
+
+        $response = Http::withToken($token)
             ->acceptJson()
-            ->post(
-                $this->getBaseUrl() . '/customers/' . $this->getCustomerId($restaurant) . '/delivery_quotes',
-                $payload
-            );
+            ->post($url, $payload);
+
+        $executionTimeMs = (int) round((microtime(true) - $startTime) * 1000);
+        $data = $response->json();
+
+        $this->recordLog([
+            'restaurant_id'     => $restaurant->id ?? null,
+            'action'            => 'GET_QUOTE_CHECKOUT',
+            'endpoint_url'      => $url,
+            'http_method'       => 'POST',
+            'http_status_code'  => $response->status(),
+            'request_headers'   => ['Content-Type: application/json', 'Authorization: Bearer ' . $token],
+            'request_payload'   => $payload,
+            'response_payload'  => $data,
+            'error_message'     => $response->failed() ? ('HTTP ' . $response->status()) : null,
+            'execution_time_ms' => $executionTimeMs,
+        ]);
 
         Log::info('Uber Quote Response', [
             'status' => $response->status(),
-            'body'   => $response->json(),
+            'body'   => $data,
         ]);
 
-        return $response->json();
+        return $data;
     }
 
     public function quote($restaurant, $order)
@@ -327,19 +488,37 @@ class UberService
 
         Log::info('Uber Quote Payload', $payload);
 
-        $response = Http::withToken($this->token())
+        $url = $this->getBaseUrl() . '/customers/' . $this->getCustomerId($restaurant) . '/delivery_quotes';
+        $token = $this->token();
+        $startTime = microtime(true);
+
+        $response = Http::withToken($token)
             ->acceptJson()
-            ->post(
-                $this->getBaseUrl() . '/customers/' . $this->getCustomerId($restaurant) . '/delivery_quotes',
-                $payload
-            );
+            ->post($url, $payload);
+
+        $executionTimeMs = (int) round((microtime(true) - $startTime) * 1000);
+        $data = $response->json();
+
+        $this->recordLog([
+            'restaurant_id'     => $restaurant->id ?? null,
+            'order_id'          => $order->id ?? null,
+            'action'            => 'GET_QUOTE_ORDER',
+            'endpoint_url'      => $url,
+            'http_method'       => 'POST',
+            'http_status_code'  => $response->status(),
+            'request_headers'   => ['Content-Type: application/json', 'Authorization: Bearer ' . $token],
+            'request_payload'   => $payload,
+            'response_payload'  => $data,
+            'error_message'     => $response->failed() ? ('HTTP ' . $response->status()) : null,
+            'execution_time_ms' => $executionTimeMs,
+        ]);
 
         Log::info('Uber Quote Response', [
             'status' => $response->status(),
-            'body'   => $response->json(),
+            'body'   => $data,
         ]);
 
-        return $response->json();
+        return $data;
     }
 
     public function createDelivery($order, $restaurant, $request)
@@ -460,19 +639,39 @@ class UberService
 
         Log::info('Uber Delivery Payload', $payload);
 
-        $response = Http::withToken($this->token())
+        $url = $this->getBaseUrl() . "/customers/" . $this->getCustomerId($restaurant) . "/deliveries";
+        $token = $this->token();
+        $startTime = microtime(true);
+
+        $response = Http::withToken($token)
             ->acceptJson()
-            ->post(
-                $this->getBaseUrl() . "/customers/" . $this->getCustomerId($restaurant) . "/deliveries",
-                $payload
-            );
+            ->post($url, $payload);
+
+        $executionTimeMs = (int) round((microtime(true) - $startTime) * 1000);
+        $data = $response->json();
+        $deliveryId = $data['id'] ?? $data['delivery_id'] ?? null;
+
+        $this->recordLog([
+            'restaurant_id'     => $restaurant->id ?? null,
+            'order_id'          => $order->id ?? null,
+            'delivery_id'       => $deliveryId,
+            'action'            => 'CREATE_DELIVERY',
+            'endpoint_url'      => $url,
+            'http_method'       => 'POST',
+            'http_status_code'  => $response->status(),
+            'request_headers'   => ['Content-Type: application/json', 'Authorization: Bearer ' . $token],
+            'request_payload'   => $payload,
+            'response_payload'  => $data,
+            'error_message'     => $response->failed() ? ('HTTP ' . $response->status()) : null,
+            'execution_time_ms' => $executionTimeMs,
+        ]);
 
         Log::info('Uber Delivery Response', [
             'status' => $response->status(),
-            'body'   => $response->json(),
+            'body'   => $data,
         ]);
 
-        return $response->json();
+        return $data;
     }
 
     /**
@@ -496,19 +695,38 @@ class UberService
             return null;
         }
 
-        $response = Http::withToken($this->token())
+        $url = $this->getBaseUrl() . "/customers/" . $this->getCustomerId($restaurant) . "/deliveries/" . $deliveryId;
+        $token = $this->token();
+        $startTime = microtime(true);
+
+        $response = Http::withToken($token)
             ->acceptJson()
-            ->get(
-                $this->getBaseUrl() . "/customers/" . $this->getCustomerId($restaurant) . "/deliveries/" . $deliveryId
-            );
+            ->get($url);
+
+        $executionTimeMs = (int) round((microtime(true) - $startTime) * 1000);
+        $data = $response->json();
+
+        $this->recordLog([
+            'restaurant_id'     => $restaurant->id ?? null,
+            'delivery_id'       => $deliveryId,
+            'action'            => 'GET_DELIVERY',
+            'endpoint_url'      => $url,
+            'http_method'       => 'GET',
+            'http_status_code'  => $response->status(),
+            'request_headers'   => ['Accept: application/json', 'Authorization: Bearer ' . $token],
+            'request_payload'   => ['delivery_id' => $deliveryId],
+            'response_payload'  => $data,
+            'error_message'     => $response->failed() ? ('HTTP ' . $response->status()) : null,
+            'execution_time_ms' => $executionTimeMs,
+        ]);
 
         Log::info('Uber Get Delivery Response', [
             'delivery_id' => $deliveryId,
             'status'      => $response->status(),
-            'body'        => $response->json(),
+            'body'        => $data,
         ]);
 
-        return $response->json();
+        return $data;
     }
 
     /**
@@ -532,20 +750,38 @@ class UberService
             'reason'      => $reason,
         ]);
 
-        $response = Http::withToken($this->token())
+        $url = $this->getBaseUrl() . "/customers/" . $this->getCustomerId($restaurant) . "/deliveries/" . $deliveryId . "/cancel";
+        $token = $this->token();
+        $startTime = microtime(true);
+
+        $response = Http::withToken($token)
             ->acceptJson()
-            ->post(
-                $this->getBaseUrl() . "/customers/" . $this->getCustomerId($restaurant) . "/deliveries/" . $deliveryId . "/cancel",
-                $payload
-            );
+            ->post($url, $payload);
+
+        $executionTimeMs = (int) round((microtime(true) - $startTime) * 1000);
+        $data = $response->json();
+
+        $this->recordLog([
+            'restaurant_id'     => $restaurant->id ?? null,
+            'delivery_id'       => $deliveryId,
+            'action'            => 'CANCEL_DELIVERY',
+            'endpoint_url'      => $url,
+            'http_method'       => 'POST',
+            'http_status_code'  => $response->status(),
+            'request_headers'   => ['Content-Type: application/json', 'Authorization: Bearer ' . $token],
+            'request_payload'   => $payload,
+            'response_payload'  => $data,
+            'error_message'     => $response->failed() ? ('HTTP ' . $response->status()) : null,
+            'execution_time_ms' => $executionTimeMs,
+        ]);
 
         Log::info('Uber Cancel Delivery Response', [
             'delivery_id' => $deliveryId,
             'status'      => $response->status(),
-            'body'        => $response->json(),
+            'body'        => $data,
         ]);
 
-        return $response->json();
+        return $data;
     }
 
     /**
@@ -575,20 +811,38 @@ class UberService
             'payload'     => $payload,
         ]);
 
-        $response = Http::withToken($this->token())
+        $url = $this->getBaseUrl() . "/customers/" . $this->getCustomerId($restaurant) . "/deliveries/" . $deliveryId;
+        $token = $this->token();
+        $startTime = microtime(true);
+
+        $response = Http::withToken($token)
             ->acceptJson()
-            ->post(
-                $this->getBaseUrl() . "/customers/" . $this->getCustomerId($restaurant) . "/deliveries/" . $deliveryId,
-                $payload
-            );
+            ->post($url, $payload);
+
+        $executionTimeMs = (int) round((microtime(true) - $startTime) * 1000);
+        $responseData = $response->json();
+
+        $this->recordLog([
+            'restaurant_id'     => $restaurant->id ?? null,
+            'delivery_id'       => $deliveryId,
+            'action'            => 'UPDATE_DELIVERY',
+            'endpoint_url'      => $url,
+            'http_method'       => 'POST',
+            'http_status_code'  => $response->status(),
+            'request_headers'   => ['Content-Type: application/json', 'Authorization: Bearer ' . $token],
+            'request_payload'   => $payload,
+            'response_payload'  => $responseData,
+            'error_message'     => $response->failed() ? ('HTTP ' . $response->status()) : null,
+            'execution_time_ms' => $executionTimeMs,
+        ]);
 
         Log::info('Uber Update Delivery Response', [
             'delivery_id' => $deliveryId,
             'status'      => $response->status(),
-            'body'        => $response->json(),
+            'body'        => $responseData,
         ]);
 
-        return $response->json();
+        return $responseData;
     }
 
     /**
@@ -614,20 +868,38 @@ class UberService
             'payload'     => $payload,
         ]);
 
-        $response = Http::withToken($this->token())
+        $url = $this->getBaseUrl() . "/customers/" . $this->getCustomerId($restaurant) . "/deliveries/" . $deliveryId . "/refunds";
+        $token = $this->token();
+        $startTime = microtime(true);
+
+        $response = Http::withToken($token)
             ->acceptJson()
-            ->post(
-                $this->getBaseUrl() . "/customers/" . $this->getCustomerId($restaurant) . "/deliveries/" . $deliveryId . "/refunds",
-                $payload
-            );
+            ->post($url, $payload);
+
+        $executionTimeMs = (int) round((microtime(true) - $startTime) * 1000);
+        $data = $response->json();
+
+        $this->recordLog([
+            'restaurant_id'     => $restaurant->id ?? null,
+            'delivery_id'       => $deliveryId,
+            'action'            => 'REQUEST_REFUND',
+            'endpoint_url'      => $url,
+            'http_method'       => 'POST',
+            'http_status_code'  => $response->status(),
+            'request_headers'   => ['Content-Type: application/json', 'Authorization: Bearer ' . $token],
+            'request_payload'   => $payload,
+            'response_payload'  => $data,
+            'error_message'     => $response->failed() ? ('HTTP ' . $response->status()) : null,
+            'execution_time_ms' => $executionTimeMs,
+        ]);
 
         Log::info('Uber Request Refund Response', [
             'delivery_id' => $deliveryId,
             'status'      => $response->status(),
-            'body'        => $response->json(),
+            'body'        => $data,
         ]);
 
-        return $response->json();
+        return $data;
     }
 
     /**
@@ -647,20 +919,38 @@ class UberService
             'type' => $type
         ];
 
-        $response = Http::withToken($this->token())
+        $url = $this->getBaseUrl() . "/customers/" . $this->getCustomerId($restaurant) . "/deliveries/" . $deliveryId . "/proof-of-delivery";
+        $token = $this->token();
+        $startTime = microtime(true);
+
+        $response = Http::withToken($token)
             ->acceptJson()
-            ->post(
-                $this->getBaseUrl() . "/customers/" . $this->getCustomerId($restaurant) . "/deliveries/" . $deliveryId . "/proof-of-delivery",
-                $payload
-            );
+            ->post($url, $payload);
+
+        $executionTimeMs = (int) round((microtime(true) - $startTime) * 1000);
+        $data = $response->json();
+
+        $this->recordLog([
+            'restaurant_id'     => $restaurant->id ?? null,
+            'delivery_id'       => $deliveryId,
+            'action'            => 'GET_PROOF_OF_DELIVERY',
+            'endpoint_url'      => $url,
+            'http_method'       => 'POST',
+            'http_status_code'  => $response->status(),
+            'request_headers'   => ['Content-Type: application/json', 'Authorization: Bearer ' . $token],
+            'request_payload'   => $payload,
+            'response_payload'  => $data,
+            'error_message'     => $response->failed() ? ('HTTP ' . $response->status()) : null,
+            'execution_time_ms' => $executionTimeMs,
+        ]);
 
         Log::info('Uber Proof of Delivery Response', [
             'delivery_id' => $deliveryId,
             'status'      => $response->status(),
-            'body'        => $response->json(),
+            'body'        => $data,
         ]);
 
-        return $response->json();
+        return $data;
     }
 
     private function getDeliveryTimes()

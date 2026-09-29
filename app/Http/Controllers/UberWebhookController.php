@@ -91,6 +91,20 @@ class UberWebhookController extends Controller
                 'ip_address'        => $request->ip(),
                 'received_at'       => now(),
             ]);
+
+            app(\App\Services\UberService::class)->recordLog([
+                'restaurant_id'     => $order?->restaurant_id,
+                'order_id'          => $order?->id,
+                'delivery_id'       => $deliveryId,
+                'action'            => 'WEBHOOK_' . strtoupper(str_replace('.', '_', $eventType)),
+                'endpoint_url'      => $request->fullUrl(),
+                'http_method'       => $request->method(),
+                'http_status_code'  => $signatureValid ? 200 : 401,
+                'request_headers'   => $request->headers->all(),
+                'request_payload'   => $payload,
+                'response_payload'  => ['status' => 'acknowledged', 'signature_valid' => $signatureValid],
+                'error_message'     => $signatureValid ? null : 'Invalid webhook signature',
+            ]);
         } catch (\Throwable $e) {
             Log::error('Failed to store Uber Webhook in database log table', [
                 'error' => $e->getMessage()
