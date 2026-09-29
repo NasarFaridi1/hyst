@@ -214,10 +214,10 @@
 
                     </a>
 
-                    <a href="{{ route('restaurant.addons.index') }}"
+                    {{-- <a href="{{ route('restaurant.addons.index') }}"
                     class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg">
                         Addons
-                    </a>
+                    </a> --}}
 
                     <form method="POST"
                     action="/restaurant/products/{{ $product->id }}">
