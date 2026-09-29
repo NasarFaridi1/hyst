@@ -651,6 +651,10 @@ Route::middleware(['auth', 'super_admin'])
         Route::get('/payments/export', [PaymentReportController::class, 'exportCsv'])->name('payments.export');
         Route::get('/payments/export-pdf', [PaymentReportController::class, 'exportPdf'])->name('payments.export-pdf');
 
+        // Order Reports & Analytics for Super Admin
+        Route::get('/order-reports', [\App\Http\Controllers\Admin\OrderReportController::class, 'index'])->name('order_reports.index');
+        Route::get('/order-reports/export-pdf', [\App\Http\Controllers\Admin\OrderReportController::class, 'exportPdf'])->name('order_reports.export_pdf');
+
     });
 
     Route::post(

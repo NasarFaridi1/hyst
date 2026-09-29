@@ -294,6 +294,14 @@
                 <span>Payment Report</span>
             </a>
 
+            <a href="{{ route('admin.order_reports.index') }}"
+            class="sidebar-item {{ str_contains($current,'admin/order-reports') ? 'active' : '' }}">
+                <div class="sidebar-icon">
+                    <i data-lucide="bar-chart-3"></i>
+                </div>
+                <span>Order Report</span>
+            </a>
+
             
 
         @endif
