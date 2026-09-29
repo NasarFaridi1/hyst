@@ -313,7 +313,10 @@
                                     @endif
                                 </td>
                                 <td class="text-xs text-gray-600 font-mono">
-                                    {{ $payment->transaction_id ?? $payment->payment_transaction_id ?? '-' }}
+                                    <div class="font-bold text-gray-900">{{ $payment->payment_transaction_id ?? $payment->transaction_id ?? '-' }}</div>
+                                    @if($payment->secondary_transaction_id)
+                                        <div class="text-[10px] text-gray-500 font-mono">Sec: {{ $payment->secondary_transaction_id }}</div>
+                                    @endif
                                 </td>
                                 <td class="text-xs text-gray-500">
                                     {{ $payment->created_at->format('d M Y, H:i') }}

@@ -254,7 +254,12 @@
                     <tbody>
                         @forelse($payments as $payment)
                         <tr>
-                            <td><span class="txn-id">TXN-{{ $payment->id }}</span></td>
+                            <td>
+                                <span class="txn-id font-mono font-bold">{{ $payment->payment_transaction_id ?? $payment->secondary_transaction_id ?? $payment->transaction_id ?? ('TXN-' . $payment->id) }}</span>
+                                @if($payment->payment_transaction_id && $payment->secondary_transaction_id)
+                                    <span style="font-size:10px; color:#888; display:block;">Sec: {{ $payment->secondary_transaction_id }}</span>
+                                @endif
+                            </td>
                             <td>
                                 <a href="/my-orders/{{ $payment->order_id }}" class="txn-link">#{{ $payment->order_id }}</a>
                             </td>
@@ -311,7 +316,7 @@
                     @forelse($payments as $payment)
                     <div class="txn-mob-item">
                         <div class="tmob-row1">
-                            <span class="tmob-id">TXN-{{ $payment->id }}</span>
+                            <span class="tmob-id font-mono font-bold">{{ $payment->payment_transaction_id ?? $payment->secondary_transaction_id ?? $payment->transaction_id ?? ('TXN-' . $payment->id) }}</span>
                             <span class="tmob-amount">£{{ number_format($payment->amount, 2) }}</span>
                         </div>
                         <div class="tmob-row2">
