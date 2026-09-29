@@ -219,7 +219,7 @@ class OrderReportController extends Controller
         $restaurantId = auth()->user()->restaurant_id;
         $restaurant   = Restaurant::find($restaurantId);
 
-        $query = Order::with(['user', 'payment', 'items'])
+        $query = Order::with(['user', 'payment', 'items.product'])
             ->where('restaurant_id', $restaurantId);
 
         // Apply same filters
@@ -271,7 +271,12 @@ class OrderReportController extends Controller
 
         $paymentMethod = $request->input('payment_method');
         if ($paymentMethod && $paymentMethod !== 'all') {
-            $query->where('payment_method', $paymentMethod);
+            $query->where(function ($q) use ($paymentMethod) {
+                $q->where('payment_method', $paymentMethod)
+                  ->orWhereHas('payment', function ($pq) use ($paymentMethod) {
+                      $pq->where('payment_method', $paymentMethod);
+                  });
+            });
         }
 
         $orderType = $request->input('order_type');
@@ -284,7 +289,19 @@ class OrderReportController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('id', 'like', "%{$search}%")
                   ->orWhere('phone', 'like', "%{$search}%")
-                  ->orWhere('guest_name', 'like', "%{$search}%");
+                  ->orWhere('guest_name', 'like', "%{$search}%")
+                  ->orWhere('guest_email', 'like', "%{$search}%")
+                  ->orWhere('guest_phone', 'like', "%{$search}%")
+                  ->orWhereHas('payment', function ($pq) use ($search) {
+                      $pq->where('payment_transaction_id', 'like', "%{$search}%")
+                        ->orWhere('secondary_transaction_id', 'like', "%{$search}%")
+                        ->orWhere('transaction_id', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('user', function ($uq) use ($search) {
+                      $uq->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%")
+                        ->orWhere('phone', 'like', "%{$search}%");
+                  });
             });
         }
 
@@ -292,8 +309,19 @@ class OrderReportController extends Controller
 
         $fileName = 'order_report_' . str_replace(' ', '_', strtolower($restaurant->name ?? 'restaurant')) . '_' . date('Y-m-d_H-i-s') . '.csv';
 
-        $response = new StreamedResponse(function () use ($orders) {
+        $headers = [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+            'Pragma'              => 'no-cache',
+            'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires'             => '0',
+        ];
+
+        return response()->streamDownload(function () use ($orders) {
             $handle = fopen('php://output', 'w');
+
+            // Write UTF-8 Byte Order Mark (BOM) for Excel
+            fprintf($handle, chr(0xEF) . chr(0xBB) . chr(0xBF));
 
             // Header Row
             fputcsv($handle, [
@@ -327,15 +355,16 @@ class OrderReportController extends Controller
                 $discounts = ($order->coupon_discount ?? 0) + ($order->offer_discount ?? 0) + ($order->loyalty_discount ?? 0) + ($order->referral_discount ?? 0);
 
                 $itemsSummary = $order->items->map(function ($item) {
-                    return ($item->product_name ?? 'Item') . ' (x' . ($item->quantity ?? 1) . ')';
+                    $pName = str_replace(["\r", "\n"], ' ', $item->product_name ?? ($item->product->name ?? 'Item'));
+                    return $pName . ' (x' . ($item->quantity ?? 1) . ')';
                 })->implode('; ');
 
                 fputcsv($handle, [
                     '#' . $order->id,
                     $order->created_at ? $order->created_at->format('Y-m-d H:i:s') : '',
-                    $customerName,
-                    $customerPhone,
-                    $customerEmail,
+                    str_replace(["\r", "\n"], ' ', $customerName),
+                    str_replace(["\r", "\n"], ' ', $customerPhone),
+                    str_replace(["\r", "\n"], ' ', $customerEmail),
                     ucwords(str_replace('_', ' ', $order->order_type ?? 'delivery')),
                     ucwords($order->status),
                     ucwords($paymentStatus),
@@ -351,12 +380,7 @@ class OrderReportController extends Controller
             }
 
             fclose($handle);
-        });
-
-        $response->headers->set('Content-Type', 'text/csv; charset=utf-8');
-        $response->headers->set('Content-Disposition', 'attachment; filename="' . $fileName . '"');
-
-        return $response;
+        }, $fileName, $headers);
     }
 
     /**
