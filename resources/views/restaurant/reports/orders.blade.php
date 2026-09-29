@@ -18,12 +18,6 @@
         </div>
 
         <div class="flex items-center gap-3">
-            <a href="{{ route('restaurant.order_reports.export_csv', request()->all()) }}" 
-               class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-gray-200 text-gray-700 hover:text-[#C25A2A] hover:border-orange-200 text-xs font-semibold shadow-sm transition">
-                <i data-lucide="download" class="w-4 h-4"></i>
-                Export CSV
-            </a>
-            
             <a href="{{ route('restaurant.order_reports.export_pdf', request()->all()) }}" target="_blank"
                class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#C25A2A] text-white hover:bg-[#a84c22] text-xs font-semibold shadow transition">
                 <i data-lucide="printer" class="w-4 h-4"></i>
