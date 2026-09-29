@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Restaurant;
+use App\Models\WorldpayPaymentLog;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -26,6 +27,59 @@ class WorldpayService
     }
 
     /**
+     * Record API Call Log into Database for Audit Trail
+     */
+    public function recordLog(array $data): void
+    {
+        try {
+            $requestPayload = $data['request_payload'] ?? null;
+            if (is_array($requestPayload)) {
+                if (isset($requestPayload['Password'])) {
+                    $requestPayload['Password'] = '******';
+                }
+                if (isset($requestPayload['Username'])) {
+                    $requestPayload['Username'] = substr($requestPayload['Username'], 0, 3) . '***';
+                }
+            }
+
+            $headers = $data['request_headers'] ?? [];
+            $sanitizedHeaders = [];
+            foreach ($headers as $header) {
+                if (is_string($header) && str_contains(strtolower($header), 'authorization')) {
+                    $sanitizedHeaders[] = 'Authorization: Bearer ***MASKED***';
+                } else {
+                    $sanitizedHeaders[] = $header;
+                }
+            }
+
+            $responsePayload = $data['response_payload'] ?? null;
+            if (is_string($responsePayload)) {
+                $decoded = json_decode($responsePayload, true);
+                $responsePayload = ($decoded !== null) ? $decoded : ['raw' => $responsePayload];
+            }
+
+            WorldpayPaymentLog::create([
+                'restaurant_id'     => $data['restaurant_id'] ?? null,
+                'payment_id'        => $data['payment_id'] ?? null,
+                'order_id'          => $data['order_id'] ?? null,
+                'reference'         => $data['reference'] ?? null,
+                'action'            => $data['action'],
+                'endpoint_url'      => $data['endpoint_url'],
+                'http_method'       => $data['http_method'] ?? 'POST',
+                'http_status_code'  => $data['http_status_code'] ?? null,
+                'request_headers'   => $sanitizedHeaders,
+                'request_payload'   => $requestPayload,
+                'response_payload'  => $responsePayload,
+                'error_message'     => $data['error_message'] ?? null,
+                'ip_address'        => request()->ip(),
+                'execution_time_ms' => $data['execution_time_ms'] ?? null,
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Worldpay Audit Log Save Error: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * Login to Worldpay & cache token for 3500 seconds (~1 hour)
      */
     public function login(Restaurant $restaurant): string
@@ -34,6 +88,17 @@ class WorldpayService
 
         return Cache::remember($cacheKey, 3500, function () use ($restaurant) {
             $authUrl = $this->getAuthUrl() . '/login';
+            $startTime = microtime(true);
+
+            $headers = [
+                'Content-Type: application/json',
+                'Accept: application/json',
+            ];
+
+            $payload = [
+                'Username' => $restaurant->worldpay_username,
+                'Password' => $restaurant->worldpay_password,
+            ];
 
             $curl = curl_init();
 
@@ -41,26 +106,48 @@ class WorldpayService
                 CURLOPT_URL => $authUrl,
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_POST => true,
-                CURLOPT_POSTFIELDS => json_encode([
-                    'Username' => $restaurant->worldpay_username,
-                    'Password' => $restaurant->worldpay_password,
-                ]),
-                CURLOPT_HTTPHEADER => [
-                    'Content-Type: application/json',
-                    'Accept: application/json',
-                ],
+                CURLOPT_POSTFIELDS => json_encode($payload),
+                CURLOPT_HTTPHEADER => $headers,
             ]);
 
             $response = curl_exec($curl);
+            $executionTimeMs = (int) round((microtime(true) - $startTime) * 1000);
 
             if (curl_errno($curl)) {
                 $error = curl_error($curl);
                 curl_close($curl);
+
+                $this->recordLog([
+                    'restaurant_id'     => $restaurant->id,
+                    'action'            => 'LOGIN',
+                    'endpoint_url'      => $authUrl,
+                    'http_method'       => 'POST',
+                    'http_status_code'  => 0,
+                    'request_headers'   => $headers,
+                    'request_payload'   => $payload,
+                    'response_payload'  => null,
+                    'error_message'     => 'cURL Error: ' . $error,
+                    'execution_time_ms' => $executionTimeMs,
+                ]);
+
                 throw new \Exception("Worldpay Auth Connection Error: " . $error);
             }
 
             $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
             curl_close($curl);
+
+            $this->recordLog([
+                'restaurant_id'     => $restaurant->id,
+                'action'            => 'LOGIN',
+                'endpoint_url'      => $authUrl,
+                'http_method'       => 'POST',
+                'http_status_code'  => $status,
+                'request_headers'   => $headers,
+                'request_payload'   => $payload,
+                'response_payload'  => $response,
+                'error_message'     => ($status !== 200) ? "Authentication Failed (Status {$status})" : null,
+                'execution_time_ms' => $executionTimeMs,
+            ]);
 
             if ($status !== 200) {
                 Log::error('Worldpay Login Failed', ['status' => $status, 'response' => $response]);
@@ -87,6 +174,7 @@ class WorldpayService
     ): array {
 
         $apiUrl = $this->getApiUrl() . "/businesses/{$restaurant->worldpay_business_id}/services/tokens/hpp/";
+        $startTime = microtime(true);
 
         $country = !empty($data['country']) ? $data['country'] : 'GB';
         $postcode = !empty($data['postcode']) ? $data['postcode'] : 'SW1A 1AA';
@@ -168,6 +256,12 @@ class WorldpayService
 
         Log::info('Worldpay HPP Payload', $payload);
 
+        $headers = [
+            'Content-Type: application/json',
+            'Accept: application/json',
+            'Authorization: Bearer ' . $accessToken,
+        ];
+
         $curl = curl_init();
 
         curl_setopt_array($curl, [
@@ -175,23 +269,53 @@ class WorldpayService
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_POST => true,
             CURLOPT_POSTFIELDS => json_encode($payload),
-            CURLOPT_HTTPHEADER => [
-                'Content-Type: application/json',
-                'Accept: application/json',
-                'Authorization: Bearer ' . $accessToken,
-            ],
+            CURLOPT_HTTPHEADER => $headers,
         ]);
 
         $response = curl_exec($curl);
+        $executionTimeMs = (int) round((microtime(true) - $startTime) * 1000);
 
         if (curl_errno($curl)) {
             $error = curl_error($curl);
             curl_close($curl);
+
+            $this->recordLog([
+                'restaurant_id'     => $restaurant->id,
+                'payment_id'        => $data['payment_id'] ?? null,
+                'order_id'          => $data['order_id'] ?? null,
+                'reference'         => $data['reference'],
+                'action'            => 'GENERATE_HPP',
+                'endpoint_url'      => $apiUrl,
+                'http_method'       => 'POST',
+                'http_status_code'  => 0,
+                'request_headers'   => $headers,
+                'request_payload'   => $payload,
+                'response_payload'  => null,
+                'error_message'     => 'cURL Error: ' . $error,
+                'execution_time_ms' => $executionTimeMs,
+            ]);
+
             throw new \Exception("Worldpay HPP Error: " . $error);
         }
 
         $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
+
+        $this->recordLog([
+            'restaurant_id'     => $restaurant->id,
+            'payment_id'        => $data['payment_id'] ?? null,
+            'order_id'          => $data['order_id'] ?? null,
+            'reference'         => $data['reference'],
+            'action'            => 'GENERATE_HPP',
+            'endpoint_url'      => $apiUrl,
+            'http_method'       => 'POST',
+            'http_status_code'  => $status,
+            'request_headers'   => $headers,
+            'request_payload'   => $payload,
+            'response_payload'  => $response,
+            'error_message'     => ($status < 200 || $status >= 300) ? "HPP Generation Failed (Status {$status})" : null,
+            'execution_time_ms' => $executionTimeMs,
+        ]);
 
         if ($status < 200 || $status >= 300) {
             Log::error('Worldpay HPP Generation Failed', ['status' => $status, 'response' => $response]);
@@ -207,9 +331,17 @@ class WorldpayService
     public function getHostedPaymentStatus(
         Restaurant $restaurant,
         string $accessToken,
-        string $webPageToken
+        string $webPageToken,
+        ?int $paymentId = null,
+        ?int $orderId = null
     ): array {
         $apiUrl = $this->getApiUrl() . "/businesses/{$restaurant->worldpay_business_id}/services/tokens/{$webPageToken}";
+        $startTime = microtime(true);
+
+        $headers = [
+            'Authorization: Bearer ' . $accessToken,
+            'Accept: application/json',
+        ];
 
         $curl = curl_init();
 
@@ -217,22 +349,53 @@ class WorldpayService
             CURLOPT_URL => $apiUrl,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_CUSTOMREQUEST => 'GET',
-            CURLOPT_HTTPHEADER => [
-                'Authorization: Bearer ' . $accessToken,
-                'Accept: application/json',
-            ],
+            CURLOPT_HTTPHEADER => $headers,
         ]);
 
         $response = curl_exec($curl);
+        $executionTimeMs = (int) round((microtime(true) - $startTime) * 1000);
 
         if (curl_errno($curl)) {
             $error = curl_error($curl);
             curl_close($curl);
+
+            $this->recordLog([
+                'restaurant_id'     => $restaurant->id,
+                'payment_id'        => $paymentId,
+                'order_id'          => $orderId,
+                'reference'         => $webPageToken,
+                'action'            => 'GET_HPP_STATUS',
+                'endpoint_url'      => $apiUrl,
+                'http_method'       => 'GET',
+                'http_status_code'  => 0,
+                'request_headers'   => $headers,
+                'request_payload'   => null,
+                'response_payload'  => null,
+                'error_message'     => 'cURL Error: ' . $error,
+                'execution_time_ms' => $executionTimeMs,
+            ]);
+
             throw new \Exception("Worldpay Status Check Error: " . $error);
         }
 
         $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
+
+        $this->recordLog([
+            'restaurant_id'     => $restaurant->id,
+            'payment_id'        => $paymentId,
+            'order_id'          => $orderId,
+            'reference'         => $webPageToken,
+            'action'            => 'GET_HPP_STATUS',
+            'endpoint_url'      => $apiUrl,
+            'http_method'       => 'GET',
+            'http_status_code'  => $status,
+            'request_headers'   => $headers,
+            'request_payload'   => null,
+            'response_payload'  => $response,
+            'error_message'     => ($status < 200 || $status >= 300) ? "Status Check Failed (Status {$status})" : null,
+            'execution_time_ms' => $executionTimeMs,
+        ]);
 
         if ($status < 200 || $status >= 300) {
             Log::error('Worldpay Status Check Failed', ['status' => $status, 'response' => $response]);
@@ -253,6 +416,7 @@ class WorldpayService
     ): array {
 
         $apiUrl = $this->getApiUrl() . "/businesses/{$restaurant->worldpay_business_id}/payers/{$payerReference}/transactions/card";
+        $startTime = microtime(true);
 
         $payload = [
             "ProcessType" => "COMPLETE",
@@ -272,6 +436,12 @@ class WorldpayService
             'payload' => $payload,
         ]);
 
+        $headers = [
+            'Content-Type: application/json',
+            'Accept: application/json',
+            'Authorization: Bearer ' . $accessToken,
+        ];
+
         $curl = curl_init();
 
         curl_setopt_array($curl, [
@@ -279,23 +449,52 @@ class WorldpayService
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_POST => true,
             CURLOPT_POSTFIELDS => json_encode($payload),
-            CURLOPT_HTTPHEADER => [
-                'Content-Type: application/json',
-                'Accept: application/json',
-                'Authorization: Bearer ' . $accessToken,
-            ],
+            CURLOPT_HTTPHEADER => $headers,
         ]);
 
         $response = curl_exec($curl);
+        $executionTimeMs = (int) round((microtime(true) - $startTime) * 1000);
 
         if (curl_errno($curl)) {
             $error = curl_error($curl);
             curl_close($curl);
+
+            $this->recordLog([
+                'restaurant_id'     => $restaurant->id,
+                'payment_id'        => $data['payment_id'] ?? null,
+                'order_id'          => $data['order_id'] ?? null,
+                'reference'         => $data['reference'],
+                'action'            => 'CHARGE_SAVED_CARD',
+                'endpoint_url'      => $apiUrl,
+                'http_method'       => 'POST',
+                'request_headers'   => $headers,
+                'request_payload'   => $payload,
+                'response_payload'  => null,
+                'error_message'     => 'cURL Error: ' . $error,
+                'execution_time_ms' => $executionTimeMs,
+            ]);
+
             throw new \Exception("Worldpay Saved Card Error: " . $error);
         }
 
         $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
+
+        $this->recordLog([
+            'restaurant_id'     => $restaurant->id,
+            'payment_id'        => $data['payment_id'] ?? null,
+            'order_id'          => $data['order_id'] ?? null,
+            'reference'         => $data['reference'],
+            'action'            => 'CHARGE_SAVED_CARD',
+            'endpoint_url'      => $apiUrl,
+            'http_method'       => 'POST',
+            'http_status_code'  => $status,
+            'request_headers'   => $headers,
+            'request_payload'   => $payload,
+            'response_payload'  => $response,
+            'error_message'     => ($status < 200 || $status >= 300) ? "Saved Card Charge Failed (Status {$status})" : null,
+            'execution_time_ms' => $executionTimeMs,
+        ]);
 
         if ($status < 200 || $status >= 300) {
             Log::error('Worldpay Saved Card Charge Failed', ['status' => $status, 'response' => $response]);
@@ -311,15 +510,24 @@ class WorldpayService
     public function finalize3DSavedCardPayment(
         Restaurant $restaurant,
         string $accessToken,
-        string $redirectId
+        string $redirectId,
+        ?int $paymentId = null,
+        ?int $orderId = null
     ): array {
         $apiUrl = $this->getApiUrl() . "/businesses/{$restaurant->worldpay_business_id}/transactions/saved-card-payments/finalize/{$redirectId}";
+        $startTime = microtime(true);
 
         $payload = [
             "Audit" => [
                 "Username" => auth()->check() ? auth()->user()->name : "System",
                 "UserIP" => request()->ip(),
             ],
+        ];
+
+        $headers = [
+            'Content-Type: application/json',
+            'Accept: application/json',
+            'Authorization: Bearer ' . $accessToken,
         ];
 
         $curl = curl_init();
@@ -329,23 +537,53 @@ class WorldpayService
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_POST => true,
             CURLOPT_POSTFIELDS => json_encode($payload),
-            CURLOPT_HTTPHEADER => [
-                'Content-Type: application/json',
-                'Accept: application/json',
-                'Authorization: Bearer ' . $accessToken,
-            ],
+            CURLOPT_HTTPHEADER => $headers,
         ]);
 
         $response = curl_exec($curl);
+        $executionTimeMs = (int) round((microtime(true) - $startTime) * 1000);
 
         if (curl_errno($curl)) {
             $error = curl_error($curl);
             curl_close($curl);
+
+            $this->recordLog([
+                'restaurant_id'     => $restaurant->id,
+                'payment_id'        => $paymentId,
+                'order_id'          => $orderId,
+                'reference'         => $redirectId,
+                'action'            => 'FINALIZE_3D_SECURE',
+                'endpoint_url'      => $apiUrl,
+                'http_method'       => 'POST',
+                'http_status_code'  => 0,
+                'request_headers'   => $headers,
+                'request_payload'   => $payload,
+                'response_payload'  => null,
+                'error_message'     => 'cURL Error: ' . $error,
+                'execution_time_ms' => $executionTimeMs,
+            ]);
+
             throw new \Exception("Worldpay 3DS Finalize Error: " . $error);
         }
 
         $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
+
+        $this->recordLog([
+            'restaurant_id'     => $restaurant->id,
+            'payment_id'        => $paymentId,
+            'order_id'          => $orderId,
+            'reference'         => $redirectId,
+            'action'            => 'FINALIZE_3D_SECURE',
+            'endpoint_url'      => $apiUrl,
+            'http_method'       => 'POST',
+            'http_status_code'  => $status,
+            'request_headers'   => $headers,
+            'request_payload'   => $payload,
+            'response_payload'  => $response,
+            'error_message'     => ($status < 200 || $status >= 300) ? "3DS Finalize Failed (Status {$status})" : null,
+            'execution_time_ms' => $executionTimeMs,
+        ]);
 
         if ($status < 200 || $status >= 300) {
             Log::error('Worldpay 3DS Finalize Failed', ['status' => $status, 'response' => $response]);
@@ -364,20 +602,31 @@ class WorldpayService
         string $transactionId,
         float $amount,
         string $paymentType,
-        string $description = 'Order Refund'
+        string $description = 'Order Refund',
+        ?int $paymentId = null,
+        ?int $orderId = null
     ): array {
 
         $endpoint = strtolower($paymentType) === 'card' ? 'card-payments' : 'bank-payments';
         $apiUrl = $this->getApiUrl() . "/businesses/{$restaurant->worldpay_business_id}/transactions/{$endpoint}/{$transactionId}/refunds";
+        $startTime = microtime(true);
+
+        $refundRef = "REFUND-" . strtoupper(Str::random(10));
 
         $payload = [
-            "Reference" => "REFUND-" . strtoupper(Str::random(10)),
+            "Reference" => $refundRef,
             "Description" => $description,
             "Amount" => (float) $amount,
             "Audit" => [
                 "Username" => auth()->check() ? auth()->user()->name : "Restaurant",
                 "UserIP" => request()->ip(),
             ],
+        ];
+
+        $headers = [
+            'Authorization: Bearer ' . $accessToken,
+            'Content-Type: application/json',
+            'Accept: application/json',
         ];
 
         $curl = curl_init();
@@ -387,23 +636,53 @@ class WorldpayService
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_POST => true,
             CURLOPT_POSTFIELDS => json_encode($payload),
-            CURLOPT_HTTPHEADER => [
-                'Authorization: Bearer ' . $accessToken,
-                'Content-Type: application/json',
-                'Accept: application/json',
-            ],
+            CURLOPT_HTTPHEADER => $headers,
         ]);
 
         $response = curl_exec($curl);
+        $executionTimeMs = (int) round((microtime(true) - $startTime) * 1000);
 
         if (curl_errno($curl)) {
             $error = curl_error($curl);
             curl_close($curl);
+
+            $this->recordLog([
+                'restaurant_id'     => $restaurant->id,
+                'payment_id'        => $paymentId,
+                'order_id'          => $orderId,
+                'reference'         => $refundRef,
+                'action'            => 'REFUND_PAYMENT',
+                'endpoint_url'      => $apiUrl,
+                'http_method'       => 'POST',
+                'http_status_code'  => 0,
+                'request_headers'   => $headers,
+                'request_payload'   => $payload,
+                'response_payload'  => null,
+                'error_message'     => 'cURL Error: ' . $error,
+                'execution_time_ms' => $executionTimeMs,
+            ]);
+
             throw new \Exception("Worldpay Refund Error: " . $error);
         }
 
         $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
+
+        $this->recordLog([
+            'restaurant_id'     => $restaurant->id,
+            'payment_id'        => $paymentId,
+            'order_id'          => $orderId,
+            'reference'         => $refundRef,
+            'action'            => 'REFUND_PAYMENT',
+            'endpoint_url'      => $apiUrl,
+            'http_method'       => 'POST',
+            'http_status_code'  => $status,
+            'request_headers'   => $headers,
+            'request_payload'   => $payload,
+            'response_payload'  => $response,
+            'error_message'     => ($status < 200 || $status >= 300) ? "Refund Failed (Status {$status})" : null,
+            'execution_time_ms' => $executionTimeMs,
+        ]);
 
         if ($status < 200 || $status >= 300) {
             Log::error('Worldpay Refund Failed', ['status' => $status, 'response' => $response]);

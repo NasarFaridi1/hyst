@@ -58,7 +58,13 @@ class SyncPendingWorldpayPayments extends Command
                 }
 
                 $accessToken = $this->worldpay->login($restaurant);
-                $result = $this->worldpay->getHostedPaymentStatus($restaurant, $accessToken, $payment->transaction_id);
+                $result = $this->worldpay->getHostedPaymentStatus(
+                    $restaurant,
+                    $accessToken,
+                    $payment->transaction_id,
+                    $payment->id,
+                    $payment->order_id
+                );
 
                 if (($result['status'] ?? null) === 'PROCESSED_SUCCESSFUL') {
 

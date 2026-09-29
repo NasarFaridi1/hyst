@@ -12,6 +12,7 @@ use Illuminate\Support\Str;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Restaurant;
+use App\Models\WorldpayPaymentLog;
 use App\Services\WorldpayService;
 
 class PaymentController extends Controller
@@ -73,7 +74,7 @@ class PaymentController extends Controller
 
                     // 1. 3D SECURE CHALLENGE REQUIRED
                     if (!empty($result['redirectUrl'])) {
-                        Payment::create([
+                        $payment = Payment::create([
                             'restaurant_id'  => $restaurant->id,
                             'transaction_id' => $result['redirectId'] ?? $reference,
                             'amount'         => $request->amount,
@@ -82,6 +83,8 @@ class PaymentController extends Controller
                             'user_id'        => $user->id,
                             'checkout_data'  => json_encode($request->all()),
                         ]);
+
+                        WorldpayPaymentLog::where('reference', $reference)->update(['payment_id' => $payment->id]);
 
                         return redirect()->away($result['redirectUrl']);
                     }
@@ -98,6 +101,8 @@ class PaymentController extends Controller
                             'user_id'                => $user->id,
                             'checkout_data'          => json_encode($request->all()),
                         ]);
+
+                        WorldpayPaymentLog::where('reference', $reference)->update(['payment_id' => $payment->id]);
 
                         $data = json_decode($payment->checkout_data, true);
                         $newRequest = new Request($data);
@@ -168,7 +173,7 @@ class PaymentController extends Controller
                 ]
             );
 
-            Payment::create([
+            $payment = Payment::create([
                 'restaurant_id'  => $restaurant->id,
                 'transaction_id' => $hpp['token'],
                 'amount'         => $request->amount,
@@ -177,6 +182,8 @@ class PaymentController extends Controller
                 'user_id'        => $user ? $user->id : null,
                 'checkout_data'  => json_encode($request->all()),
             ]);
+
+            WorldpayPaymentLog::where('reference', $reference)->update(['payment_id' => $payment->id]);
 
             return redirect()->away($hpp['redirectToUrl']);
 
@@ -203,7 +210,13 @@ class PaymentController extends Controller
 
         try {
             $accessToken = $this->worldpay->login($restaurant);
-            $result = $this->worldpay->getHostedPaymentStatus($restaurant, $accessToken, $webPageToken);
+            $result = $this->worldpay->getHostedPaymentStatus(
+                $restaurant,
+                $accessToken,
+                $webPageToken,
+                $payment->id,
+                $payment->order_id
+            );
 
             if (($result['status'] ?? null) === 'PROCESSED_SUCCESSFUL') {
 
@@ -257,7 +270,13 @@ class PaymentController extends Controller
 
         try {
             $accessToken = $this->worldpay->login($restaurant);
-            $result = $this->worldpay->finalize3DSavedCardPayment($restaurant, $accessToken, $redirectId);
+            $result = $this->worldpay->finalize3DSavedCardPayment(
+                $restaurant,
+                $accessToken,
+                $redirectId,
+                $payment->id,
+                $payment->order_id
+            );
 
             Log::info('Worldpay 3DS Finalize Result', $result);
 
@@ -331,7 +350,9 @@ class PaymentController extends Controller
                 $payment->payment_transaction_id,
                 (float) $request->refund_amount,
                 $payment->payment_type ?? 'card',
-                "Refund for Order #{$order->id}"
+                "Refund for Order #{$order->id}",
+                $payment->id,
+                $order->id
             );
 
             DB::transaction(function () use ($payment, $request) {
@@ -360,6 +381,18 @@ class PaymentController extends Controller
     public function notify(Request $request)
     {
         Log::info('Worldpay Webhook Received:', $request->all());
+
+        $this->worldpay->recordLog([
+            'reference'        => $request->input('reference') ?? $request->input('webPageToken') ?? $request->input('transactionId'),
+            'action'           => 'WEBHOOK',
+            'endpoint_url'     => request()->fullUrl(),
+            'http_method'      => request()->method(),
+            'http_status_code' => 200,
+            'request_headers'  => request()->header(),
+            'request_payload'  => $request->all(),
+            'response_payload' => ['status' => 'OK'],
+        ]);
+
         return response('OK', 200);
     }
 }
