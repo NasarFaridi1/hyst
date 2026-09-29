@@ -158,12 +158,16 @@ class UsersController extends Controller
                 $user->update(['fcm_token' => $guestFcmToken]);
             }
 
-             if ($user->role == 'super_admin') {
+            if ($user->role == 'super_admin') {
                 return redirect('/admin/dashboard');
             }
 
+            if ($user->role == 'system_admin') {
+                return redirect('/system-admin/dashboard');
+            }
+
             if ($user->role == 'restaurant_admin') {
-                return redirect('/restaurant/dashboard');
+                return redirect('/restaurant/orders');
             }
 
             if ($user->role == 'vendor') {
