@@ -467,9 +467,10 @@
                 }
                 totalRefunded += ref;
 
-                const txId = p.transaction_id || p.payment_transaction_id || p.secondary_transaction_id || 'N/A';
-                const pDate = p.created_at ? new Date(p.created_at).toLocaleString() : (order.created_at ? new Date(order.created_at).toLocaleString() : 'N/A');
-                const pType = (p.payment_type || 'Order Payment').toUpperCase();
+                const payTxId = p.payment_transaction_id || p.transaction_id || 'N/A';
+                const secTxId = p.secondary_transaction_id || 'N/A';
+                const pDate   = p.created_at ? new Date(p.created_at).toLocaleString() : (order.created_at ? new Date(order.created_at).toLocaleString() : 'N/A');
+                const pType   = (p.payment_type || 'Order Payment').toUpperCase();
 
                 let statusBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">PAID</span>';
                 if (status === 'refunded') {
@@ -481,7 +482,8 @@
                 paymentsTableRows += `
                     <tr class="border-b border-gray-100 text-xs">
                         <td class="py-2.5 px-3 font-semibold text-gray-800">#${idx + 1}</td>
-                        <td class="py-2.5 px-3 font-mono text-gray-700">${txId}</td>
+                        <td class="py-2.5 px-3 font-mono font-bold text-gray-900">${payTxId}</td>
+                        <td class="py-2.5 px-3 font-mono text-gray-600">${secTxId}</td>
                         <td class="py-2.5 px-3 font-medium text-gray-600">${pType}</td>
                         <td class="py-2.5 px-3 text-gray-500">${pDate}</td>
                         <td class="py-2.5 px-3 text-center">${statusBadge}</td>
@@ -493,7 +495,8 @@
                     paymentsTableRows += `
                         <tr class="bg-rose-50/50 border-b border-rose-100 text-xs text-rose-800">
                             <td class="py-2 px-3">↳ Refund</td>
-                            <td class="py-2 px-3 font-mono text-rose-700">${txId} (Refund)</td>
+                            <td class="py-2 px-3 font-mono font-bold text-rose-700">${payTxId}</td>
+                            <td class="py-2 px-3 font-mono text-rose-600">${secTxId}</td>
                             <td class="py-2 px-3 italic">Reason: ${p.refund_reason || 'Customer Refund'}</td>
                             <td class="py-2 px-3">${pDate}</td>
                             <td class="py-2 px-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-200 text-rose-900">REFUND</span></td>
@@ -513,7 +516,8 @@
             paymentsTableRows = `
                 <tr class="border-b border-gray-100 text-xs">
                     <td class="py-2.5 px-3 font-semibold text-gray-800">#1</td>
-                    <td class="py-2.5 px-3 font-mono text-gray-700">ORD-TX-${order.id}</td>
+                    <td class="py-2.5 px-3 font-mono font-bold text-gray-900">ORD-TX-${order.id}</td>
+                    <td class="py-2.5 px-3 font-mono text-gray-400">N/A</td>
                     <td class="py-2.5 px-3 font-medium text-gray-600">${paymentMethod}</td>
                     <td class="py-2.5 px-3 text-gray-500">${order.created_at ? new Date(order.created_at).toLocaleString() : ''}</td>
                     <td class="py-2.5 px-3 text-center">${statusBadge}</td>
@@ -591,7 +595,8 @@
                         <thead class="bg-gray-50 text-[10px] font-bold uppercase text-gray-500 border-b border-gray-200">
                             <tr>
                                 <th class="py-2.5 px-3">#</th>
-                                <th class="py-2.5 px-3">Transaction ID</th>
+                                <th class="py-2.5 px-3">Payment Transaction ID</th>
+                                <th class="py-2.5 px-3">Secondary Transaction ID</th>
                                 <th class="py-2.5 px-3">Type</th>
                                 <th class="py-2.5 px-3">Date</th>
                                 <th class="py-2.5 px-3 text-center">Status</th>

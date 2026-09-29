@@ -101,7 +101,7 @@ class OrderReportController extends Controller
             $query->where('order_type', $orderType);
         }
 
-        // 6. Text Search Filter (Order ID, Customer Name, Email, Phone)
+        // 6. Text Search Filter (Order ID, Customer Name, Email, Phone, Worldpay Transaction IDs)
         $search = $request->input('search');
         if ($search) {
             $query->where(function ($q) use ($search) {
@@ -110,6 +110,11 @@ class OrderReportController extends Controller
                   ->orWhere('guest_name', 'like', "%{$search}%")
                   ->orWhere('guest_email', 'like', "%{$search}%")
                   ->orWhere('guest_phone', 'like', "%{$search}%")
+                  ->orWhereHas('payment', function ($pq) use ($search) {
+                      $pq->where('payment_transaction_id', 'like', "%{$search}%")
+                        ->orWhere('secondary_transaction_id', 'like', "%{$search}%")
+                        ->orWhere('transaction_id', 'like', "%{$search}%");
+                  })
                   ->orWhereHas('user', function ($uq) use ($search) {
                       $uq->where('name', 'like', "%{$search}%")
                         ->orWhere('email', 'like', "%{$search}%")
@@ -301,7 +306,8 @@ class OrderReportController extends Controller
                 'Order Status',
                 'Payment Status',
                 'Payment Method',
-                'Transaction ID',
+                'Payment Transaction ID',
+                'Secondary Transaction ID',
                 'Delivery Charge (£)',
                 'Service Charge (£)',
                 'Discount (£)',
@@ -315,7 +321,8 @@ class OrderReportController extends Controller
                 $customerEmail = $order->is_guest ? ($order->guest_email ?? 'N/A') : ($order->user->email ?? 'N/A');
 
                 $paymentStatus = $order->payment ? $order->payment->payment_status : ($order->status == 'completed' ? 'paid' : 'pending');
-                $transactionId = $order->payment->transaction_id ?? $order->payment->payment_transaction_id ?? 'N/A';
+                $paymentTxId   = $order->payment->payment_transaction_id ?? $order->payment->transaction_id ?? 'N/A';
+                $secondaryTxId = $order->payment->secondary_transaction_id ?? 'N/A';
 
                 $discounts = ($order->coupon_discount ?? 0) + ($order->offer_discount ?? 0) + ($order->loyalty_discount ?? 0) + ($order->referral_discount ?? 0);
 
@@ -333,7 +340,8 @@ class OrderReportController extends Controller
                     ucwords($order->status),
                     ucwords($paymentStatus),
                     strtoupper($order->payment_method ?? 'online'),
-                    $transactionId,
+                    $paymentTxId,
+                    $secondaryTxId,
                     number_format($order->delivery_charge ?? 0, 2),
                     number_format(($order->service_charge ?? 0) + ($order->hyst_charge ?? 0), 2),
                     number_format($discounts, 2),
