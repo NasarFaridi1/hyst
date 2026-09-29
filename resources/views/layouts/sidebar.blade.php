@@ -321,6 +321,15 @@
 
             
 
+            {{-- 2.6 Order Report --}}
+            <a href="{{ route('restaurant.order_reports.index') }}"
+            class="sidebar-item {{ str_contains($current,'order-reports') ? 'active' : '' }}">
+                <div class="sidebar-icon">
+                    <i data-lucide="bar-chart-3"></i>
+                </div>
+                <span>Order Report</span>
+            </a>
+
             {{-- 3. Payment --}}
             <a href="/restaurant/payments"
             class="sidebar-item {{ str_contains($current,'restaurant/payments') ? 'active' : '' }}">
