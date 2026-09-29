@@ -319,14 +319,7 @@
                 <span>Orders</span>
             </a>
 
-            {{-- 2.5 All Platforms Orders --}}
-            <a href="{{ route('restaurant.platform_orders.index') }}"
-            class="sidebar-item {{ str_contains($current,'platform-orders') ? 'active' : '' }}">
-                <div class="sidebar-icon">
-                    <i data-lucide="layers"></i>
-                </div>
-                <span>All Platforms Orders</span>
-            </a>
+            
 
             {{-- 3. Payment --}}
             <a href="/restaurant/payments"
@@ -335,6 +328,33 @@
                     <i data-lucide="credit-card"></i>
                 </div>
                 <span>Payment</span>
+            </a>
+
+            {{-- 9. Category --}}
+            <a href="/restaurant/categories"
+            class="sidebar-item {{ str_contains($current,'restaurant/categories') ? 'active' : '' }}">
+                <div class="sidebar-icon">
+                    <i data-lucide="grid-2x2"></i>
+                </div>
+                <span>Category</span>
+            </a>
+
+            {{-- 10. Products --}}
+            <a href="/restaurant/products"
+            class="sidebar-item {{ str_contains($current,'restaurant/products') ? 'active' : '' }}">
+                <div class="sidebar-icon">
+                    <i data-lucide="package"></i>
+                </div>
+                <span>Products</span>
+            </a>
+
+            {{-- 2.5 All Platforms Orders --}}
+            <a href="{{ route('restaurant.platform_orders.index') }}"
+            class="sidebar-item {{ str_contains($current,'platform-orders') ? 'active' : '' }}">
+                <div class="sidebar-icon">
+                    <i data-lucide="layers"></i>
+                </div>
+                <span>All Platforms Orders</span>
             </a>
 
             {{-- 4. Payment Complain --}}
@@ -400,23 +420,7 @@
                 <span>Referral</span>
             </a>
 
-            {{-- 9. Category --}}
-            <a href="/restaurant/categories"
-            class="sidebar-item {{ str_contains($current,'restaurant/categories') ? 'active' : '' }}">
-                <div class="sidebar-icon">
-                    <i data-lucide="grid-2x2"></i>
-                </div>
-                <span>Category</span>
-            </a>
-
-            {{-- 10. Products --}}
-            <a href="/restaurant/products"
-            class="sidebar-item {{ str_contains($current,'restaurant/products') ? 'active' : '' }}">
-                <div class="sidebar-icon">
-                    <i data-lucide="package"></i>
-                </div>
-                <span>Products</span>
-            </a>
+            
 
             {{-- 11. Items --}}
             <!-- <a href="/restaurant/items"
