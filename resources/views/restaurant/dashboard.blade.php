@@ -566,79 +566,71 @@
           </div>
 
           <div class="border-t mt-5 mb-4 pt-5">
+              @php
+                  $todayName = \Carbon\Carbon::now('Europe/London')->format('l');
+                  $daysList = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+                  $openingHoursData = $restaurant->opening_hours ?? [];
+                  $legacyWorkingDays = $restaurant->working_days ? explode(',', $restaurant->working_days) : [];
+                  $defaultOpen = $restaurant->opening_time ? \Carbon\Carbon::parse($restaurant->opening_time)->format('h:i A') : '--';
+                  $defaultClose = $restaurant->closing_time ? \Carbon\Carbon::parse($restaurant->closing_time)->format('h:i A') : '--';
+              @endphp
 
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-
-                  <div class="flex items-center gap-4">
-
-                      <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-xl">
-                          📅
+              <!-- Today's Highlight Box -->
+              <div class="mb-5 p-4 rounded-xl bg-orange-50/50 border border-orange-200/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                  <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 rounded-full bg-[#C25A2A] text-white flex items-center justify-center font-bold text-base">
+                          🕒
                       </div>
-
                       <div>
-
-                          <p class="text-xs uppercase text-gray-500 font-medium">
-                              Working Days
+                          <p class="text-xs font-bold uppercase tracking-wider text-[#C25A2A]">
+                              Today's Operating Schedule ({{ $todayName }})
                           </p>
-
-                          <p class="font-semibold text-gray-800 leading-6">
-                              {{ str_replace(',', ', ', $restaurant->working_days) }}
+                          <p class="text-base font-bold text-gray-900 mt-0.5">
+                              {{ $restaurant->today_hours_text }}
                           </p>
-
                       </div>
-
                   </div>
-
-                  <div class="flex items-center gap-4">
-
-                      <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-xl">
-                          🕘
-                      </div>
-
-                      <div>
-
-                          <p class="text-xs uppercase text-gray-500 font-medium">
-                              Opens At
-                          </p>
-
-                          <p class="font-bold text-green-600 text-lg">
-
-                              {{ $restaurant->opening_time
-                                  ? \Carbon\Carbon::parse($restaurant->opening_time)->format('h:i A')
-                                  : '--' }}
-
-                          </p>
-
-                      </div>
-
+                  <div>
+                      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold {{ $restaurant->is_open ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800' }}">
+                          <span class="w-2 h-2 rounded-full {{ $restaurant->is_open ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500' }}"></span>
+                          {{ $restaurant->is_open ? 'Currently Open' : 'Currently Closed' }}
+                      </span>
                   </div>
-
-                  <div class="flex items-center gap-4">
-
-                      <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center text-xl">
-                          🌙
-                      </div>
-
-                      <div>
-
-                          <p class="text-xs uppercase text-gray-500 font-medium">
-                              Closes At
-                          </p>
-
-                          <p class="font-bold text-red-600 text-lg">
-
-                              {{ $restaurant->closing_time
-                                  ? \Carbon\Carbon::parse($restaurant->closing_time)->format('h:i A')
-                                  : '--' }}
-
-                          </p>
-
-                      </div>
-
-                  </div>
-
               </div>
 
+              <!-- Full 7-Day Schedule Overview Grid -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-2.5">
+                  @foreach($daysList as $day)
+                      @php
+                          $dayConfig = $openingHoursData[$day] ?? null;
+                          if ($dayConfig) {
+                              $isDayEnabled = !empty($dayConfig['enabled']);
+                              $dOpen = !empty($dayConfig['open']) ? \Carbon\Carbon::parse($dayConfig['open'])->format('h:i A') : $defaultOpen;
+                              $dClose = !empty($dayConfig['close']) ? \Carbon\Carbon::parse($dayConfig['close'])->format('h:i A') : $defaultClose;
+                          } else {
+                              $isDayEnabled = in_array($day, $legacyWorkingDays);
+                              $dOpen = $defaultOpen;
+                              $dClose = $defaultClose;
+                          }
+                          $isToday = ($day === $todayName);
+                      @endphp
+                      <div class="p-3 rounded-xl border text-center transition {{ $isToday ? 'border-[#C25A2A] bg-white ring-2 ring-orange-100' : 'border-gray-200 bg-gray-50/50' }}">
+                          <p class="text-xs font-bold {{ $isToday ? 'text-[#C25A2A]' : 'text-gray-700' }}">
+                              {{ substr($day, 0, 3) }}
+                              @if($isToday)<span class="text-[10px] block font-normal text-[#C25A2A]">(Today)</span>@endif
+                          </p>
+                          @if($isDayEnabled)
+                              <p class="text-[11px] font-semibold text-gray-800 mt-1.5 leading-tight">
+                                  {{ $dOpen }}<br>to<br>{{ $dClose }}
+                              </p>
+                              <span class="inline-block text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full mt-1.5 border border-emerald-200">Open</span>
+                          @else
+                              <p class="text-[11px] font-medium text-gray-400 mt-2">Closed</p>
+                              <span class="inline-block text-[10px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full mt-1.5 border border-gray-200">Off</span>
+                          @endif
+                      </div>
+                  @endforeach
+              </div>
           </div>
 
           <div class="bg-white rounded-2xl shadow border border-gray-200 p-5 mb-6">

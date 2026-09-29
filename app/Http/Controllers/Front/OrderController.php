@@ -94,8 +94,8 @@ class OrderController extends Controller
             }
 
             $restaurant = $restaurantId ? Restaurant::find($restaurantId) : null;
-            if (!$restaurant) {
-                return redirect('/cart')->with('error', 'Selected restaurant is currently unavailable. Please update your cart.');
+            if (!$restaurant || !$restaurant->is_open) {
+                return redirect('/cart')->with('error', 'Selected restaurant is currently closed and not accepting orders.');
             }
 
             $cartProductIds = collect($cart)
@@ -429,8 +429,8 @@ class OrderController extends Controller
             $restaurantId = $product->restaurant_id;
 
             $restaurant = Restaurant::where('id', $restaurantId)->first();
-            if (!$restaurant) {
-                return redirect('/cart')->with('error', 'Selected restaurant is currently unavailable.');
+            if (!$restaurant || !$restaurant->is_open) {
+                return redirect('/cart')->with('error', 'Selected restaurant is currently closed and not accepting orders.');
             }
 
             /*

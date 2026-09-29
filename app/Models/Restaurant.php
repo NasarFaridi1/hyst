@@ -40,6 +40,7 @@ class Restaurant extends Model
         'working_days',
         'opening_time',
         'closing_time',
+        'opening_hours',
 
         'restaurant_status',
 
@@ -69,6 +70,7 @@ class Restaurant extends Model
         'dietary_categories' => 'array',
         'allow_asap' => 'boolean',
         'allow_schedule' => 'boolean',
+        'opening_hours' => 'array',
     ];
 
     protected $appends = [
@@ -91,12 +93,41 @@ class Restaurant extends Model
             return true;
         }
 
+        $now = \Carbon\Carbon::now('Europe/London');
+        $today = $now->format('l');
+
+        // Check per-day opening_hours JSON if present and non-empty
+        if (!empty($this->opening_hours) && is_array($this->opening_hours)) {
+            $todayConfig = $this->opening_hours[$today] ?? null;
+            if (!$todayConfig || empty($todayConfig['enabled'])) {
+                return false;
+            }
+
+            $openTime = $todayConfig['open'] ?? null;
+            $closeTime = $todayConfig['close'] ?? null;
+
+            if (empty($openTime) || empty($closeTime)) {
+                return false;
+            }
+
+            try {
+                $open = \Carbon\Carbon::parse($openTime, 'Europe/London');
+                $close = \Carbon\Carbon::parse($closeTime, 'Europe/London');
+
+                if ($close->lessThan($open)) {
+                    $close->addDay();
+                }
+
+                return $now->between($open, $close);
+            } catch (\Exception $e) {
+                return true;
+            }
+        }
+
+        // Fallback to legacy single schedule fields
         if (empty($this->working_days) || empty($this->opening_time) || empty($this->closing_time)) {
             return true;
         }
-
-        $now = \Carbon\Carbon::now('Europe/London');
-        $today = $now->format('l');
 
         $workingDays = array_map('trim', explode(',', $this->working_days));
 
@@ -116,6 +147,54 @@ class Restaurant extends Model
         } catch (\Exception $e) {
             return true;
         }
+    }
+
+    public function getTodayOpeningTimeAttribute()
+    {
+        $today = \Carbon\Carbon::now('Europe/London')->format('l');
+        if (!empty($this->opening_hours) && is_array($this->opening_hours)) {
+            $todayConfig = $this->opening_hours[$today] ?? null;
+            if ($todayConfig && !empty($todayConfig['enabled']) && !empty($todayConfig['open'])) {
+                return \Carbon\Carbon::parse($todayConfig['open'])->format('h:i A');
+            }
+            return null;
+        }
+        return $this->opening_time ? \Carbon\Carbon::parse($this->opening_time)->format('h:i A') : null;
+    }
+
+    public function getTodayClosingTimeAttribute()
+    {
+        $today = \Carbon\Carbon::now('Europe/London')->format('l');
+        if (!empty($this->opening_hours) && is_array($this->opening_hours)) {
+            $todayConfig = $this->opening_hours[$today] ?? null;
+            if ($todayConfig && !empty($todayConfig['enabled']) && !empty($todayConfig['close'])) {
+                return \Carbon\Carbon::parse($todayConfig['close'])->format('h:i A');
+            }
+            return null;
+        }
+        return $this->closing_time ? \Carbon\Carbon::parse($this->closing_time)->format('h:i A') : null;
+    }
+
+    public function getTodayHoursTextAttribute()
+    {
+        $today = \Carbon\Carbon::now('Europe/London')->format('l');
+        if (!empty($this->opening_hours) && is_array($this->opening_hours)) {
+            $todayConfig = $this->opening_hours[$today] ?? null;
+            if (!$todayConfig || empty($todayConfig['enabled'])) {
+                return 'Closed Today';
+            }
+            $open = !empty($todayConfig['open']) ? \Carbon\Carbon::parse($todayConfig['open'])->format('h:i A') : '--';
+            $close = !empty($todayConfig['close']) ? \Carbon\Carbon::parse($todayConfig['close'])->format('h:i A') : '--';
+            return $open . ' - ' . $close;
+        }
+
+        $workingDays = $this->working_days ? array_map('trim', explode(',', $this->working_days)) : [];
+        if (!in_array($today, $workingDays)) {
+            return 'Closed Today';
+        }
+        $open = $this->opening_time ? \Carbon\Carbon::parse($this->opening_time)->format('h:i A') : '--';
+        $close = $this->closing_time ? \Carbon\Carbon::parse($this->closing_time)->format('h:i A') : '--';
+        return $open . ' - ' . $close;
     }
 
     public function users()

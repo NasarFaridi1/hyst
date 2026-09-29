@@ -1338,6 +1338,16 @@
     </script>
 </section>
 
+@if(!($restaurant->is_open ?? true))
+<div style="padding:16px 32px; background:#FEF2F2; border-bottom:1px solid #FECACA; color:#991B1B; font-family:'DM Sans',sans-serif; display:flex; align-items:center; gap:12px; font-weight:600; font-size:14px;">
+    <span style="font-size:20px;">🔴</span>
+    <div>
+        <div><strong>Store Currently Closed</strong> — {{ $restaurant->name }} is not accepting orders at the moment.</div>
+        <div style="font-size:12px; opacity:0.85; margin-top:2px;">Today's Hours: {{ $restaurant->today_hours_text }}</div>
+    </div>
+</div>
+@endif
+
 @if($restaurant->coupons->count())
 
 <div style="padding:24px 32px;background:#fff;border-bottom:1px solid #eee;">

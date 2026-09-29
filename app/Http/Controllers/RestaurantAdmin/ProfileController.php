@@ -48,7 +48,7 @@ class ProfileController extends Controller
             $certificate = 'restaurant-certificates/'.$fileName;
         }
 
-        $restaurant->update([
+        $updateData = [
 
             'name' => $request->name,
 
@@ -83,12 +83,51 @@ class ProfileController extends Controller
             'hygiene_rating' => $request->hygiene_rating,
 
             'hygiene_certificate' => $certificate,
+        ];
 
-            'working_days' => $request->filled('working_days')
+        $daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        $openingHoursInput = $request->input('opening_hours', []);
+
+        if (is_array($openingHoursInput) && !empty($openingHoursInput)) {
+            $openingHoursData = [];
+            $enabledDays = [];
+            $firstOpenTime = null;
+            $firstCloseTime = null;
+
+            foreach ($daysOfWeek as $day) {
+                $dayData = $openingHoursInput[$day] ?? [];
+                $isEnabled = isset($dayData['enabled']) && ($dayData['enabled'] == '1' || $dayData['enabled'] == 'on' || $dayData['enabled'] == true);
+                $openTime = $dayData['open'] ?? '09:00';
+                $closeTime = $dayData['close'] ?? '22:00';
+
+                if ($isEnabled) {
+                    $enabledDays[] = $day;
+                    if (!$firstOpenTime) {
+                        $firstOpenTime = $openTime;
+                        $firstCloseTime = $closeTime;
+                    }
+                }
+
+                $openingHoursData[$day] = [
+                    'enabled' => $isEnabled,
+                    'open'    => $openTime,
+                    'close'   => $closeTime,
+                ];
+            }
+
+            $updateData['opening_hours'] = $openingHoursData;
+            $updateData['working_days'] = implode(',', $enabledDays);
+            $updateData['opening_time'] = $firstOpenTime ?? $request->opening_time;
+            $updateData['closing_time'] = $firstCloseTime ?? $request->closing_time;
+        } else {
+            $updateData['working_days'] = $request->filled('working_days')
                 ? implode(',', $request->working_days)
-                : null,
-            'opening_time' => $request->opening_time,
-            'closing_time' => $request->closing_time,
+                : null;
+            $updateData['opening_time'] = $request->opening_time;
+            $updateData['closing_time'] = $request->closing_time;
+        }
+
+        $updateData = array_merge($updateData, [
             'allow_asap' => $request->input('allow_asap', 1),
             'allow_schedule' => $request->input('allow_schedule', 1),
             'notification_sound' => $request->input('notification_sound', 'hyst_notification.mp3'),
@@ -97,6 +136,8 @@ class ProfileController extends Controller
             'worldpay_username' => $request->worldpay_username,
             'worldpay_password' => $request->worldpay_password,
         ]);
+
+        $restaurant->update($updateData);
 
         return back()->with(
             'success',

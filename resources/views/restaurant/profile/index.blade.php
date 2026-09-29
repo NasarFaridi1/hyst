@@ -215,55 +215,127 @@
                     </div>
                 </div>
 
-                <!-- Working Days -->
-                <div class="mb-6">
-                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-3">
-                        Working Days
-                    </label>
-                    @php
-                        $selectedDays = old(
-                            'working_days',
-                            $restaurant->working_days ? explode(',', $restaurant->working_days) : []
-                        );
-                    @endphp
-                    <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2.5">
-                        @foreach([
-                            'Monday',
-                            'Tuesday',
-                            'Wednesday',
-                            'Thursday',
-                            'Friday',
-                            'Saturday',
-                            'Sunday'
-                        ] as $day)
-                            <label class="flex flex-col items-center justify-center p-3 rounded-xl border border-gray-200 cursor-pointer hover:border-[#C25A2A] hover:bg-orange-50/30 transition text-center group">
-                                <input type="checkbox" name="working_days[]" value="{{ $day }}"
-                                    {{ in_array($day, $selectedDays) ? 'checked' : '' }}
-                                    class="w-4 h-4 text-[#C25A2A] rounded border-gray-300 focus:ring-[#C25A2A] mb-1.5">
-                                <span class="text-xs font-semibold text-gray-700 group-hover:text-[#C25A2A] transition">{{ $day }}</span>
+                <!-- Per-Day Working Hours & Timing -->
+                <div class="mb-8">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                Weekly Operating Hours Schedule
                             </label>
+                            <p class="text-xs text-gray-500 mt-0.5">Specify custom opening & closing times for each day of the week</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button type="button" onclick="copyMondayToWeekdays()" class="px-3 py-1.5 text-xs font-semibold text-[#C25A2A] bg-orange-50 hover:bg-orange-100 rounded-lg border border-orange-200 transition">
+                                Copy Mon &rarr; Mon-Fri
+                            </button>
+                            <button type="button" onclick="copyMondayToAll()" class="px-3 py-1.5 text-xs font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg border border-gray-200 transition">
+                                Copy Mon &rarr; All Days
+                            </button>
+                        </div>
+                    </div>
+
+                    @php
+                        $daysList = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+                        $openingHoursData = $restaurant->opening_hours ?? [];
+                        $legacyWorkingDays = $restaurant->working_days ? explode(',', $restaurant->working_days) : [];
+                        $defaultOpen = $restaurant->opening_time ? substr($restaurant->opening_time, 0, 5) : '10:00';
+                        $defaultClose = $restaurant->closing_time ? substr($restaurant->closing_time, 0, 5) : '22:00';
+                    @endphp
+
+                    <div class="space-y-3 bg-gray-50/50 p-4 rounded-2xl border border-gray-200">
+                        @foreach($daysList as $day)
+                            @php
+                                $dayConfig = $openingHoursData[$day] ?? null;
+                                if ($dayConfig) {
+                                    $isEnabled = !empty($dayConfig['enabled']);
+                                    $openVal = !empty($dayConfig['open']) ? substr($dayConfig['open'], 0, 5) : $defaultOpen;
+                                    $closeVal = !empty($dayConfig['close']) ? substr($dayConfig['close'], 0, 5) : $defaultClose;
+                                } else {
+                                    $isEnabled = in_array($day, $legacyWorkingDays);
+                                    $openVal = $defaultOpen;
+                                    $closeVal = $defaultClose;
+                                }
+                            @endphp
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 bg-white rounded-xl border border-gray-200 hover:border-orange-200 transition shadow-sm" id="day_row_{{ strtolower($day) }}">
+                                <div class="flex items-center gap-3 min-w-[140px]">
+                                    <input type="checkbox" name="opening_hours[{{ $day }}][enabled]" value="1" id="day_check_{{ strtolower($day) }}"
+                                        {{ $isEnabled ? 'checked' : '' }}
+                                        onchange="toggleDayRow('{{ strtolower($day) }}')"
+                                        class="w-4 h-4 text-[#C25A2A] rounded border-gray-300 focus:ring-[#C25A2A] cursor-pointer">
+                                    <label for="day_check_{{ strtolower($day) }}" class="text-sm font-bold text-gray-800 cursor-pointer select-none">
+                                        {{ $day }}
+                                    </label>
+                                </div>
+
+                                <div class="flex items-center gap-3 flex-1 max-w-md" id="day_inputs_{{ strtolower($day) }}" style="{{ $isEnabled ? '' : 'opacity:0.4; pointer-events:none;' }}">
+                                    <div class="flex-1">
+                                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Opens At</label>
+                                        <input type="time" name="opening_hours[{{ $day }}][open]" value="{{ old('opening_hours.'.$day.'.open', $openVal) }}" id="open_time_{{ strtolower($day) }}"
+                                            class="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-xs text-gray-900 focus:ring-2 focus:ring-[#C25A2A] outline-none bg-gray-50/50 focus:bg-white">
+                                    </div>
+                                    <span class="text-gray-400 font-bold text-xs mt-4">to</span>
+                                    <div class="flex-1">
+                                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Closes At</label>
+                                        <input type="time" name="opening_hours[{{ $day }}][close]" value="{{ old('opening_hours.'.$day.'.close', $closeVal) }}" id="close_time_{{ strtolower($day) }}"
+                                            class="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-xs text-gray-900 focus:ring-2 focus:ring-[#C25A2A] outline-none bg-gray-50/50 focus:bg-white">
+                                    </div>
+                                </div>
+
+                                <div class="text-right min-w-[90px]">
+                                    <span id="status_pill_{{ strtolower($day) }}" class="inline-block px-2.5 py-1 rounded-full text-[11px] font-bold {{ $isEnabled ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-gray-100 text-gray-500 border border-gray-200' }}">
+                                        {{ $isEnabled ? 'Active' : 'Closed' }}
+                                    </span>
+                                </div>
+                            </div>
                         @endforeach
                     </div>
                 </div>
 
-                <!-- Opening & Closing Time -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <div>
-                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
-                            Opening Time
-                        </label>
-                        <input type="time" name="opening_time" value="{{ old('opening_time', $restaurant->opening_time) }}"
-                            class="w-full border border-gray-200 rounded-xl p-3.5 text-sm text-gray-900 focus:ring-2 focus:ring-[#C25A2A] focus:border-[#C25A2A] outline-none transition bg-gray-50/50 focus:bg-white">
-                    </div>
+                <script>
+                    function toggleDayRow(dayLower) {
+                        const check = document.getElementById('day_check_' + dayLower);
+                        const inputs = document.getElementById('day_inputs_' + dayLower);
+                        const pill = document.getElementById('status_pill_' + dayLower);
 
-                    <div>
-                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
-                            Closing Time
-                        </label>
-                        <input type="time" name="closing_time" value="{{ old('closing_time', $restaurant->closing_time) }}"
-                            class="w-full border border-gray-200 rounded-xl p-3.5 text-sm text-gray-900 focus:ring-2 focus:ring-[#C25A2A] focus:border-[#C25A2A] outline-none transition bg-gray-50/50 focus:bg-white">
-                    </div>
-                </div>
+                        if (check.checked) {
+                            inputs.style.opacity = '1';
+                            inputs.style.pointerEvents = 'auto';
+                            pill.className = 'inline-block px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200';
+                            pill.textContent = 'Active';
+                        } else {
+                            inputs.style.opacity = '0.4';
+                            inputs.style.pointerEvents = 'none';
+                            pill.className = 'inline-block px-2.5 py-1 rounded-full text-[11px] font-bold bg-gray-100 text-gray-500 border border-gray-200';
+                            pill.textContent = 'Closed';
+                        }
+                    }
+
+                    function copyMondayToWeekdays() {
+                        const monOpen = document.getElementById('open_time_monday').value;
+                        const monClose = document.getElementById('close_time_monday').value;
+                        const monChecked = document.getElementById('day_check_monday').checked;
+
+                        ['tuesday', 'wednesday', 'thursday', 'friday'].forEach(day => {
+                            document.getElementById('open_time_' + day).value = monOpen;
+                            document.getElementById('close_time_' + day).value = monClose;
+                            document.getElementById('day_check_' + day).checked = monChecked;
+                            toggleDayRow(day);
+                        });
+                    }
+
+                    function copyMondayToAll() {
+                        const monOpen = document.getElementById('open_time_monday').value;
+                        const monClose = document.getElementById('close_time_monday').value;
+                        const monChecked = document.getElementById('day_check_monday').checked;
+
+                        ['tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].forEach(day => {
+                            document.getElementById('open_time_' + day).value = monOpen;
+                            document.getElementById('close_time_' + day).value = monClose;
+                            document.getElementById('day_check_' + day).checked = monChecked;
+                            toggleDayRow(day);
+                        });
+                    }
+                </script>
 
                 <div class="border-t border-gray-100 pt-6">
                     <h3 class="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4">Service & Delivery Methods</h3>

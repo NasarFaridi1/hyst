@@ -145,12 +145,17 @@
             </div>
 
             @if(!($isAdmin ?? false))
-                {{-- @auth --}}
-                    {{--
-                        IMPORTANT: data-product, data-variants, data-addons
-                        match exactly what the old JS expects.
-                        Also added data-product-id for the new modal's modalAddToCart().
-                    --}}
+                @php
+                    $isStoreOpen = isset($restaurant) ? $restaurant->is_open : ($product->restaurant->is_open ?? true);
+                @endphp
+                @if(!$isStoreOpen)
+                    <button type="button"
+                            class="menu-card-add-btn"
+                            disabled
+                            style="opacity:0.6;cursor:not-allowed;background:#9CA3AF;color:#fff;"
+                            onclick="event.stopPropagation()"
+                            title="Store Closed">Closed</button>
+                @else
                     <form class="addCartForm"
                           data-no-loader="true"
                           data-product="{{ $product->id }}"
@@ -168,13 +173,7 @@
                                 onclick="event.stopPropagation()"
                                 title="Add to order">+</button>
                     </form>
-                {{-- @else
-                    <a href="{{ route('login') }}"
-                       onclick="event.stopPropagation()"
-                       class="menu-card-add-btn"
-                       style="text-decoration:none;display:flex;align-items:center;justify-content:center;"
-                       title="Login to order">+</a>
-                @endauth --}}
+                @endif
             @endif
         </div>
 

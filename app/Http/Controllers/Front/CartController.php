@@ -111,6 +111,15 @@ class CartController extends Controller
             Product::findOrFail(
                 $request->product_id
             );
+
+        $restaurant = $product->restaurant;
+        if (!$restaurant || !$restaurant->is_open) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This restaurant is currently closed and not accepting orders.'
+            ]);
+        }
+
             savePageVisit(
                 $request,
                 'Add To Cart',

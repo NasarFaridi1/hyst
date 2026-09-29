@@ -547,13 +547,13 @@
                 @if($restaurant->is_open)
 
                     <div class="open-badge">
-                        🟢 Open
+                        🟢 Open • {{ $restaurant->today_hours_text }}
                     </div>
 
                 @else
 
                     <div class="open-badge" style="background:#dc2626;">
-                        🔴 Closed
+                        🔴 Closed • {{ $restaurant->today_hours_text }}
                     </div>
 
                 @endif
