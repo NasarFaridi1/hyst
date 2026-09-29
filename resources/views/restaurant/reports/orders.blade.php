@@ -362,9 +362,10 @@
                                 £{{ number_format($order->total_amount ?? 0, 2) }}
                             </td>
                             <td class="p-4 text-center">
-                                <button type="button" onclick='openOrderModal(@json($order))'
-                                        class="px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-bold transition">
-                                    View Details
+                                <button type="button" onclick='openPaymentHistoryModal(@json($order))'
+                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-orange-50 hover:bg-orange-100 text-[#C25A2A] border border-orange-200 text-xs font-bold transition shadow-sm">
+                                    <i data-lucide="credit-card" class="w-3.5 h-3.5"></i>
+                                    Payment History
                                 </button>
                             </td>
                         </tr>
@@ -389,24 +390,28 @@
 </div>
 
 <!-- ════════════════════════════════════════════════════════════
-     ORDER DETAILS INTERACTIVE MODAL
+     ORDER PAYMENT HISTORY INTERACTIVE MODAL
 ════════════════════════════════════════════════════════════ -->
-<div id="orderDetailModal" class="fixed inset-0 bg-black/60 z-[9999] hidden items-center justify-center p-4">
-    <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+<div id="paymentHistoryModal" class="fixed inset-0 bg-black/60 z-[9999] hidden items-center justify-center p-4">
+    <div class="bg-white w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
         <div class="p-5 border-b border-gray-200 flex items-center justify-between bg-gray-50">
             <div>
-                <h3 class="text-lg font-bold text-gray-900" id="modalOrderId">Order Details</h3>
+                <div class="flex items-center gap-2">
+                    <span class="text-xl">💳</span>
+                    <h3 class="text-lg font-bold text-gray-900" id="modalOrderId">Payment History</h3>
+                </div>
                 <p class="text-xs text-gray-500" id="modalOrderDate"></p>
             </div>
-            <button type="button" onclick="closeOrderModal()" class="text-gray-400 hover:text-gray-700 text-xl font-bold p-1">✕</button>
+            <button type="button" onclick="closePaymentHistoryModal()" class="text-gray-400 hover:text-gray-700 text-xl font-bold p-1">✕</button>
         </div>
         
-        <div class="p-6 overflow-y-auto space-y-6" id="modalBody">
-            <!-- Dynamic Content populated via JS -->
+        <div class="p-6 overflow-y-auto space-y-6" id="modalPaymentBody">
+            <!-- Dynamic Payment History populated via JS -->
         </div>
 
-        <div class="p-4 border-t border-gray-200 bg-gray-50 flex justify-end">
-            <button type="button" onclick="closeOrderModal()" class="px-5 py-2 rounded-xl bg-gray-900 text-white text-xs font-bold hover:bg-black transition">
+        <div class="p-4 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
+            <span class="text-xs text-gray-500 font-medium">Hyst Payment Ledger Log</span>
+            <button type="button" onclick="closePaymentHistoryModal()" class="px-5 py-2 rounded-xl bg-gray-900 text-white text-xs font-bold hover:bg-black transition">
                 Close
             </button>
         </div>
@@ -426,90 +431,198 @@
         }
     }
 
-    function openOrderModal(order) {
-        document.getElementById('modalOrderId').textContent = 'Order #' + order.id;
-        document.getElementById('modalOrderDate').textContent = order.created_at ? new Date(order.created_at).toLocaleString() : '';
+    function openPaymentHistoryModal(order) {
+        document.getElementById('modalOrderId').textContent = 'Payment History — Order #' + order.id;
+        document.getElementById('modalOrderDate').textContent = 'Placed on ' + (order.created_at ? new Date(order.created_at).toLocaleString() : '');
 
         const customerName = order.is_guest ? (order.guest_name || 'Guest') : (order.user ? order.user.name : 'N/A');
         const customerPhone = order.is_guest ? (order.guest_phone || 'N/A') : (order.phone || (order.user ? order.user.phone : 'N/A'));
-        const customerAddress = order.address || order.guest_address || 'N/A';
+        const customerEmail = order.is_guest ? (order.guest_email || 'N/A') : (order.user ? order.user.email : 'N/A');
 
+        const orderTotal = parseFloat(order.total_amount || 0).toFixed(2);
+        const orderType = (order.order_type || 'delivery').replace('_', ' ').toUpperCase();
+        const orderStatus = (order.status || 'pending').toUpperCase();
+        const paymentMethod = (order.payment_method || 'Online').toUpperCase();
+
+        // Payments list (either order.payments array or single order.payment)
+        let paymentsList = [];
+        if (order.payments && order.payments.length) {
+            paymentsList = order.payments;
+        } else if (order.payment) {
+            paymentsList = [order.payment];
+        }
+
+        let totalCharged = 0;
+        let totalRefunded = 0;
+        let paymentsTableRows = '';
+
+        if (paymentsList.length) {
+            paymentsList.forEach((p, idx) => {
+                const amt = parseFloat(p.amount || order.total_amount || 0);
+                const ref = parseFloat(p.refunded_amount || 0);
+                const status = (p.payment_status || 'paid').toLowerCase();
+                
+                if (status === 'paid') {
+                    totalCharged += amt;
+                }
+                totalRefunded += ref;
+
+                const txId = p.transaction_id || p.payment_transaction_id || p.secondary_transaction_id || 'N/A';
+                const pDate = p.created_at ? new Date(p.created_at).toLocaleString() : (order.created_at ? new Date(order.created_at).toLocaleString() : 'N/A');
+                const pType = (p.payment_type || 'Order Payment').toUpperCase();
+
+                let statusBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">PAID</span>';
+                if (status === 'refunded') {
+                    statusBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800">REFUNDED</span>';
+                } else if (status === 'pending' || status === 'unpaid') {
+                    statusBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">UNPAID</span>';
+                }
+
+                paymentsTableRows += `
+                    <tr class="border-b border-gray-100 text-xs">
+                        <td class="py-2.5 px-3 font-semibold text-gray-800">#${idx + 1}</td>
+                        <td class="py-2.5 px-3 font-mono text-gray-700">${txId}</td>
+                        <td class="py-2.5 px-3 font-medium text-gray-600">${pType}</td>
+                        <td class="py-2.5 px-3 text-gray-500">${pDate}</td>
+                        <td class="py-2.5 px-3 text-center">${statusBadge}</td>
+                        <td class="py-2.5 px-3 text-right font-black text-gray-900">£${amt.toFixed(2)}</td>
+                    </tr>
+                `;
+
+                if (ref > 0) {
+                    paymentsTableRows += `
+                        <tr class="bg-rose-50/50 border-b border-rose-100 text-xs text-rose-800">
+                            <td class="py-2 px-3">↳ Refund</td>
+                            <td class="py-2 px-3 font-mono text-rose-700">${txId} (Refund)</td>
+                            <td class="py-2 px-3 italic">Reason: ${p.refund_reason || 'Customer Refund'}</td>
+                            <td class="py-2 px-3">${pDate}</td>
+                            <td class="py-2 px-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-200 text-rose-900">REFUND</span></td>
+                            <td class="py-2 px-3 text-right font-black text-rose-700">-£${ref.toFixed(2)}</td>
+                        </tr>
+                    `;
+                }
+            });
+        } else {
+            // Default single payment row if no payment relationship record yet
+            const amt = parseFloat(order.total_amount || 0);
+            totalCharged = order.status === 'completed' || order.status === 'delivered' ? amt : 0;
+            const statusBadge = order.status === 'completed' || order.status === 'delivered' 
+                ? '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">PAID</span>'
+                : '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">PENDING</span>';
+
+            paymentsTableRows = `
+                <tr class="border-b border-gray-100 text-xs">
+                    <td class="py-2.5 px-3 font-semibold text-gray-800">#1</td>
+                    <td class="py-2.5 px-3 font-mono text-gray-700">ORD-TX-${order.id}</td>
+                    <td class="py-2.5 px-3 font-medium text-gray-600">${paymentMethod}</td>
+                    <td class="py-2.5 px-3 text-gray-500">${order.created_at ? new Date(order.created_at).toLocaleString() : ''}</td>
+                    <td class="py-2.5 px-3 text-center">${statusBadge}</td>
+                    <td class="py-2.5 px-3 text-right font-black text-gray-900">£${amt.toFixed(2)}</td>
+                </tr>
+            `;
+        }
+
+        const netCollected = (totalCharged - totalRefunded).toFixed(2);
+
+        // Build itemized items summary
         let itemsHtml = '';
         if (order.items && order.items.length) {
             order.items.forEach(item => {
                 const productName = item.product ? item.product.name : (item.product_name || 'Item');
                 const price = parseFloat(item.price || 0).toFixed(2);
                 itemsHtml += `
-                    <div class="flex items-center justify-between py-2 border-b border-gray-100 text-xs">
+                    <div class="flex items-center justify-between py-1.5 border-b border-gray-100 text-xs">
                         <div>
-                            <span class="font-bold text-gray-900">${productName}</span>
-                            <span class="text-gray-500 ml-1">x${item.quantity || 1}</span>
+                            <span class="font-medium text-gray-800">${productName}</span>
+                            <span class="text-gray-400 ml-1">x${item.quantity || 1}</span>
                         </div>
-                        <span class="font-bold text-gray-900">£${(price * (item.quantity || 1)).toFixed(2)}</span>
+                        <span class="font-semibold text-gray-800">£${(price * (item.quantity || 1)).toFixed(2)}</span>
                     </div>
                 `;
             });
-        } else {
-            itemsHtml = '<p class="text-xs text-gray-400">No items breakdown recorded.</p>';
         }
 
-        const deliveryCharge = parseFloat(order.delivery_charge || 0).toFixed(2);
-        const serviceCharge = parseFloat(order.service_charge || order.hyst_charge || 0).toFixed(2);
-        const discount = (parseFloat(order.coupon_discount || 0) + parseFloat(order.offer_discount || 0) + parseFloat(order.loyalty_discount || 0)).toFixed(2);
-        const totalAmount = parseFloat(order.total_amount || 0).toFixed(2);
-
-        document.getElementById('modalBody').innerHTML = `
-            <div class="grid grid-cols-2 gap-4 text-xs bg-gray-50 p-4 rounded-xl border border-gray-200">
+        document.getElementById('modalPaymentBody').innerHTML = `
+            <!-- Customer & Order Summary -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-gray-50 p-4 rounded-xl border border-gray-200 text-xs">
                 <div>
-                    <span class="text-gray-400 font-bold uppercase block text-[10px]">Customer Info</span>
+                    <span class="text-gray-400 font-bold uppercase block text-[10px]">Customer Details</span>
                     <strong class="text-gray-900 block mt-1">${customerName}</strong>
                     <span class="text-gray-600 block">${customerPhone}</span>
+                    <span class="text-gray-500 block truncate">${customerEmail}</span>
                 </div>
                 <div>
-                    <span class="text-gray-400 font-bold uppercase block text-[10px]">Delivery Address</span>
-                    <span class="text-gray-800 block mt-1">${customerAddress}</span>
+                    <span class="text-gray-400 font-bold uppercase block text-[10px]">Order Overview</span>
+                    <div class="mt-1"><span class="font-bold text-gray-800">Type:</span> ${orderType}</div>
+                    <div><span class="font-bold text-gray-800">Status:</span> ${orderStatus}</div>
+                    <div><span class="font-bold text-gray-800">Method:</span> ${paymentMethod}</div>
+                </div>
+                <div>
+                    <span class="text-gray-400 font-bold uppercase block text-[10px]">Financial Total</span>
+                    <div class="text-xl font-black text-gray-900 mt-1">£${orderTotal}</div>
+                    <span class="text-emerald-600 font-bold text-[11px]">Net Paid: £${netCollected}</span>
                 </div>
             </div>
 
+            <!-- Financial Ledger Summary Cards -->
+            <div class="grid grid-cols-3 gap-3 text-center">
+                <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl">
+                    <span class="text-[10px] font-bold uppercase text-emerald-700 block">Gross Charged</span>
+                    <span class="text-base font-black text-emerald-800 mt-0.5 block">£${totalCharged.toFixed(2)}</span>
+                </div>
+                <div class="p-3 bg-rose-50 border border-rose-200 rounded-xl">
+                    <span class="text-[10px] font-bold uppercase text-rose-700 block">Total Refunded</span>
+                    <span class="text-base font-black text-rose-800 mt-0.5 block">£${totalRefunded.toFixed(2)}</span>
+                </div>
+                <div class="p-3 bg-blue-50 border border-blue-200 rounded-xl">
+                    <span class="text-[10px] font-bold uppercase text-blue-700 block">Net Revenue</span>
+                    <span class="text-base font-black text-blue-900 mt-0.5 block">£${netCollected}</span>
+                </div>
+            </div>
+
+            <!-- Payment Transaction History Table -->
             <div>
-                <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Order Items</h4>
-                <div class="bg-white border border-gray-200 rounded-xl p-3">
+                <h4 class="text-xs font-bold uppercase tracking-wider text-gray-700 mb-2 flex items-center justify-between">
+                    <span>Payment Transaction Log</span>
+                    <span class="text-[11px] font-normal text-gray-400">${paymentsList.length || 1} Record(s)</span>
+                </h4>
+                <div class="border border-gray-200 rounded-xl overflow-hidden bg-white">
+                    <table class="w-full text-left">
+                        <thead class="bg-gray-50 text-[10px] font-bold uppercase text-gray-500 border-b border-gray-200">
+                            <tr>
+                                <th class="py-2.5 px-3">#</th>
+                                <th class="py-2.5 px-3">Transaction ID</th>
+                                <th class="py-2.5 px-3">Type</th>
+                                <th class="py-2.5 px-3">Date</th>
+                                <th class="py-2.5 px-3 text-center">Status</th>
+                                <th class="py-2.5 px-3 text-right">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${paymentsTableRows}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Order Items Breakdown -->
+            @if(!empty($order->items))
+            <div>
+                <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Order Items Included</h4>
+                <div class="bg-gray-50/60 border border-gray-200 rounded-xl p-3 max-h-40 overflow-y-auto">
                     ${itemsHtml}
                 </div>
             </div>
-
-            <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 text-xs space-y-2">
-                <div class="flex justify-between text-gray-600">
-                    <span>Delivery Charge:</span>
-                    <span>£${deliveryCharge}</span>
-                </div>
-                <div class="flex justify-between text-gray-600">
-                    <span>Service Fee:</span>
-                    <span>£${serviceCharge}</span>
-                </div>
-                <div class="flex justify-between text-rose-600 font-semibold">
-                    <span>Discounts Applied:</span>
-                    <span>-£${discount}</span>
-                </div>
-                <div class="flex justify-between text-sm font-black text-gray-900 border-t border-gray-200 pt-2">
-                    <span>Total Amount Paid:</span>
-                    <span>£${totalAmount}</span>
-                </div>
-            </div>
-
-            <div class="text-xs text-gray-500 space-y-1">
-                <div><strong>Payment Method:</strong> ${ (order.payment_method || 'Online').toUpperCase() }</div>
-                <div><strong>Status:</strong> ${ order.status }</div>
-            </div>
+            @endif
         `;
 
-        document.getElementById('orderDetailModal').classList.remove('hidden');
-        document.getElementById('orderDetailModal').classList.add('flex');
+        document.getElementById('paymentHistoryModal').classList.remove('hidden');
+        document.getElementById('paymentHistoryModal').classList.add('flex');
     }
 
-    function closeOrderModal() {
-        document.getElementById('orderDetailModal').classList.add('hidden');
-        document.getElementById('orderDetailModal').classList.remove('flex');
+    function closePaymentHistoryModal() {
+        document.getElementById('paymentHistoryModal').classList.add('hidden');
+        document.getElementById('paymentHistoryModal').classList.remove('flex');
     }
 </script>
 @endsection

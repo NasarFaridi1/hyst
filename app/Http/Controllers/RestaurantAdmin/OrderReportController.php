@@ -21,7 +21,7 @@ class OrderReportController extends Controller
         $restaurantId = auth()->user()->restaurant_id;
         $restaurant = Restaurant::find($restaurantId);
 
-        $query = Order::with(['user', 'payment', 'items.product', 'items.addons', 'coupon', 'loyaltyReward'])
+        $query = Order::with(['user', 'payment', 'payments', 'items.product', 'items.addons', 'coupon', 'loyaltyReward'])
             ->where('restaurant_id', $restaurantId);
 
         // 1. Date Filter (Preset or Custom Range)
