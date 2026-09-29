@@ -675,6 +675,11 @@ Route::middleware(['auth', 'restaurant_admin'])
         Route::post('/platform-orders/{id}/mark-prepared', [PlatformOrderController::class, 'markPrepared'])->name('platform_orders.mark_prepared');
         Route::post('/platform-orders/toggle-status', [PlatformOrderController::class, 'toggleStoreStatus'])->name('platform_orders.toggle_status');
 
+        // Order Reports & Analytics
+        Route::get('/order-reports', [\App\Http\Controllers\RestaurantAdmin\OrderReportController::class, 'index'])->name('order_reports.index');
+        Route::get('/order-reports/export-csv', [\App\Http\Controllers\RestaurantAdmin\OrderReportController::class, 'exportCsv'])->name('order_reports.export_csv');
+        Route::get('/order-reports/export-pdf', [\App\Http\Controllers\RestaurantAdmin\OrderReportController::class, 'exportPdf'])->name('order_reports.export_pdf');
+
         Route::get(
             '/dashboard',
             [RestaurantDashboardController::class, 'index']
