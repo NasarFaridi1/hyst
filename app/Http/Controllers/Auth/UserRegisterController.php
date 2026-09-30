@@ -168,7 +168,7 @@ class UserRegisterController extends Controller
         }
 
         if ($user->email_verified) {
-            Auth::login($user);
+            Auth::login($user, $user->role === 'restaurant_admin' || !empty($user->restaurant_id));
             $redirect = session()->pull('login_redirect', !empty(session('cart')) ? '/checkout' : '/');
 
             return redirect($redirect)
@@ -204,7 +204,7 @@ class UserRegisterController extends Controller
             'email_verify_token' => null,
         ]);
 
-        Auth::login($user);
+        Auth::login($user, $user->role === 'restaurant_admin' || !empty($user->restaurant_id));
         $redirect = session()->pull('login_redirect', !empty(session('cart')) ? '/checkout' : '/');
 
         return redirect($redirect)
@@ -324,7 +324,7 @@ class UserRegisterController extends Controller
             \Illuminate\Support\Facades\Log::error('Quick checkout mail failed: ' . $e->getMessage());
         }
 
-        Auth::login($user);
+        Auth::login($user, $user->role === 'restaurant_admin' || !empty($user->restaurant_id));
 
         return redirect()->route('checkout')
             ->with('message', 'Account created successfully! Proceeding to checkout.')

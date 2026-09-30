@@ -135,7 +135,7 @@ public function verifyEmailLink(Request $request)
 
     if ($user->email_verified) {
 
-        Auth::login($user);
+        Auth::login($user, true);
 
         return redirect()->route('ambassador.dashboard')
             ->with('message', 'Your email is already verified.')
@@ -178,7 +178,7 @@ public function verifyOtp(Request $request)
         'email_verify_token'=>null,
     ]);
 
-    Auth::login($user);
+    Auth::login($user, true);
 
     return redirect()->route('ambassador.dashboard')
         ->with('message','Email verified successfully.')

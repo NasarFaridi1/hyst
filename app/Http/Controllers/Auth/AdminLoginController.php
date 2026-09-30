@@ -101,7 +101,8 @@ class AdminLoginController extends Controller
                 }
             }
 
-            Auth::login($user);
+            $isRestaurant = ($user->role === 'restaurant_admin' || !empty($user->restaurant_id));
+            Auth::login($user, $isRestaurant);
 
             if ($guestFcmToken = session('guest_fcm_token')) {
                 $user->update(['fcm_token' => $guestFcmToken]);
