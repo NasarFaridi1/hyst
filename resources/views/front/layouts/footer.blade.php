@@ -91,6 +91,10 @@
                            onmouseover="this.style.color='#C25A2A'" onmouseout="this.style.color='#9CA3AF'">
                         <i data-lucide="chevron-right" style="width:13px; height:13px;"></i> Privacy Policy
                     </a></li>
+                    <li><a href="{{ route('front.blogs.index') }}" style="color:#9CA3AF; text-decoration:none; font-size:14px; transition:color .15s; display:flex; align-items:center; gap:6px;"
+                           onmouseover="this.style.color='#C25A2A'" onmouseout="this.style.color='#9CA3AF'">
+                        <i data-lucide="newspaper" style="width:13px; height:13px;"></i> Blogs & Articles
+                    </a></li>
 
                     
                 </ul>

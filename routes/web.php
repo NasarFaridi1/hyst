@@ -329,6 +329,11 @@ Route::post('/referral/apply', [\App\Http\Controllers\Front\OrderController::cla
 Route::get('/offers', [FrontMarketingBannerController::class, 'index'])
      ->name('front.banners.index');
 
+Route::get('/blogs', [\App\Http\Controllers\Front\BlogController::class, 'index'])
+     ->name('front.blogs.index');
+Route::get('/blog/{slug}', [\App\Http\Controllers\Front\BlogController::class, 'show'])
+     ->name('front.blogs.show');
+
 Route::post('/save-fcm-token', [FCMController::class, 'saveToken']);
 
  Route::get(
@@ -584,6 +589,8 @@ Route::middleware(['auth', 'super_admin'])
             'marketing-banner-categories',
             MarketingBannerCategoryController::class
         );
+
+        Route::resource('blogs', \App\Http\Controllers\Admin\BlogController::class);
 
         Route::put('/restaurants/{restaurant}/display-order', [RestaurantController::class, 'updateOrder'])
             ->name('restaurants.updateOrder');

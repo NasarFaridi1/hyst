@@ -246,6 +246,14 @@
                 <span>Marketing Banners</span>
             </a>
 
+            <a href="{{ route('admin.blogs.index') }}"
+            class="sidebar-item {{ str_contains($current,'admin/blogs') ? 'active' : '' }}">
+                <div class="sidebar-icon">
+                    <i data-lucide="newspaper"></i>
+                </div>
+                <span>Blogs</span>
+            </a>
+
             <a href="/admin/terms-and-conditions"
             class="sidebar-item {{ str_contains($current,'admin/terms-and-conditions') ? 'active' : '' }}">
                 <div class="sidebar-icon">
