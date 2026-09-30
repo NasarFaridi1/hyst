@@ -67,7 +67,7 @@
                     @endif
                     <input type="file" name="image" accept="image/*"
                            class="w-full border border-gray-200 rounded-xl p-3 bg-white focus:ring-2 focus:ring-orange-500 outline-none text-sm">
-                    <p class="text-xs text-gray-400 mt-1">Leave empty to keep existing image.</p>
+                    <p class="text-xs text-gray-400 mt-1">Leave empty to keep existing image (Max 2MB).</p>
                 </div>
 
                 <!-- Video File Upload or Link -->
@@ -81,6 +81,7 @@
                         @endif
                         <input type="file" name="video_file" accept="video/mp4,video/webm,video/mov,video/quicktime"
                                class="w-full border border-gray-200 rounded-xl p-3 bg-white focus:ring-2 focus:ring-orange-500 outline-none text-sm">
+                        <p class="text-xs text-gray-400 mt-1">Upload MP4, WEBM, MOV (Max 2MB).</p>
                     </div>
 
                     <div>

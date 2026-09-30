@@ -38,8 +38,8 @@ class BlogController extends Controller
             'title' => 'required|string|max:255',
             'slug' => 'nullable|string|max:255|unique:blogs,slug',
             'description' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
-            'video_file' => 'nullable|mimes:mp4,mov,ogg,qt,webm|max:51200',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'video_file' => 'nullable|mimes:mp4,mov,ogg,qt,webm|max:2048',
             'video_url' => 'nullable|string|max:500',
             'status' => 'required|in:active,inactive',
         ]);
@@ -97,8 +97,8 @@ class BlogController extends Controller
             'title' => 'required|string|max:255',
             'slug' => 'nullable|string|max:255|unique:blogs,slug,' . $blog->id,
             'description' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
-            'video_file' => 'nullable|mimes:mp4,mov,ogg,qt,webm|max:51200',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'video_file' => 'nullable|mimes:mp4,mov,ogg,qt,webm|max:2048',
             'video_url' => 'nullable|string|max:500',
             'status' => 'required|in:active,inactive',
         ]);

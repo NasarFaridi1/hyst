@@ -63,7 +63,7 @@
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Featured Image</label>
                     <input type="file" name="image" accept="image/*"
                            class="w-full border border-gray-200 rounded-xl p-3 bg-white focus:ring-2 focus:ring-orange-500 outline-none text-sm">
-                    <p class="text-xs text-gray-400 mt-1">Supports JPG, PNG, WEBP, GIF up to 5MB.</p>
+                    <p class="text-xs text-gray-400 mt-1">Supports JPG, PNG, WEBP, GIF up to 2MB.</p>
                 </div>
 
                 <!-- Video File Upload or Link -->
@@ -72,7 +72,7 @@
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Upload Video File</label>
                         <input type="file" name="video_file" accept="video/mp4,video/webm,video/mov,video/quicktime"
                                class="w-full border border-gray-200 rounded-xl p-3 bg-white focus:ring-2 focus:ring-orange-500 outline-none text-sm">
-                        <p class="text-xs text-gray-400 mt-1">Upload MP4, WEBM, MOV (Max 50MB).</p>
+                        <p class="text-xs text-gray-400 mt-1">Upload MP4, WEBM, MOV (Max 2MB).</p>
                     </div>
 
                     <div>
