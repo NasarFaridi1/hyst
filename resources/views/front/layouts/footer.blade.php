@@ -155,12 +155,14 @@
                         </a>
                     </li>
                     @php
-                        $slug = request()->route('slug');
+                        $restaurantSlug = (isset($restaurant) && !empty($restaurant->slug)) 
+                            ? $restaurant->slug 
+                            : (request()->routeIs(['restaurant.*', 'policy']) ? request()->route('slug') : null);
                     @endphp
 
-                    @if($slug)
+                    @if($restaurantSlug)
                         <li>
-                            <a href="{{ route('policy', $restaurant->slug) }}"
+                            <a href="{{ route('policy', $restaurantSlug) }}"
                             style="color:#9CA3AF; text-decoration:none; font-size:14px; transition:color .15s; display:flex; align-items:center; gap:6px;"
                             onmouseover="this.style.color='#C25A2A'"
                             onmouseout="this.style.color='#9CA3AF'">
@@ -168,10 +170,8 @@
                                 Restaurant Privacy Policy
                             </a>
                         </li>
-                    @endif
-                    @if($slug)
                         <li>
-                            <a href="{{ route('restaurant.terms', $slug) }}"
+                            <a href="{{ route('restaurant.terms', $restaurantSlug) }}"
                             style="color:#9CA3AF; text-decoration:none; font-size:14px; transition:color .15s; display:flex; align-items:center; gap:6px;"
                             onmouseover="this.style.color='#C25A2A'"
                             onmouseout="this.style.color='#9CA3AF'">
@@ -179,10 +179,8 @@
                                 Restaurant Terms & Conditions
                             </a>
                         </li>
-                    @endif
-                    @if($slug)
                         <li>
-                            <a href="{{ route('restaurant.refund-policy', $slug) }}"
+                            <a href="{{ route('restaurant.refund-policy', $restaurantSlug) }}"
                             style="color:#9CA3AF; text-decoration:none; font-size:14px; transition:color .15s; display:flex; align-items:center; gap:6px;"
                             onmouseover="this.style.color='#C25A2A'"
                             onmouseout="this.style.color='#9CA3AF'">
