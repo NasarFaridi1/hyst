@@ -540,7 +540,7 @@
             </div>
 
             <!-- 5. PAYMENT GATEWAY SETTINGS CARD -->
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
+            {{-- <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
                 <div class="flex items-center gap-3 pb-5 mb-6 border-b border-gray-100">
                     <div class="w-10 h-10 rounded-xl bg-orange-50 text-[#C25A2A] flex items-center justify-center font-bold">
                         💳
@@ -579,7 +579,7 @@
                             class="w-full border border-gray-200 rounded-xl p-3.5 text-sm text-gray-900 focus:ring-2 focus:ring-[#C25A2A] focus:border-[#C25A2A] outline-none transition bg-gray-50/50 focus:bg-white">
                     </div>
                 </div>
-            </div>
+            </div> --}}
 
             <!-- Submit Button -->
             <div class="flex justify-end pt-2">
