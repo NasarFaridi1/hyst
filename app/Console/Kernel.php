@@ -12,7 +12,10 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
+        // Sync Customer Digital Twin & 360 data every night at 2:00 AM
+        $schedule->command('hyst:sync-digital-twins')
+                 ->dailyAt('02:00')
+                 ->appendOutputTo(storage_path('logs/digital_twin_sync.log'));
     }
 
     /**
