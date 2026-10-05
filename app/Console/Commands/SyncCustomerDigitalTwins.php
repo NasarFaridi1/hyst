@@ -4,6 +4,8 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use App\Models\User;
+use Illuminate\Support\Facades\Crypt;
 use Exception;
 
 class SyncCustomerDigitalTwins extends Command
@@ -43,10 +45,8 @@ class SyncCustomerDigitalTwins extends Command
         }
 
         try {
-            // 2. Fetch all customers with role='user' from main operational DB
-            $customers = DB::connection('mysql')->table('users')
-                ->where('role', 'user')
-                ->get();
+            // 2. Fetch all customers using Eloquent User model so encrypted casts (email, phone) are decrypted automatically
+            $customers = User::where('role', 'user')->get();
 
             $processedCount = 0;
 
@@ -167,7 +167,7 @@ class SyncCustomerDigitalTwins extends Command
                     $currentStatus = 'DORMANT';
                 }
 
-                // Offer Sensitivity & Value Scoring
+                // Value & Sensitivity Scoring
                 $customerValue = 'medium';
                 if ($totalSpend >= 300 || $avgOrderValue >= 45) {
                     $customerValue = 'high';
@@ -181,7 +181,7 @@ class SyncCustomerDigitalTwins extends Command
 
                 $offerSensitivity = 'medium';
                 if ($avgOrderValue > 35) {
-                    $offerSensitivity = 'low'; // High spenders are less sensitive to discounts
+                    $offerSensitivity = 'low';
                 }
 
                 // Reorder Probability Calculation
@@ -189,11 +189,32 @@ class SyncCustomerDigitalTwins extends Command
                 if ($typicalInterval > 0) {
                     $ratio = $recencyDays / $typicalInterval;
                     if ($ratio >= 0.8 && $ratio <= 1.3) {
-                        $reorderProb = 88.50; // In prime reorder window
+                        $reorderProb = 88.50;
                     } elseif ($ratio > 1.3 && $ratio <= 2.0) {
                         $reorderProb = 62.00;
                     } elseif ($ratio < 0.8) {
-                        $reorderProb = 20.00; // Ordered recently
+                        $reorderProb = 20.00;
+                    }
+                }
+
+                // Ensure email and phone are 100% decrypted plain text
+                $userEmail = (string) $user->email;
+                $userPhone = (string) $user->phone;
+                $userPostcode = (string) ($user->postcode ?? null);
+
+                if (str_starts_with($userEmail, 'eyJ')) {
+                    try {
+                        $userEmail = Crypt::decryptString($userEmail);
+                    } catch (Exception $e) {
+                        // ignore if not decryptable
+                    }
+                }
+
+                if (str_starts_with($userPhone, 'eyJ')) {
+                    try {
+                        $userPhone = Crypt::decryptString($userPhone);
+                    } catch (Exception $e) {
+                        // ignore if not decryptable
                     }
                 }
 
@@ -201,9 +222,10 @@ class SyncCustomerDigitalTwins extends Command
                 DB::connection('hyst_ai')->table('customer_digital_twins')->updateOrInsert(
                     ['user_id' => $user->id],
                     [
-                        'name' => $user->name,
-                        'email' => $user->email,
-                        'phone' => $user->phone,
+                        'name' => $user->name ?? 'Customer',
+                        'email' => $userEmail,
+                        'phone' => $userPhone,
+                        'area_postcode' => $userPostcode,
                         'total_orders' => $totalOrders,
                         'total_spend' => $totalSpend,
                         'average_order_value' => $avgOrderValue,
