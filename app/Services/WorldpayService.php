@@ -217,6 +217,7 @@ class WorldpayService
                 ]
             ];
         }
+        $addressLine1 = Str::limit($data['address'] ?? '1 Main Street', 100, '');
 
         $payload = [
             "ReturnUrl" => route('payment.callback'),
@@ -240,7 +241,8 @@ class WorldpayService
                 "Phone" => $data['phone'] ?? '',
                 "Mobile" => $data['phone'] ?? '',
                 "Address" => [
-                    "Line1" => $data['address'] ?? '1 Main Street',
+                    // "Line1" => $data['address'] ?? '1 Main Street',
+                    "Line1" => $addressLine1,
                     "Line2" => null,
                     "Suburb" => $suburb,
                     "State" => $state,

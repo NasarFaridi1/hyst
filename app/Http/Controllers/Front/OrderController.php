@@ -649,7 +649,7 @@ class OrderController extends Controller
                 } elseif ($subAfterOffer < 100) {
                     if ($rawDelivery > 3.99) {
                         $offset = 1.00;
-                        $deliveryCharge = max(0, $rawDelivery - $offset);
+                        $deliveryCharge = max(0, $rawDelivery);
                         $hystCharge = 3.99 + $offset;
                     } else {
                         $hystCharge = 3.99;
