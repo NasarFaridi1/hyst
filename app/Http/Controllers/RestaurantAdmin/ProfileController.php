@@ -52,11 +52,13 @@ class ProfileController extends Controller
 
             'name' => $request->name,
 
-            'email' => $request->email,
+            'email' => $request->email ?? auth()->user()->email,
 
             'phone' => $request->phone,
 
             'location' => $request->location,
+            
+            'address' => $request->location,
 
             'latitude' => $request->latitude,
 

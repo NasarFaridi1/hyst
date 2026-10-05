@@ -1388,14 +1388,14 @@
         <div class="fq-title">Important Order Disclaimer</div>
         <div class="fq-subtitle">Please acknowledge the following terms before placing your order.</div>
 
-        <div class="fq-disclaimer-box">
+        {{-- <div class="fq-disclaimer-box">
             <p>
                 <strong>HYST is an online ordering platform</strong> connecting customers with partner restaurants and independent delivery providers.
             </p>
             <p>
                 Please note that <strong>HYST is not responsible for food quality, preparation time, taste, portion sizes, temperature, or food packaging</strong>. All food preparation, hygiene, and packaging are strictly the responsibility of the preparing restaurant.
             </p>
-        </div>
+        </div> --}}
 
         <div class="fq-checkbox-card" onclick="document.getElementById('foodQualityCheckbox').click();">
             <input type="checkbox" id="foodQualityCheckbox" onclick="event.stopPropagation();">

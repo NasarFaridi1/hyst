@@ -53,7 +53,7 @@
                             <span>Email Address</span>
                             <span class="text-[10px] text-gray-400 font-normal">🔒 Read-only</span>
                         </label>
-                        <input type="email" name="email" value="{{ $restaurant->email }}" @disabled(true) @readonly(true)
+                        <input type="email" name="email" value="{{ $restaurant->email ?? auth()->user()->email }}" @disabled(true) @readonly(true)
                             class="w-full border border-gray-200 rounded-xl p-3.5 text-sm text-gray-500 bg-gray-100/70 cursor-not-allowed">
                     </div>
 
