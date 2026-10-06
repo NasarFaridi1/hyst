@@ -790,6 +790,18 @@ Route::middleware(['auth', 'restaurant_admin'])
             [RestaurantOrderController::class, 'storeOfflineOrder']
         )->name('orders.store_offline');
         Route::get(
+            '/verifone/terminal-status',
+            [RestaurantOrderController::class, 'checkVerifoneStatus']
+        )->name('verifone.status');
+        Route::post(
+            '/verifone/abort',
+            [RestaurantOrderController::class, 'abortVerifonePayment']
+        )->name('verifone.abort');
+        Route::post(
+            '/orders/{id}/verifone-print',
+            [RestaurantOrderController::class, 'printVerifoneReceipt']
+        )->name('orders.verifone_print');
+        Route::get(
             '/all-orders',
             [RestaurantOrderController::class, 'allOrders']
         );

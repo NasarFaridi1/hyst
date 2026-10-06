@@ -361,9 +361,10 @@
 
                             <div>
                                 <label class="block text-xs font-bold text-gray-700 mb-1">Payment Method</label>
-                                <select name="payment_method" class="w-full border border-gray-300 rounded-xl px-3.5 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-[#C25A2A] focus:outline-none bg-white font-medium">
+                                <select name="payment_method" id="paymentMethodSelect" class="w-full border border-gray-300 rounded-xl px-3.5 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-[#C25A2A] focus:outline-none bg-white font-medium">
+                                    <option value="verifone_pos">📲 Verifone Cloud POS Machine (Card)</option>
                                     <option value="Cash">💵 Cash</option>
-                                    <option value="Card at Counter">💳 Card at Counter / POS Machine</option>
+                                    <option value="Card at Counter">💳 Card at Counter / Manual POS</option>
                                     <option value="Pay at Counter">🏬 Pay at Counter</option>
                                     <option value="Offline Payment">🏦 Direct Offline Payment</option>
                                 </select>
@@ -866,6 +867,72 @@
             closeOptionsModal();
         }
     });
+
+    // Intercept Direct Order Form submission for Verifone POS
+    document.getElementById('directOrderForm')?.addEventListener('submit', function(e) {
+        const payMethod = document.getElementById('paymentMethodSelect')?.value;
+        if (payMethod === 'verifone_pos') {
+            e.preventDefault();
+            const modal = document.getElementById('verifoneModal');
+            if (modal) modal.classList.remove('hidden');
+
+            const formData = new FormData(this);
+            
+            fetch(this.action, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                },
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('verifoneModalStatus').innerText = '✅ Payment Approved! Printing receipt...';
+                    setTimeout(() => {
+                        window.location.href = data.redirect_url;
+                    }, 1000);
+                } else {
+                    if (modal) modal.classList.add('hidden');
+                    alert('❌ Verifone POS Error: ' + (data.message || 'Payment was declined on terminal.'));
+                }
+            })
+            .catch(err => {
+                if (modal) modal.classList.add('hidden');
+                alert('⚠️ Connection error while reaching Verifone Cloud POS. Please check terminal status.');
+            });
+        }
+    });
+
+    function cancelVerifonePayment() {
+        const modal = document.getElementById('verifoneModal');
+        if (modal) modal.classList.add('hidden');
+    }
 </script>
+
+{{-- VERIFONE TERMINAL PAYMENT MODAL --}}
+<div id="verifoneModal" class="fixed inset-0 bg-black/70 backdrop-blur-xs z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center relative border border-gray-100">
+        <div class="w-16 h-16 bg-amber-50 text-[#C25A2A] rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4 animate-bounce">
+            💳
+        </div>
+        <h3 class="text-lg font-extrabold text-gray-900 mb-1">Verifone Cloud POS</h3>
+        <p class="text-xs text-gray-500 mb-4" id="verifoneModalStatus">Sending payment request to Verifone terminal...</p>
+
+        <div class="flex justify-center mb-5">
+            <svg class="animate-spin h-8 w-8 text-[#C25A2A]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+        </div>
+
+        <p class="text-[11px] text-gray-400 mb-4">Please present card (Tap / Insert / Swipe) on the Verifone terminal machine.</p>
+
+        <button type="button" onclick="cancelVerifonePayment()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 rounded-xl text-xs transition">
+            Close Modal
+        </button>
+    </div>
+</div>
 
 @endsection

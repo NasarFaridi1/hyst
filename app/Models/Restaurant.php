@@ -33,6 +33,14 @@ class Restaurant extends Model
         'transactworld_mode',
         'favorite_count',
 
+        // Verifone POS Cloud fields
+        'verifone_enabled',
+        'verifone_uid',
+        'verifone_api_key',
+        'verifone_poiid',
+        'verifone_sale_id',
+        'verifone_environment',
+
         // Hygiene fields
         'hygiene_rating',
         'hygiene_certificate',

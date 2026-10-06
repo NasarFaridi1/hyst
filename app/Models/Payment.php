@@ -20,7 +20,13 @@ class Payment extends Model
         'checkout_data',
         'payment_transaction_id',
         'secondary_transaction_id',
-        'payment_type'
+        'payment_type',
+        'poi_transaction_id',
+        'poi_timestamp',
+        'masked_pan',
+        'card_brand',
+        'auth_code',
+        'nexo_service_id'
 
     ];
 

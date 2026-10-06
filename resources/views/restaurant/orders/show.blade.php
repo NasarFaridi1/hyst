@@ -429,6 +429,15 @@
 
         @endif
 
+        @if($order->restaurant && $order->restaurant->verifone_enabled)
+            <form method="POST" action="{{ route('restaurant.orders.verifone_print', $order->id) }}" style="display:inline;">
+                @csrf
+                <button type="submit" class="od-btn" style="background:#C25A2A; color:#fff;">
+                    🖨️ Print Verifone Receipt
+                </button>
+            </form>
+        @endif
+
         <a href="/restaurant/orders"
           class="btn-back">
 
