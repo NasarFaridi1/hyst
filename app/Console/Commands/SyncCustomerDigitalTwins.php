@@ -90,7 +90,7 @@ class SyncCustomerDigitalTwins extends Command
                 $favDish = DB::connection('mysql')->table('order_items as oi')
                     ->join('orders as o', 'o.id', '=', 'oi.order_id')
                     ->join('products as p', 'p.id', '=', 'oi.product_id')
-                    ->select('oi.product_id', 'p.name as dish_name', DB::raw('SUM(oi.qty) as total_qty'))
+                    ->select('oi.product_id', 'p.name as dish_name', DB::raw('SUM(oi.quantity) as total_qty'))
                     ->where('o.user_id', $user->id)
                     ->where('o.status', 'completed')
                     ->groupBy('oi.product_id', 'p.name')
@@ -105,7 +105,7 @@ class SyncCustomerDigitalTwins extends Command
                     ->where('o.status', 'completed')
                     ->select('p.name')
                     ->groupBy('p.name')
-                    ->orderByRaw('SUM(oi.qty) DESC')
+                    ->orderByRaw('SUM(oi.quantity) DESC')
                     ->limit(3)
                     ->pluck('p.name')
                     ->toArray();

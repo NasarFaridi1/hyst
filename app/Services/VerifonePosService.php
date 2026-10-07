@@ -559,74 +559,250 @@ class VerifonePosService
         $restaurant = $order->restaurant;
         $lines = [];
 
-        $lines[] = "          " . strtoupper($restaurant->name ?? 'RESTAURANT');
+        // ============================================================
+        // RESTAURANT HEADER
+        // ============================================================
+
+        $restaurantName = strtoupper($restaurant->name ?? 'RESTAURANT');
+
+        $lines[] = "========================================";
+        $lines[] = "          " . $restaurantName;
+        
         if (!empty($restaurant->address)) {
             $lines[] = "      " . $restaurant->address;
         }
+
         if (!empty($restaurant->phone)) {
             $lines[] = "      Tel: " . $restaurant->phone;
         }
-        $lines[] = "────────────────────────────────────────";
-        $lines[] = "ORDER RECEIPT #" . $order->id;
-        $lines[] = "Date: " . ($order->created_at ? $order->created_at->format('d/m/Y H:i:s') : date('d/m/Y H:i:s'));
-        $lines[] = "Channel: " . strtoupper(str_replace('_', ' ', $order->order_from ?? 'POS'));
-        $lines[] = "Type: " . strtoupper(str_replace('_', ' ', $order->order_type ?? 'Takeaway'));
-        $lines[] = "Customer: " . ($order->guest_name ?? $order->user?->name ?? 'Walk-in');
+
+        $lines[] = "========================================";
+
+
+        // ============================================================
+        // ORDER INFORMATION
+        // ============================================================
+
+        $lines[] = "              ORDER RECEIPT";
+        $lines[] = "----------------------------------------";
+
+        $lines[] = sprintf(
+            "%-12s: #%s",
+            "Order",
+            $order->id
+        );
+
+        $lines[] = sprintf(
+            "%-12s: %s",
+            "Date",
+            $order->created_at
+                ? $order->created_at->format('d/m/Y H:i:s')
+                : date('d/m/Y H:i:s')
+        );
+
+        $lines[] = sprintf(
+            "%-12s: %s",
+            "Channel",
+            strtoupper(
+                str_replace(
+                    '_',
+                    ' ',
+                    $order->order_from ?? 'POS'
+                )
+            )
+        );
+
+        $lines[] = sprintf(
+            "%-12s: %s",
+            "Type",
+            strtoupper(
+                str_replace(
+                    '_',
+                    ' ',
+                    $order->order_type ?? 'Takeaway'
+                )
+            )
+        );
+
+        $lines[] = sprintf(
+            "%-12s: %s",
+            "Customer",
+            $order->guest_name
+                ?? $order->user?->name
+                ?? 'Walk-in'
+        );
+
         if (!empty($order->phone ?? $order->guest_phone)) {
-            $lines[] = "Phone: " . ($order->phone ?? $order->guest_phone);
+            $lines[] = sprintf(
+                "%-12s: %s",
+                "Phone",
+                $order->phone ?? $order->guest_phone
+            );
         }
-        $lines[] = "────────────────────────────────────────";
+
+        $lines[] = "----------------------------------------";
+
+
+        // ============================================================
+        // ITEMS
+        // ============================================================
+
+        $lines[] = "ITEMS";
+        $lines[] = "----------------------------------------";
 
         foreach ($order->items as $item) {
+
             $prodName = $item->product->name ?? 'Item';
+
             if (!empty($item->variant_name)) {
                 $prodName .= ' (' . $item->variant_name . ')';
             }
-            $itemName = substr($prodName, 0, 22);
-            $qty = $item->quantity;
-            $amt = number_format($item->total, 2);
-            $lines[] = sprintf("%-22s x%-2d £%6s", $itemName, $qty, $amt);
 
+            $itemName = substr($prodName, 0, 22);
+
+            $qty = $item->quantity;
+
+            $amt = number_format($item->total, 2);
+
+            $lines[] = sprintf(
+                "%-22s x%-2d £%6s",
+                $itemName,
+                $qty,
+                $amt
+            );
+
+            // Addons
             if ($item->addons && $item->addons->count() > 0) {
+
                 foreach ($item->addons as $addon) {
-                    $lines[] = "  + " . substr($addon->addon_name, 0, 20) . " (£" . number_format($addon->price, 2) . ")";
+
+                    $lines[] =
+                        "  + "
+                        . substr($addon->addon_name, 0, 20)
+                        . " (£"
+                        . number_format($addon->price, 2)
+                        . ")";
                 }
             }
         }
 
-        $lines[] = "────────────────────────────────────────";
-        $subtotal = (float) $order->total_amount - (float) $order->delivery_charge - (float) $order->service_charge;
-        $lines[] = sprintf("%-26s £%6s", "Subtotal:", number_format(max(0, $subtotal), 2));
-        
+
+        // ============================================================
+        // BILL SUMMARY
+        // ============================================================
+
+        $lines[] = "----------------------------------------";
+        $lines[] = "                 BILL";
+        $lines[] = "----------------------------------------";
+
+        $subtotal =
+            (float) $order->total_amount
+            - (float) $order->delivery_charge
+            - (float) $order->service_charge;
+
+        $lines[] = sprintf(
+            "%-26s £%6s",
+            "Subtotal:",
+            number_format(max(0, $subtotal), 2)
+        );
+
         if ($order->delivery_charge > 0) {
-            $lines[] = sprintf("%-26s £%6s", "Delivery Charge:", number_format($order->delivery_charge, 2));
-        }
-        if ($order->service_charge > 0) {
-            $lines[] = sprintf("%-26s £%6s", "Service Charge:", number_format($order->service_charge, 2));
-        }
-        if ($order->coupon_discount > 0) {
-            $lines[] = sprintf("%-26s -£%5s", "Coupon Discount:", number_format($order->coupon_discount, 2));
+            $lines[] = sprintf(
+                "%-26s £%6s",
+                "Delivery Charge:",
+                number_format($order->delivery_charge, 2)
+            );
         }
 
-        $lines[] = "────────────────────────────────────────";
-        $lines[] = sprintf("%-26s £%6s", "TOTAL AMOUNT:", number_format($order->total_amount, 2));
-        $lines[] = "────────────────────────────────────────";
-        $lines[] = "Payment Status: " . strtoupper($order->payment?->payment_status ?? 'PAID');
-        $lines[] = "Payment Method: " . strtoupper($order->payment_method ?? 'CARD');
+        if ($order->service_charge > 0) {
+            $lines[] = sprintf(
+                "%-26s £%6s",
+                "Service Charge:",
+                number_format($order->service_charge, 2)
+            );
+        }
+
+        if ($order->coupon_discount > 0) {
+            $lines[] = sprintf(
+                "%-26s -£%5s",
+                "Coupon Discount:",
+                number_format($order->coupon_discount, 2)
+            );
+        }
+
+        $lines[] = "----------------------------------------";
+
+        $lines[] = sprintf(
+            "%-26s £%6s",
+            "TOTAL AMOUNT:",
+            number_format($order->total_amount, 2)
+        );
+
+        $lines[] = "----------------------------------------";
+
+
+        // ============================================================
+        // PAYMENT INFORMATION
+        // ============================================================
+
+        $lines[] = "               PAYMENT";
+        $lines[] = "----------------------------------------";
+
+        $lines[] = sprintf(
+            "%-18s: %s",
+            "Payment Status",
+            strtoupper(
+                $order->payment?->payment_status ?? 'PAID'
+            )
+        );
+
+        $lines[] = sprintf(
+            "%-18s: %s",
+            "Payment Method",
+            strtoupper(
+                $order->payment_method ?? 'CARD'
+            )
+        );
 
         if ($order->payment && $order->payment->masked_pan) {
-            $lines[] = "Card: " . ($order->payment->card_brand ?? 'Card') . " " . $order->payment->masked_pan;
+
+            $lines[] = sprintf(
+                "%-18s: %s %s",
+                "Card",
+                $order->payment->card_brand ?? 'Card',
+                $order->payment->masked_pan
+            );
+
             if ($order->payment->auth_code) {
-                $lines[] = "Auth Code: " . $order->payment->auth_code;
+
+                $lines[] = sprintf(
+                    "%-18s: %s",
+                    "Auth Code",
+                    $order->payment->auth_code
+                );
             }
+
             if ($order->payment->poi_transaction_id) {
-                $lines[] = "POI Tx ID: " . $order->payment->poi_transaction_id;
+
+                $lines[] = sprintf(
+                    "%-18s: %s",
+                    "POI Tx ID",
+                    $order->payment->poi_transaction_id
+                );
             }
         }
 
-        $lines[] = "────────────────────────────────────────";
-        $lines[] = "        Thank You For Your Visit!       ";
-        $lines[] = "────────────────────────────────────────";
+
+        // ============================================================
+        // FOOTER
+        // ============================================================
+
+        $lines[] = "----------------------------------------";
+        $lines[] = "";
+        $lines[] = "        Thank You For Your Visit!";
+        $lines[] = "        We Hope To See You Again";
+        $lines[] = "";
+        $lines[] = "========================================";
 
         return implode('#', $lines);
     }
