@@ -37,7 +37,9 @@ class Restaurant extends Model
         'verifone_enabled',
         'verifone_uid',
         'verifone_api_key',
+        'verifone_serial_number',
         'verifone_poiid',
+        'verifone_entity_uid',
         'verifone_sale_id',
         'verifone_environment',
 

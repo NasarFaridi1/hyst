@@ -137,15 +137,22 @@ class ProfileController extends Controller
             'verifone_enabled' => $request->has('verifone_enabled') ? (bool)$request->verifone_enabled : $restaurant->verifone_enabled,
             'verifone_uid' => $request->input('verifone_uid', $restaurant->verifone_uid),
             'verifone_api_key' => $request->input('verifone_api_key', $restaurant->verifone_api_key),
+            'verifone_serial_number' => $request->input('verifone_serial_number', $restaurant->verifone_serial_number),
             'verifone_poiid' => $request->input('verifone_poiid', $restaurant->verifone_poiid),
             'verifone_sale_id' => $request->input('verifone_sale_id', $restaurant->verifone_sale_id ?? 'RetailPOS'),
             'verifone_environment' => $request->input('verifone_environment', $restaurant->verifone_environment ?? 'sandbox'),
-            // 'worldpay_business_id' => $request->worldpay_business_id,
-            // 'worldpay_username' => $request->worldpay_username,
-            // 'worldpay_password' => $request->worldpay_password,
         ]);
 
         $restaurant->update($updateData);
+
+        // If Verifone is enabled and Serial Number is provided, automatically query Status API to fetch POIID & EntityUID
+        if ($restaurant->verifone_enabled && ($restaurant->verifone_serial_number || $restaurant->verifone_poiid)) {
+            try {
+                app(\App\Services\VerifonePosService::class)->checkStatus($restaurant);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Auto fetch Verifone status failed: ' . $e->getMessage());
+            }
+        }
 
         return back()->with(
             'success',

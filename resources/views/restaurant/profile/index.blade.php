@@ -582,11 +582,11 @@
                         </select>
                     </div>
 
-                    <!-- POI ID / Terminal Serial Number -->
+                    <!-- Terminal Serial Number -->
                     <div>
-                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">POI ID / Serial Number</label>
-                        <input type="text" name="verifone_poiid" value="{{ old('verifone_poiid', $restaurant->verifone_poiid) }}" placeholder="e.g. 860-011-622"
-                            class="w-full border border-gray-200 rounded-xl p-3.5 text-sm text-gray-900 focus:ring-2 focus:ring-[#C25A2A] outline-none bg-gray-50/50 focus:bg-white">
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Terminal Serial Number *</label>
+                        <input type="text" name="verifone_serial_number" value="{{ old('verifone_serial_number', $restaurant->verifone_serial_number) }}" placeholder="e.g. 453-217-464"
+                            class="w-full border border-gray-200 rounded-xl p-3.5 text-sm text-gray-900 focus:ring-2 focus:ring-[#C25A2A] outline-none bg-gray-50/50 focus:bg-white font-mono">
                     </div>
 
                     <!-- Verifone User UID -->
@@ -601,6 +601,26 @@
                         <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">API Key</label>
                         <input type="password" name="verifone_api_key" value="{{ old('verifone_api_key', $restaurant->verifone_api_key) }}" placeholder="cGEFFLjYuUCtmerXlhTf..."
                             class="w-full border border-gray-200 rounded-xl p-3.5 text-sm text-gray-900 focus:ring-2 focus:ring-[#C25A2A] outline-none bg-gray-50/50 focus:bg-white">
+                    </div>
+
+                    <!-- POI ID (Auto-Fetched) -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2 flex items-center justify-between">
+                            <span>POI ID (Auto-Fetched)</span>
+                            <span class="text-[10px] text-gray-400 font-normal">🤖 Fetched via Status API</span>
+                        </label>
+                        <input type="text" name="verifone_poiid" id="verifonePoiIdInput" value="{{ old('verifone_poiid', $restaurant->verifone_poiid) }}" placeholder="e.g. T650P-T1"
+                            class="w-full border border-gray-200 rounded-xl p-3.5 text-sm text-gray-700 bg-gray-100/70 font-mono">
+                    </div>
+
+                    <!-- Entity UID (Auto-Fetched Header x-site-entity-id) -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2 flex items-center justify-between">
+                            <span>Entity UID (Header x-site-entity-id)</span>
+                            <span class="text-[10px] text-gray-400 font-normal">🤖 Fetched via Status API</span>
+                        </label>
+                        <input type="text" name="verifone_entity_uid" id="verifoneEntityUidInput" value="{{ old('verifone_entity_uid', $restaurant->verifone_entity_uid) }}" placeholder="e.g. 09b22bfd-a2b2-4afc-8bd9-4ef77f2f57ae"
+                            class="w-full border border-gray-200 rounded-xl p-3.5 text-sm text-gray-700 bg-gray-100/70 font-mono">
                     </div>
 
                     <!-- POS Sale ID -->
@@ -839,13 +859,20 @@ function testVerifoneTerminalConnection() {
     fetch('{{ route("restaurant.verifone.status") }}')
         .then(res => res.json())
         .then(data => {
+            if (data.poi_id && document.getElementById('verifonePoiIdInput')) {
+                document.getElementById('verifonePoiIdInput').value = data.poi_id;
+            }
+            if (data.entity_uid && document.getElementById('verifoneEntityUidInput')) {
+                document.getElementById('verifoneEntityUidInput').value = data.entity_uid;
+            }
+
             if (alertBox) {
                 if (data.success && data.connected) {
                     alertBox.className = 'mb-6 p-4 rounded-xl text-xs font-medium bg-emerald-50 border border-emerald-200 text-emerald-800';
-                    alertBox.innerHTML = '🟢 <strong>Terminal Online & Connected!</strong><br>POI State: CONNECTED. Ready to process payments and print receipts.';
+                    alertBox.innerHTML = '🟢 <strong>Terminal Online & Connected!</strong><br>POI ID: <strong>' + (data.poi_id || 'N/A') + '</strong> | Entity UID: <strong>' + (data.entity_uid || 'N/A') + '</strong><br>Ready to process payments & print receipts.';
                 } else if (data.success) {
                     alertBox.className = 'mb-6 p-4 rounded-xl text-xs font-medium bg-amber-50 border border-amber-200 text-amber-800';
-                    alertBox.innerHTML = '🟡 <strong>Terminal Offline / Disconnected</strong><br>Verifone API responded, but terminal POI state is not connected. Check physical machine connection.';
+                    alertBox.innerHTML = '🟡 <strong>Terminal Offline / Disconnected</strong><br>POI ID: <strong>' + (data.poi_id || 'N/A') + '</strong> | Entity UID: <strong>' + (data.entity_uid || 'N/A') + '</strong><br>Check physical machine connection.';
                 } else {
                     alertBox.className = 'mb-6 p-4 rounded-xl text-xs font-medium bg-rose-50 border border-rose-200 text-rose-800';
                     alertBox.innerHTML = '🔴 <strong>Connection Failed:</strong> ' + (data.error || 'Unable to reach Verifone Cloud POS API.');

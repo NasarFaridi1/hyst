@@ -37,39 +37,86 @@ class VerifonePosService
     }
 
     /**
-     * Check connection status of terminal
+     * Get Request Headers (includes Authorization and x-site-entity-id)
      */
-    public function checkStatus(Restaurant $restaurant): array
+    public function getRequestHeaders(Restaurant $restaurant): array
+    {
+        $headers = [
+            'Authorization' => $this->getAuthToken($restaurant),
+            'Content-Type'  => 'application/json',
+            'Accept'        => 'application/json',
+        ];
+
+        if (!empty($restaurant->verifone_entity_uid)) {
+            $headers['x-site-entity-id'] = $restaurant->verifone_entity_uid;
+        }
+
+        return $headers;
+    }
+
+    /**
+     * Check connection status of terminal and auto-fetch POIID and entityUID
+     */
+    public function checkStatus(Restaurant $restaurant, ?string $serialNumber = null): array
     {
         try {
-            $poiId = trim($restaurant->verifone_poiid ?? '');
+            $sn = trim($serialNumber ?: ($restaurant->verifone_serial_number ?: ($restaurant->verifone_poiid ?: '')));
             $baseUrl = $this->getBaseUrl($restaurant);
-            $url = !empty($poiId) ? $baseUrl . '/status/' . $poiId : $baseUrl . '/status';
+            $url = !empty($sn) ? $baseUrl . '/status/' . $sn : $baseUrl . '/status';
             $token = $this->getAuthToken($restaurant);
 
-            $response = Http::withHeaders([
+            $headers = [
                 'Authorization' => $token,
                 'Content-Type'  => 'application/json',
                 'Accept'        => 'application/json',
-            ])->timeout(10)->get($url);
+            ];
+            if (!empty($restaurant->verifone_entity_uid)) {
+                $headers['x-site-entity-id'] = $restaurant->verifone_entity_uid;
+            }
+
+            $response = Http::withHeaders($headers)->timeout(15)->get($url);
 
             if ($response->successful()) {
                 $data = $response->json();
                 $poiStatus = $data['POIStatus'] ?? [];
                 $isConnected = false;
+                $poiIdFetched = null;
+                $entityUidFetched = null;
                 
-                if (is_array($poiStatus)) {
-                    foreach ($poiStatus as $stat) {
-                        if (isset($stat['POIState']) && strtoupper($stat['POIState']) === 'CONNECTED') {
-                            $isConnected = true;
-                            break;
-                        }
+                if (is_array($poiStatus) && count($poiStatus) > 0) {
+                    $firstPoi = $poiStatus[0];
+                    $poiIdFetched = $firstPoi['POIID'] ?? null;
+                    $entityUidFetched = $firstPoi['entityUID'] ?? null;
+                    $fetchedSn = $firstPoi['serialNumber'] ?? null;
+
+                    if (isset($firstPoi['POIState']) && strtoupper($firstPoi['POIState']) === 'CONNECTED') {
+                        $isConnected = true;
+                    }
+
+                    // Auto-update restaurant DB record with fetched POIID, EntityUID, and SerialNumber
+                    $needsSave = false;
+                    if ($poiIdFetched && $restaurant->verifone_poiid !== $poiIdFetched) {
+                        $restaurant->verifone_poiid = $poiIdFetched;
+                        $needsSave = true;
+                    }
+                    if ($entityUidFetched && $restaurant->verifone_entity_uid !== $entityUidFetched) {
+                        $restaurant->verifone_entity_uid = $entityUidFetched;
+                        $needsSave = true;
+                    }
+                    if ($fetchedSn && $restaurant->verifone_serial_number !== $fetchedSn) {
+                        $restaurant->verifone_serial_number = $fetchedSn;
+                        $needsSave = true;
+                    }
+                    if ($needsSave) {
+                        $restaurant->save();
                     }
                 }
 
                 return [
                     'success'      => true,
                     'connected'    => $isConnected,
+                    'poi_id'       => $poiIdFetched ?: $restaurant->verifone_poiid,
+                    'entity_uid'   => $entityUidFetched ?: $restaurant->verifone_entity_uid,
                     'data'         => $data,
                 ];
             }
@@ -153,11 +200,8 @@ class VerifonePosService
                 'amount'     => $amount,
             ]);
 
-            $response = Http::withHeaders([
-                'Authorization' => $token,
-                'Content-Type'  => 'application/json',
-                'Accept'        => 'application/json',
-            ])->timeout(120)->post($url, $payload); // 120s timeout to allow customer to enter PIN
+            $headers = $this->getRequestHeaders($restaurant);
+            $response = Http::withHeaders($headers)->timeout(120)->post($url, $payload); // 120s timeout to allow customer to enter PIN
 
             if ($response->successful()) {
                 $resData = $response->json();
@@ -278,13 +322,10 @@ class VerifonePosService
         ];
 
         try {
-            $token = $this->getAuthToken($restaurant);
+            $headers = $this->getRequestHeaders($restaurant);
             $url = $this->getBaseUrl($restaurant) . '/abort';
 
-            $response = Http::withHeaders([
-                'Authorization' => $token,
-                'Content-Type'  => 'application/json',
-            ])->timeout(10)->post($url, $payload);
+            $response = Http::withHeaders($headers)->timeout(10)->post($url, $payload);
 
             return [
                 'success' => $response->successful(),
@@ -324,13 +365,10 @@ class VerifonePosService
         ];
 
         try {
-            $token = $this->getAuthToken($restaurant);
+            $headers = $this->getRequestHeaders($restaurant);
             $url = $this->getBaseUrl($restaurant) . '/transactionstatus';
 
-            $response = Http::withHeaders([
-                'Authorization' => $token,
-                'Content-Type'  => 'application/json',
-            ])->timeout(15)->post($url, $payload);
+            $response = Http::withHeaders($headers)->timeout(15)->post($url, $payload);
 
             if ($response->successful()) {
                 $resData = $response->json();
@@ -400,15 +438,12 @@ class VerifonePosService
         ];
 
         try {
-            $token = $this->getAuthToken($restaurant);
+            $headers = $this->getRequestHeaders($restaurant);
             $url = $this->getBaseUrl($restaurant) . '/print';
 
             Log::info('Verifone Nexo Print Request Sent', ['order_id' => $order->id]);
 
-            $response = Http::withHeaders([
-                'Authorization' => $token,
-                'Content-Type'  => 'application/json',
-            ])->timeout(20)->post($url, $payload);
+            $response = Http::withHeaders($headers)->timeout(20)->post($url, $payload);
 
             return [
                 'success' => $response->successful(),
@@ -487,13 +522,10 @@ class VerifonePosService
         }
 
         try {
-            $token = $this->getAuthToken($restaurant);
+            $headers = $this->getRequestHeaders($restaurant);
             $url = $this->getBaseUrl($restaurant) . '/payment';
 
-            $response = Http::withHeaders([
-                'Authorization' => $token,
-                'Content-Type'  => 'application/json',
-            ])->timeout(60)->post($url, $payload);
+            $response = Http::withHeaders($headers)->timeout(60)->post($url, $payload);
 
             if ($response->successful()) {
                 $resData = $response->json();
