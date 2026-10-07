@@ -804,6 +804,35 @@ class OrderController extends Controller
         return back()->with('error', 'Failed to print receipt on Verifone terminal: ' . ($res['error'] ?? 'Unknown error'));
     }
 
+    public function refundVerifonePayment(Request $request, $id)
+    {
+        $order = Order::where('restaurant_id', auth()->user()->restaurant_id)
+            ->with(['restaurant', 'payment'])
+            ->findOrFail($id);
+
+        $amount = (float) ($request->input('amount') ?: $order->total_amount);
+
+        $res = $this->verifone->processRefund($order, $amount, $request->input('reason', 'Refund requested by restaurant'));
+
+        if ($res['success']) {
+            if ($order->payment) {
+                $order->payment->update([
+                    'payment_status'  => 'refunded',
+                    'refunded_amount' => $amount,
+                    'refund_reason'   => $request->input('reason', 'Verifone POS refund'),
+                ]);
+            }
+            $order->update([
+                'status'        => 'cancelled',
+                'cancel_reason' => 'Refunded via Verifone POS',
+            ]);
+
+            return back()->with('success', 'Verifone POS Refund of £' . number_format($amount, 2) . ' processed successfully.');
+        }
+
+        return back()->with('error', 'Verifone POS Refund Failed: ' . ($res['error'] ?? 'Declined on terminal.'));
+    }
+
     public function updatePaymentStatus(Request $request, $id)
     {
         $order = Order::where(

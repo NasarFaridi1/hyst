@@ -801,6 +801,10 @@ Route::middleware(['auth', 'restaurant_admin'])
             '/orders/{id}/verifone-print',
             [RestaurantOrderController::class, 'printVerifoneReceipt']
         )->name('orders.verifone_print');
+        Route::post(
+            '/orders/{id}/verifone-refund',
+            [RestaurantOrderController::class, 'refundVerifonePayment']
+        )->name('orders.verifone_refund');
         Route::get(
             '/all-orders',
             [RestaurantOrderController::class, 'allOrders']

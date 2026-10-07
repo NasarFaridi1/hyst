@@ -436,6 +436,15 @@
                     🖨️ Print Verifone Receipt
                 </button>
             </form>
+
+            @if($order->payment && $order->payment->payment_status === 'paid')
+                <form method="POST" action="{{ route('restaurant.orders.verifone_refund', $order->id) }}" style="display:inline;" onsubmit="return confirm('Are you sure you want to process a refund of £{{ number_format($order->total_amount, 2) }} on the Verifone POS terminal?');">
+                    @csrf
+                    <button type="submit" class="od-btn" style="background:#C23A2A; color:#fff;">
+                        💸 Verifone POS Refund
+                    </button>
+                </form>
+            @endif
         @endif
 
         <a href="/restaurant/orders"

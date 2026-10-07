@@ -492,12 +492,13 @@ class VerifonePosService
             ],
             'PaymentRequest' => [
                 'SaleData' => [
-                    'OperatorID'        => (string) (auth()->id() ?? '1'),
+                    'OperatorID'        => (string) (auth()->id() ?? '440010051'),
                     'SaleTransactionID' => [
-                        'TransactionID' => 'RFD-' . $order->id,
+                        'TransactionID' => (string) $order->id,
                         'TimeStamp'     => now()->toIso8601String(),
                     ],
-                    'CustomerOrderReq'  => ['string'],
+                    'CustomerOrderReq'   => ['string'],
+                    'SaleToAcquirerData' => 'tender=MOTO',
                 ],
                 'PaymentTransaction' => [
                     'AmountsReq' => [
@@ -507,7 +508,7 @@ class VerifonePosService
                 ],
                 'PaymentData' => [
                     'PaymentType'      => 'REFUND',
-                    'SplitPaymentFlag' => false,
+                    'SplitPaymentFlag' => true,
                 ],
             ],
         ];
