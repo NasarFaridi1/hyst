@@ -65,7 +65,7 @@
 
             <!-- QUICK LINKS -->
             <div>
-                <h4 style="font-family:'Poppins',sans-serif; font-weight:700; font-size:14px; margin-bottom:20px; color:#fff; letter-spacing:.02em;">Quick Links</h4>
+                <h3 style="font-family:'Poppins',sans-serif; font-weight:700; font-size:14px; margin-bottom:20px; color:#fff; letter-spacing:.02em;">Quick Links</h3>
                 <ul style="list-style:none; padding:0; display:flex; flex-direction:column; gap:12px;">
                     <li><a href="/" style="color:#9CA3AF; text-decoration:none; font-size:14px; transition:color .15s; display:flex; align-items:center; gap:6px;"
                            onmouseover="this.style.color='#C25A2A'" onmouseout="this.style.color='#9CA3AF'">
@@ -102,7 +102,7 @@
 
             <!-- ACCOUNT -->
             <div>
-                <h4 style="font-family:'Poppins',sans-serif; font-weight:700; font-size:14px; margin-bottom:20px; color:#fff; letter-spacing:.02em;">Account</h4>
+                <h3 style="font-family:'Poppins',sans-serif; font-weight:700; font-size:14px; margin-bottom:20px; color:#fff; letter-spacing:.02em;">Account</h3>
                 <ul style="list-style:none; padding:0; display:flex; flex-direction:column; gap:12px;">
                     <li><a href="/login" style="color:#9CA3AF; text-decoration:none; font-size:14px; transition:color .15s; display:flex; align-items:center; gap:6px;"
                            onmouseover="this.style.color='#C25A2A'" onmouseout="this.style.color='#9CA3AF'">
@@ -134,7 +134,7 @@
 
             <!-- PARTNERSHIPS -->
             <div>
-                <h4 style="font-family:'Poppins',sans-serif; font-weight:700; font-size:14px; margin-bottom:20px; color:#fff; letter-spacing:.02em;">Partner With Us</h4>
+                <h3 style="font-family:'Poppins',sans-serif; font-weight:700; font-size:14px; margin-bottom:20px; color:#fff; letter-spacing:.02em;">Partner With Us</h3>
                 <ul style="list-style:none; padding:0; display:flex; flex-direction:column; gap:12px;">
                     <li>
                         <a href="{{ route('front.become.partner.page') }}"
@@ -194,7 +194,7 @@
 
             <!-- CONTACT -->
             <div>
-                <h4 style="font-family:'Poppins',sans-serif; font-weight:700; font-size:14px; margin-bottom:20px; color:#fff; letter-spacing:.02em;">Contact Us</h4>
+                <h3 style="font-family:'Poppins',sans-serif; font-weight:700; font-size:14px; margin-bottom:20px; color:#fff; letter-spacing:.02em;">Contact Us</h3>
                 <ul style="list-style:none; padding:0; display:flex; flex-direction:column; gap:14px;">
                     <li style="display:flex; align-items:flex-start; gap:10px; color:#9CA3AF; font-size:14px; line-height:1.5;">
                         <i data-lucide="map-pin" style="width:15px; height:15px; color:#C25A2A; flex-shrink:0; margin-top:2px;"></i>

@@ -99,9 +99,9 @@
     
     <section style="position:relative; min-height:250px; display:flex; align-items:flex-end; overflow:hidden; border-radius:12px;">
 
-        <img src="images/Hanover.png" class="desktop-banner" alt="Desktop Banner">
+        <img src="images/Hanover.png" class="desktop-banner" alt="HYST Local Food Delivery & Restaurant Ordering in Hounslow" loading="lazy">
 
-        <img src="images/FoodMenu.png" class="mobile-banner" alt="Mobile Banner">
+        <img src="images/FoodMenu.png" class="mobile-banner" alt="HYST Restaurant Menu & Offers in Hounslow London" loading="lazy">
 
     </section>
 
@@ -338,6 +338,8 @@
 
                 <div class="offer-img" style="position:relative;">
                     <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=2081"
+                        alt="Special Restaurant Offer in Hounslow"
+                        loading="lazy"
                         style="width:100%; border-radius:22px; box-shadow:0 24px 60px rgba(232,55,14,0.2); display:block;">
                     <div
                         style="position:absolute; top:-16px; right:-16px; width:76px; height:76px; border-radius:50%; background:#C25A2A; display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:'Poppins',sans-serif; font-weight:800; color:#fff; font-size:14px; line-height:1.2; text-align:center; box-shadow:0 8px 24px rgba(232,55,14,.5);">
