@@ -5,23 +5,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>@yield('title', 'HYST | Zero Commission Takeaway & Food Delivery Near Me | Dine In Hounslow & UK')</title>
+    <title>{{ $seo['title'] ?? View::yieldContent('title', 'HYST | Restaurants & Food Delivery in Hounslow, London') }}</title>
 
-    <meta name="title" content="@yield('title', 'HYST | Zero Commission Takeaway & Food Delivery Near Me | Dine In Hounslow & UK')">
+    <meta name="description" content="{{ $seo['description'] ?? View::yieldContent('meta_description', 'Discover local restaurants, takeaway & food delivery in Hounslow, London. Order directly at genuine menu prices on HYST.') }}">
 
-    <meta name="description" content="@yield('meta_description', 'Find top takeaways, food delivery near me & dine in restaurants in Hounslow, TW3 & London UK. Order direct on HYST with zero commission & genuine menu prices.')">
-
-    <meta name="keywords" content="@yield('keywords', 'takeaway near me, food delivery near me, dine in, order takeaway near me, food ordering platform Hounslow, takeaway Hounslow TW3, zero commission food delivery, HYST')">
-
+    <meta name="keywords" content="Hounslow restaurants, food delivery Hounslow, takeaway Hounslow, Indian restaurants Hounslow, biryani Hounslow, pizza Hounslow, West London food, HYST">
     <meta name="author" content="HYST">
-    <meta name="robots" content="@yield('robots', 'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1')">
+    <meta name="robots" content="{{ $seo['robots'] ?? View::yieldContent('robots', 'index, follow') }}">
     <meta name="language" content="English">
-    <meta name="theme-color" content="#C25A2A">
 
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-
-    <link rel="canonical" href="@yield('canonical', url()->current())">
+    <link rel="canonical" href="{{ $seo['canonical'] ?? View::yieldContent('canonical', url()->current()) }}">
 
     <!-- Geo -->
     <meta name="geo.region" content="GB-LND">
@@ -30,124 +23,65 @@
     <meta name="ICBM" content="51.4686,-0.3618">
 
     <!-- Open Graph -->
-    <meta property="og:type" content="@yield('og_type', 'website')">
-    <meta property="og:url" content="@yield('canonical', url()->current())">
+    <meta property="og:type" content="{{ $seo['og_type'] ?? 'website' }}">
+    <meta property="og:url" content="{{ $seo['og_url'] ?? View::yieldContent('canonical', url()->current()) }}">
     <meta property="og:site_name" content="HYST">
     <meta property="og:locale" content="en_GB">
-
-    <meta property="og:title" content="@yield('title', 'HYST | Zero Commission Food Ordering Platform UK | Order Direct from Restaurants')">
-
-    <meta property="og:description" content="@yield('meta_description', 'HYST is the UK\'s zero commission food ordering platform. Order directly from local restaurants at genuine menu prices with no hidden markups.')">
-
-    <meta property="og:image" content="@yield('og_image', asset('twitter.jpeg'))">
-    <meta property="og:image:secure_url" content="@yield('og_image', asset('twitter.jpeg'))">
+    <meta property="og:title" content="{{ $seo['og_title'] ?? $seo['title'] ?? 'HYST | Restaurants & Food Delivery in Hounslow' }}">
+    <meta property="og:description" content="{{ $seo['og_description'] ?? $seo['description'] ?? 'Discover local restaurants, takeaway & food delivery in Hounslow, London.' }}">
+    <meta property="og:image" content="{{ $seo['og_image'] ?? asset('twitter.jpeg') }}">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="HYST - Zero Commission Food Ordering Platform">
+    <meta property="og:image:alt" content="{{ $seo['title'] ?? 'HYST Restaurant Discovery' }}">
 
     <!-- Twitter -->
-    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:card" content="{{ $seo['twitter_card'] ?? 'summary_large_image' }}">
+    <meta name="twitter:title" content="{{ $seo['twitter_title'] ?? $seo['title'] ?? 'HYST | Restaurants & Food Delivery in Hounslow' }}">
+    <meta name="twitter:description" content="{{ $seo['twitter_description'] ?? $seo['description'] ?? 'Discover local restaurants, takeaway & food delivery in Hounslow, London.' }}">
+    <meta name="twitter:image" content="{{ $seo['twitter_image'] ?? asset('twitter.jpeg') }}">
+    <meta name="twitter:image:alt" content="{{ $seo['title'] ?? 'HYST Restaurant Discovery' }}">
 
-    <meta name="twitter:title" content="@yield('title', 'HYST | Zero Commission Food Ordering Platform UK | Order Direct from Restaurants')">
-
-    <meta name="twitter:description" content="@yield('meta_description', 'HYST is the UK\'s zero commission food ordering platform. Order directly from local restaurants at genuine menu prices with no hidden markups.')">
-
-    <meta name="twitter:image" content="@yield('og_image', asset('twitter.jpeg'))">
-    <meta name="twitter:image:alt" content="HYST - Zero Commission Food Ordering Platform">
-
-    <script type="application/ld+json">
-        {
-            "@context":"https://schema.org",
-            "@type":"Organization",
-            "name":"HYST",
-            "url":"https://hyst.uk",
-            "logo":"https://hyst.uk/twitter.jpeg",
-            "email":"info@hyst.uk",
-            "telephone":"+44 7879 175585",
-            "address":{
-                "@type":"PostalAddress",
-                "streetAddress":"Hounslow",
-                "addressLocality":"London",
-                "postalCode":"TW3 2DX",
-                "addressCountry":"GB"
-            },
-            "sameAs":[
-                "https://facebook.com/yourpage",
-                "https://instagram.com/yourpage",
-                "https://linkedin.com/company/hyst"
-            ]
-        }
-    </script>
-
-    <script type="application/ld+json">
-        {
-            "@context":"https://schema.org",
-            "@type":"WebSite",
-            "name":"HYST",
-            "url":"https://hyst.uk",
-            "potentialAction":{
-                "@type":"SearchAction",
-                "target":"https://hyst.uk/search?q={search_term_string}",
-                "query-input":"required name=search_term_string"
-            }
-        }
-    </script>
-
-    <script type="application/ld+json">
-        {
-            "@context":"https://schema.org",
-            "@type":"LocalBusiness",
-            "name":"HYST",
-            "image":"https://hyst.uk/twitter.jpeg",
-            "telephone":"+44 7879 175585",
-            "email":"info@hyst.uk",
-            "address":{
-                "@type":"PostalAddress",
-                "addressLocality":"Hounslow",
-                "addressRegion":"London",
-                "postalCode":"TW3 2DX",
-                "addressCountry":"United Kingdom"
-            }
-        }
-    </script>
-
-    <script type="application/ld+json">
-        {
-            "@context":"https://schema.org",
-            "@type":"SoftwareApplication",
-            "name":"HYST",
-            "applicationCategory":"BusinessApplication",
-            "operatingSystem":"Web",
-            "description":"Commission-free restaurant ordering platform in the UK."
-        }
-    </script>
-
-    <script type="application/ld+json">
-        {
-            "@context":"https://schema.org",
-            "@type":"FAQPage",
-            "mainEntity":[
-                {
-                    "@type":"Question",
-                    "name":"Does HYST charge restaurant commission?",
-                    "acceptedAnswer":{
-                        "@type":"Answer",
-                        "text":"No. HYST follows a zero commission model so restaurants keep more of their earnings."
-                    }
-                },
-                {
-                    "@type":"Question",
-                    "name":"Why are HYST prices lower?",
-                    "acceptedAnswer":{
-                        "@type":"Answer",
-                        "text":"Restaurants display their genuine menu prices because HYST does not charge high commissions."
-                    }
+    <!-- JSON-LD Structured Data -->
+    @if(isset($seo['schema_json_ld']) && is_array($seo['schema_json_ld']))
+        @foreach($seo['schema_json_ld'] as $schemaItem)
+            <script type="application/ld+json">
+                {!! json_encode($schemaItem, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+            </script>
+        @endforeach
+    @else
+        <script type="application/ld+json">
+            {
+                "@context":"https://schema.org",
+                "@type":"Organization",
+                "name":"HYST",
+                "url":"https://hyst.uk",
+                "logo":"https://hyst.uk/twitter.jpeg",
+                "email":"info@hyst.uk",
+                "telephone":"+44 7879 175585",
+                "address":{
+                    "@type":"PostalAddress",
+                    "streetAddress":"Hounslow",
+                    "addressLocality":"London",
+                    "postalCode":"TW3 2DX",
+                    "addressCountry":"GB"
                 }
-            ]
-        }
-    </script>
-
-    @yield('ld_json')
+            }
+        </script>
+        <script type="application/ld+json">
+            {
+                "@context":"https://schema.org",
+                "@type":"WebSite",
+                "name":"HYST",
+                "url":"https://hyst.uk",
+                "potentialAction":{
+                    "@type":"SearchAction",
+                    "target":"https://hyst.uk/restaurants?search={search_term_string}",
+                    "query-input":"required name=search_term_string"
+                }
+            }
+        </script>
+        @yield('ld_json')
+    @endif
 
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">

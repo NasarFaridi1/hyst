@@ -21,10 +21,34 @@ use App\Http\Controllers\RestaurantAdmin\DashboardController as RestaurantDashbo
 use App\Http\Controllers\RestaurantAdmin\OrderController as RestaurantOrderController;
 
 use App\Http\Controllers\SitemapController;
-
-
+use App\Http\Controllers\Front\CuisineController;
+use App\Http\Controllers\Front\LocationController;
+use App\Http\Controllers\Front\InfoPageController;
 
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+
+Route::get('/robots.txt', function () {
+    $path = public_path('robots.txt');
+    return response()->file($path, ['Content-Type' => 'text/plain; charset=utf-8']);
+});
+
+Route::get('/llms.txt', function () {
+    $path = public_path('llms.txt');
+    return response()->file($path, ['Content-Type' => 'text/plain; charset=utf-8']);
+});
+
+// Primary Clean SEO Routes
+Route::get('/restaurants', [HomeController::class, 'restaurants'])->name('front.restaurants');
+Route::get('/restaurants/{slug}', [HomeController::class, 'restaurantProducts'])->name('front.restaurants.show');
+
+Route::get('/cuisine', [CuisineController::class, 'index'])->name('front.cuisine.index');
+Route::get('/cuisine/{slug}', [CuisineController::class, 'show'])->name('front.cuisine.show');
+
+Route::get('/locations', [LocationController::class, 'index'])->name('front.location.index');
+Route::get('/locations/{slug}', [LocationController::class, 'show'])->name('front.location.show');
+
+Route::get('/about', [InfoPageController::class, 'about'])->name('front.about');
+Route::get('/contact', [InfoPageController::class, 'contact'])->name('front.contact');
 
 Route::get('/offline', function () {
     return view('vendor.laravelpwa.offline');

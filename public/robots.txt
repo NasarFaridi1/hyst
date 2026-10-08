@@ -1,12 +1,51 @@
 User-agent: *
 Allow: /
+
+# Disallow Private, Auth, Checkout, API and Admin Portals
 Disallow: /admin/
-Disallow: /restaurant/
+Disallow: /dashboard/
+Disallow: /system-admin/
+Disallow: /vendor/
+Disallow: /support/
 Disallow: /ambassador/
-Disallow: /checkout/
-Disallow: /cart/
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /account/
+Disallow: /profile
+Disallow: /my-orders
+Disallow: /addresses
+Disallow: /api/
+Disallow: /cart
+Disallow: /checkout
+Disallow: /payment
+Disallow: /search?
+Disallow: /*?search=*
+
+# Major AI & Search Engine Crawlers Explicit Access
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+User-agent: YandexBot
+Allow: /
+
+User-agent: Applebot
+Allow: /
 
 User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
 Allow: /
 
 User-agent: OAI-SearchBot
@@ -21,10 +60,5 @@ Allow: /
 User-agent: PerplexityBot
 Allow: /
 
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
+# Sitemap Reference
 Sitemap: https://hyst.uk/sitemap.xml

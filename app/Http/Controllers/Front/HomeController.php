@@ -22,8 +22,16 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\PartnerRequestMail;
 
+use App\Services\SEOService;
+
 class HomeController extends Controller
 {
+    protected SEOService $seoService;
+
+    public function __construct(SEOService $seoService)
+    {
+        $this->seoService = $seoService;
+    }
 
 
     public function home(Request $request)
@@ -68,17 +76,18 @@ class HomeController extends Controller
        
 
 
+        $categories = RestaurantCategory::where('status', 'active')->orderBy('display_order')->get();
+        $seo = $this->seoService->generate('home');
+
         if (!$latitude || !$longitude || !is_numeric($latitude) || !is_numeric($longitude)) {
 
             $restaurants = Restaurant::where('status', 1)
                 ->latest()
                 ->get();
 
-            $categories = RestaurantCategory::where('status', 'active')->orderBy('display_order')->get();
-
             return view(
                 'front.home',
-                compact('restaurants', 'products', 'categories', 'qrCode')
+                compact('restaurants', 'products', 'categories', 'qrCode', 'seo')
             );
         }
 
@@ -125,18 +134,6 @@ class HomeController extends Controller
                 ->get();
         }
 
-        // Log::info('Restaurants Count: ' . $restaurants->count());
-
-        // foreach ($restaurants as $restaurant) {
-
-        //     Log::info('Restaurant Found', [
-        //         'name' => $restaurant->name,
-        //         'distance' => $restaurant->distance
-        //     ]);
-        // }    
-
-        $categories = RestaurantCategory::where('status', 'active')->orderBy('display_order')->get();
-
         return view('front.home', compact(
             'products',
             'categories',
@@ -144,7 +141,7 @@ class HomeController extends Controller
             'restaurants',
             'latitude',
             'longitude',
-            'categories'
+            'seo'
         ));
     }
 
@@ -336,12 +333,15 @@ class HomeController extends Controller
             return $restaurant;
         });
 
+        $seo = $this->seoService->generate('restaurants');
+
         return view(
             'front.restaurants',
             compact(
                 'restaurants',
                 'latitude',
-                'longitude'
+                'longitude',
+                'seo'
             )
         );
     }
@@ -609,6 +609,8 @@ class HomeController extends Controller
        $isAdmin = auth()->check() &&
             in_array(auth()->user()->role, ['super_admin', 'restaurant_admin']);
 
+        $seo = $this->seoService->generate('restaurant_show', ['restaurant' => $restaurant]);
+
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
                 'success' => true,
@@ -619,7 +621,7 @@ class HomeController extends Controller
 
         return view(
             'front.restaurant-productsnew',
-            compact('restaurant', 'products', 'categories', 'offers', 'eligibleOffer', 'search', 'isAdmin')
+            compact('restaurant', 'products', 'categories', 'offers', 'eligibleOffer', 'search', 'isAdmin', 'seo')
         );
     }
     // public function restaurantCategoryProducts(

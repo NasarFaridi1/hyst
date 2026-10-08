@@ -1274,6 +1274,8 @@
         </div>
     @elseif($restaurant->image)
         <img src="{{ asset('storage/' . $restaurant->image) }}"
+             alt="{{ $restaurant->name }} - {{ $restaurant->city ?? 'Hounslow' }} Restaurant"
+             loading="lazy"
              style="position:absolute; inset:0; width:100%; height:100%; object-fit:fill;">
         <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 100%);"></div>
     @else

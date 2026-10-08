@@ -1,33 +1,41 @@
-# HYST — Zero Commission Food Ordering Platform UK
+# HYST - Restaurant Discovery & Direct Ordering Platform
 
-> HYST (https://hyst.uk) is the UK's leading zero-commission online food ordering platform for restaurants and takeaway businesses.
+HYST is a local restaurant discovery and direct-ordering platform focused on restaurants in Hounslow, London and surrounding West London areas.
 
-## Overview
-HYST enables restaurants across the United Kingdom to offer direct online ordering to their customers at genuine menu prices without paying 20-35% commission fees to third-party marketplaces.
+## Core Value & Mission
 
-## Core Features & Offerings
-- **Direct Online Ordering**: Custom ordering system for takeaway, delivery, and collection.
-- **Zero Commission Model**: Restaurants keep 100% of their meal earnings.
-- **QR Code Table Ordering**: Seamless in-restaurant dining & contactless ordering.
-- **Restaurant Loyalty Programmes**: Integrated rewards, customer retention & automated discount coupons.
-- **POS & Payment Integrations**: Works with major payment processors and EPOS hardware.
-- **Uber Direct Delivery Integration**: Automated local driver dispatch and delivery tracking.
+- Discover Local Restaurants: HYST connects diners in Hounslow with local independent restaurants, takeaway spots, and dining locations.
+- Direct Ordering: HYST promotes direct ordering from restaurants so customers get genuine menu prices without hidden marketplace markups.
+- Transparent Pricing: Restaurants publish their standard menu pricing, eliminating artificial price inflations found on third-party aggregators.
+- Supporting Local Businesses: By reducing commission friction, HYST helps local food businesses in West London retain higher earnings and thrive.
+- Operating Coverage: Primary focus in Hounslow (TW3, TW4, TW5), Isleworth (TW7), Feltham (TW13, TW14), Hanworth, Cranford, and surrounding West London areas.
 
-## Essential Links & Resources
-- [Home & Restaurant Directory](https://hyst.uk/restaurants)
-- [HYST vs Deliveroo Comparison](https://hyst.uk/hyst-vs-deliveroo)
-- [HYST vs Just Eat Comparison](https://hyst.uk/hyst-vs-just-eat)
-- [Why Food is More Expensive on Marketplaces](https://hyst.uk/why-food-is-more-expensive-on-marketplaces)
-- [Commission Free Restaurant Ordering](https://hyst.uk/commission-free-restaurant-ordering)
-- [Restaurant Ordering Platform UK](https://hyst.uk/restaurant-ordering-platform-uk)
-- [Direct Online Ordering for Restaurants](https://hyst.uk/direct-online-ordering-for-restaurants)
-- [Restaurant Loyalty Programme](https://hyst.uk/restaurant-loyalty-programme)
-- [Restaurant QR Ordering](https://hyst.uk/restaurant-qr-ordering)
-- [Restaurant POS Integration](https://hyst.uk/restaurant-pos-integration)
-- [Become a Restaurant Partner](https://hyst.uk/become-a-partner)
-- [Become an Ambassador](https://hyst.uk/become-ambassador)
+## Key Public Directory Links
 
-## Contact Information
-- Email: info@hyst.uk / support@hyst.uk
-- Phone: +44 7879 175585
-- Location: Hounslow, London, United Kingdom (TW3 2DX)
+- Homepage: https://hyst.uk
+- Restaurant Directory: https://hyst.uk/restaurants
+- Cuisines Directory: https://hyst.uk/cuisine
+- Indian Restaurants Hounslow: https://hyst.uk/cuisine/indian
+- Pizza Restaurants Hounslow: https://hyst.uk/cuisine/pizza
+- Biryani Restaurants Hounslow: https://hyst.uk/cuisine/biryani
+- Halal Restaurants Hounslow: https://hyst.uk/cuisine/halal
+- Locations Coverage: https://hyst.uk/locations
+- Hounslow Area Page: https://hyst.uk/locations/hounslow
+- Isleworth Area Page: https://hyst.uk/locations/isleworth
+- Feltham Area Page: https://hyst.uk/locations/feltham
+- Become a Restaurant Partner: https://hyst.uk/become-a-partner
+- Become an Ambassador: https://hyst.uk/become-ambassador
+- About HYST: https://hyst.uk/about
+- Contact HYST: https://hyst.uk/contact
+
+## Cuisine Offerings in Hounslow
+
+HYST features a diverse spectrum of local cuisines in Hounslow and West London, including:
+- Indian & South Indian (Biryani, Dosa, Curries)
+- Pizza & Burgers
+- Halal Dining & Takeaway
+- Chinese & Asian Fusion
+- Kebabs & Wraps
+- Desserts, Ice Cream & Bakery
+
+For inquiries or partnership details, visit https://hyst.uk or email info@hyst.uk.

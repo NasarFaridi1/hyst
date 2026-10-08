@@ -435,11 +435,11 @@
         </div>
 
         <div style="text-align:center; margin-bottom:15px;">
-            <h1 class="page-title" style="font-size:24px; font-weight:600; margin:0 0 6px; color:#0D0D0D; font-family:'Poppins',sans-serif; letter-spacing:-.4px;">
-                Explore Restaurants
+            <h1 class="page-title" style="font-size:26px; font-weight:800; margin:0 0 6px; color:#0D0D0D; font-family:'Poppins',sans-serif; letter-spacing:-.4px;">
+                Discover Restaurants in Hounslow, London
             </h1>
-            <p style="color:#6B7280; font-size:15px; margin:0;">
-                Discover your favorite foods & restaurants — zero commission, always.
+            <p style="color:#4B5563; font-size:15px; margin:0; line-height:1.5;">
+                Discover local restaurants in Hounslow, TW3 & surrounding West London areas. Order directly at true menu prices with zero hidden markups.
             </p>
         </div>
 

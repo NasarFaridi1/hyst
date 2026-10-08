@@ -71,25 +71,25 @@
                            onmouseover="this.style.color='#C25A2A'" onmouseout="this.style.color='#9CA3AF'">
                         <i data-lucide="chevron-right" style="width:13px; height:13px;"></i> Home
                     </a></li>
-                    <li><a href="{{ route('front.banners.index') }}" style="color:#9CA3AF; text-decoration:none; font-size:14px; transition:color .15s; display:flex; align-items:center; gap:6px;"
+                    <li><a href="/restaurants" style="color:#9CA3AF; text-decoration:none; font-size:14px; transition:color .15s; display:flex; align-items:center; gap:6px;"
                            onmouseover="this.style.color='#C25A2A'" onmouseout="this.style.color='#9CA3AF'">
-                        <i data-lucide="chevron-right" style="width:13px; height:13px;"></i>Business Categories
+                        <i data-lucide="utensils" style="width:13px; height:13px;"></i> Restaurants
                     </a></li>
-                    {{-- <li><a href="#products" style="color:#9CA3AF; text-decoration:none; font-size:14px; transition:color .15s; display:flex; align-items:center; gap:6px;"
+                    <li><a href="/cuisine" style="color:#9CA3AF; text-decoration:none; font-size:14px; transition:color .15s; display:flex; align-items:center; gap:6px;"
                            onmouseover="this.style.color='#C25A2A'" onmouseout="this.style.color='#9CA3AF'">
-                        <i data-lucide="chevron-right" style="width:13px; height:13px;"></i> Products
-                    </a></li> --}}
-                    <li><a href="/my-orders" style="color:#9CA3AF; text-decoration:none; font-size:14px; transition:color .15s; display:flex; align-items:center; gap:6px;"
-                           onmouseover="this.style.color='#C25A2A'" onmouseout="this.style.color='#9CA3AF'">
-                        <i data-lucide="chevron-right" style="width:13px; height:13px;"></i> My Orders
+                        <i data-lucide="grid" style="width:13px; height:13px;"></i> Cuisines & Categories
                     </a></li>
-                    <li><a href="{{ route('terms.conditions') }}" style="color:#9CA3AF; text-decoration:none; font-size:14px; transition:color .15s; display:flex; align-items:center; gap:6px;"
+                    <li><a href="/locations/hounslow" style="color:#9CA3AF; text-decoration:none; font-size:14px; transition:color .15s; display:flex; align-items:center; gap:6px;"
                            onmouseover="this.style.color='#C25A2A'" onmouseout="this.style.color='#9CA3AF'">
-                        <i data-lucide="chevron-right" style="width:13px; height:13px;"></i> Terms & Conditions
+                        <i data-lucide="map-pin" style="width:13px; height:13px;"></i> Hounslow Restaurants
                     </a></li>
-                    <li><a href="{{ route('privacy.policy') }}" style="color:#9CA3AF; text-decoration:none; font-size:14px; transition:color .15s; display:flex; align-items:center; gap:6px;"
+                    <li><a href="/about" style="color:#9CA3AF; text-decoration:none; font-size:14px; transition:color .15s; display:flex; align-items:center; gap:6px;"
                            onmouseover="this.style.color='#C25A2A'" onmouseout="this.style.color='#9CA3AF'">
-                        <i data-lucide="chevron-right" style="width:13px; height:13px;"></i> Privacy Policy
+                        <i data-lucide="info" style="width:13px; height:13px;"></i> About HYST
+                    </a></li>
+                    <li><a href="/contact" style="color:#9CA3AF; text-decoration:none; font-size:14px; transition:color .15s; display:flex; align-items:center; gap:6px;"
+                           onmouseover="this.style.color='#C25A2A'" onmouseout="this.style.color='#9CA3AF'">
+                        <i data-lucide="phone" style="width:13px; height:13px;"></i> Contact Us
                     </a></li>
                     <li><a href="{{ route('front.blogs.index') }}" style="color:#9CA3AF; text-decoration:none; font-size:14px; transition:color .15s; display:flex; align-items:center; gap:6px;"
                            onmouseover="this.style.color='#C25A2A'" onmouseout="this.style.color='#9CA3AF'">
