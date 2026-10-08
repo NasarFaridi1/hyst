@@ -469,9 +469,9 @@
                         @endphp
 
                         @if(file_exists($imagePath))
-                            <img src="{{ asset($category->image) }}" alt="{{ $category->name }}">
+                            <img src="{{ asset($category->image) }}" alt="{{ $category->name }} Cuisine Restaurants in Hounslow" loading="lazy">
                         @else
-                            <img src="{{ asset('restaurant/' . $category->image) }}" alt="{{ $category->name }}">
+                            <img src="{{ asset('restaurant/' . $category->image) }}" alt="{{ $category->name }} Cuisine Restaurants in Hounslow" loading="lazy">
                         @endif
                         </div>
                         <span>{{ $category->name }}</span>
@@ -542,7 +542,9 @@
 
                 <img
                     src="{{ $restaurant->image ? asset('storage/' . $restaurant->image) : 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1200&auto=format&fit=crop' }}"
-                    class="restaurant-image">
+                    class="restaurant-image"
+                    alt="{{ $restaurant->name }} - Restaurant in Hounslow"
+                    loading="lazy">
 
                 @if($restaurant->is_open)
 
@@ -585,9 +587,9 @@
 
                 <div class="restaurant-row1">
 
-                    <h3 class="restaurant-title">
+                    <h2 class="restaurant-title">
                         {{ $restaurant->name }}
-                    </h3>
+                    </h2>
 
                     <div class="rating-pill {{ $avgRating == 0 ? 'no-rating' : '' }}">
                         ★ {{ $avgRating > 0 ? number_format($avgRating,1) : 'New' }}

@@ -255,13 +255,15 @@
 
                     <div style="background:#fff;border-radius:8px;padding:6px 12px;display:flex;align-items:center;">
                         <img src="https://cdn.simpleicons.org/visa/1A1F71"
-                            alt="Visa"
+                            alt="Visa Payment"
+                            loading="lazy"
                             style="height:18px;">
                     </div>
 
                     <div style="background:#fff;border-radius:8px;padding:6px 12px;display:flex;align-items:center;">
                         <img src="{{ asset('master.jpeg') }}"
-                            alt="Mastercard"
+                            alt="Mastercard Payment"
+                            loading="lazy"
                             style="height:18px;">
                     </div>
                 </div>
