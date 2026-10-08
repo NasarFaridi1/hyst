@@ -660,7 +660,8 @@ class SEOService
 
         // Try extracting from category_ids if present
         if (!empty($restaurant->category_ids) && is_array($restaurant->category_ids)) {
-            $catId = reset($restaurant->category_ids);
+            $categoryIds = array_values($restaurant->category_ids);
+            $catId = $categoryIds[0] ?? null;
             if ($catId) {
                 $cat = \App\Models\RestaurantCategory::find($catId);
                 if ($cat && !empty($cat->name)) {
