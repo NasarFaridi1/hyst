@@ -62,8 +62,8 @@ class SEOService
      */
     protected function forHome(array $data = []): array
     {
-        $title = 'Discover Restaurants in Hounslow, London | HYST';
-        $description = 'Discover local restaurants, takeaway & food delivery in Hounslow, London. Order directly from top local spots with zero hidden markups on HYST.';
+        $title = 'Restaurants in Hounslow, London | Food & Takeaway | HYST';
+        $description = 'Discover restaurants, Indian food, halal options, vegetarian meals, biryani and takeaway in Hounslow, London. Explore local menus on HYST.';
         $url = $this->baseUrl;
 
         $schemas = [
@@ -190,11 +190,11 @@ class SEOService
         // Custom override or auto default
         $title = !empty($restaurant->seo_title)
             ? $restaurant->seo_title
-            : "{$name} | {$cuisine} Restaurant in {$location} | HYST";
+            : "{$name} | {$cuisine} in {$location} | HYST";
 
         // Limit title length if needed
         if (mb_strlen($title) > 68) {
-            $title = "{$name} | {$cuisine} in {$location} | HYST";
+            $title = "{$name} | {$cuisine} in Hounslow | HYST";
         }
 
         $description = !empty($restaurant->seo_description)
@@ -307,10 +307,10 @@ class SEOService
     protected function forCuisineShow(string $slug, string $name = '', int $count = 0): array
     {
         $displayName = !empty($name) ? $name : Str::title(str_replace('-', ' ', $slug));
-        $title = "{$displayName} Restaurants in Hounslow, London | HYST";
+        $title = "{$displayName} Food in Hounslow, London | HYST";
 
         if (mb_strlen($title) > 68) {
-            $title = "{$displayName} Restaurants in Hounslow | HYST";
+            $title = "{$displayName} Food in Hounslow | HYST";
         }
 
         $description = "Find the best {$displayName} restaurants and takeaway in Hounslow, London. View menus & order direct with zero hidden fees on HYST.";
