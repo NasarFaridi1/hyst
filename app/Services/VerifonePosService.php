@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Order;
 use App\Models\Restaurant;
+use App\Models\VerifonePosLog;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -55,6 +56,154 @@ class VerifonePosService
     }
 
     /**
+     * Centralized HTTP Request executor with dual logging:
+     * 1. File log: storage/logs/laravel.log
+     * 2. Database log: verifone_pos_logs table
+     */
+    protected function executeRequest(
+        Restaurant $restaurant,
+        string $action,
+        string $method,
+        string $url,
+        array $headers,
+        ?array $payload = null,
+        int $timeout = 30,
+        ?int $orderId = null,
+        ?int $paymentId = null,
+        ?string $serviceId = null,
+        ?string $poiTxId = null
+    ): \Illuminate\Http\Client\Response {
+        $startTime = microtime(true);
+
+        // Sanitize sensitive Authorization header for log readability & security
+        $logHeaders = $headers;
+        if (isset($logHeaders['Authorization'])) {
+            $authParts = explode(' ', $logHeaders['Authorization'], 2);
+            $tokenSample = isset($authParts[1]) ? substr($authParts[1], 0, 10) . '...' : '***';
+            $logHeaders['Authorization'] = ($authParts[0] ?? 'Basic') . ' ' . $tokenSample;
+        }
+
+        // 1. LOG API REQUEST TO laravel.log
+        Log::info("VERIFONE POS API REQUEST [{$action}]", [
+            'action'        => $action,
+            'restaurant_id' => $restaurant->id,
+            'order_id'      => $orderId,
+            'service_id'    => $serviceId,
+            'method'        => strtoupper($method),
+            'url'           => $url,
+            'headers'       => $logHeaders,
+            'payload'       => $payload,
+        ]);
+
+        try {
+            $httpClient = Http::withHeaders($headers)->timeout($timeout);
+
+            if (strtoupper($method) === 'POST') {
+                $response = $httpClient->post($url, $payload ?? []);
+            } elseif (strtoupper($method) === 'PUT') {
+                $response = $httpClient->put($url, $payload ?? []);
+            } else {
+                $response = $httpClient->get($url);
+            }
+
+            $durationMs = round((microtime(true) - $startTime) * 1000, 2);
+
+            $responseBody = $response->json();
+            if ($responseBody === null) {
+                $responseBody = $response->body();
+            }
+
+            $logLevel = $response->successful() ? 'info' : 'warning';
+            $statusText = $response->successful() ? 'SUCCESS' : 'FAILED';
+
+            // 2. LOG API RESPONSE TO laravel.log
+            Log::$logLevel("VERIFONE POS API RESPONSE [{$action}]", [
+                'action'        => $action,
+                'restaurant_id' => $restaurant->id,
+                'order_id'      => $orderId,
+                'service_id'    => $serviceId,
+                'method'        => strtoupper($method),
+                'url'           => $url,
+                'status_code'   => $response->status(),
+                'duration_ms'   => $durationMs . 'ms',
+                'response'      => $responseBody,
+            ]);
+
+            // 3. PERSIST TO verifone_pos_logs DATABASE TABLE
+            $this->saveDbLog([
+                'restaurant_id'      => $restaurant->id,
+                'order_id'           => $orderId,
+                'payment_id'         => $paymentId,
+                'action'             => $action,
+                'service_id'         => $serviceId,
+                'poi_transaction_id' => $poiTxId,
+                'endpoint_url'       => $url,
+                'http_method'        => strtoupper($method),
+                'http_status_code'   => $response->status(),
+                'request_headers'    => $logHeaders,
+                'request_payload'    => $payload,
+                'response_payload'   => is_array($responseBody) ? $responseBody : ['raw' => (string) $responseBody],
+                'status'             => $statusText,
+                'error_message'      => $response->successful() ? null : ('HTTP ' . $response->status()),
+                'execution_time_ms'  => $durationMs,
+                'ip_address'         => request()->ip() ?? null,
+            ]);
+
+            return $response;
+
+        } catch (\Throwable $e) {
+            $durationMs = round((microtime(true) - $startTime) * 1000, 2);
+
+            // LOG EXCEPTION TO laravel.log
+            Log::error("VERIFONE POS API ERROR [{$action}]", [
+                'action'        => $action,
+                'restaurant_id' => $restaurant->id,
+                'order_id'      => $orderId,
+                'service_id'    => $serviceId,
+                'method'        => strtoupper($method),
+                'url'           => $url,
+                'duration_ms'   => $durationMs . 'ms',
+                'error'         => $e->getMessage(),
+                'exception'     => get_class($e),
+            ]);
+
+            // PERSIST EXCEPTION TO verifone_pos_logs DATABASE TABLE
+            $this->saveDbLog([
+                'restaurant_id'      => $restaurant->id,
+                'order_id'           => $orderId,
+                'payment_id'         => $paymentId,
+                'action'             => $action,
+                'service_id'         => $serviceId,
+                'poi_transaction_id' => $poiTxId,
+                'endpoint_url'       => $url,
+                'http_method'        => strtoupper($method),
+                'http_status_code'   => null,
+                'request_headers'    => $logHeaders,
+                'request_payload'    => $payload,
+                'response_payload'   => null,
+                'status'             => 'ERROR',
+                'error_message'      => $e->getMessage(),
+                'execution_time_ms'  => $durationMs,
+                'ip_address'         => request()->ip() ?? null,
+            ]);
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Safely persist log entry to verifone_pos_logs table without breaking flow if table doesn't exist yet
+     */
+    protected function saveDbLog(array $data): void
+    {
+        try {
+            VerifonePosLog::create($data);
+        } catch (\Throwable $e) {
+            Log::debug('Could not write to verifone_pos_logs table (run SQL table creation): ' . $e->getMessage());
+        }
+    }
+
+    /**
      * Check connection status of terminal and auto-fetch POIID and entityUID
      */
     public function checkStatus(Restaurant $restaurant, ?string $serialNumber = null): array
@@ -63,18 +212,17 @@ class VerifonePosService
             $sn = trim($serialNumber ?: ($restaurant->verifone_serial_number ?: ($restaurant->verifone_poiid ?: '')));
             $baseUrl = $this->getBaseUrl($restaurant);
             $url = !empty($sn) ? $baseUrl . '/status/' . $sn : $baseUrl . '/status';
-            $token = $this->getAuthToken($restaurant);
+            $headers = $this->getRequestHeaders($restaurant);
 
-            $headers = [
-                'Authorization' => $token,
-                'Content-Type'  => 'application/json',
-                'Accept'        => 'application/json',
-            ];
-            if (!empty($restaurant->verifone_entity_uid)) {
-                $headers['x-site-entity-id'] = $restaurant->verifone_entity_uid;
-            }
-
-            $response = Http::withHeaders($headers)->timeout(15)->get($url);
+            $response = $this->executeRequest(
+                restaurant: $restaurant,
+                action: 'CHECK_STATUS',
+                method: 'GET',
+                url: $url,
+                headers: $headers,
+                payload: null,
+                timeout: 15
+            );
 
             if ($response->successful()) {
                 $data = $response->json();
@@ -127,11 +275,6 @@ class VerifonePosService
                 'error'     => 'HTTP ' . $response->status() . ': ' . $response->body(),
             ];
         } catch (\Throwable $e) {
-            Log::error('Verifone POS Status Check Failed', [
-                'restaurant_id' => $restaurant->id,
-                'error'         => $e->getMessage()
-            ]);
-
             return [
                 'success'   => false,
                 'connected' => false,
@@ -175,7 +318,8 @@ class VerifonePosService
                         'TransactionID' => (string) $order->id,
                         'TimeStamp'     => now()->toIso8601String(),
                     ],
-                    'CustomerOrderReq'  => ['string'],
+                    'CustomerOrderReq'  => ['Order #' . $order->id],
+                    'SaleToAcquirerData' => 'tender=MOTO',
                 ],
                 'PaymentTransaction' => [
                     'AmountsReq' => [
@@ -191,17 +335,20 @@ class VerifonePosService
         ];
 
         try {
-            $token = $this->getAuthToken($restaurant);
             $url = $this->getBaseUrl($restaurant) . '/payment';
-
-            Log::info('Verifone POS Sale Request Initiated', [
-                'order_id'   => $order->id,
-                'service_id' => $serviceId,
-                'amount'     => $amount,
-            ]);
-
             $headers = $this->getRequestHeaders($restaurant);
-            $response = Http::withHeaders($headers)->timeout(120)->post($url, $payload); // 120s timeout to allow customer to enter PIN
+
+            $response = $this->executeRequest(
+                restaurant: $restaurant,
+                action: 'SALE_PAYMENT',
+                method: 'POST',
+                url: $url,
+                headers: $headers,
+                payload: $payload,
+                timeout: 120, // 120s timeout to allow customer to enter PIN
+                orderId: $order->id,
+                serviceId: $serviceId
+            );
 
             if ($response->successful()) {
                 $resData = $response->json();
@@ -223,12 +370,7 @@ class VerifonePosService
                     $authCode = $paymentResult['PaymentResponse']['AuthCode'] 
                         ?? $paymentResult['AuthCode'] 
                         ?? null;
-
-                    Log::info('Verifone POS Sale Success', [
-                        'order_id'   => $order->id,
-                        'poi_tx_id'  => $poiTxId,
-                        'masked_pan' => $maskedPan,
-                    ]);
+                    $saleToPoiData = $paymentResponse['SaleData']['SaleToPOIData'] ?? null;
 
                     return [
                         'success'            => true,
@@ -238,18 +380,13 @@ class VerifonePosService
                         'masked_pan'         => $maskedPan,
                         'card_brand'         => $cardBrand,
                         'auth_code'          => $authCode,
+                        'sale_to_poi_data'   => $saleToPoiData,
                         'raw_response'       => $resData,
                     ];
                 }
 
                 $errorCondition = $paymentResponse['Response']['ErrorCondition'] ?? 'Unknown Error';
                 $additionalResponse = $paymentResponse['Response']['AdditionalResponse'] ?? 'Payment was not approved.';
-
-                Log::warning('Verifone POS Sale Declined', [
-                    'order_id' => $order->id,
-                    'error'    => $errorCondition,
-                    'details'  => $additionalResponse,
-                ]);
 
                 return [
                     'success'    => false,
@@ -266,12 +403,6 @@ class VerifonePosService
             ];
 
         } catch (\Illuminate\Http\Client\ConnectionException $e) {
-            Log::error('Verifone POS Timeout / Connection Exception', [
-                'order_id'   => $order->id,
-                'service_id' => $serviceId,
-                'error'      => $e->getMessage()
-            ]);
-
             // Attempt transaction status query on timeout to avoid double charging
             $statusCheck = $this->queryTransactionStatus($restaurant, $serviceId, (string) $order->id);
             if ($statusCheck['success'] && $statusCheck['is_paid']) {
@@ -284,11 +415,6 @@ class VerifonePosService
                 'error'      => 'Terminal connection timed out. Please check terminal status.',
             ];
         } catch (\Throwable $e) {
-            Log::error('Verifone POS Sale Exception', [
-                'order_id' => $order->id,
-                'error'    => $e->getMessage(),
-            ]);
-
             return [
                 'success' => false,
                 'error'   => $e->getMessage(),
@@ -299,7 +425,7 @@ class VerifonePosService
     /**
      * Abort ongoing terminal transaction
      */
-    public function abortTransaction(Restaurant $restaurant, string $serviceId): array
+    public function abortTransaction(Restaurant $restaurant, string $serviceId, ?int $orderId = null): array
     {
         $payload = [
             'MessageHeader' => [
@@ -325,7 +451,17 @@ class VerifonePosService
             $headers = $this->getRequestHeaders($restaurant);
             $url = $this->getBaseUrl($restaurant) . '/abort';
 
-            $response = Http::withHeaders($headers)->timeout(10)->post($url, $payload);
+            $response = $this->executeRequest(
+                restaurant: $restaurant,
+                action: 'ABORT_TRANSACTION',
+                method: 'POST',
+                url: $url,
+                headers: $headers,
+                payload: $payload,
+                timeout: 10,
+                orderId: $orderId,
+                serviceId: $serviceId
+            );
 
             return [
                 'success' => $response->successful(),
@@ -340,7 +476,7 @@ class VerifonePosService
     }
 
     /**
-     * Query status of a transaction (Timeout Recovery)
+     * Query status of a transaction (Mid-Flight Crash / Timeout Recovery)
      */
     public function queryTransactionStatus(Restaurant $restaurant, string $serviceId, string $orderId): array
     {
@@ -368,7 +504,17 @@ class VerifonePosService
             $headers = $this->getRequestHeaders($restaurant);
             $url = $this->getBaseUrl($restaurant) . '/transactionstatus';
 
-            $response = Http::withHeaders($headers)->timeout(15)->post($url, $payload);
+            $response = $this->executeRequest(
+                restaurant: $restaurant,
+                action: 'QUERY_TRANSACTION_STATUS',
+                method: 'POST',
+                url: $url,
+                headers: $headers,
+                payload: $payload,
+                timeout: 15,
+                orderId: (int) $orderId,
+                serviceId: $serviceId
+            );
 
             if ($response->successful()) {
                 $resData = $response->json();
@@ -376,15 +522,19 @@ class VerifonePosService
                 $result = $statusResp['Response']['Result'] ?? null;
                 
                 if (strtoupper($result) === 'SUCCESS') {
+                    $repeatedResp = $statusResp['RepeatedMessageResponse']['PaymentResponse'] ?? [];
+                    $isPaid = strtoupper($repeatedResp['Response']['Result'] ?? '') === 'SUCCESS';
+
                     return [
-                        'success' => true,
-                        'is_paid' => true,
-                        'data'    => $resData,
+                        'success'       => true,
+                        'is_paid'       => $isPaid,
+                        'data'          => $resData,
+                        'payment_data'  => $repeatedResp,
                     ];
                 }
             }
         } catch (\Throwable $e) {
-            Log::error('Verifone Transaction Status Query Failed', ['order_id' => $orderId, 'error' => $e->getMessage()]);
+            // Handled in executeRequest
         }
 
         return [
@@ -394,7 +544,210 @@ class VerifonePosService
     }
 
     /**
-     * Print Receipt on Verifone Terminal Printer
+     * Pre-settlement Reversal / Void (POST /poscloud/nexo/reversal)
+     * Voids an authorization before close-of-day batch settlement without deducting funds from cardholder.
+     */
+    public function processReversal(Order $order, string $reason = 'CustCancel'): array
+    {
+        $restaurant = $order->restaurant;
+        if (!$restaurant || !$restaurant->verifone_enabled) {
+            return [
+                'success' => false,
+                'error'   => 'Verifone POS integration not enabled.',
+            ];
+        }
+
+        $payment = $order->payment;
+        $serviceId = 'REV-' . $order->id . '-' . time();
+        $saleId = $restaurant->verifone_sale_id ?: 'RetailPOS';
+        $poiId = $restaurant->verifone_poiid ?: 'Point of Interaction';
+
+        $payload = [
+            'MessageHeader' => [
+                'MessageClass'    => 'SERVICE',
+                'MessageCategory' => 'REVERSAL',
+                'MessageType'     => 'REQUEST',
+                'ServiceID'       => $serviceId,
+                'SaleID'          => $saleId,
+                'POIID'           => $poiId,
+            ],
+            'ReversalRequest' => [
+                'OriginalPOITransaction' => [
+                    'POITransactionID' => [
+                        'TransactionID' => $payment?->poi_transaction_id ?: '',
+                        'TimeStamp'     => $payment?->poi_timestamp ?: now()->toIso8601String(),
+                    ],
+                ],
+                'ReversalReason' => $reason,
+            ],
+        ];
+
+        // Attach SaleToPOIData if recorded in payment metadata
+        if (!empty($payment?->nexo_service_id)) {
+            $payload['ReversalRequest']['SaleData'] = [
+                'SaleTransactionID' => [
+                    'TransactionID' => (string) $order->id,
+                    'TimeStamp'     => $payment->poi_timestamp ?: now()->toIso8601String(),
+                ],
+            ];
+        }
+
+        try {
+            $headers = $this->getRequestHeaders($restaurant);
+            $url = $this->getBaseUrl($restaurant) . '/reversal';
+
+            $response = $this->executeRequest(
+                restaurant: $restaurant,
+                action: 'REVERSAL_VOID',
+                method: 'POST',
+                url: $url,
+                headers: $headers,
+                payload: $payload,
+                timeout: 30,
+                orderId: $order->id,
+                paymentId: $payment?->id,
+                serviceId: $serviceId,
+                poiTxId: $payment?->poi_transaction_id
+            );
+
+            if ($response->successful()) {
+                $resData = $response->json();
+                $revResp = $resData['ReversalResponse'] ?? [];
+                $result = $revResp['Response']['Result'] ?? null;
+
+                if (strtoupper($result) === 'SUCCESS') {
+                    return [
+                        'success' => true,
+                        'raw'     => $resData,
+                    ];
+                }
+
+                $errorCondition = $revResp['Response']['ErrorCondition'] ?? 'Reversal Failed';
+                return [
+                    'success' => false,
+                    'error'   => $errorCondition,
+                    'raw'     => $resData,
+                ];
+            }
+
+            return [
+                'success' => false,
+                'error'   => 'HTTP Error ' . $response->status() . ': ' . $response->body(),
+            ];
+
+        } catch (\Throwable $e) {
+            return [
+                'success' => false,
+                'error'   => $e->getMessage(),
+            ];
+        }
+    }
+
+    /**
+     * Process Linked Refund via Verifone POS Nexo API (POST /poscloud/nexo/payment)
+     * Links directly to OriginalPOITransaction to ensure tokenized/verified refund against original auth.
+     */
+    public function processRefund(Order $order, float $amount, string $reason = ''): array
+    {
+        $restaurant = $order->restaurant;
+        if (!$restaurant || !$restaurant->verifone_enabled) {
+            return [
+                'success' => false,
+                'error'   => 'Verifone POS integration not enabled.',
+            ];
+        }
+
+        $payment = $order->payment;
+        $serviceId = 'RFD-' . $order->id . '-' . time();
+        $saleId = $restaurant->verifone_sale_id ?: 'RetailPOS';
+        $poiId = $restaurant->verifone_poiid ?: 'Point of Interaction';
+        $currency = config('app.currency', 'GBP');
+
+        $payload = [
+            'MessageHeader' => [
+                'MessageClass'    => 'SERVICE',
+                'MessageCategory' => 'PAYMENT',
+                'MessageType'     => 'REQUEST',
+                'ServiceID'       => $serviceId,
+                'SaleID'          => $saleId,
+                'POIID'           => $poiId,
+            ],
+            'PaymentRequest' => [
+                'SaleData' => [
+                    'OperatorID'        => (string) (auth()->id() ?? '440010051'),
+                    'SaleTransactionID' => [
+                        'TransactionID' => (string) $order->id,
+                        'TimeStamp'     => now()->toIso8601String(),
+                    ],
+                    'CustomerOrderReq'   => ['Refund Order #' . $order->id],
+                    'SaleToAcquirerData' => 'tender=MOTO',
+                ],
+                'PaymentTransaction' => [
+                    'AmountsReq' => [
+                        'Currency'        => $currency,
+                        'RequestedAmount' => number_format($amount, 2, '.', ''),
+                    ],
+                ],
+                'PaymentData' => [
+                    'PaymentType'      => 'REFUND',
+                    'SplitPaymentFlag' => true,
+                ],
+            ],
+        ];
+
+        // Explicitly attach OriginalPOITransaction for a linked refund
+        if ($payment && $payment->poi_transaction_id) {
+            $payload['PaymentRequest']['PaymentTransaction']['OriginalPOITransaction'] = [
+                'POITransactionID' => [
+                    'TransactionID' => $payment->poi_transaction_id,
+                    'TimeStamp'     => $payment->poi_timestamp ?: now()->toIso8601String(),
+                ],
+            ];
+        }
+
+        try {
+            $headers = $this->getRequestHeaders($restaurant);
+            $url = $this->getBaseUrl($restaurant) . '/payment';
+
+            $response = $this->executeRequest(
+                restaurant: $restaurant,
+                action: 'PROCESS_REFUND',
+                method: 'POST',
+                url: $url,
+                headers: $headers,
+                payload: $payload,
+                timeout: 60,
+                orderId: $order->id,
+                paymentId: $payment?->id,
+                serviceId: $serviceId,
+                poiTxId: $payment?->poi_transaction_id
+            );
+
+            if ($response->successful()) {
+                $resData = $response->json();
+                $result = $resData['PaymentResponse']['Response']['Result'] ?? null;
+                if (strtoupper($result) === 'SUCCESS') {
+                    return [
+                        'success' => true,
+                        'raw'     => $resData,
+                    ];
+                }
+            }
+
+            return [
+                'success' => false,
+                'error'   => 'Refund declined on Verifone POS.',
+            ];
+        } catch (\Throwable $e) {
+            return [
+                'success' => false,
+                'error'   => $e->getMessage(),
+            ];
+        }
+    }
+
+    /**
+     * Print Receipt on Verifone Terminal Printer (POST /poscloud/nexo/print)
      */
     public function printReceipt(Order $order, string $documentQualifier = 'CUSTOMERRECEIPT'): array
     {
@@ -441,107 +794,21 @@ class VerifonePosService
             $headers = $this->getRequestHeaders($restaurant);
             $url = $this->getBaseUrl($restaurant) . '/print';
 
-            Log::info('Verifone Nexo Print Request Sent', ['order_id' => $order->id]);
-
-            $response = Http::withHeaders($headers)->timeout(20)->post($url, $payload);
+            $response = $this->executeRequest(
+                restaurant: $restaurant,
+                action: 'PRINT_RECEIPT',
+                method: 'POST',
+                url: $url,
+                headers: $headers,
+                payload: $payload,
+                timeout: 20,
+                orderId: $order->id,
+                serviceId: $serviceId
+            );
 
             return [
                 'success' => $response->successful(),
                 'raw'     => $response->json(),
-            ];
-        } catch (\Throwable $e) {
-            Log::error('Verifone Nexo Print Request Exception', [
-                'order_id' => $order->id,
-                'error'    => $e->getMessage(),
-            ]);
-
-            return [
-                'success' => false,
-                'error'   => $e->getMessage(),
-            ];
-        }
-    }
-
-    /**
-     * Process Refund via Verifone POS Nexo API
-     */
-    public function processRefund(Order $order, float $amount, string $reason = ''): array
-    {
-        $restaurant = $order->restaurant;
-        if (!$restaurant || !$restaurant->verifone_enabled) {
-            return [
-                'success' => false,
-                'error'   => 'Verifone POS integration not enabled.',
-            ];
-        }
-
-        $payment = $order->payment;
-        $serviceId = 'RFD-' . $order->id . '-' . time();
-        $saleId = $restaurant->verifone_sale_id ?: 'RetailPOS';
-        $poiId = $restaurant->verifone_poiid ?: 'Point of Interaction';
-        $currency = config('app.currency', 'GBP');
-
-        $payload = [
-            'MessageHeader' => [
-                'MessageClass'    => 'SERVICE',
-                'MessageCategory' => 'PAYMENT',
-                'MessageType'     => 'REQUEST',
-                'ServiceID'       => $serviceId,
-                'SaleID'          => $saleId,
-                'POIID'           => $poiId,
-            ],
-            'PaymentRequest' => [
-                'SaleData' => [
-                    'OperatorID'        => (string) (auth()->id() ?? '440010051'),
-                    'SaleTransactionID' => [
-                        'TransactionID' => (string) $order->id,
-                        'TimeStamp'     => now()->toIso8601String(),
-                    ],
-                    'CustomerOrderReq'   => ['string'],
-                    'SaleToAcquirerData' => 'tender=MOTO',
-                ],
-                'PaymentTransaction' => [
-                    'AmountsReq' => [
-                        'Currency'        => $currency,
-                        'RequestedAmount' => number_format($amount, 2, '.', ''),
-                    ],
-                ],
-                'PaymentData' => [
-                    'PaymentType'      => 'REFUND',
-                    'SplitPaymentFlag' => true,
-                ],
-            ],
-        ];
-
-        if ($payment && $payment->poi_transaction_id) {
-            $payload['PaymentRequest']['PaymentTransaction']['OriginalPOITransaction'] = [
-                'POITransactionID' => [
-                    'TransactionID' => $payment->poi_transaction_id,
-                    'TimeStamp'     => $payment->poi_timestamp ?: now()->toIso8601String(),
-                ],
-            ];
-        }
-
-        try {
-            $headers = $this->getRequestHeaders($restaurant);
-            $url = $this->getBaseUrl($restaurant) . '/payment';
-
-            $response = Http::withHeaders($headers)->timeout(60)->post($url, $payload);
-
-            if ($response->successful()) {
-                $resData = $response->json();
-                $result = $resData['PaymentResponse']['Response']['Result'] ?? null;
-                if (strtoupper($result) === 'SUCCESS') {
-                    return [
-                        'success' => true,
-                        'raw'     => $resData,
-                    ];
-                }
-            }
-
-            return [
-                'success' => false,
-                'error'   => 'Refund declined on Verifone POS.',
             ];
         } catch (\Throwable $e) {
             return [
@@ -559,244 +826,87 @@ class VerifonePosService
         $restaurant = $order->restaurant;
         $lines = [];
 
-        // ============================================================
         // RESTAURANT HEADER
-        // ============================================================
-
         $restaurantName = strtoupper($restaurant->name ?? 'RESTAURANT');
-
         $lines[] = "========================================";
         $lines[] = "          " . $restaurantName;
-        
         if (!empty($restaurant->address)) {
             $lines[] = "      " . $restaurant->address;
         }
-
         if (!empty($restaurant->phone)) {
             $lines[] = "      Tel: " . $restaurant->phone;
         }
-
         $lines[] = "========================================";
 
-
-        // ============================================================
         // ORDER INFORMATION
-        // ============================================================
-
         $lines[] = "              ORDER RECEIPT";
         $lines[] = "----------------------------------------";
-
-        $lines[] = sprintf(
-            "%-12s: #%s",
-            "Order",
-            $order->id
-        );
-
-        $lines[] = sprintf(
-            "%-12s: %s",
-            "Date",
-            $order->created_at
-                ? $order->created_at->format('d/m/Y H:i:s')
-                : date('d/m/Y H:i:s')
-        );
-
-        $lines[] = sprintf(
-            "%-12s: %s",
-            "Channel",
-            strtoupper(
-                str_replace(
-                    '_',
-                    ' ',
-                    $order->order_from ?? 'POS'
-                )
-            )
-        );
-
-        $lines[] = sprintf(
-            "%-12s: %s",
-            "Type",
-            strtoupper(
-                str_replace(
-                    '_',
-                    ' ',
-                    $order->order_type ?? 'Takeaway'
-                )
-            )
-        );
-
-        $lines[] = sprintf(
-            "%-12s: %s",
-            "Customer",
-            $order->guest_name
-                ?? $order->user?->name
-                ?? 'Walk-in'
-        );
-
+        $lines[] = sprintf("%-12s: #%s", "Order", $order->id);
+        $lines[] = sprintf("%-12s: %s", "Date", $order->created_at ? $order->created_at->format('d/m/Y H:i:s') : date('d/m/Y H:i:s'));
+        $lines[] = sprintf("%-12s: %s", "Channel", strtoupper(str_replace('_', ' ', $order->order_from ?? 'POS')));
+        $lines[] = sprintf("%-12s: %s", "Type", strtoupper(str_replace('_', ' ', $order->order_type ?? 'Takeaway')));
+        $lines[] = sprintf("%-12s: %s", "Customer", $order->guest_name ?? $order->user?->name ?? 'Walk-in');
         if (!empty($order->phone ?? $order->guest_phone)) {
-            $lines[] = sprintf(
-                "%-12s: %s",
-                "Phone",
-                $order->phone ?? $order->guest_phone
-            );
+            $lines[] = sprintf("%-12s: %s", "Phone", $order->phone ?? $order->guest_phone);
         }
-
         $lines[] = "----------------------------------------";
 
-
-        // ============================================================
         // ITEMS
-        // ============================================================
-
         $lines[] = "ITEMS";
         $lines[] = "----------------------------------------";
-
         foreach ($order->items as $item) {
-
             $prodName = $item->product->name ?? 'Item';
-
             if (!empty($item->variant_name)) {
                 $prodName .= ' (' . $item->variant_name . ')';
             }
-
             $itemName = substr($prodName, 0, 22);
-
             $qty = $item->quantity;
-
             $amt = number_format($item->total, 2);
+            $lines[] = sprintf("%-22s x%-2d £%6s", $itemName, $qty, $amt);
 
-            $lines[] = sprintf(
-                "%-22s x%-2d £%6s",
-                $itemName,
-                $qty,
-                $amt
-            );
-
-            // Addons
             if ($item->addons && $item->addons->count() > 0) {
-
                 foreach ($item->addons as $addon) {
-
-                    $lines[] =
-                        "  + "
-                        . substr($addon->addon_name, 0, 20)
-                        . " (£"
-                        . number_format($addon->price, 2)
-                        . ")";
+                    $lines[] = "  + " . substr($addon->addon_name, 0, 20) . " (£" . number_format($addon->price, 2) . ")";
                 }
             }
         }
 
-
-        // ============================================================
         // BILL SUMMARY
-        // ============================================================
-
         $lines[] = "----------------------------------------";
         $lines[] = "                 BILL";
         $lines[] = "----------------------------------------";
-
-        $subtotal =
-            (float) $order->total_amount
-            - (float) $order->delivery_charge
-            - (float) $order->service_charge;
-
-        $lines[] = sprintf(
-            "%-26s £%6s",
-            "Subtotal:",
-            number_format(max(0, $subtotal), 2)
-        );
-
+        $subtotal = (float) $order->total_amount - (float) $order->delivery_charge - (float) $order->service_charge;
+        $lines[] = sprintf("%-26s £%6s", "Subtotal:", number_format(max(0, $subtotal), 2));
         if ($order->delivery_charge > 0) {
-            $lines[] = sprintf(
-                "%-26s £%6s",
-                "Delivery Charge:",
-                number_format($order->delivery_charge, 2)
-            );
+            $lines[] = sprintf("%-26s £%6s", "Delivery Charge:", number_format($order->delivery_charge, 2));
         }
-
         if ($order->service_charge > 0) {
-            $lines[] = sprintf(
-                "%-26s £%6s",
-                "Service Charge:",
-                number_format($order->service_charge, 2)
-            );
+            $lines[] = sprintf("%-26s £%6s", "Service Charge:", number_format($order->service_charge, 2));
         }
-
         if ($order->coupon_discount > 0) {
-            $lines[] = sprintf(
-                "%-26s -£%5s",
-                "Coupon Discount:",
-                number_format($order->coupon_discount, 2)
-            );
+            $lines[] = sprintf("%-26s -£%5s", "Coupon Discount:", number_format($order->coupon_discount, 2));
         }
-
+        $lines[] = "----------------------------------------";
+        $lines[] = sprintf("%-26s £%6s", "TOTAL AMOUNT:", number_format($order->total_amount, 2));
         $lines[] = "----------------------------------------";
 
-        $lines[] = sprintf(
-            "%-26s £%6s",
-            "TOTAL AMOUNT:",
-            number_format($order->total_amount, 2)
-        );
-
-        $lines[] = "----------------------------------------";
-
-
-        // ============================================================
         // PAYMENT INFORMATION
-        // ============================================================
-
         $lines[] = "               PAYMENT";
         $lines[] = "----------------------------------------";
-
-        $lines[] = sprintf(
-            "%-18s: %s",
-            "Payment Status",
-            strtoupper(
-                $order->payment?->payment_status ?? 'PAID'
-            )
-        );
-
-        $lines[] = sprintf(
-            "%-18s: %s",
-            "Payment Method",
-            strtoupper(
-                $order->payment_method ?? 'CARD'
-            )
-        );
+        $lines[] = sprintf("%-18s: %s", "Payment Status", strtoupper($order->payment?->payment_status ?? 'PAID'));
+        $lines[] = sprintf("%-18s: %s", "Payment Method", strtoupper($order->payment_method ?? 'CARD'));
 
         if ($order->payment && $order->payment->masked_pan) {
-
-            $lines[] = sprintf(
-                "%-18s: %s %s",
-                "Card",
-                $order->payment->card_brand ?? 'Card',
-                $order->payment->masked_pan
-            );
-
+            $lines[] = sprintf("%-18s: %s %s", "Card", $order->payment->card_brand ?? 'Card', $order->payment->masked_pan);
             if ($order->payment->auth_code) {
-
-                $lines[] = sprintf(
-                    "%-18s: %s",
-                    "Auth Code",
-                    $order->payment->auth_code
-                );
+                $lines[] = sprintf("%-18s: %s", "Auth Code", $order->payment->auth_code);
             }
-
             if ($order->payment->poi_transaction_id) {
-
-                $lines[] = sprintf(
-                    "%-18s: %s",
-                    "POI Tx ID",
-                    $order->payment->poi_transaction_id
-                );
+                $lines[] = sprintf("%-18s: %s", "POI Tx ID", $order->payment->poi_transaction_id);
             }
         }
 
-
-        // ============================================================
         // FOOTER
-        // ============================================================
-
         $lines[] = "----------------------------------------";
         $lines[] = "";
         $lines[] = "        Thank You For Your Visit!";

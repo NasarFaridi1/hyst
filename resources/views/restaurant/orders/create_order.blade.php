@@ -874,10 +874,18 @@
         if (payMethod === 'verifone_pos') {
             e.preventDefault();
             const modal = document.getElementById('verifoneModal');
-            if (modal) modal.classList.remove('hidden');
+            if (modal) {
+                modal.classList.remove('hidden');
+                setVerifoneModalState('waiting');
+            }
 
             const formData = new FormData(this);
             
+            // 60-second client-side watchdog for terminal timeout
+            let timeoutId = setTimeout(() => {
+                setVerifoneModalState('timeout', 'Payment session timed out (60s). Transaction was automatically aborted.');
+            }, 60000);
+
             fetch(this.action, {
                 method: 'POST',
                 headers: {
@@ -886,24 +894,65 @@
                 },
                 body: formData
             })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    document.getElementById('verifoneModalStatus').innerText = '✅ Payment Approved! Printing receipt...';
+            .then(res => {
+                clearTimeout(timeoutId);
+                return res.json().then(data => ({ status: res.status, ok: res.ok, data }));
+            })
+            .then(({ status, ok, data }) => {
+                if (ok && data.success) {
+                    setVerifoneModalState('success', 'Payment Approved! Printing customer receipt...');
                     setTimeout(() => {
                         window.location.href = data.redirect_url;
-                    }, 1000);
+                    }, 1200);
+                } else if (data.message && data.message.toLowerCase().includes('time')) {
+                    setVerifoneModalState('timeout', data.message);
                 } else {
-                    if (modal) modal.classList.add('hidden');
-                    alert('❌ Verifone POS Error: ' + (data.message || 'Payment was declined on terminal.'));
+                    setVerifoneModalState('connection_lost', data.message || 'Payment declined or terminal unavailable.');
                 }
             })
             .catch(err => {
-                if (modal) modal.classList.add('hidden');
-                alert('⚠️ Connection error while reaching Verifone Cloud POS. Please check terminal status.');
+                clearTimeout(timeoutId);
+                setVerifoneModalState('connection_lost', 'Connection lost: Unable to reach Verifone POS Cloud CST. Please check terminal Wi-Fi.');
             });
         }
     });
+
+    function setVerifoneModalState(state, message) {
+        const modal = document.getElementById('verifoneModal');
+        if (!modal) return;
+        modal.classList.remove('hidden');
+
+        document.getElementById('verifoneStateWaiting')?.classList.add('hidden');
+        document.getElementById('verifoneStateTimeout')?.classList.add('hidden');
+        document.getElementById('verifoneStateConnectionLost')?.classList.add('hidden');
+        document.getElementById('verifoneStateSuccess')?.classList.add('hidden');
+
+        if (state === 'waiting') {
+            document.getElementById('verifoneStateWaiting')?.classList.remove('hidden');
+            if (message) document.getElementById('verifoneModalWaitingMsg').innerText = message;
+        } else if (state === 'timeout') {
+            document.getElementById('verifoneStateTimeout')?.classList.remove('hidden');
+            if (message) document.getElementById('verifoneModalTimeoutMsg').innerText = message;
+        } else if (state === 'connection_lost') {
+            document.getElementById('verifoneStateConnectionLost')?.classList.remove('hidden');
+            if (message) document.getElementById('verifoneModalConnLostMsg').innerText = message;
+        } else if (state === 'success') {
+            document.getElementById('verifoneStateSuccess')?.classList.remove('hidden');
+            if (message) document.getElementById('verifoneModalSuccessMsg').innerText = message;
+        }
+    }
+
+    function retryVerifonePayment() {
+        setVerifoneModalState('waiting');
+        document.getElementById('directOrderForm')?.dispatchEvent(new Event('submit', { cancelable: true }));
+    }
+
+    function switchPaymentToCash() {
+        const sel = document.getElementById('paymentMethodSelect');
+        if (sel) sel.value = 'cash';
+        cancelVerifonePayment();
+        alert('Payment method switched to Cash. Please submit order when ready.');
+    }
 
     function cancelVerifonePayment() {
         const modal = document.getElementById('verifoneModal');
@@ -911,27 +960,85 @@
     }
 </script>
 
-{{-- VERIFONE TERMINAL PAYMENT MODAL --}}
+{{-- VERIFONE TERMINAL PAYMENT MULTI-STATE MODAL --}}
 <div id="verifoneModal" class="fixed inset-0 bg-black/70 backdrop-blur-xs z-50 flex items-center justify-center hidden p-4">
     <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center relative border border-gray-100">
-        <div class="w-16 h-16 bg-amber-50 text-[#C25A2A] rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4 animate-bounce">
-            💳
+
+        {{-- STATE 1: WAITING FOR CARD PRESENTATION --}}
+        <div id="verifoneStateWaiting">
+            <div class="w-16 h-16 bg-amber-50 text-[#C25A2A] rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4 animate-bounce">
+                💳
+            </div>
+            <h3 class="text-lg font-extrabold text-gray-900 mb-1">Verifone Cloud POS</h3>
+            <p class="text-xs text-gray-500 mb-4" id="verifoneModalWaitingMsg">Sending payment request to Verifone terminal...</p>
+            <div class="flex justify-center mb-5">
+                <svg class="animate-spin h-8 w-8 text-[#C25A2A]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </div>
+            <p class="text-[11px] text-gray-400 mb-4">Please present card (Tap / Insert / Swipe) on the Verifone terminal.</p>
+            <button type="button" onclick="cancelVerifonePayment()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 rounded-xl text-xs transition">
+                Cancel / Abort Transaction
+            </button>
         </div>
-        <h3 class="text-lg font-extrabold text-gray-900 mb-1">Verifone Cloud POS</h3>
-        <p class="text-xs text-gray-500 mb-4" id="verifoneModalStatus">Sending payment request to Verifone terminal...</p>
 
-        <div class="flex justify-center mb-5">
-            <svg class="animate-spin h-8 w-8 text-[#C25A2A]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
+        {{-- STATE 2: SESSION TIMEOUT (TEST 1.01) --}}
+        <div id="verifoneStateTimeout" class="hidden">
+            <div class="w-16 h-16 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4">
+                ⏱️
+            </div>
+            <h3 class="text-lg font-extrabold text-amber-900 mb-1">Terminal Session Timed Out</h3>
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 my-3 text-left">
+                <p class="text-xs font-semibold text-amber-800" id="verifoneModalTimeoutMsg">
+                    The terminal payment session timed out (60s limit). The transaction has been safely aborted. No funds were debited.
+                </p>
+            </div>
+            <p class="text-[11px] text-gray-500 mb-4">Would you like to retry terminal card payment or switch to another payment method?</p>
+            <div class="space-y-2">
+                <button type="button" onclick="retryVerifonePayment()" class="w-full bg-[#C25A2A] hover:bg-[#a94e24] text-white font-bold py-2.5 rounded-xl text-xs shadow-md transition">
+                    🔄 Retry Terminal Payment
+                </button>
+                <button type="button" onclick="switchPaymentToCash()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs shadow-md transition">
+                    💵 Switch to Cash Payment
+                </button>
+                <button type="button" onclick="cancelVerifonePayment()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 rounded-xl text-xs transition">
+                    Dismiss
+                </button>
+            </div>
         </div>
 
-        <p class="text-[11px] text-gray-400 mb-4">Please present card (Tap / Insert / Swipe) on the Verifone terminal machine.</p>
+        {{-- STATE 3: CONNECTION LOST (TEST 4.1) --}}
+        <div id="verifoneStateConnectionLost" class="hidden">
+            <div class="w-16 h-16 bg-red-100 text-red-600 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4">
+                ⚠️
+            </div>
+            <h3 class="text-lg font-extrabold text-red-900 mb-1">Terminal Connection Unavailable</h3>
+            <div class="bg-red-50 border border-red-200 rounded-xl p-3 my-3 text-left">
+                <p class="text-xs font-semibold text-red-800" id="verifoneModalConnLostMsg">
+                    Communication with the Verifone Cloud POS is temporarily unavailable. Please verify the terminal's Wi-Fi / Cloud connection.
+                </p>
+            </div>
+            <p class="text-[11px] text-gray-500 mb-4">Ensure the Verifone T650p terminal displays "CONNECTED" to POS Cloud before retrying.</p>
+            <div class="space-y-2">
+                <button type="button" onclick="retryVerifonePayment()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 rounded-xl text-xs shadow-md transition">
+                    🔄 Re-test Connection & Retry
+                </button>
+                <button type="button" onclick="cancelVerifonePayment()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 rounded-xl text-xs transition">
+                    Dismiss / Close
+                </button>
+            </div>
+        </div>
 
-        <button type="button" onclick="cancelVerifonePayment()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 rounded-xl text-xs transition">
-            Close Modal
-        </button>
+        {{-- STATE 4: SUCCESS --}}
+        <div id="verifoneStateSuccess" class="hidden">
+            <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4">
+                ✅
+            </div>
+            <h3 class="text-lg font-extrabold text-emerald-900 mb-1">Payment Approved</h3>
+            <p class="text-xs text-gray-600 mb-4" id="verifoneModalSuccessMsg">Printing customer receipt...</p>
+        </div>
+
     </div>
 </div>
 

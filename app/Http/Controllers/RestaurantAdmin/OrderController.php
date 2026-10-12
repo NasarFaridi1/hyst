@@ -833,6 +833,32 @@ class OrderController extends Controller
         return back()->with('error', 'Verifone POS Refund Failed: ' . ($res['error'] ?? 'Declined on terminal.'));
     }
 
+    public function reversalVerifonePayment(Request $request, $id)
+    {
+        $order = Order::where('restaurant_id', auth()->user()->restaurant_id)
+            ->with(['restaurant', 'payment'])
+            ->findOrFail($id);
+
+        $res = $this->verifone->processReversal($order, $request->input('reason', 'CustCancel'));
+
+        if ($res['success']) {
+            if ($order->payment) {
+                $order->payment->update([
+                    'payment_status' => 'voided',
+                    'refund_reason'  => 'Pre-settlement Void/Reversal via Verifone POS',
+                ]);
+            }
+            $order->update([
+                'status'        => 'cancelled',
+                'cancel_reason' => 'Voided / Reversed via Verifone POS before settlement',
+            ]);
+
+            return back()->with('success', 'Verifone POS Transaction Voided / Reversed successfully before settlement.');
+        }
+
+        return back()->with('error', 'Verifone POS Reversal Failed: ' . ($res['error'] ?? 'Declined on terminal.'));
+    }
+
     public function updatePaymentStatus(Request $request, $id)
     {
         $order = Order::where(

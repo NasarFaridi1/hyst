@@ -1,0 +1,22 @@
+{
+    "Response": {
+        "Result": "SUCCESS",
+        "ErrorCondition": null,
+        "AdditionalResponse": "0"
+    },
+    "POSCloudVersion": "2.9.1",
+    "POIStatus": [
+        {
+            "serialNumber": "453-217-464",
+            "POIID": "T650P-T1",
+            "POIState": "CONNECTED",
+            "lastDateTimeConnected": "2026-10-07T07:20:54.323940571Z",
+            "lastDateTimeActive": "2026-10-05T15:08:17.32521216Z",
+            "lastConnectedPOS": "RetailPOS",
+            "entityUID": "09b22bfd-a2b2-4afc-8bd9-4ef77f2f57ae",
+            "deviceSoftwareVersion": "5.342.30",
+            "deviceModel": "t650p"
+        }
+    ],
+    "POSStatus": null
+}
