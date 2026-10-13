@@ -1,43 +1,58 @@
 @extends('layouts.app')
 @section('content')
 
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+
 <style>
     :root {
       --cream:     #F6F1E8;
       --cream2:    #EDE5D4;
+      --cream3:    #E0D5C0;
       --terra:     #C25A2A;
       --terra-l:   #D97040;
       --terra-d:   #8C3D1A;
-      --terra-bg:  rgba(194,90,42,0.08);
+      --terra-bg:  rgba(194,90,42,0.10);
       --ink:       #1A1208;
       --ink2:      #2E2318;
       --muted:     #8A7A62;
       --green:     #15803D;
-      --green-bg:  rgba(21,128,61,0.1);
+      --green-bg:  #DCFCE7;
+      --amber:     #B45309;
+      --amber-bg:  #FEF3C7;
       --red:       #B91C1C;
-      --red-bg:    rgba(185,28,28,0.1);
+      --red-bg:    #FEE2E2;
       --blue:      #1D4ED8;
-      --blue-bg:   rgba(29,78,216,0.1);
-      --border:    rgba(194,90,42,0.14);
+      --blue-bg:   #DBEAFE;
+      --border:    rgba(194,90,42,0.15);
       --shadow:    0 4px 20px rgba(26,18,8,0.06);
-      --shadow-lg: 0 10px 30px rgba(26,18,8,0.10);
+      --shadow-lg: 0 12px 32px rgba(26,18,8,0.12);
     }
 
+    /* ── Main Page Wrapper ── */
     .ai-page {
-      padding: 30px;
+      padding: 28px 32px;
       background: var(--cream);
       min-height: 100vh;
       font-family: 'Poppins', sans-serif;
+      color: var(--ink);
+      max-width: 1600px;
+      margin: 0 auto;
     }
 
+    /* ── Header ── */
     .ai-header {
-      margin-bottom: 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 24px;
     }
 
     .ai-eyebrow {
       font-size: 11px;
       font-weight: 700;
-      letter-spacing: 0.16em;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
       color: var(--terra);
       display: inline-flex;
@@ -45,31 +60,80 @@
       gap: 6px;
       background: var(--terra-bg);
       padding: 5px 12px;
-      border-radius: 20px;
+      border-radius: 999px;
     }
 
     .ai-title {
       font-family: 'Playfair Display', serif;
-      font-size: 32px;
+      font-size: clamp(24px, 3.5vw, 34px);
       font-weight: 700;
       color: var(--ink);
       margin: 8px 0 4px;
+      line-height: 1.2;
     }
 
     .ai-title span {
       color: var(--terra);
     }
 
-    .ai-card {
+    .ai-subtitle {
+      font-size: 13.5px;
+      color: var(--muted);
+      margin: 0;
+    }
+
+    .ai-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn-ai-outline {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink2);
       background: #fff;
       border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 24px;
-      box-shadow: var(--shadow);
-      margin-bottom: 24px;
+      text-decoration: none;
+      cursor: pointer;
       transition: all 0.2s ease;
     }
 
+    .btn-ai-outline:hover {
+      background: var(--cream2);
+    }
+
+    .btn-ai-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+      background: var(--terra);
+      border: 1px solid var(--terra);
+      text-decoration: none;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(194,90,42,0.28);
+      transition: all 0.2s ease;
+    }
+
+    .btn-ai-primary:hover {
+      background: var(--terra-l);
+      transform: translateY(-1px);
+    }
+
+    /* ── Hero Banner (Step 26) ── */
     .opportunity-hero {
       background: linear-gradient(135deg, #2E2318 0%, #1A1208 100%);
       color: #fff;
@@ -79,29 +143,69 @@
       box-shadow: var(--shadow-lg);
       position: relative;
       overflow: hidden;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+      border: 1px solid rgba(194,90,42,0.3);
     }
 
     .opportunity-hero::after {
       content: '🧠';
       position: absolute;
-      right: 25px;
+      right: 20px;
       bottom: -15px;
-      font-size: 110px;
-      opacity: 0.08;
+      font-size: 100px;
+      opacity: 0.07;
+      pointer-events: none;
     }
 
+    .hero-eyebrow {
+      font-size: 11.5px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: #E0D5C0;
+      text-transform: uppercase;
+      display: block;
+    }
+
+    .hero-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(22px, 4vw, 36px);
+      margin: 6px 0 10px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .hero-desc {
+      color: #C5BDB0;
+      font-size: 13.5px;
+      margin: 0;
+      max-width: 680px;
+      line-height: 1.5;
+    }
+
+    .flywheel-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(74,222,128,0.16);
+      border: 1px solid rgba(74,222,128,0.35);
+      color: #4ADE80;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 9px 16px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    /* ── 4 Metric Cards Grid ── */
     .metric-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 16px;
       margin-bottom: 24px;
-    }
-
-    @media(max-width: 992px) {
-      .metric-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-    @media(max-width: 576px) {
-      .metric-grid { grid-template-columns: 1fr; }
     }
 
     .metric-box {
@@ -110,22 +214,70 @@
       border-radius: 16px;
       padding: 20px;
       box-shadow: var(--shadow);
-      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
 
     .metric-box .label {
-      font-size: 12px;
-      font-weight: 600;
+      font-size: 11.5px;
+      font-weight: 700;
       color: var(--muted);
       text-transform: uppercase;
       letter-spacing: 0.05em;
     }
 
     .metric-box .value {
-      font-size: 28px;
+      font-size: clamp(22px, 3vw, 30px);
       font-weight: 700;
-      margin: 6px 0 2px;
+      margin: 8px 0 4px;
       font-family: 'Playfair Display', serif;
+      line-height: 1.1;
+    }
+
+    .metric-box .sub {
+      font-size: 12.5px;
+      color: var(--muted);
+    }
+
+    /* ── White Section Card ── */
+    .ai-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+    }
+
+    .ai-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .ai-card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(19px, 2.5vw, 24px);
+      margin: 0 0 4px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .ai-card-sub {
+      font-size: 13px;
+      color: var(--muted);
+      margin: 0;
+    }
+
+    /* ── Next Best Action Grid ── */
+    .actions-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
     }
 
     .action-card {
@@ -133,7 +285,6 @@
       border-radius: 16px;
       background: var(--cream);
       padding: 20px;
-      height: 100%;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -145,35 +296,143 @@
       box-shadow: var(--shadow);
     }
 
-    .funnel-bar {
+    .action-top {
       display: flex;
-      background: var(--cream2);
-      border-radius: 12px;
-      overflow: hidden;
-      margin-top: 14px;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .ai-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .badge-priority { background: var(--red-bg); color: var(--red); }
+    .badge-value    { background: var(--amber-bg); color: var(--amber); }
+    .badge-upsell   { background: var(--green-bg); color: var(--green); }
+    .badge-neutral  { background: #E5E7EB; color: #374151; }
+
+    .action-customer {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--ink);
+      margin: 0 0 4px;
+    }
+
+    .action-headline {
+      font-size: 12.5px;
+      color: var(--muted);
+      margin: 0 0 12px;
+      line-height: 1.4;
+    }
+
+    .action-rec-box {
+      background: #fff;
       border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 12.5px;
+      margin-bottom: 16px;
+    }
+
+    /* ── Lifecycle Funnel Grid ── */
+    .funnel-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 10px;
+      margin-top: 14px;
     }
 
     .funnel-segment {
-      padding: 10px 14px;
+      padding: 14px 10px;
       text-align: center;
-      flex: 1;
-      border-right: 1px solid rgba(0,0,0,0.06);
-      background: #fff;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--cream);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
     }
 
-    .funnel-segment:last-child {
-      border-right: none;
+    .funnel-segment .f-label {
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+      letter-spacing: 0.04em;
+    }
+
+    .funnel-segment .f-num {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--ink);
+      line-height: 1.1;
+    }
+
+    /* ── Filter Pills ── */
+    .filters-bar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .filter-pill {
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 12.5px;
+      font-weight: 600;
+      text-decoration: none;
+      color: var(--muted);
+      background: var(--cream);
+      border: 1px solid var(--border);
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .filter-pill:hover {
+      background: var(--cream2);
+      color: var(--ink);
+    }
+
+    .filter-pill.active {
+      background: var(--terra);
+      color: #fff;
+      border-color: var(--terra);
+      box-shadow: 0 4px 12px rgba(194,90,42,0.28);
+    }
+
+    /* ── Desktop Table & Mobile Cards ── */
+    .table-scroll-wrap {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .twin-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 820px;
     }
 
     .twin-table th {
       font-size: 11px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.07em;
       color: var(--muted);
       background: #FAFAFA;
-      padding: 14px 12px;
+      padding: 13px 12px;
+      text-align: left;
       border-bottom: 2px solid var(--border);
     }
 
@@ -184,56 +443,256 @@
       border-bottom: 1px solid var(--border);
     }
 
+    .twin-table tr:hover td {
+      background: rgba(246, 241, 232, 0.45);
+    }
+
     .score-badge {
       display: inline-block;
       padding: 3px 8px;
       border-radius: 6px;
       font-size: 11px;
       font-weight: 700;
+      margin: 2px 2px 2px 0;
     }
 
-    .score-high { background: #DCFCE7; color: #15803D; }
-    .score-mid  { background: #FEF3C7; color: #B45309; }
-    .score-low  { background: #FEE2E2; color: #B91C1C; }
+    .score-high { background: var(--green-bg); color: var(--green); }
+    .score-mid  { background: var(--amber-bg); color: var(--amber); }
+    .score-low  { background: var(--red-bg); color: var(--red); }
 
-    .filter-pill {
-      padding: 8px 16px;
-      border-radius: 10px;
-      font-size: 13px;
-      font-weight: 600;
-      text-decoration: none;
-      color: var(--muted);
+    /* Mobile Twin Cards (Hidden on Desktop, Shown on < 768px) */
+    .mobile-twins-list {
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .mobile-twin-card {
+      background: var(--cream);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+    }
+
+    .mobile-twin-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
       background: #fff;
       border: 1px solid var(--border);
-      transition: all 0.2s ease;
+      border-radius: 10px;
+      padding: 12px;
+      margin: 10px 0;
+      font-size: 12px;
     }
 
-    .filter-pill.active {
-      background: var(--terra);
-      color: #fff;
-      border-color: var(--terra);
-      box-shadow: 0 4px 12px rgba(194,90,42,0.3);
+    /* ── Custom Modals (Zero Bootstrap Dependency) ── */
+    .ai-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(26, 18, 8, 0.65);
+      backdrop-filter: blur(3px);
+      z-index: 99999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      overflow-y: auto;
+    }
+
+    .ai-modal-backdrop.open {
+      display: flex;
+    }
+
+    .ai-modal-box {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 540px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+      animation: modalFadeIn 0.2s ease-out;
+    }
+
+    .ai-modal-box.modal-lg {
+      max-width: 720px;
+    }
+
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: translateY(12px) scale(0.98); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .ai-modal-header {
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .ai-modal-close {
+      background: rgba(0,0,0,0.08);
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: inherit;
+      flex-shrink: 0;
+    }
+
+    .ai-modal-body {
+      padding: 22px;
+    }
+
+    .ai-modal-footer {
+      padding: 16px 22px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .twin-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .twin-stat-item {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+    }
+
+    .twin-patterns-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      font-size: 13px;
+    }
+
+    .twin-scores-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+      text-align: center;
+    }
+
+    /* ── Responsive Breakpoints ── */
+    @media (max-width: 1100px) {
+      .metric-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .actions-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .funnel-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .ai-page {
+        padding: 18px 14px;
+      }
+      .ai-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .ai-header-actions {
+        width: 100%;
+      }
+      .ai-header-actions > * {
+        flex: 1;
+      }
+      .opportunity-hero {
+        padding: 20px 18px;
+      }
+      .ai-card {
+        padding: 18px 15px;
+      }
+      .actions-grid {
+        grid-template-columns: 1fr;
+      }
+      .funnel-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      /* Switch from wide table to clean mobile cards on < 768px */
+      .desktop-table-view {
+        display: none;
+      }
+      .mobile-twins-list {
+        display: flex;
+      }
+      .filters-bar {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        width: 100%;
+        padding-bottom: 6px;
+        -webkit-overflow-scrolling: touch;
+      }
+      .twin-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .twin-patterns-grid {
+        grid-template-columns: 1fr;
+      }
+      .twin-scores-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .metric-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+      .metric-box {
+        padding: 16px;
+      }
+      .ai-modal-body {
+        padding: 16px;
+      }
+      .ai-modal-header, .ai-modal-footer {
+        padding: 14px 16px;
+      }
+      .ai-modal-footer > button {
+        width: 100%;
+      }
     }
 </style>
 
 <div class="ai-page">
 
   {{-- Page Header --}}
-  <div class="ai-header d-flex justify-content-between align-items-end flex-wrap gap-3">
+  <div class="ai-header">
     <div>
       <div class="ai-eyebrow">
         <span>✨</span> HYST AI CUSTOMER GROWTH ENGINE
       </div>
       <h1 class="ai-title">{{ $restaurant->name ?? 'Restaurant' }} <span>AI Analytics</span></h1>
-      <p class="text-muted mb-0" style="font-size:14px;">
+      <p class="ai-subtitle">
         Real-time intelligence connecting Orders → Patterns → Predictions → Next Best Actions.
       </p>
     </div>
-    <div>
-      <a href="{{ url('/restaurant/dashboard') }}" class="btn btn-outline-secondary" style="border-radius:10px; font-weight:600; font-size:13px;">
+    <div class="ai-header-actions">
+      <a href="{{ url('/restaurant/dashboard') }}" class="btn-ai-outline">
         ← Back to Dashboard
       </a>
-      <button onclick="window.location.reload();" class="btn" style="background:var(--terra); color:#fff; border-radius:10px; font-weight:600; font-size:13px;">
+      <button onclick="window.location.reload();" class="btn-ai-primary">
         ↻ Refresh AI Insights
       </button>
     </div>
@@ -241,23 +700,21 @@
 
   {{-- STEP 26: REVENUE OPPORTUNITY BOARD (HERO) --}}
   <div class="opportunity-hero">
-    <div class="row align-items-center">
-      <div class="col-lg-8">
-        <span style="font-size:12px; font-weight:700; letter-spacing:0.1em; color:#E0D5C0; text-transform:uppercase;">
-          💰 STEP 26 — REVENUE OPPORTUNITY BOARD
-        </span>
-        <h2 style="font-family:'Playfair Display', serif; font-size:36px; margin:6px 0 10px; font-weight:700;">
-          Potential Opportunity Today: <span style="color:#4ADE80;">£{{ number_format($totalPotentialToday, 2) }}</span>
-        </h2>
-        <p style="color:#C5BDB0; font-size:14px; margin-bottom:0; max-width:650px;">
-          HYST AI analyzes previous order intervals, typical order days, and basket compositions to identify exactly who is ready to buy today.
-        </p>
-      </div>
-      <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
-        <span class="badge" style="background:rgba(74,222,128,0.2); color:#4ADE80; font-size:13px; padding:8px 14px; border-radius:8px;">
-          🟢 Active Growth Flywheel
-        </span>
-      </div>
+    <div style="z-index: 1;">
+      <span class="hero-eyebrow">
+        💰 STEP 26 — REVENUE OPPORTUNITY BOARD
+      </span>
+      <h2 class="hero-title">
+        Potential Opportunity Today: <span style="color:#4ADE80;">£{{ number_format($totalPotentialToday, 2) }}</span>
+      </h2>
+      <p class="hero-desc">
+        HYST AI analyzes previous order intervals, typical order days, and basket compositions to identify exactly who is ready to buy today.
+      </p>
+    </div>
+    <div style="z-index: 1;">
+      <span class="flywheel-pill">
+        🟢 Active Growth Flywheel
+      </span>
     </div>
   </div>
 
@@ -265,74 +722,84 @@
   <div class="metric-grid">
     <div class="metric-box">
       <div class="label">🟢 Ready to Reorder</div>
-      <div class="value" style="color:var(--green);">{{ $reorderReadyCount }} <span style="font-size:15px; color:var(--muted); font-family:sans-serif;">Cust</span></div>
-      <small class="text-muted">Potential: <strong>£{{ number_format($reorderReadyPotential, 2) }}</strong></small>
+      <div class="value" style="color:var(--green);">
+        {{ $reorderReadyCount }} <span style="font-size:14px; color:var(--muted); font-family:'Poppins',sans-serif; font-weight:500;">Customers</span>
+      </div>
+      <div class="sub">Potential: <strong style="color:var(--ink);">£{{ number_format($reorderReadyPotential, 2) }}</strong></div>
     </div>
 
     <div class="metric-box">
       <div class="label">⚠️ At Risk (Churn Warning)</div>
-      <div class="value" style="color:#D97706;">{{ $atRiskCount }} <span style="font-size:15px; color:var(--muted); font-family:sans-serif;">Cust</span></div>
-      <small class="text-muted">Potential: <strong>£{{ number_format($atRiskPotential, 2) }}</strong></small>
+      <div class="value" style="color:#D97706;">
+        {{ $atRiskCount }} <span style="font-size:14px; color:var(--muted); font-family:'Poppins',sans-serif; font-weight:500;">Customers</span>
+      </div>
+      <div class="sub">Potential: <strong style="color:var(--ink);">£{{ number_format($atRiskPotential, 2) }}</strong></div>
     </div>
 
     <div class="metric-box">
       <div class="label">⭐ VIP Inactive</div>
-      <div class="value" style="color:var(--terra);">{{ $vipInactiveCount }} <span style="font-size:15px; color:var(--muted); font-family:sans-serif;">Cust</span></div>
-      <small class="text-muted">Potential: <strong>£{{ number_format($vipInactivePotential, 2) }}</strong></small>
+      <div class="value" style="color:var(--terra);">
+        {{ $vipInactiveCount }} <span style="font-size:14px; color:var(--muted); font-family:'Poppins',sans-serif; font-weight:500;">Customers</span>
+      </div>
+      <div class="sub">Potential: <strong style="color:var(--ink);">£{{ number_format($vipInactivePotential, 2) }}</strong></div>
     </div>
 
     <div class="metric-box">
       <div class="label">🚀 Upsell Candidates</div>
-      <div class="value" style="color:var(--blue);">{{ $upsellCount }} <span style="font-size:15px; color:var(--muted); font-family:sans-serif;">Cust</span></div>
-      <small class="text-muted">Potential: <strong>£{{ number_format($upsellPotential, 2) }}</strong></small>
+      <div class="value" style="color:var(--blue);">
+        {{ $upsellCount }} <span style="font-size:14px; color:var(--muted); font-family:'Poppins',sans-serif; font-weight:500;">Customers</span>
+      </div>
+      <div class="sub">Potential: <strong style="color:var(--ink);">£{{ number_format($upsellPotential, 2) }}</strong></div>
     </div>
   </div>
 
   {{-- STEP 4 & 25: NEXT BEST ACTION (WHO TO CONTACT TODAY) --}}
   <div class="ai-card">
-    <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="ai-card-header">
       <div>
-        <h4 style="font-family:'Playfair Display', serif; font-size:24px; margin:0; font-weight:700;">
+        <h4 class="ai-card-title">
           🤖 Next Best Action — Who should you contact today?
         </h4>
-        <p class="text-muted mb-0" style="font-size:13px;">High-conviction recommendations drafted by HYST AI to protect margin and drive repeat orders.</p>
+        <p class="ai-card-sub">High-conviction recommendations drafted by HYST AI to protect margin and drive repeat orders.</p>
       </div>
-      <span class="badge" style="background:var(--terra-bg); color:var(--terra); padding:8px 14px; border-radius:10px; font-weight:700;">
+      <span style="background:var(--terra-bg); color:var(--terra); padding:6px 14px; border-radius:999px; font-weight:700; font-size:12px; white-space:nowrap;">
         {{ count($nextBestActions) }} Priority Actions
       </span>
     </div>
 
-    <div class="row g-3">
+    <div class="actions-grid">
       @forelse($nextBestActions as $idx => $act)
-        <div class="col-lg-4 col-md-6">
-          <div class="action-card">
-            <div>
-              <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="badge {{ $act['badge_class'] }} px-2 py-1" style="font-size:11px;">
-                  {{ $act['category'] }}
-                </span>
-                <span style="font-weight:700; color:var(--green); font-size:14px;">
-                  +£{{ number_format($act['potential'], 2) }}
-                </span>
-              </div>
-              <h5 style="font-weight:700; margin-bottom:4px; color:var(--ink);">{{ $act['customer'] }}</h5>
-              <p style="font-size:12px; color:var(--muted); margin-bottom:10px;">{{ $act['headline'] }}</p>
-              
-              <div style="background:#fff; border:1px solid var(--border); border-radius:10px; padding:12px; font-size:12px; margin-bottom:14px;">
-                <div style="font-weight:700; color:var(--terra); margin-bottom:4px;">💡 AI Recommendation:</div>
-                <div style="color:var(--ink2);">{{ $act['recommendation'] }}</div>
-              </div>
+        @php
+          $badgeType = 'badge-priority';
+          if (str_contains($act['category'], 'VALUE')) $badgeType = 'badge-value';
+          elseif (str_contains($act['category'], 'UPSELL')) $badgeType = 'badge-upsell';
+        @endphp
+        <div class="action-card">
+          <div>
+            <div class="action-top">
+              <span class="ai-badge {{ $badgeType }}">
+                {{ $act['category'] }}
+              </span>
+              <span style="font-weight:700; color:var(--green); font-size:14px;">
+                +£{{ number_format($act['potential'], 2) }}
+              </span>
             </div>
+            <h5 class="action-customer">{{ $act['customer'] }}</h5>
+            <p class="action-headline">{{ $act['headline'] }}</p>
 
-            <button type="button" class="btn w-100" 
-                    style="background:var(--terra); color:#fff; border-radius:10px; font-weight:600; font-size:13px;"
-                    onclick="openActionModal('{{ addslashes($act['customer']) }}', '{{ addslashes($act['action_label']) }}', '{{ addslashes($act['suggested_copy']) }}')">
-              {{ $act['action_label'] }} ➔
-            </button>
+            <div class="action-rec-box">
+              <div style="font-weight:700; color:var(--terra); margin-bottom:4px;">💡 AI Recommendation:</div>
+              <div style="color:var(--ink2); line-height:1.4;">{{ $act['recommendation'] }}</div>
+            </div>
           </div>
+
+          <button type="button" class="btn-ai-primary" style="width:100%;"
+                  onclick="openActionModal('{{ addslashes($act['customer']) }}', '{{ addslashes($act['action_label']) }}', '{{ addslashes($act['suggested_copy']) }}')">
+            {{ $act['action_label'] }} ➔
+          </button>
         </div>
       @empty
-        <div class="col-12 py-4 text-center text-muted">
+        <div style="grid-column: 1 / -1; text-align:center; padding: 32px 16px; color:var(--muted);">
           No urgent actions required today. All customers are in healthy order cycles!
         </div>
       @endforelse
@@ -341,58 +808,62 @@
 
   {{-- STEP 12 & 15: CUSTOMER RELATIONSHIP FUNNEL --}}
   <div class="ai-card">
-    <div class="d-flex justify-content-between align-items-center mb-2">
-      <h4 style="font-family:'Playfair Display', serif; font-size:22px; margin:0; font-weight:700;">
-        📊 Customer Relationship Lifecycle Funnel
-      </h4>
-      <span class="text-muted" style="font-size:12px;">Active Restaurant Base: {{ count($digitalTwins) }} Customers</span>
+    <div class="ai-card-header" style="margin-bottom:8px;">
+      <div>
+        <h4 class="ai-card-title">
+          📊 Customer Relationship Lifecycle Funnel
+        </h4>
+        <p class="ai-card-sub">Tracking customer progression through the 1 → 2 order engine to Regular, Loyal, and VIP status.</p>
+      </div>
+      <span style="font-size:12.5px; color:var(--muted); font-weight:600;">
+        Active Base: {{ count($digitalTwins) }} Customers
+      </span>
     </div>
-    <p class="text-muted mb-3" style="font-size:13px;">Tracking customer progression through the $1 \rightarrow 2$ order engine to Regular, Loyal, and VIP status.</p>
 
-    <div class="funnel-bar">
+    <div class="funnel-grid">
       <div class="funnel-segment">
-        <small class="text-muted d-block">NEW</small>
-        <strong style="font-size:18px;">{{ $funnel['new'] }}</strong>
+        <span class="f-label">NEW</span>
+        <span class="f-num">{{ $funnel['new'] }}</span>
       </div>
-      <div class="funnel-segment" style="background:#FEF3C7;">
-        <small class="text-warning-emphasis d-block fw-bold">1 → 2 ORDER</small>
-        <strong style="font-size:18px; color:#B45309;">{{ $funnel['second_order'] }}</strong>
-      </div>
-      <div class="funnel-segment">
-        <small class="text-muted d-block">REGULAR</small>
-        <strong style="font-size:18px;">{{ $funnel['regular'] }}</strong>
+      <div class="funnel-segment" style="background:var(--amber-bg); border-color:#FCD34D;">
+        <span class="f-label" style="color:var(--amber);">1 → 2 ORDER</span>
+        <span class="f-num" style="color:var(--amber);">{{ $funnel['second_order'] }}</span>
       </div>
       <div class="funnel-segment">
-        <small class="text-muted d-block">LOYAL</small>
-        <strong style="font-size:18px;">{{ $funnel['loyal'] }}</strong>
-      </div>
-      <div class="funnel-segment" style="background:#DCFCE7;">
-        <small class="text-success-emphasis d-block fw-bold">VIP</small>
-        <strong style="font-size:18px; color:#15803D;">{{ $funnel['vip'] }}</strong>
+        <span class="f-label">REGULAR</span>
+        <span class="f-num">{{ $funnel['regular'] }}</span>
       </div>
       <div class="funnel-segment">
-        <small class="text-muted d-block">AT RISK</small>
-        <strong style="font-size:18px; color:#B91C1C;">{{ $funnel['at_risk'] }}</strong>
+        <span class="f-label">LOYAL</span>
+        <span class="f-num">{{ $funnel['loyal'] }}</span>
+      </div>
+      <div class="funnel-segment" style="background:var(--green-bg); border-color:#86EFAC;">
+        <span class="f-label" style="color:var(--green);">VIP</span>
+        <span class="f-num" style="color:var(--green);">{{ $funnel['vip'] }}</span>
+      </div>
+      <div class="funnel-segment" style="background:var(--red-bg); border-color:#FCA5A5;">
+        <span class="f-label" style="color:var(--red);">AT RISK</span>
+        <span class="f-num" style="color:var(--red);">{{ $funnel['at_risk'] }}</span>
       </div>
       <div class="funnel-segment">
-        <small class="text-muted d-block">DORMANT</small>
-        <strong style="font-size:18px; color:var(--muted);">{{ $funnel['dormant'] }}</strong>
+        <span class="f-label">DORMANT</span>
+        <span class="f-num" style="color:var(--muted);">{{ $funnel['dormant'] }}</span>
       </div>
     </div>
   </div>
 
   {{-- STEP 1, 2 & 5: CUSTOMER DIGITAL TWINS & 7 OPPORTUNITY SCORES --}}
   <div class="ai-card">
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+    <div class="ai-card-header">
       <div>
-        <h4 style="font-family:'Playfair Display', serif; font-size:22px; margin:0; font-weight:700;">
+        <h4 class="ai-card-title">
           🧬 Customer Digital Twin Explorer
         </h4>
-        <p class="text-muted mb-0" style="font-size:13px;">Don't just store what they bought — store habits, reorder windows, and the 7 Opportunity Scores.</p>
+        <p class="ai-card-sub">Don't just store what they bought — store habits, reorder windows, and the 7 Opportunity Scores.</p>
       </div>
 
       {{-- Filters --}}
-      <div class="d-flex gap-2 flex-wrap">
+      <div class="filters-bar">
         <a href="{{ url('/restaurant/ai-analytics?filter=all') }}" class="filter-pill {{ $filter == 'all' ? 'active' : '' }}">All ({{ count($digitalTwins) }})</a>
         <a href="{{ url('/restaurant/ai-analytics?filter=reorder_ready') }}" class="filter-pill {{ $filter == 'reorder_ready' ? 'active' : '' }}">🟢 Reorder Ready</a>
         <a href="{{ url('/restaurant/ai-analytics?filter=at_risk') }}" class="filter-pill {{ $filter == 'at_risk' ? 'active' : '' }}">⚠️ At Risk</a>
@@ -401,8 +872,9 @@
       </div>
     </div>
 
-    <div class="table-responsive">
-      <table class="table twin-table align-middle">
+    {{-- Desktop / Tablet Data Table View --}}
+    <div class="table-scroll-wrap desktop-table-view">
+      <table class="twin-table">
         <thead>
           <tr>
             <th>CUSTOMER</th>
@@ -411,7 +883,7 @@
             <th>REORDER WINDOW</th>
             <th>THE 7 AI SCORES</th>
             <th>STATUS</th>
-            <th class="text-end">ACTION</th>
+            <th style="text-align:right;">ACTION</th>
           </tr>
         </thead>
         <tbody>
@@ -419,48 +891,54 @@
             <tr>
               <td>
                 <div style="font-weight:700; color:var(--ink);">{{ $t['name'] }}</div>
-                <small class="text-muted">{{ $t['phone'] ?: $t['email'] }}</small>
+                <div style="font-size:11.5px; color:var(--muted);">{{ $t['phone'] ?: $t['email'] }}</div>
               </td>
               <td>
                 <div><strong>{{ $t['orders_count'] }}</strong> orders</div>
-                <small class="text-muted">AOV: £{{ number_format($t['average_order_value'], 2) }}</small>
+                <div style="font-size:11.5px; color:var(--muted);">AOV: £{{ number_format($t['average_order_value'], 2) }}</div>
               </td>
               <td>
                 <div style="font-weight:600; color:var(--terra);">{{ $t['favourite_food'] }}</div>
-                <small class="text-muted">{{ $t['typical_day'] }} ({{ $t['typical_time'] }})</small>
+                <div style="font-size:11.5px; color:var(--muted);">{{ $t['typical_day'] }} ({{ $t['typical_time'] }})</div>
               </td>
               <td>
                 <div>Every <strong>{{ $t['typical_interval'] }}</strong> days</div>
-                <small class="text-muted">Last: {{ $t['last_order_days'] }} days ago</small>
+                <div style="font-size:11.5px; color:var(--muted);">Last: {{ $t['last_order_days'] }} days ago</div>
               </td>
               <td>
-                <div class="d-flex gap-1 flex-wrap">
-                  <span class="score-badge {{ $t['scores']['reorder'] >= 75 ? 'score-high' : 'score-mid' }}" title="Reorder Score">
+                <div>
+                  <span class="score-badge {{ $t['scores']['reorder'] >= 75 ? 'score-high' : 'score-mid' }}">
                     Reorder: {{ $t['scores']['reorder'] }}%
                   </span>
-                  <span class="score-badge {{ $t['scores']['churn'] >= 70 ? 'score-low' : 'score-high' }}" title="Churn Score">
+                  <span class="score-badge {{ $t['scores']['churn'] >= 70 ? 'score-low' : 'score-high' }}">
                     Churn: {{ $t['scores']['churn'] }}%
                   </span>
-                  <span class="score-badge score-mid" title="Offer Sensitivity">
+                  <span class="score-badge score-mid">
                     Sens: {{ $t['scores']['offer_sensitivity'] }}
                   </span>
                 </div>
               </td>
               <td>
-                <span class="badge {{ $t['current_status'] == 'REORDER READY' ? 'bg-success' : ($t['current_status'] == 'AT RISK' ? 'bg-warning text-dark' : 'bg-secondary') }}">
+                @php
+                  $stClass = 'badge-neutral';
+                  if ($t['current_status'] == 'REORDER READY') $stClass = 'badge-upsell';
+                  elseif ($t['current_status'] == 'AT RISK') $stClass = 'badge-value';
+                  elseif ($t['current_status'] == 'DORMANT') $stClass = 'badge-priority';
+                @endphp
+                <span class="ai-badge {{ $stClass }}">
                   {{ $t['current_status'] }}
                 </span>
               </td>
-              <td class="text-end">
-                <button type="button" class="btn btn-sm btn-outline-dark" style="border-radius:8px; font-size:12px; font-weight:600;"
-                        onclick="showDigitalTwinModal({{ json_encode($t) }})">
+              <td style="text-align:right;">
+                <button type="button" class="btn-ai-outline" style="padding:6px 12px; font-size:12px;"
+                        onclick='showDigitalTwinModal(@json($t))'>
                   View Twin 🧬
                 </button>
               </td>
             </tr>
           @empty
             <tr>
-              <td colspan="7" class="text-center py-4 text-muted">
+              <td colspan="7" style="text-align:center; padding:32px; color:var(--muted);">
                 No customers match the selected filter.
               </td>
             </tr>
@@ -468,104 +946,159 @@
         </tbody>
       </table>
     </div>
+
+    {{-- Mobile Responsive Card View (< 768px) --}}
+    <div class="mobile-twins-list">
+      @forelse($filteredTwins as $t)
+        @php
+          $stClass = 'badge-neutral';
+          if ($t['current_status'] == 'REORDER READY') $stClass = 'badge-upsell';
+          elseif ($t['current_status'] == 'AT RISK') $stClass = 'badge-value';
+          elseif ($t['current_status'] == 'DORMANT') $stClass = 'badge-priority';
+        @endphp
+        <div class="mobile-twin-card">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
+            <div>
+              <div style="font-weight:700; font-size:15px; color:var(--ink);">{{ $t['name'] }}</div>
+              <div style="font-size:12px; color:var(--muted);">{{ $t['phone'] ?: $t['email'] }}</div>
+            </div>
+            <span class="ai-badge {{ $stClass }}">{{ $t['current_status'] }}</span>
+          </div>
+
+          <div class="mobile-twin-grid">
+            <div>
+              <span style="color:var(--muted); display:block; font-size:10.5px;">ORDERS & AOV</span>
+              <strong>{{ $t['orders_count'] }} orders</strong> (£{{ number_format($t['average_order_value'], 2) }})
+            </div>
+            <div>
+              <span style="color:var(--muted); display:block; font-size:10.5px;">FAVOURITE DISH</span>
+              <strong style="color:var(--terra);">{{ $t['favourite_food'] }}</strong>
+            </div>
+            <div>
+              <span style="color:var(--muted); display:block; font-size:10.5px;">TYPICAL HABIT</span>
+              <strong>{{ $t['typical_day'] }}</strong> ({{ $t['typical_time'] }})
+            </div>
+            <div>
+              <span style="color:var(--muted); display:block; font-size:10.5px;">INTERVAL</span>
+              Every <strong>{{ $t['typical_interval'] }}d</strong> ({{ $t['last_order_days'] }}d ago)
+            </div>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+            <div>
+              <span class="score-badge {{ $t['scores']['reorder'] >= 75 ? 'score-high' : 'score-mid' }}">
+                Reorder: {{ $t['scores']['reorder'] }}%
+              </span>
+              <span class="score-badge {{ $t['scores']['churn'] >= 70 ? 'score-low' : 'score-high' }}">
+                Churn: {{ $t['scores']['churn'] }}%
+              </span>
+            </div>
+            <button type="button" class="btn-ai-outline" style="padding:7px 14px; font-size:12px;"
+                    onclick='showDigitalTwinModal(@json($t))'>
+              View Twin 🧬
+            </button>
+          </div>
+        </div>
+      @empty
+        <div style="text-align:center; padding:28px 12px; color:var(--muted);">
+          No customers match the selected filter.
+        </div>
+      @endforelse
+    </div>
+
   </div>
 
 </div>
 
 {{-- MODAL 1: ACTION SENDER (PREVIEW & SEND) --}}
-<div class="modal fade" id="actionModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content" style="border-radius:18px; border:1px solid var(--border);">
-      <div class="modal-header" style="border-bottom:1px solid var(--border); background:var(--cream);">
-        <h5 class="modal-title" id="actionModalTitle" style="font-family:'Playfair Display', serif; font-weight:700;">Create Campaign</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body p-4">
-        <label class="form-label text-muted small fw-bold">RECIPIENT</label>
-        <p id="actionCustomerName" class="fw-bold fs-6 mb-3"></p>
+<div class="ai-modal-backdrop" id="actionModal" onclick="if(event.target === this) closeActionModal()">
+  <div class="ai-modal-box">
+    <div class="ai-modal-header" style="background:var(--cream);">
+      <h5 id="actionModalTitle" style="font-family:'Playfair Display', serif; font-weight:700; font-size:20px; margin:0;">Create Campaign</h5>
+      <button type="button" class="ai-modal-close" onclick="closeActionModal()">✕</button>
+    </div>
+    <div class="ai-modal-body">
+      <div style="font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:4px;">RECIPIENT</div>
+      <div id="actionCustomerName" style="font-weight:700; font-size:16px; margin-bottom:16px; color:var(--ink);"></div>
 
-        <label class="form-label text-muted small fw-bold">PRE-DRAFTED AI MESSAGE (NON-CREEPY & MARGIN SAFE)</label>
-        <textarea id="actionMessageBody" class="form-control mb-3" rows="3" style="border-radius:10px;"></textarea>
+      <div style="font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:6px;">
+        PRE-DRAFTED AI MESSAGE (NON-CREEPY & MARGIN SAFE)
+      </div>
+      <textarea id="actionMessageBody" rows="3" style="width:100%; border:1px solid var(--border); border-radius:12px; padding:12px; font-family:inherit; font-size:13.5px; margin-bottom:14px; outline:none;"></textarea>
 
-        <div class="alert alert-info py-2 px-3 small mb-0" style="border-radius:10px;">
-          🔒 <strong>Step 29 Rule Applied:</strong> The AI uses contextual reminders instead of creepy stats ("Friday again?" instead of "We know you order every 8.4 days").
-        </div>
+      <div style="background:var(--blue-bg); color:var(--blue); padding:12px 14px; border-radius:12px; font-size:12px; line-height:1.45;">
+        🔒 <strong>Step 29 Rule Applied:</strong> The AI uses natural convenience reminders instead of creepy stats ("Friday again?" instead of "We know you order every 8.4 days").
       </div>
-      <div class="modal-footer" style="border-top:1px solid var(--border);">
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" style="border-radius:10px;">Cancel</button>
-        <button type="button" class="btn" style="background:var(--terra); color:#fff; border-radius:10px; font-weight:600;" onclick="simulateSend()">
-          Send via Push & SMS 🚀
-        </button>
-      </div>
+    </div>
+    <div class="ai-modal-footer">
+      <button type="button" class="btn-ai-outline" onclick="closeActionModal()">Cancel</button>
+      <button type="button" class="btn-ai-primary" onclick="simulateSend()">
+        Send via Push & SMS 🚀
+      </button>
     </div>
   </div>
 </div>
 
 {{-- MODAL 2: FULL CUSTOMER DIGITAL TWIN INSPECTOR (SARAH'S PROFILE) --}}
-<div class="modal fade" id="twinModal" tabindex="-1">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content" style="border-radius:20px; border:1px solid var(--border); overflow:hidden;">
-      <div class="modal-header text-white" style="background:var(--terra); border:none; padding:20px;">
-        <div>
-          <span style="font-size:11px; text-transform:uppercase; letter-spacing:1px; opacity:0.85;">STEP 2 — CUSTOMER DIGITAL TWIN</span>
-          <h4 class="modal-title fw-bold" id="twinName">Customer</h4>
-        </div>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+<div class="ai-modal-backdrop" id="twinModal" onclick="if(event.target === this) closeTwinModal()">
+  <div class="ai-modal-box modal-lg">
+    <div class="ai-modal-header" style="background:var(--terra); color:#fff; border:none;">
+      <div>
+        <span style="font-size:10.5px; text-transform:uppercase; letter-spacing:1px; opacity:0.85; display:block;">STEP 2 — CUSTOMER DIGITAL TWIN</span>
+        <h4 id="twinName" style="font-weight:700; font-size:20px; margin:2px 0 0; color:#fff;">Customer</h4>
       </div>
-      <div class="modal-body p-4" style="background:#FAFAFA;">
-        
-        <div class="row g-3 mb-4">
-          <div class="col-md-3">
-            <div style="background:#fff; border:1px solid var(--border); border-radius:12px; padding:16px;">
-              <small class="text-muted d-block">ORDERS</small>
-              <h4 class="fw-bold mb-0" id="twinOrders">0</h4>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div style="background:#fff; border:1px solid var(--border); border-radius:12px; padding:16px;">
-              <small class="text-muted d-block">AVERAGE BASKET</small>
-              <h4 class="fw-bold mb-0" id="twinAov">£0.00</h4>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div style="background:#fff; border:1px solid var(--border); border-radius:12px; padding:16px;">
-              <small class="text-muted d-block">TYPICAL INTERVAL</small>
-              <h4 class="fw-bold mb-0" id="twinInterval">0 days</h4>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div style="background:#fff; border:1px solid var(--border); border-radius:12px; padding:16px;">
-              <small class="text-muted d-block">CURRENT STATUS</small>
-              <h5 class="fw-bold mb-0 text-success" id="twinStatus">REORDER READY</h5>
-            </div>
-          </div>
-        </div>
+      <button type="button" class="ai-modal-close" style="background:rgba(255,255,255,0.2); color:#fff;" onclick="closeTwinModal()">✕</button>
+    </div>
 
-        <div class="card mb-3" style="border-radius:14px; border:1px solid var(--border);">
-          <div class="card-body p-3">
-            <h6 class="fw-bold text-uppercase small text-muted mb-2">BEHAVIOURAL PATTERNS</h6>
-            <div class="row g-2" style="font-size:13px;">
-              <div class="col-sm-6"><strong>Favourite Dish:</strong> <span id="twinFood" class="text-primary"></span></div>
-              <div class="col-sm-6"><strong>Typical Day:</strong> <span id="twinDay"></span></div>
-              <div class="col-sm-6"><strong>Typical Time:</strong> <span id="twinTime"></span></div>
-              <div class="col-sm-6"><strong>Last Order:</strong> <span id="twinLast"></span></div>
-              <div class="col-sm-6"><strong>Offer Sensitivity:</strong> <span id="twinSens"></span></div>
-              <div class="col-sm-6"><strong>Customer Value:</strong> <span id="twinVal" class="badge bg-dark"></span></div>
-              <div class="col-12 mt-2"><strong>Favourite Basket:</strong> <span id="twinBasket" class="badge bg-secondary"></span></div>
-            </div>
-          </div>
+    <div class="ai-modal-body" style="background:#FAFAFA;">
+      <div class="twin-stats-grid">
+        <div class="twin-stat-item">
+          <small style="color:var(--muted); font-size:10.5px; font-weight:700; display:block;">ORDERS</small>
+          <div style="font-size:20px; font-weight:700; color:var(--ink); margin-top:2px;" id="twinOrders">0</div>
         </div>
-
-        <div class="card" style="border-radius:14px; border:1px solid var(--border);">
-          <div class="card-body p-3">
-            <h6 class="fw-bold text-uppercase small text-muted mb-2">THE 7 AI OPPORTUNITY SCORES</h6>
-            <div class="row g-2 text-center" style="font-size:12px;" id="twinScoresRow">
-              <!-- Rendered via JS -->
-            </div>
-          </div>
+        <div class="twin-stat-item">
+          <small style="color:var(--muted); font-size:10.5px; font-weight:700; display:block;">AVERAGE BASKET</small>
+          <div style="font-size:20px; font-weight:700; color:var(--ink); margin-top:2px;" id="twinAov">£0.00</div>
         </div>
-
+        <div class="twin-stat-item">
+          <small style="color:var(--muted); font-size:10.5px; font-weight:700; display:block;">TYPICAL INTERVAL</small>
+          <div style="font-size:20px; font-weight:700; color:var(--ink); margin-top:2px;" id="twinInterval">0 days</div>
+        </div>
+        <div class="twin-stat-item">
+          <small style="color:var(--muted); font-size:10.5px; font-weight:700; display:block;">CURRENT STATUS</small>
+          <div style="font-size:15px; font-weight:700; color:var(--green); margin-top:5px;" id="twinStatus">REORDER READY</div>
+        </div>
       </div>
+
+      <div style="background:#fff; border:1px solid var(--border); border-radius:14px; padding:16px; margin-bottom:16px;">
+        <div style="font-size:11px; font-weight:700; text-transform:uppercase; color:var(--muted); margin-bottom:10px;">
+          BEHAVIOURAL PATTERNS & HABITS
+        </div>
+        <div class="twin-patterns-grid">
+          <div><strong>Favourite Dish:</strong> <span id="twinFood" style="color:var(--terra); font-weight:600;"></span></div>
+          <div><strong>Typical Day:</strong> <span id="twinDay"></span></div>
+          <div><strong>Typical Time:</strong> <span id="twinTime"></span></div>
+          <div><strong>Last Order:</strong> <span id="twinLast"></span></div>
+          <div><strong>Offer Sensitivity:</strong> <span id="twinSens"></span></div>
+          <div><strong>Customer Value:</strong> <span id="twinVal" class="ai-badge badge-neutral"></span></div>
+          <div style="grid-column: 1 / -1; margin-top:4px;">
+            <strong>Favourite Basket:</strong> <span id="twinBasket" style="color:var(--ink2); font-weight:600;"></span>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:#fff; border:1px solid var(--border); border-radius:14px; padding:16px;">
+        <div style="font-size:11px; font-weight:700; text-transform:uppercase; color:var(--muted); margin-bottom:10px;">
+          THE 7 AI OPPORTUNITY SCORES
+        </div>
+        <div class="twin-scores-grid" id="twinScoresRow">
+          <!-- Populated via JS -->
+        </div>
+      </div>
+    </div>
+
+    <div class="ai-modal-footer">
+      <button type="button" class="btn-ai-outline" onclick="closeTwinModal()">Close Profile</button>
     </div>
   </div>
 </div>
@@ -575,12 +1108,25 @@ function openActionModal(customer, action, copy) {
   document.getElementById('actionCustomerName').innerText = customer;
   document.getElementById('actionModalTitle').innerText = action;
   document.getElementById('actionMessageBody').value = copy;
-  new bootstrap.Modal(document.getElementById('actionModal')).show();
+  document.getElementById('actionModal').classList.add('open');
+}
+
+function closeActionModal() {
+  document.getElementById('actionModal').classList.remove('open');
 }
 
 function simulateSend() {
-  alert('Action successfully queued! Campaign sent via Customer Engagement channels.');
-  bootstrap.Modal.getInstance(document.getElementById('actionModal')).hide();
+  closeActionModal();
+  if (typeof Swal !== 'undefined') {
+    Swal.fire({
+      icon: 'success',
+      title: 'Campaign Queued!',
+      text: 'Your personalised AI message has been dispatched to the customer.',
+      confirmButtonColor: '#C25A2A'
+    });
+  } else {
+    alert('Action successfully queued! Campaign sent via Customer Engagement channels.');
+  }
 }
 
 function showDigitalTwinModal(t) {
@@ -599,16 +1145,27 @@ function showDigitalTwinModal(t) {
 
   const scoresRow = document.getElementById('twinScoresRow');
   scoresRow.innerHTML = `
-    <div class="col-4 col-md-2 p-2 bg-light rounded"><small class="text-muted d-block">Reorder</small><strong>${t.scores.reorder}%</strong></div>
-    <div class="col-4 col-md-2 p-2 bg-light rounded"><small class="text-muted d-block">Churn</small><strong>${t.scores.churn}%</strong></div>
-    <div class="col-4 col-md-2 p-2 bg-light rounded"><small class="text-muted d-block">Upsell</small><strong>${t.scores.upsell}%</strong></div>
-    <div class="col-4 col-md-2 p-2 bg-light rounded"><small class="text-muted d-block">VIP</small><strong>${t.scores.vip}%</strong></div>
-    <div class="col-4 col-md-2 p-2 bg-light rounded"><small class="text-muted d-block">Engagement</small><strong>${t.scores.engagement}%</strong></div>
-    <div class="col-4 col-md-2 p-2 bg-light rounded"><small class="text-muted d-block">Affinity</small><strong>${t.scores.affinity}%</strong></div>
+    <div style="background:var(--cream); padding:10px 6px; border-radius:10px;"><small style="color:var(--muted); display:block; font-size:10.5px;">Reorder</small><strong style="font-size:14px;">${t.scores.reorder}%</strong></div>
+    <div style="background:var(--cream); padding:10px 6px; border-radius:10px;"><small style="color:var(--muted); display:block; font-size:10.5px;">Churn</small><strong style="font-size:14px;">${t.scores.churn}%</strong></div>
+    <div style="background:var(--cream); padding:10px 6px; border-radius:10px;"><small style="color:var(--muted); display:block; font-size:10.5px;">Upsell</small><strong style="font-size:14px;">${t.scores.upsell}%</strong></div>
+    <div style="background:var(--cream); padding:10px 6px; border-radius:10px;"><small style="color:var(--muted); display:block; font-size:10.5px;">VIP</small><strong style="font-size:14px;">${t.scores.vip}%</strong></div>
+    <div style="background:var(--cream); padding:10px 6px; border-radius:10px;"><small style="color:var(--muted); display:block; font-size:10.5px;">Engage</small><strong style="font-size:14px;">${t.scores.engagement}%</strong></div>
+    <div style="background:var(--cream); padding:10px 6px; border-radius:10px;"><small style="color:var(--muted); display:block; font-size:10.5px;">Affinity</small><strong style="font-size:14px;">${t.scores.affinity}%</strong></div>
   `;
 
-  new bootstrap.Modal(document.getElementById('twinModal')).show();
+  document.getElementById('twinModal').classList.add('open');
 }
+
+function closeTwinModal() {
+  document.getElementById('twinModal').classList.remove('open');
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    closeActionModal();
+    closeTwinModal();
+  }
+});
 </script>
 
 @endsection
