@@ -524,11 +524,32 @@
         <h1>{{ $restaurant->name ?? 'Restaurant' }} <span>Dashboard</span></h1>
         <p class="pg-sub" id="pgDate">Loading…</p>
 
-        <div class="flex justify-end">
+        <div class="flex justify-end gap-3 items-center flex-wrap">
+            <a href="{{ route('restaurant.ai_analytics.index') }}" target="_blank" style="display:inline-flex; align-items:center; gap:8px; background:linear-gradient(135deg, #1A1208, #2E2318); color:#fff; border:1px solid var(--terra); border-radius:9px; padding:9px 18px; font-family:'Poppins',sans-serif; font-size:13px; font-weight:600; text-decoration:none; box-shadow:0 3px 12px rgba(194,90,42,0.25); transition:all .2s ease;">
+                <span style="font-size:15px;">🤖</span> AI Analytics & Growth Engine <span style="color:#4ADE80; font-size:12px;">↗</span>
+            </a>
             <button class="qr-btn" onclick="openQrModal()">
             &#9638; Restaurant QR
             </button>
+        </div>
       </div>
+
+      {{-- AI Growth Engine Highlight Bar --}}
+      <div style="background:linear-gradient(135deg, #2E2318 0%, #1A1208 100%); color:#fff; border-radius:16px; padding:18px 24px; margin-bottom:24px; box-shadow:var(--shadow); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; border:1px solid rgba(194,90,42,0.3);">
+          <div style="display:flex; align-items:center; gap:14px;">
+              <div style="width:48px; height:48px; border-radius:12px; background:rgba(194,90,42,0.2); border:1px solid var(--terra); display:flex; align-items:center; justify-content:center; font-size:24px;">
+                  🧠
+              </div>
+              <div>
+                  <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#E0D5C0;">HYST AI Growth Flywheel</div>
+                  <h3 style="font-size:18px; font-weight:700; margin:2px 0 0; color:#fff;">Identify Reorder Opportunities & Customer Digital Twins</h3>
+              </div>
+          </div>
+          <div>
+              <a href="{{ route('restaurant.ai_analytics.index') }}" target="_blank" style="background:var(--terra); color:#fff; padding:10px 20px; border-radius:10px; font-weight:600; font-size:13px; text-decoration:none; display:inline-flex; align-items:center; gap:6px; box-shadow:0 4px 14px rgba(194,90,42,0.4);">
+                  Open AI Analytics Tab <span style="font-size:14px;">↗</span>
+              </a>
+          </div>
       </div>
 
       <div class="bg-white rounded-2xl shadow border border-gray-200 p-5 mb-6">

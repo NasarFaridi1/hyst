@@ -719,6 +719,12 @@ Route::middleware(['auth', 'restaurant_admin'])
             '/dashboard',
             [RestaurantDashboardController::class, 'index']
         );
+
+        // HYST AI Customer Growth & Analytics Engine
+        Route::get(
+            '/ai-analytics',
+            [\App\Http\Controllers\RestaurantAdmin\AiAnalyticsController::class, 'index']
+        )->name('ai_analytics.index');
         Route::get(
 
             '/page-visits',

@@ -326,6 +326,15 @@
                 <span>Dashboard</span>
             </a>
 
+            {{-- 1.5 AI Analytics (New Tab) --}}
+            <a href="{{ route('restaurant.ai_analytics.index') }}" target="_blank"
+            class="sidebar-item {{ str_contains($current,'restaurant/ai-analytics') ? 'active' : '' }}" title="HYST AI Growth & Analytics">
+                <div class="sidebar-icon" style="border: 2px solid #4ADE80; box-shadow: 0 0 10px rgba(74, 222, 128, 0.4);">
+                    <i data-lucide="sparkles" style="color: #4ADE80;"></i>
+                </div>
+                <span style="font-weight: 700; color: #fff;">AI Analytics ↗</span>
+            </a>
+
             {{-- 2. Orders --}}
             <a href="/restaurant/orders"
             class="sidebar-item {{ str_contains($current,'restaurant/orders') && !str_contains($current,'platform-orders') ? 'active' : '' }}">
