@@ -698,22 +698,25 @@
     </div>
   </div>
 
-  {{-- STEP 26: REVENUE OPPORTUNITY BOARD (HERO) --}}
+  {{-- STEP 26 & STEP 6: REVENUE OPPORTUNITY & MARGIN PROTECTION HERO --}}
   <div class="opportunity-hero">
     <div style="z-index: 1;">
       <span class="hero-eyebrow">
-        💰 STEP 26 — REVENUE OPPORTUNITY BOARD
+        💰 STEP 26 & STEP 6 — REVENUE OPPORTUNITY & MARGIN PROTECTION
       </span>
       <h2 class="hero-title">
         Potential Opportunity Today: <span style="color:#4ADE80;">£{{ number_format($totalPotentialToday, 2) }}</span>
       </h2>
       <p class="hero-desc">
-        HYST AI analyzes previous order intervals, typical order days, and basket compositions to identify exactly who is ready to buy today.
+        HYST AI evaluates the 7 Opportunity Scores and protects food margins: <strong>£{{ number_format($totalMarginProtected, 2) }} in profit saved</strong> by replacing blanket discounts with intelligent habit triggers and value-adds.
       </p>
     </div>
-    <div style="z-index: 1;">
+    <div style="z-index: 1; display:flex; flex-direction:column; gap:8px; align-items:flex-end;">
       <span class="flywheel-pill">
         🟢 Active Growth Flywheel
+      </span>
+      <span style="background:rgba(217,119,6,0.2); border:1px solid rgba(217,119,6,0.4); color:#FDE68A; font-size:12px; font-weight:600; padding:6px 12px; border-radius:999px;">
+        🛡️ £{{ number_format($totalMarginProtected, 2) }} Margin Protected
       </span>
     </div>
   </div>
@@ -725,7 +728,7 @@
       <div class="value" style="color:var(--green);">
         {{ $reorderReadyCount }} <span style="font-size:14px; color:var(--muted); font-family:'Poppins',sans-serif; font-weight:500;">Customers</span>
       </div>
-      <div class="sub">Potential: <strong style="color:var(--ink);">£{{ number_format($reorderReadyPotential, 2) }}</strong></div>
+      <div class="sub">Potential: <strong style="color:var(--ink);">£{{ number_format($reorderReadyPotential, 2) }}</strong> (Margin Safe)</div>
     </div>
 
     <div class="metric-box">
@@ -733,7 +736,7 @@
       <div class="value" style="color:#D97706;">
         {{ $atRiskCount }} <span style="font-size:14px; color:var(--muted); font-family:'Poppins',sans-serif; font-weight:500;">Customers</span>
       </div>
-      <div class="sub">Potential: <strong style="color:var(--ink);">£{{ number_format($atRiskPotential, 2) }}</strong></div>
+      <div class="sub">Potential: <strong style="color:var(--ink);">£{{ number_format($atRiskPotential, 2) }}</strong> (Winback)</div>
     </div>
 
     <div class="metric-box">
@@ -741,15 +744,15 @@
       <div class="value" style="color:var(--terra);">
         {{ $vipInactiveCount }} <span style="font-size:14px; color:var(--muted); font-family:'Poppins',sans-serif; font-weight:500;">Customers</span>
       </div>
-      <div class="sub">Potential: <strong style="color:var(--ink);">£{{ number_format($vipInactivePotential, 2) }}</strong></div>
+      <div class="sub">Strategy: <strong style="color:var(--ink);">Free Treat (Value-Add)</strong></div>
     </div>
 
     <div class="metric-box">
-      <div class="label">🚀 Upsell Candidates</div>
-      <div class="value" style="color:var(--blue);">
-        {{ $upsellCount }} <span style="font-size:14px; color:var(--muted); font-family:'Poppins',sans-serif; font-weight:500;">Customers</span>
+      <div class="label">🛡️ Margin Protected (Step 6)</div>
+      <div class="value" style="color:#2563EB;">
+        £{{ number_format($totalMarginProtected, 2) }}
       </div>
-      <div class="sub">Potential: <strong style="color:var(--ink);">£{{ number_format($upsellPotential, 2) }}</strong></div>
+      <div class="sub">Pure Profit: <strong style="color:var(--green);">Saved vs Discounts</strong></div>
     </div>
   </div>
 
@@ -780,12 +783,25 @@
               <span class="ai-badge {{ $badgeType }}">
                 {{ $act['category'] }}
               </span>
-              <span style="font-weight:700; color:var(--green); font-size:14px;">
-                +£{{ number_format($act['potential'], 2) }}
-              </span>
+              <div style="text-align:right;">
+                <span style="font-weight:700; color:var(--green); font-size:14px; display:block;">
+                  +£{{ number_format($act['potential'], 2) }}
+                </span>
+                @if(!empty($act['margin_saved']) && $act['margin_saved'] > 0)
+                  <span style="font-size:11px; color:#2563EB; font-weight:700;">
+                    🛡️ £{{ number_format($act['margin_saved'], 2) }} saved
+                  </span>
+                @endif
+              </div>
             </div>
             <h5 class="action-customer">{{ $act['customer'] }}</h5>
             <p class="action-headline">{{ $act['headline'] }}</p>
+
+            <div style="margin-bottom:8px;">
+              <span class="ai-badge" style="background:#EDE5D4; color:#6B5C46; font-size:11px;">
+                {{ $act['incentive_badge'] ?? '🛡️ 0% Discount' }}
+              </span>
+            </div>
 
             <div class="action-rec-box">
               <div style="font-weight:700; color:var(--terra); margin-bottom:4px;">💡 AI Recommendation:</div>
@@ -794,7 +810,7 @@
           </div>
 
           <button type="button" class="btn-ai-primary" style="width:100%;"
-                  onclick="openActionModal('{{ addslashes($act['customer']) }}', '{{ addslashes($act['action_label']) }}', '{{ addslashes($act['suggested_copy']) }}')">
+                  onclick="openActionModal('{{ addslashes($act['customer']) }}', '{{ addslashes($act['action_label']) }}', '{{ addslashes($act['suggested_copy']) }}', '{{ addslashes($act['incentive_badge'] ?? '') }}')">
             {{ $act['action_label'] }} ➔
           </button>
         </div>
@@ -866,6 +882,7 @@
       <div class="filters-bar">
         <a href="{{ url('/restaurant/ai-analytics?filter=all') }}" class="filter-pill {{ $filter == 'all' ? 'active' : '' }}">All ({{ count($digitalTwins) }})</a>
         <a href="{{ url('/restaurant/ai-analytics?filter=reorder_ready') }}" class="filter-pill {{ $filter == 'reorder_ready' ? 'active' : '' }}">🟢 Reorder Ready</a>
+        <a href="{{ url('/restaurant/ai-analytics?filter=margin_safe') }}" class="filter-pill {{ $filter == 'margin_safe' ? 'active' : '' }}">🛡️ Margin Safe (0% Disc)</a>
         <a href="{{ url('/restaurant/ai-analytics?filter=at_risk') }}" class="filter-pill {{ $filter == 'at_risk' ? 'active' : '' }}">⚠️ At Risk</a>
         <a href="{{ url('/restaurant/ai-analytics?filter=vip') }}" class="filter-pill {{ $filter == 'vip' ? 'active' : '' }}">⭐ VIP</a>
         <a href="{{ url('/restaurant/ai-analytics?filter=dormant') }}" class="filter-pill {{ $filter == 'dormant' ? 'active' : '' }}">💤 Dormant</a>
@@ -880,8 +897,8 @@
             <th>CUSTOMER</th>
             <th>ORDERS & BASKET</th>
             <th>FAVOURITE HABIT</th>
-            <th>REORDER WINDOW</th>
-            <th>THE 7 AI SCORES</th>
+            <th>THE 7 AI SCORES (STEP 5)</th>
+            <th>INCENTIVE POLICY (STEP 6)</th>
             <th>STATUS</th>
             <th style="text-align:right;">ACTION</th>
           </tr>
@@ -902,10 +919,6 @@
                 <div style="font-size:11.5px; color:var(--muted);">{{ $t['typical_day'] }} ({{ $t['typical_time'] }})</div>
               </td>
               <td>
-                <div>Every <strong>{{ $t['typical_interval'] }}</strong> days</div>
-                <div style="font-size:11.5px; color:var(--muted);">Last: {{ $t['last_order_days'] }} days ago</div>
-              </td>
-              <td>
                 <div>
                   <span class="score-badge {{ $t['scores']['reorder'] >= 75 ? 'score-high' : 'score-mid' }}">
                     Reorder: {{ $t['scores']['reorder'] }}%
@@ -913,9 +926,20 @@
                   <span class="score-badge {{ $t['scores']['churn'] >= 70 ? 'score-low' : 'score-high' }}">
                     Churn: {{ $t['scores']['churn'] }}%
                   </span>
-                  <span class="score-badge score-mid">
-                    Sens: {{ $t['scores']['offer_sensitivity'] }}
+                  <span class="score-badge {{ $t['scores']['vip'] >= 75 ? 'score-high' : 'score-mid' }}">
+                    VIP: {{ $t['scores']['vip'] }}%
                   </span>
+                  <span class="score-badge score-mid">
+                    Sens: {{ $t['scores']['offer_sensitivity'] }}%
+                  </span>
+                </div>
+              </td>
+              <td>
+                <div style="font-weight:700; font-size:12px; color:var(--ink);">
+                  {{ $t['incentive']['badge'] }}
+                </div>
+                <div style="font-size:11px; color:var(--muted); max-width:210px; line-height:1.3;">
+                  {{ $t['incentive']['rationale'] }}
                 </div>
               </td>
               <td>
@@ -979,9 +1003,13 @@
               <strong>{{ $t['typical_day'] }}</strong> ({{ $t['typical_time'] }})
             </div>
             <div>
-              <span style="color:var(--muted); display:block; font-size:10.5px;">INTERVAL</span>
-              Every <strong>{{ $t['typical_interval'] }}d</strong> ({{ $t['last_order_days'] }}d ago)
+              <span style="color:var(--muted); display:block; font-size:10.5px;">INCENTIVE POLICY</span>
+              <strong style="color:#2563EB;">{{ $t['incentive']['badge'] }}</strong>
             </div>
+          </div>
+
+          <div style="font-size:11.5px; color:var(--muted); background:#fff; padding:8px 10px; border-radius:8px; margin-bottom:10px; border:1px solid var(--border);">
+            💡 <em>{{ $t['incentive']['rationale'] }}</em>
           </div>
 
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
@@ -1019,7 +1047,12 @@
     </div>
     <div class="ai-modal-body">
       <div style="font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:4px;">RECIPIENT</div>
-      <div id="actionCustomerName" style="font-weight:700; font-size:16px; margin-bottom:16px; color:var(--ink);"></div>
+      <div id="actionCustomerName" style="font-weight:700; font-size:16px; margin-bottom:12px; color:var(--ink);"></div>
+
+      <div style="font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:4px;">INCENTIVE POLICY (STEP 6)</div>
+      <div style="margin-bottom:14px;">
+        <span id="actionIncentiveBadge" class="ai-badge" style="background:#EDE5D4; color:#6B5C46; font-size:12px;">🛡️ 0% Discount (Margin Safe)</span>
+      </div>
 
       <div style="font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:6px;">
         PRE-DRAFTED AI MESSAGE (NON-CREEPY & MARGIN SAFE)
@@ -1070,6 +1103,20 @@
         </div>
       </div>
 
+      {{-- STEP 6: INCENTIVE POLICY & MARGIN PROTECTION --}}
+      <div style="background:#fff; border:1px solid var(--border); border-radius:14px; padding:16px; margin-bottom:16px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:6px;">
+          <div style="font-size:11px; font-weight:700; text-transform:uppercase; color:var(--muted);">
+            STEP 6 — MARGIN-PROTECTED INCENTIVE POLICY
+          </div>
+          <span id="twinMarginSaved" style="font-size:11.5px; font-weight:700; color:#2563EB;"></span>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+          <strong id="twinIncentiveBadge" class="ai-badge" style="background:#EDE5D4; color:#6B5C46; font-size:12px;"></strong>
+        </div>
+        <div id="twinIncentiveRationale" style="font-size:12.5px; color:var(--muted); line-height:1.4;"></div>
+      </div>
+
       <div style="background:#fff; border:1px solid var(--border); border-radius:14px; padding:16px; margin-bottom:16px;">
         <div style="font-size:11px; font-weight:700; text-transform:uppercase; color:var(--muted); margin-bottom:10px;">
           BEHAVIOURAL PATTERNS & HABITS
@@ -1089,7 +1136,7 @@
 
       <div style="background:#fff; border:1px solid var(--border); border-radius:14px; padding:16px;">
         <div style="font-size:11px; font-weight:700; text-transform:uppercase; color:var(--muted); margin-bottom:10px;">
-          THE 7 AI OPPORTUNITY SCORES
+          THE 7 AI OPPORTUNITY SCORES (STEP 5)
         </div>
         <div class="twin-scores-grid" id="twinScoresRow">
           <!-- Populated via JS -->
@@ -1104,10 +1151,11 @@
 </div>
 
 <script>
-function openActionModal(customer, action, copy) {
+function openActionModal(customer, action, copy, incentive) {
   document.getElementById('actionCustomerName').innerText = customer;
   document.getElementById('actionModalTitle').innerText = action;
   document.getElementById('actionMessageBody').value = copy;
+  document.getElementById('actionIncentiveBadge').innerText = incentive || '🛡️ 0% Discount (Margin Safe)';
   document.getElementById('actionModal').classList.add('open');
 }
 
@@ -1143,14 +1191,25 @@ function showDigitalTwinModal(t) {
   document.getElementById('twinVal').innerText = t.customer_value;
   document.getElementById('twinBasket').innerText = t.favourite_basket;
 
+  // Step 6: Incentive Policy & Margin Saved
+  if (t.incentive) {
+    document.getElementById('twinIncentiveBadge').innerText = t.incentive.badge || '🛡️ 0% Discount';
+    document.getElementById('twinIncentiveRationale').innerText = t.incentive.rationale || 'Natural routine buyer';
+    document.getElementById('twinMarginSaved').innerText = (t.incentive.margin_saved && t.incentive.margin_saved > 0) 
+      ? '🛡️ +£' + Number(t.incentive.margin_saved).toFixed(2) + ' margin protected' 
+      : '';
+  }
+
+  // Step 5: The 7 AI Opportunity Scores
   const scoresRow = document.getElementById('twinScoresRow');
   scoresRow.innerHTML = `
-    <div style="background:var(--cream); padding:10px 6px; border-radius:10px;"><small style="color:var(--muted); display:block; font-size:10.5px;">Reorder</small><strong style="font-size:14px;">${t.scores.reorder}%</strong></div>
-    <div style="background:var(--cream); padding:10px 6px; border-radius:10px;"><small style="color:var(--muted); display:block; font-size:10.5px;">Churn</small><strong style="font-size:14px;">${t.scores.churn}%</strong></div>
-    <div style="background:var(--cream); padding:10px 6px; border-radius:10px;"><small style="color:var(--muted); display:block; font-size:10.5px;">Upsell</small><strong style="font-size:14px;">${t.scores.upsell}%</strong></div>
-    <div style="background:var(--cream); padding:10px 6px; border-radius:10px;"><small style="color:var(--muted); display:block; font-size:10.5px;">VIP</small><strong style="font-size:14px;">${t.scores.vip}%</strong></div>
-    <div style="background:var(--cream); padding:10px 6px; border-radius:10px;"><small style="color:var(--muted); display:block; font-size:10.5px;">Engage</small><strong style="font-size:14px;">${t.scores.engagement}%</strong></div>
-    <div style="background:var(--cream); padding:10px 6px; border-radius:10px;"><small style="color:var(--muted); display:block; font-size:10.5px;">Affinity</small><strong style="font-size:14px;">${t.scores.affinity}%</strong></div>
+    <div style="background:var(--cream); padding:10px 6px; border-radius:10px;"><small style="color:var(--muted); display:block; font-size:10.5px;">1. Reorder</small><strong style="font-size:14px;">${t.scores.reorder}%</strong></div>
+    <div style="background:var(--cream); padding:10px 6px; border-radius:10px;"><small style="color:var(--muted); display:block; font-size:10.5px;">2. Churn</small><strong style="font-size:14px;">${t.scores.churn}%</strong></div>
+    <div style="background:var(--cream); padding:10px 6px; border-radius:10px;"><small style="color:var(--muted); display:block; font-size:10.5px;">3. Upsell</small><strong style="font-size:14px;">${t.scores.upsell}%</strong></div>
+    <div style="background:var(--cream); padding:10px 6px; border-radius:10px;"><small style="color:var(--muted); display:block; font-size:10.5px;">4. VIP</small><strong style="font-size:14px;">${t.scores.vip}%</strong></div>
+    <div style="background:var(--cream); padding:10px 6px; border-radius:10px;"><small style="color:var(--muted); display:block; font-size:10.5px;">5. Sensitivity</small><strong style="font-size:14px;">${t.scores.offer_sensitivity}%</strong></div>
+    <div style="background:var(--cream); padding:10px 6px; border-radius:10px;"><small style="color:var(--muted); display:block; font-size:10.5px;">6. Engage</small><strong style="font-size:14px;">${t.scores.engagement}%</strong></div>
+    <div style="background:var(--cream); padding:10px 6px; border-radius:10px;"><small style="color:var(--muted); display:block; font-size:10.5px;">7. Affinity</small><strong style="font-size:14px;">${t.scores.affinity}%</strong></div>
   `;
 
   document.getElementById('twinModal').classList.add('open');

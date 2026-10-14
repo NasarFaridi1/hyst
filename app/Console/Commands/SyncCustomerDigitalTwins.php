@@ -277,6 +277,66 @@ class SyncCustomerDigitalTwins extends Command
                             'updated_at' => now(),
                         ]
                     );
+
+                    // Step 5 & Step 6: Opportunity Scores & Margin-Protection Policy
+                    try {
+                        $sensLevel = $avgOrderValue < 18 ? 'high' : ($avgOrderValue < 30 ? 'medium' : 'low');
+                        $sensScore = $sensLevel === 'high' ? 80 : ($sensLevel === 'medium' ? 50 : 25);
+                        $reorderSc = (int) round($reorderProb);
+                        $churnSc = $recencyDays > 60 ? 95 : ($typicalInterval > 0 && $recencyDays > $typicalInterval ? min(90, (int) round(($recencyDays / $typicalInterval) * 45)) : 20);
+                        $vipSc = $res->spend >= 300 ? 92 : min(90, (int) round(($res->spend / 150) * 80));
+                        $upsellSc = 70;
+                        $engageSc = min(95, max(30, (int) ($res->order_cnt * 15 + ($recencyDays < 14 ? 25 : 0))));
+                        $affSc = min(99, max(50, 60 + ($res->order_cnt * 5)));
+
+                        // Step 6 Incentive Policy
+                        $incType = 'NONE';
+                        $incTitle = '🛡️ 0% Discount';
+                        $incRationale = 'Natural buyer — would order anyway without margin-cutting discounts.';
+                        $marginEst = round($avgOrderValue * 0.15, 2);
+
+                        if ($vipSc >= 85) {
+                            $incType = 'FREE_DESSERT';
+                            $incTitle = '🍰 Value-Add (Free Treat)';
+                            $incRationale = 'VIP Customer: Reward with complimentary treat rather than devaluing menu prices.';
+                            $marginEst = max(0, round(($avgOrderValue * 0.15) - 0.80, 2));
+                        } elseif ($recencyDays >= 18 && $avgOrderValue >= 30) {
+                            $incType = 'FREE_DELIVERY';
+                            $incTitle = '🚚 Free Delivery';
+                            $incRationale = 'High-order lapsed customer: Free delivery reactivates without slashing dish prices.';
+                            $marginEst = round(($avgOrderValue * 0.15) - 2.50, 2);
+                        } elseif ($sensLevel === 'high') {
+                            $incType = 'TARGETED_VOUCHER';
+                            $incTitle = '🏷️ £3 Targeted Voucher';
+                            $incRationale = 'Price-sensitive customer: Controlled £3 voucher requiring minimum spend.';
+                            $marginEst = 0.00;
+                        }
+
+                        DB::connection('hyst_ai')->table('restaurant_customer_opportunity_scores')->updateOrInsert(
+                            [
+                                'restaurant_id' => $res->restaurant_id,
+                                'user_id' => $user->id,
+                            ],
+                            [
+                                'reorder_score' => $reorderSc,
+                                'churn_score' => $churnSc,
+                                'upsell_score' => $upsellSc,
+                                'vip_score' => $vipSc,
+                                'offer_sensitivity_score' => $sensScore,
+                                'offer_sensitivity_level' => $sensLevel,
+                                'engagement_score' => $engageSc,
+                                'restaurant_affinity_score' => $affSc,
+                                'primary_opportunity' => $churnSc >= 70 ? 'WINBACK' : ($vipSc >= 85 ? 'VIP_LOYALTY' : 'REORDER'),
+                                'incentive_type' => $incType,
+                                'incentive_title' => $incTitle,
+                                'incentive_rationale' => $incRationale,
+                                'margin_saved_estimate' => $marginEst,
+                                'updated_at' => now(),
+                            ]
+                        );
+                    } catch (Exception $scoreEx) {
+                        // table may be pending manual creation
+                    }
                 }
 
                 $processedCount++;

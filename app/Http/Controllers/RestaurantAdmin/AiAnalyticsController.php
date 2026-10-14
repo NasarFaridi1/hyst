@@ -141,7 +141,7 @@ class AiAnalyticsController extends Controller
             $typicalHr = key($hourCounts) ?? 19;
             $typicalTimeSlot = sprintf('%02d:45–%02d:15', max(0, $typicalHr - 1), min(23, $typicalHr + 1));
 
-            // THE 7 AI OPPORTUNITY SCORES (0 - 100)
+            // ── STEP 5: THE 7 AI OPPORTUNITY SCORES (0 - 100) ──
             // 1. Reorder Score
             $reorderScore = 20;
             if ($typicalInterval > 0) {
@@ -173,15 +173,18 @@ class AiAnalyticsController extends Controller
             // 4. VIP Score
             $vipScore = min(99, (int) round(($totalSpend / max(1, $p80Spend)) * 80));
             if ($totalSpend >= 300 || $aov >= 40) {
-                $vipScore = max($vipScore, 90);
+                $vipScore = max($vipScore, 92);
             }
 
-            // 5. Offer Sensitivity
+            // 5. Offer Sensitivity (Quantitative 0-100 + Category)
+            $offerSensitivityScore = 25;
             $offerSensitivity = 'Low';
             if ($aov < 18) {
                 $offerSensitivity = 'High';
+                $offerSensitivityScore = 80;
             } elseif ($aov < 30) {
                 $offerSensitivity = 'Medium';
+                $offerSensitivityScore = 50;
             }
 
             // 6. Engagement Score
@@ -189,6 +192,44 @@ class AiAnalyticsController extends Controller
 
             // 7. Restaurant Affinity
             $affinityScore = min(99, max(50, 60 + ($orderCount * 5)));
+
+            // ── STEP 6: STOP THINKING "DISCOUNT" (INCENTIVE POLICY ENGINE) ──
+            // Default: Protect Margin (0% discount)
+            $incentiveType = 'NONE';
+            $incentiveBadge = '🛡️ 0% Discount';
+            $incentiveRationale = 'Natural buyer — would order anyway without margin-cutting discounts.';
+            $suggestedCopy = "{$typicalDay} again? Your favourite {$favDishName} is waiting hot and fresh!";
+            $estimatedMarginSaved = round($aov * 0.15, 2); // 15% discount avoided
+
+            if ($vipScore >= 85) {
+                // Customer C: High-value VIP -> Complimentary item (value-add, food cost ~£0.80, saves 15-20% cash discount)
+                $incentiveType = 'FREE_DESSERT';
+                $incentiveBadge = '🍰 Value-Add (Free Treat)';
+                $incentiveRationale = 'VIP Customer: Reward with complimentary treat rather than devaluing menu prices.';
+                $suggestedCopy = "We appreciate your loyalty! Enjoy a complimentary dessert on your next order tonight.";
+                $estimatedMarginSaved = max(0, round(($aov * 0.15) - 0.80, 2));
+            } elseif ($recencyDays >= 18 && $aov >= 30) {
+                // Customer B: High AOV lapsed -> Free delivery (costs restaurant ~£2.50, protects £35 order)
+                $incentiveType = 'FREE_DELIVERY';
+                $incentiveBadge = '🚚 Free Delivery';
+                $incentiveRationale = 'High-order lapsed customer: Free delivery reactivates without slashing dish prices.';
+                $suggestedCopy = "We've missed you! Enjoy free delivery on your favourite {$favDishName} this evening.";
+                $estimatedMarginSaved = round(($aov * 0.15) - 2.50, 2);
+            } elseif ($offerSensitivityScore >= 75) {
+                // Customer D: Price-sensitive buyer -> Small targeted £3 voucher with £20 basket lock
+                $incentiveType = 'TARGETED_VOUCHER';
+                $incentiveBadge = '🏷️ £3 Targeted Voucher';
+                $incentiveRationale = 'Price-sensitive customer: Controlled £3 voucher requiring minimum spend.';
+                $suggestedCopy = "Special treat: Get £3 off your order over £20 tonight!";
+                $estimatedMarginSaved = 0.00;
+            } elseif ($reorderScore >= 80) {
+                // Customer A: Orders regularly on schedule -> ZERO discount
+                $incentiveType = 'NONE';
+                $incentiveBadge = '🛡️ 0% Discount (Margin Safe)';
+                $incentiveRationale = 'Regular on routine: Convenience reminder is enough — zero discount required.';
+                $suggestedCopy = "Friday food sorted? 🍛 Your favourite {$favDishName} is ready to order in 1 tap.";
+                $estimatedMarginSaved = round($aov * 0.15, 2);
+            }
 
             // Lifecycle Stage & Current Digital Twin Status
             $status = 'REGULAR';
@@ -235,7 +276,7 @@ class AiAnalyticsController extends Controller
                 $upsellPotential += 4.50; // Average dessert/beverage basket add-on
             }
 
-            // Digital Twin Object
+            // Digital Twin Object with full Step 5 & Step 6 attributes
             $twin = [
                 'user_id' => $user->id,
                 'name' => $user->name,
@@ -254,20 +295,29 @@ class AiAnalyticsController extends Controller
                 'customer_value' => $vipScore >= 85 ? 'VIP' : ($totalSpend >= 100 ? 'High' : 'Medium'),
                 'current_status' => $currentStatus,
                 'relationship_stage' => $status,
+                // Step 5: The 7 Opportunity Scores
                 'scores' => [
                     'reorder' => $reorderScore,
                     'churn' => $churnScore,
                     'upsell' => $upsellScore,
                     'vip' => $vipScore,
-                    'offer_sensitivity' => $offerSensitivity,
+                    'offer_sensitivity' => $offerSensitivityScore,
                     'engagement' => $engagementScore,
                     'affinity' => $affinityScore,
+                ],
+                // Step 6: Margin Protection & Policy
+                'incentive' => [
+                    'type' => $incentiveType,
+                    'badge' => $incentiveBadge,
+                    'rationale' => $incentiveRationale,
+                    'margin_saved' => $estimatedMarginSaved,
+                    'suggested_copy' => $suggestedCopy,
                 ]
             ];
 
             $digitalTwins[] = $twin;
 
-            // Generate Next Best Action Cards (Step 4 & Step 25)
+            // Generate Next Best Action Cards (Step 4 & Step 6 Integrated)
             if ($currentStatus === 'REORDER READY' && count($nextBestActions) < 6) {
                 $nextBestActions[] = [
                     'category' => 'HIGH PRIORITY',
@@ -276,9 +326,11 @@ class AiAnalyticsController extends Controller
                     'customer_id' => $user->id,
                     'headline' => "Usually orders every {$typicalInterval} days. Today = day {$recencyDays}.",
                     'potential' => $aov,
-                    'recommendation' => "Remind customer about favourite ({$favDishName}). No discount needed.",
+                    'incentive_badge' => $incentiveBadge,
+                    'recommendation' => "Remind customer about favourite ({$favDishName}). {$incentiveRationale}",
                     'action_label' => 'Create Message',
-                    'suggested_copy' => "{$typicalDay} again? Your favourite {$favDishName} is waiting hot and fresh!",
+                    'suggested_copy' => $suggestedCopy,
+                    'margin_saved' => $estimatedMarginSaved,
                 ];
             } elseif ($status === 'VIP' && $recencyDays >= 14 && count($nextBestActions) < 6) {
                 $nextBestActions[] = [
@@ -288,9 +340,11 @@ class AiAnalyticsController extends Controller
                     'customer_id' => $user->id,
                     'headline' => "£{$aov} average order. No order for {$recencyDays} days.",
                     'potential' => $aov,
-                    'recommendation' => "VIP reactivation. Offer a complimentary treat rather than margin discount.",
+                    'incentive_badge' => $incentiveBadge,
+                    'recommendation' => "VIP reactivation: {$incentiveRationale}",
                     'action_label' => 'Create VIP Campaign',
-                    'suggested_copy' => "We miss you at {$restaurant->name}! Enjoy a complimentary dessert on your next order.",
+                    'suggested_copy' => $suggestedCopy,
+                    'margin_saved' => $estimatedMarginSaved,
                 ];
             } elseif ($upsellScore >= 80 && count($nextBestActions) < 6) {
                 $nextBestActions[] = [
@@ -300,15 +354,20 @@ class AiAnalyticsController extends Controller
                     'customer_id' => $user->id,
                     'headline' => "Frequently buys mains. Rarely adds dessert or drinks.",
                     'potential' => 4.50,
-                    'recommendation' => "Recommend dessert or refreshing drink at checkout.",
+                    'incentive_badge' => '🛒 Basket Builder',
+                    'recommendation' => "Recommend dessert or refreshing drink at checkout. High upsell probability.",
                     'action_label' => 'Recommend Add-On',
                     'suggested_copy' => "Complete your meal: Add a delicious treat to your favourite order tonight!",
+                    'margin_saved' => 1.80,
                 ];
             }
         }
 
         // Total Potential Opportunity Today
         $totalPotentialToday = $reorderReadyPotential + $atRiskPotential + $vipInactivePotential + $upsellPotential;
+
+        // Step 6: Calculate Total Restaurant Margin Protected (Avoided blanket discounts)
+        $totalMarginProtected = array_sum(array_column(array_column($digitalTwins, 'incentive'), 'margin_saved'));
 
         // If no actions generated yet, add fallback examples from real top customers
         if (empty($nextBestActions) && !empty($digitalTwins)) {
@@ -320,9 +379,11 @@ class AiAnalyticsController extends Controller
                 'customer_id' => $topTwin['user_id'],
                 'headline' => "Usually orders every {$topTwin['typical_interval']} days. Current interval = {$topTwin['last_order_days']} days.",
                 'potential' => $topTwin['average_order_value'],
-                'recommendation' => "Reorder reminder: Share today's specials.",
+                'incentive_badge' => $topTwin['incentive']['badge'],
+                'recommendation' => "Reorder reminder: {$topTwin['incentive']['rationale']}",
                 'action_label' => 'Create Message',
-                'suggested_copy' => "Craving {$topTwin['favourite_food']}? Order directly with us today!",
+                'suggested_copy' => $topTwin['incentive']['suggested_copy'],
+                'margin_saved' => $topTwin['incentive']['margin_saved'],
             ];
         }
 
@@ -337,6 +398,8 @@ class AiAnalyticsController extends Controller
             $filteredTwins = array_filter($digitalTwins, fn($t) => $t['relationship_stage'] === 'VIP');
         } elseif ($filter === 'dormant') {
             $filteredTwins = array_filter($digitalTwins, fn($t) => $t['relationship_stage'] === 'DORMANT');
+        } elseif ($filter === 'margin_safe') {
+            $filteredTwins = array_filter($digitalTwins, fn($t) => $t['incentive']['type'] === 'NONE');
         }
 
         return view('restaurant.ai-analytics.index', compact(
@@ -353,6 +416,7 @@ class AiAnalyticsController extends Controller
             'upsellCount',
             'upsellPotential',
             'totalPotentialToday',
+            'totalMarginProtected',
             'funnel',
             'filter'
         ));
