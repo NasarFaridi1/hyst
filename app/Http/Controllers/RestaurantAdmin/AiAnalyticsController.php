@@ -16,15 +16,6 @@ class AiAnalyticsController extends Controller
         $restaurantId = auth()->user()->restaurant_id;
         $restaurant = Restaurant::find($restaurantId);
 
-        // 1. Fetch all completed orders for this restaurant with user and item associations
-        $orders = Order::with(['items.product'])
-            ->where('restaurant_id', $restaurantId)
-            ->where('status', 'completed')
-            ->orderBy('created_at', 'asc')
-            ->get();
-
-        $groupedByUser = $orders->groupBy('user_id');
-
         // Customer Digital Twins & Scores
         $digitalTwins = [];
         $nextBestActions = [];
@@ -50,14 +41,216 @@ class AiAnalyticsController extends Controller
             'dormant' => 0,
         ];
 
-        // Overall customer spend percentiles for VIP calculation
-        $allCustomerSpends = [];
-        foreach ($groupedByUser as $userId => $userOrders) {
-            $allCustomerSpends[] = (float) $userOrders->sum('total_amount');
+        // 1. Attempt to read pre-computed AI records directly from decoupled hyst_ai database
+        $aiRecords = collect();
+        try {
+            $aiRecords = DB::connection('hyst_ai')->table('customer_restaurant_affinities as cra')
+                ->join('customer_digital_twins as cdt', 'cdt.user_id', '=', 'cra.user_id')
+                ->leftJoin('restaurant_customer_opportunity_scores as rcos', function($join) use ($restaurantId) {
+                    $join->on('rcos.user_id', '=', 'cra.user_id')
+                         ->where('rcos.restaurant_id', '=', $restaurantId);
+                })
+                ->where('cra.restaurant_id', $restaurantId)
+                ->select(
+                    'cra.user_id',
+                    'cra.orders_count as res_orders_count',
+                    'cra.total_spend as res_total_spend',
+                    'cra.last_order_at as res_last_order_at',
+                    'cra.status as res_affinity_status',
+                    'cdt.name',
+                    'cdt.email',
+                    'cdt.phone',
+                    'cdt.total_orders',
+                    'cdt.total_spend',
+                    'cdt.average_order_value',
+                    'cdt.favourite_food_name',
+                    'cdt.favourite_basket_items',
+                    'cdt.typical_order_day',
+                    'cdt.typical_time_start',
+                    'cdt.typical_time_end',
+                    'cdt.typical_interval_days',
+                    'cdt.recency_days',
+                    'cdt.offer_sensitivity',
+                    'cdt.customer_value',
+                    'cdt.current_status',
+                    'cdt.relationship_stage',
+                    'rcos.reorder_score',
+                    'rcos.churn_score',
+                    'rcos.upsell_score',
+                    'rcos.vip_score',
+                    'rcos.offer_sensitivity_score',
+                    'rcos.offer_sensitivity_level',
+                    'rcos.engagement_score',
+                    'rcos.restaurant_affinity_score',
+                    'rcos.incentive_type',
+                    'rcos.incentive_title',
+                    'rcos.incentive_rationale',
+                    'rcos.margin_saved_estimate'
+                )
+                ->get();
+        } catch (\Exception $e) {
+            $aiRecords = collect();
         }
-        sort($allCustomerSpends);
-        $totalCustCount = count($allCustomerSpends);
-        $p80Spend = $totalCustCount > 0 ? ($allCustomerSpends[(int) floor($totalCustCount * 0.80)] ?? 100) : 100;
+
+        if ($aiRecords->isNotEmpty()) {
+            foreach ($aiRecords as $row) {
+                $aov = (float) ($row->average_order_value ?? 0.0);
+                $typicalInterval = (float) ($row->typical_interval_days ?? 7.0);
+                $recencyDays = (int) ($row->recency_days ?? 0);
+                $favDishName = $row->favourite_food_name ?: 'Popular Dish';
+                $favBasket = json_decode($row->favourite_basket_items, true) ?: [];
+                $basketString = !empty($favBasket) ? implode(' + ', $favBasket) : $favDishName;
+                $currentStatus = $row->current_status ?: 'COOLDOWN';
+                $status = strtoupper($row->relationship_stage ?: 'REGULAR');
+
+                $reorderScore = (int) ($row->reorder_score ?? 50);
+                $churnScore = (int) ($row->churn_score ?? 20);
+                $upsellScore = (int) ($row->upsell_score ?? 60);
+                $vipScore = (int) ($row->vip_score ?? 40);
+                $offerSensScore = (int) ($row->offer_sensitivity_score ?? 30);
+                $engageScore = (int) ($row->engagement_score ?? 50);
+                $affScore = (int) ($row->restaurant_affinity_score ?? 70);
+
+                $incType = $row->incentive_type ?: 'NONE';
+                $incBadge = $row->incentive_title ?: '🛡️ 0% Discount';
+                $incRationale = $row->incentive_rationale ?: 'Natural buyer — would order anyway without margin-cutting discounts.';
+                $marginSaved = (float) ($row->margin_saved_estimate ?? round($aov * 0.15, 2));
+
+                $suggestedCopy = "Hi {$row->name}! Thinking about dinner? Your favourite {$favDishName} is freshly prepared and waiting for you tonight.";
+                if ($incType === 'FREE_DESSERT') {
+                    $suggestedCopy = "Hi {$row->name}! As one of our favourite VIP guests, enjoy a complimentary dessert or sweet treat on us when you order tonight!";
+                } elseif ($incType === 'FREE_DELIVERY') {
+                    $suggestedCopy = "Hi {$row->name}! We've missed having you. Order your favourite dishes tonight and enjoy FREE delivery on us!";
+                } elseif ($incType === 'TARGETED_VOUCHER') {
+                    $suggestedCopy = "Hi {$row->name}! Here's a special £3 off your favourite meal when you spend £20+ this evening. Tap here to order!";
+                }
+
+                $funnelKey = strtolower($row->relationship_stage ?? 'regular');
+                if (isset($funnel[$funnelKey])) {
+                    $funnel[$funnelKey]++;
+                } else {
+                    $funnel['regular']++;
+                }
+
+                if ($reorderScore >= 80 || $currentStatus === 'REORDER READY') {
+                    $currentStatus = 'REORDER READY';
+                    $reorderReadyCount++;
+                    $reorderReadyPotential += $aov;
+                } elseif ($status === 'AT_RISK' || $churnScore >= 60) {
+                    $currentStatus = 'AT RISK';
+                    $atRiskCount++;
+                    $atRiskPotential += $aov;
+                } elseif ($status === 'VIP' && $recencyDays >= 14) {
+                    $currentStatus = 'VIP INACTIVE';
+                    $vipInactiveCount++;
+                    $vipInactivePotential += $aov;
+                }
+
+                if ($upsellScore >= 75) {
+                    $upsellCount++;
+                    $upsellPotential += 4.50;
+                }
+
+                $twin = [
+                    'user_id' => $row->user_id,
+                    'name' => $row->name,
+                    'email' => $row->email,
+                    'phone' => $row->phone,
+                    'orders_count' => (int) $row->res_orders_count,
+                    'average_order_value' => $aov,
+                    'total_spend' => (float) $row->res_total_spend,
+                    'favourite_food' => $favDishName,
+                    'typical_day' => $row->typical_order_day ?: 'Friday',
+                    'typical_time' => ($row->typical_time_start && $row->typical_time_end) ? substr($row->typical_time_start, 0, 5) . '–' . substr($row->typical_time_end, 0, 5) : '18:45–20:15',
+                    'typical_interval' => $typicalInterval,
+                    'last_order_days' => $recencyDays,
+                    'offer_sensitivity' => ucfirst($row->offer_sensitivity ?: 'low'),
+                    'favourite_basket' => $basketString,
+                    'customer_value' => $row->customer_value ?: 'Medium',
+                    'current_status' => $currentStatus,
+                    'relationship_stage' => $status,
+                    'scores' => [
+                        'reorder' => $reorderScore,
+                        'churn' => $churnScore,
+                        'upsell' => $upsellScore,
+                        'vip' => $vipScore,
+                        'offer_sensitivity' => $offerSensScore,
+                        'engagement' => $engageScore,
+                        'affinity' => $affScore,
+                    ],
+                    'incentive' => [
+                        'type' => $incType,
+                        'badge' => $incBadge,
+                        'rationale' => $incRationale,
+                        'margin_saved' => $marginSaved,
+                        'suggested_copy' => $suggestedCopy,
+                    ]
+                ];
+
+                $digitalTwins[] = $twin;
+
+                if ($currentStatus === 'REORDER READY' && count($nextBestActions) < 6) {
+                    $nextBestActions[] = [
+                        'category' => 'HIGH PRIORITY',
+                        'badge_class' => 'bg-danger',
+                        'customer' => $row->name,
+                        'customer_id' => $row->user_id,
+                        'headline' => "Usually orders every {$typicalInterval} days. Today = day {$recencyDays}.",
+                        'potential' => $aov,
+                        'incentive_badge' => $incBadge,
+                        'recommendation' => "Remind customer about favourite ({$favDishName}). {$incRationale}",
+                        'action_label' => 'Create Message',
+                        'suggested_copy' => $suggestedCopy,
+                        'margin_saved' => $marginSaved,
+                    ];
+                } elseif ($status === 'VIP' && $recencyDays >= 14 && count($nextBestActions) < 6) {
+                    $nextBestActions[] = [
+                        'category' => 'HIGH VALUE',
+                        'badge_class' => 'bg-warning text-dark',
+                        'customer' => $row->name,
+                        'customer_id' => $row->user_id,
+                        'headline' => "£{$aov} average order. No order for {$recencyDays} days.",
+                        'potential' => $aov,
+                        'incentive_badge' => $incBadge,
+                        'recommendation' => "VIP reactivation: {$incRationale}",
+                        'action_label' => 'Create VIP Campaign',
+                        'suggested_copy' => $suggestedCopy,
+                        'margin_saved' => $marginSaved,
+                    ];
+                } elseif ($upsellScore >= 80 && count($nextBestActions) < 6) {
+                    $nextBestActions[] = [
+                        'category' => 'UPSELL',
+                        'badge_class' => 'bg-success',
+                        'customer' => $row->name,
+                        'customer_id' => $row->user_id,
+                        'headline' => "Frequently buys mains. Rarely adds dessert or drinks.",
+                        'potential' => 4.50,
+                        'incentive_badge' => '🛒 Basket Builder',
+                        'recommendation' => "Recommend dessert or beverage at checkout. High upsell probability.",
+                        'action_label' => 'Recommend Add-On',
+                        'suggested_copy' => "Complete your meal: Add a delicious treat to your favourite order tonight!",
+                        'margin_saved' => 1.80,
+                    ];
+                }
+            }
+        } else {
+            // 2. Operational DB Fallback: Compute on-the-fly if hyst_ai database hasn't synced yet
+            $orders = Order::with(['items.product'])
+                ->where('restaurant_id', $restaurantId)
+                ->where('status', 'completed')
+                ->orderBy('created_at', 'asc')
+                ->get();
+
+            $groupedByUser = $orders->groupBy('user_id');
+
+            // Overall customer spend percentiles for VIP calculation
+            $allCustomerSpends = [];
+            foreach ($groupedByUser as $userId => $userOrders) {
+                $allCustomerSpends[] = (float) $userOrders->sum('total_amount');
+            }
+            sort($allCustomerSpends);
+            $totalCustCount = count($allCustomerSpends);
+            $p80Spend = $totalCustCount > 0 ? ($allCustomerSpends[(int) floor($totalCustCount * 0.80)] ?? 100) : 100;
 
         foreach ($groupedByUser as $userId => $userOrders) {
             $user = User::find($userId);
@@ -361,6 +554,7 @@ class AiAnalyticsController extends Controller
                     'margin_saved' => 1.80,
                 ];
             }
+        }
         }
 
         // Total Potential Opportunity Today
