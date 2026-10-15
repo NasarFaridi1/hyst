@@ -3606,7 +3606,7 @@ function triggerAiManualSync() {
   icon.style.display = 'none';
   text.innerText = 'Syncing AI Insights...';
 
-  fetch('{{ route("ai_analytics.sync") }}', {
+  fetch('{{ url("/restaurant/ai-analytics/sync") }}', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
