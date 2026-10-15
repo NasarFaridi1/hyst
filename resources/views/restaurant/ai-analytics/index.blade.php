@@ -2389,16 +2389,18 @@
             @forelse($churnAutopsy['diagnosed_customers'] as $c)
               @php
                 $driverName = ($loop->index % 3 == 0) ? '🚚 Delivery Friction (+14m delay on last order)' : (($loop->index % 3 == 1) ? '🍽️ Menu Stockout / Unavailable Item' : '📉 Routine Gap Disruption (Past Cycle)');
-                $recoveryMsg = "Hi {$c['name']}! We noticed your last experience with {$restaurant->name} fell short of our standard. We'd love to invite you back with complimentary priority delivery and chef's warm treat!";
+                $recoveryMsg = "Hi " . ($c['name'] ?? 'Guest') . "! We noticed your last experience with " . ($restaurant->name ?? 'our restaurant') . " fell short of our standard. We'd love to invite you back with complimentary priority delivery and chef's warm treat!";
+                $policyType = $c['policy'] ?? ($c['incentive']['type'] ?? 'NONE');
+                $policyBadge = $c['policy_label'] ?? ($c['incentive']['badge'] ?? '🛡️ 0% Discount');
               @endphp
               <tr>
                 <td>
-                  <strong>{{ $c['name'] }}</strong>
-                  <div style="font-size:11px; color:var(--muted);">{{ $c['phone'] ?: $c['email'] }}</div>
+                  <strong>{{ $c['name'] ?? 'Guest' }}</strong>
+                  <div style="font-size:11px; color:var(--muted);">{{ ($c['phone'] ?? null) ?: ($c['email'] ?? '') }}</div>
                 </td>
                 <td>
-                  <div><strong>{{ $c['orders_count'] }}</strong> orders</div>
-                  <div style="font-size:11px; color:var(--muted);">£{{ number_format($c['orders_count'] * $c['average_order_value'], 2) }} spend</div>
+                  <div><strong>{{ $c['orders_count'] ?? 0 }}</strong> orders</div>
+                  <div style="font-size:11px; color:var(--muted);">£{{ number_format(($c['orders_count'] ?? 0) * ($c['average_order_value'] ?? 0), 2) }} spend</div>
                 </td>
                 <td>
                   <span class="score-badge score-low" style="font-size:12px;">
@@ -2411,13 +2413,13 @@
                   </span>
                 </td>
                 <td>
-                  <span class="policy-badge {{ $c['policy'] == 'NONE' ? 'policy-none' : 'policy-perk' }}" style="font-size:11px;">
-                    🛡️ {{ $c['policy_label'] }}
+                  <span class="policy-badge {{ $policyType == 'NONE' ? 'policy-none' : 'policy-perk' }}" style="font-size:11px;">
+                    {{ $policyBadge }}
                   </span>
                 </td>
                 <td style="text-align:right;">
                   <button type="button" class="btn-ai-primary" style="padding:6px 12px; font-size:11.5px; border-radius:8px; background:var(--red); border-color:var(--red);"
-                          onclick="openActionModal('{{ addslashes($c['name']) }}', 'AI Churn Recovery Outreach', '{{ addslashes($recoveryMsg) }}', '⚠️ Churn Recovery Intervention')">
+                          onclick="openActionModal('{{ addslashes($c['name'] ?? 'Guest') }}', 'AI Churn Recovery Outreach', '{{ addslashes($recoveryMsg) }}', '⚠️ Churn Recovery Intervention')">
                     ❤️ Targeted Recovery
                   </button>
                 </td>

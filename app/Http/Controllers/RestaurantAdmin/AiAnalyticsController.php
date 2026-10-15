@@ -502,6 +502,8 @@ class AiAnalyticsController extends Controller
                     'affinity' => $affinityScore,
                 ],
                 // Step 6: Margin Protection & Policy
+                'policy' => $incentiveType,
+                'policy_label' => $incentiveBadge,
                 'incentive' => [
                     'type' => $incentiveType,
                     'badge' => $incentiveBadge,
