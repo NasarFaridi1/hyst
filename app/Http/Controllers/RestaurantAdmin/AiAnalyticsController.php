@@ -1543,6 +1543,10 @@ class AiAnalyticsController extends Controller
             ],
         ];
 
+        $lastSyncKey = "ai_last_sync_restaurant_{$restaurantId}";
+        $lastSync = Cache::get($lastSyncKey);
+        $lastSyncedText = $lastSync ? Carbon::parse($lastSync)->diffForHumans() : 'Never';
+
         return view('restaurant.ai-analytics.index', compact(
             'restaurant',
             'digitalTwins',
