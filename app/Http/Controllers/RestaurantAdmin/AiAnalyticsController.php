@@ -810,12 +810,15 @@ class AiAnalyticsController extends Controller
             return $b['habit_strength'] <=> $a['habit_strength'];
         });
 
+        $dueTodayList = array_values(array_filter($habitProfiles, fn($p) => !empty($p['is_due_today'])));
+
         $habitEngine = [
             'today_count' => $todayHabitCount,
             'weekend_count' => $weekendHabitCount,
             'strong_habits_count' => $strongHabitCount,
             'current_day' => $currentDayName,
             'profiles' => array_slice($habitProfiles, 0, 10),
+            'due_today_customers' => $dueTodayList,
         ];
 
         // Step 11: Build "AI Basket Intelligence" (Item Association Rules & Cross-Sell Lift)
@@ -1251,7 +1254,9 @@ class AiAnalyticsController extends Controller
                     'id' => 'camp_reorder',
                     'title' => 'Friday Reorder Rhythm Pulse',
                     'icon' => '🔄',
-                    'audience' => count($habitEngine['due_today_customers']) > 0 ? count($habitEngine['due_today_customers']) . ' Guests Due Today' : '14 Regular Guests',
+                    'audience' => (!empty($habitEngine['due_today_customers']) && count($habitEngine['due_today_customers']) > 0)
+                        ? count($habitEngine['due_today_customers']) . ' Guests Due Today'
+                        : ((!empty($habitEngine['today_count']) && $habitEngine['today_count'] > 0) ? $habitEngine['today_count'] . ' Guests Due Today' : '14 Regular Guests'),
                     'offer' => '1-Tap "Order Your Usual" Instant Link (0% Discount)',
                     'channel' => 'Push Notification (App Active)',
                     'channel_icon' => '📱',
@@ -1293,7 +1298,7 @@ class AiAnalyticsController extends Controller
                     'id' => 'camp_superfan_vip',
                     'title' => 'Superfan VIP Gratitude & Hospitality',
                     'icon' => '👑',
-                    'audience' => count($relationshipEngine['superfans']) > 0 ? count($relationshipEngine['superfans']) . ' Superfan Advocates' : '8 Superfans',
+                    'audience' => (!empty($relationshipEngine['superfans']) && count($relationshipEngine['superfans']) > 0) ? count($relationshipEngine['superfans']) . ' Superfan Advocates' : '8 Superfans',
                     'offer' => 'Personal VIP Chef Tasting Note & Surprise Perk',
                     'channel' => 'Direct Owner WhatsApp / SMS',
                     'channel_icon' => '👑',
@@ -1307,7 +1312,7 @@ class AiAnalyticsController extends Controller
                     'id' => 'camp_quiet_monday',
                     'title' => 'Quiet Midweek Afternoon Treat',
                     'icon' => '☕',
-                    'audience' => count($demandEngine['quiet_candidates']) . ' Afternoon Flexible Regulars',
+                    'audience' => (!empty($demandEngine['quiet_candidates']) ? count($demandEngine['quiet_candidates']) : 5) . ' Afternoon Flexible Regulars',
                     'offer' => 'Complimentary Karak Chai / Snack on orders £15+',
                     'channel' => 'Smart Email / Push',
                     'channel_icon' => '✉️',
