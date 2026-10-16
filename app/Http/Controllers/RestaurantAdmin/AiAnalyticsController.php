@@ -1846,4 +1846,22 @@ class AiAnalyticsController extends Controller
             'synced_at' => now()->format('g:i A')
         ]);
     }
+
+    /**
+     * On-Demand Execution of Automated AI Campaigns for this Restaurant
+     */
+    public function dispatchCampaigns(Request $request, \App\Services\AiCampaignDispatcherService $dispatcher)
+    {
+        $restaurantId = auth()->user()->restaurant_id;
+        if (!$restaurantId) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No restaurant associated with this account.'
+            ], 403);
+        }
+
+        $result = $dispatcher->dispatchForRestaurant((int) $restaurantId);
+
+        return response()->json($result);
+    }
 }

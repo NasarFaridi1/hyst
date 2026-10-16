@@ -2830,7 +2830,9 @@
     <div class="factory-summary-hero">
       <div>
         <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
-          <span style="font-size:22px;">⚡</span>
+          <span style="font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:#A7F3D0; background:rgba(16,185,129,0.2); padding:3px 10px; border-radius:999px;">
+            ● AUTOPILOT ACTIVE (CRON SCHEDULED)
+          </span>
           <h4 style="font-size:18px; font-weight:700; margin:0; color:#fff;">
             5 Automated AI Growth Opportunities Ready for Today
           </h4>
@@ -2839,13 +2841,13 @@
           Projected Gross Incremental Revenue: <strong style="color:#4ADE80; font-size:16px;">+£{{ number_format($campaignFactory['total_projected_lift'], 2) }}</strong> with 100% Margin Protection.
         </p>
         <small style="color:#A5B4FC; font-size:11.5px;">
-          {{ $channelOrchestrator['coordinated_rule'] }}
+          Runs automatically via background Cron (11:45 AM, 14:15 PM & 17:30 PM). Dispatched via existing HYST In-App & FCM Push with 7-Day Fatigue Guard.
         </small>
       </div>
       <div>
         <button type="button" class="btn-ai-primary" style="background:#10B981; border-color:#10B981; padding:10px 18px; font-weight:700; font-size:13px;"
-                onclick="openActionModal('All 5 Opportunities Today', 'AI Campaign Factory Batch Approval', 'Approved all 5 high-impact campaigns across Mobile Push, WhatsApp, and Smart Email. Messages queued with 45-min advance micro-timing.', '🚀 Batch Approval')">
-          🚀 1-Click Approve All 5 Campaigns
+                onclick="openActionModal('All 5 Opportunities Today', 'Automated AI Campaign Dispatch', 'Approved all 5 high-impact campaigns across Mobile Push (FCM) and In-App Notifications. Messages dispatched automatically to customer user accounts with 7-Day Fatigue Guard.', '🚀 System Autopilot')">
+          🚀 Run Automated Dispatch Now
         </button>
       </div>
     </div>
@@ -3411,7 +3413,7 @@
       <button type="button" class="ai-modal-close" onclick="closeActionModal()">✕</button>
     </div>
     <div class="ai-modal-body">
-      <div style="font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:4px;">RECIPIENT</div>
+      <div style="font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:4px;">TARGET AUDIENCE / RECIPIENTS</div>
       <div id="actionCustomerName" style="font-weight:700; font-size:16px; margin-bottom:12px; color:var(--ink);"></div>
 
       <div style="font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:4px;">INCENTIVE POLICY (STEP 6)</div>
@@ -3419,19 +3421,22 @@
         <span id="actionIncentiveBadge" class="ai-badge" style="background:#EDE5D4; color:#6B5C46; font-size:12px;">🛡️ 0% Discount (Margin Safe)</span>
       </div>
 
-      <div style="font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:6px;">
-        PRE-DRAFTED AI MESSAGE (NON-CREEPY & MARGIN SAFE)
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+        <div style="font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase;">
+          SYSTEM-VERIFIED TEMPLATE (NON-CREEPY & MARGIN SAFE)
+        </div>
+        <span style="font-size:11px; color:#166534; font-weight:600; background:#DCFCE7; padding:2px 8px; border-radius:6px;">🔒 Pre-Approved Template</span>
       </div>
-      <textarea id="actionMessageBody" rows="3" style="width:100%; border:1px solid var(--border); border-radius:12px; padding:12px; font-family:inherit; font-size:13.5px; margin-bottom:14px; outline:none;"></textarea>
+      <div id="actionMessageBody" style="width:100%; background:#F8FAFC; border:1px solid #CBD5E1; border-radius:12px; padding:12px; font-size:13.5px; color:#334155; margin-bottom:14px; line-height:1.5;"></div>
 
       <div style="background:var(--blue-bg); color:var(--blue); padding:12px 14px; border-radius:12px; font-size:12px; line-height:1.45;">
-        🔒 <strong>Step 29 Rule Applied:</strong> The AI uses natural convenience reminders instead of creepy stats ("Friday again?" instead of "We know you order every 8.4 days").
+        🔒 <strong>Integrated with HYST Notification System:</strong> Dispatches directly via existing In-App Notifications and Firebase Push (FCM) to customer user accounts. Protected by the <strong>7-Day Fatigue Guard</strong>. Scheduled automatically via daily background Cron.
       </div>
     </div>
     <div class="ai-modal-footer">
       <button type="button" class="btn-ai-outline" onclick="closeActionModal()">Cancel</button>
-      <button type="button" class="btn-ai-primary" onclick="simulateSend()">
-        Send via Push & SMS 🚀
+      <button type="button" id="btnExecuteDispatch" class="btn-ai-primary" onclick="executeAiDispatch()">
+        ⚡ Run Campaign Dispatch Now
       </button>
     </div>
   </div>
@@ -3519,7 +3524,7 @@
 function openActionModal(customer, action, copy, incentive) {
   document.getElementById('actionCustomerName').innerText = customer;
   document.getElementById('actionModalTitle').innerText = action;
-  document.getElementById('actionMessageBody').value = copy;
+  document.getElementById('actionMessageBody').innerText = copy;
   document.getElementById('actionIncentiveBadge').innerText = incentive || '🛡️ 0% Discount (Margin Safe)';
   document.getElementById('actionModal').classList.add('open');
 }
@@ -3528,18 +3533,64 @@ function closeActionModal() {
   document.getElementById('actionModal').classList.remove('open');
 }
 
-function simulateSend() {
-  closeActionModal();
-  if (typeof Swal !== 'undefined') {
-    Swal.fire({
-      icon: 'success',
-      title: 'Campaign Queued!',
-      text: 'Your personalised AI message has been dispatched to the customer.',
-      confirmButtonColor: '#C25A2A'
-    });
-  } else {
-    alert('Action successfully queued! Campaign sent via Customer Engagement channels.');
+function executeAiDispatch() {
+  const btn = document.getElementById('btnExecuteDispatch');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerText = '⚡ Dispatching via System...';
   }
+
+  fetch('{{ url("/restaurant/ai-analytics/dispatch-campaigns") }}', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-TOKEN': '{{ csrf_token() }}'
+    }
+  })
+  .then(res => res.json())
+  .then(data => {
+    closeActionModal();
+    if (btn) {
+      btn.disabled = false;
+      btn.innerText = '⚡ Run Campaign Dispatch Now';
+    }
+    if (data.status === 'success') {
+      if (typeof Swal !== 'undefined') {
+        Swal.fire({
+          icon: 'success',
+          title: '⚡ AI Notifications Dispatched!',
+          html: `<div style="text-align:left; font-size:13px; line-height:1.6; color:#1F2937;">
+                  <p><strong>Status:</strong> ${data.message}</p>
+                  <p>📲 <strong>Dispatched:</strong> ${data.dispatched_count} notifications via In-App & FCM Push</p>
+                  <p>🛡️ <strong>Fatigue Guard:</strong> ${data.skipped_fatigue_count} customers protected (0 spam in 7 days)</p>
+                  <p style="font-size:11.5px; color:#6B7280; margin-top:8px;"><em>This cycle also runs automatically on schedule via daily background Cron (11:45, 14:15, 17:30).</em></p>
+                 </div>`,
+          confirmButtonColor: '#C25A2A'
+        });
+      } else {
+        alert(data.message);
+      }
+    } else {
+      if (typeof Swal !== 'undefined') {
+        Swal.fire({
+          icon: 'error',
+          title: 'Dispatch Issue',
+          text: data.message || 'Could not dispatch notifications.'
+        });
+      } else {
+        alert(data.message);
+      }
+    }
+  })
+  .catch(err => {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerText = '⚡ Run Campaign Dispatch Now';
+    }
+    closeActionModal();
+    console.error(err);
+    alert('Network error while dispatching campaign.');
+  });
 }
 
 function showDigitalTwinModal(t) {

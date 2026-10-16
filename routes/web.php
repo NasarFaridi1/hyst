@@ -731,6 +731,10 @@ Route::middleware(['auth', 'restaurant_admin'])
             '/ai-analytics/sync',
             [\App\Http\Controllers\RestaurantAdmin\AiAnalyticsController::class, 'sync']
         )->name('ai_analytics.sync');
+        Route::post(
+            '/ai-analytics/dispatch-campaigns',
+            [\App\Http\Controllers\RestaurantAdmin\AiAnalyticsController::class, 'dispatchCampaigns']
+        )->name('ai_analytics.dispatch_campaigns');
         Route::get(
 
             '/page-visits',

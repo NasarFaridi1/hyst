@@ -16,6 +16,19 @@ class Kernel extends ConsoleKernel
         $schedule->command('hyst:sync-digital-twins')
                  ->dailyAt('02:00')
                  ->appendOutputTo(storage_path('logs/digital_twin_sync.log'));
+
+        // Automated AI Campaign Dispatch (Lunch, Afternoon Quiet-Time, Dinner Peak)
+        $schedule->command('hyst:dispatch-ai-campaigns')
+                 ->dailyAt('11:45')
+                 ->appendOutputTo(storage_path('logs/ai_campaign_dispatch.log'));
+
+        $schedule->command('hyst:dispatch-ai-campaigns')
+                 ->dailyAt('14:15')
+                 ->appendOutputTo(storage_path('logs/ai_campaign_dispatch.log'));
+
+        $schedule->command('hyst:dispatch-ai-campaigns')
+                 ->dailyAt('17:30')
+                 ->appendOutputTo(storage_path('logs/ai_campaign_dispatch.log'));
     }
 
     /**
