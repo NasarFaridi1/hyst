@@ -33,14 +33,10 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
-// Restaurant Mobile App API Routes
+// Restaurant Mobile App API Routes (Login & Logout only)
 Route::prefix('restaurant')->group(function () {
     Route::post('/login', [RestaurantAuthController::class, 'login']);
-
-    Route::middleware('api.token')->group(function () {
-        Route::get('/me', [RestaurantAuthController::class, 'me']);
-        Route::post('/logout', [RestaurantAuthController::class, 'logout']);
-    });
+    Route::post('/logout', [RestaurantAuthController::class, 'logout'])->middleware('api.token');
 });
 
 Route::middleware('api.token')->group(function () {
