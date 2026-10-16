@@ -1,5 +1,6 @@
 <?php
 use App\Http\Controllers\Auth\UsersController;
+use App\Http\Controllers\Auth\SsoController;
 use App\Http\Controllers\FCMController;
 use App\Http\Controllers\Front\CartController;
 use App\Http\Controllers\Front\OrderController;
@@ -1043,7 +1044,8 @@ Route::delete(
     'favorite.remove'
 );
 
-// Route::get('/login', [UsersController::class, 'showLogin']);  
+// Mobile App WebView SSO Bridge
+Route::get('/auth/sso', [SsoController::class, 'consumeToken'])->name('auth.sso');
 
 Route::middleware('guest')->group(function () {
 

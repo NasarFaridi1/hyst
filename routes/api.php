@@ -23,6 +23,7 @@ use App\Http\Controllers\Api\HomeController;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\MarketingBannerController;
 use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\Api\RestaurantAuthController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/verify-email', [AuthController::class, 'verifyByLink']);
@@ -31,6 +32,16 @@ Route::post('/resend-otp', [AuthController::class, 'resendOtp']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+
+// Restaurant Mobile App API Routes
+Route::prefix('restaurant')->group(function () {
+    Route::post('/login', [RestaurantAuthController::class, 'login']);
+
+    Route::middleware('api.token')->group(function () {
+        Route::get('/me', [RestaurantAuthController::class, 'me']);
+        Route::post('/logout', [RestaurantAuthController::class, 'logout']);
+    });
+});
 
 Route::middleware('api.token')->group(function () {
 
