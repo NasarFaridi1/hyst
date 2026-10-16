@@ -116,7 +116,8 @@ class AdminLoginController extends Controller
                 return redirect('/system-admin/dashboard');
             }
 
-            if ($user->role == 'restaurant_admin') {
+            if ($user->role == 'restaurant_admin' || !empty($user->restaurant_id)) {
+                session()->flash('restaurant_just_logged_in', true);
                 return redirect('/restaurant/dashboard');
             }
 

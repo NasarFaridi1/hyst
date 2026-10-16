@@ -855,6 +855,10 @@ Later
         </script>
     @endif
 
+    @if(auth()->check() && (auth()->user()->role === 'restaurant_admin' || !empty(auth()->user()->restaurant_id)) && !request()->routeIs('restaurant.ai_analytics.*'))
+        @include('restaurant.partials.welcome_ai_modal')
+    @endif
+
 </body>
 
 </html>

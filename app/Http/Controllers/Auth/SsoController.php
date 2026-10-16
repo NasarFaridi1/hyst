@@ -63,6 +63,10 @@ class SsoController extends Controller
         Auth::login($user, true);
         $request->session()->regenerate();
 
+        if ($user->role === 'restaurant_admin' || !empty($user->restaurant_id)) {
+            session()->flash('restaurant_just_logged_in', true);
+        }
+
         $redirect = $request->query('redirect', '/restaurant/orders');
 
         // Prevent external open-redirect vulnerabilities
