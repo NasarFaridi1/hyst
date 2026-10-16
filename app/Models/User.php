@@ -129,4 +129,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(ReferralUsage::class, 'referee_id');
     }
+
+    public function createdCommunities()
+    {
+        return $this->hasMany(Community::class, 'creator_user_id');
+    }
+
+    public function communityMemberships()
+    {
+        return $this->hasMany(CommunityMember::class, 'user_id');
+    }
 }

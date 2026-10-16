@@ -51,6 +51,13 @@ Route::get('/locations/{slug}', [LocationController::class, 'show'])->name('fron
 Route::get('/about', [InfoPageController::class, 'about'])->name('front.about');
 Route::get('/contact', [InfoPageController::class, 'contact'])->name('front.contact');
 
+// Hyst Foodie Community & Circles
+Route::get('/community', [\App\Http\Controllers\Front\CommunityController::class, 'index'])->name('front.community.index');
+Route::get('/community/join/{code}', [\App\Http\Controllers\Front\CommunityController::class, 'showJoinModal'])->name('front.community.join');
+Route::post('/community/join', [\App\Http\Controllers\Front\CommunityController::class, 'joinCommunity'])->name('front.community.join.submit');
+Route::post('/community/posts', [\App\Http\Controllers\Front\CommunityController::class, 'storePost'])->name('front.community.post');
+Route::post('/community/posts/{id}/like', [\App\Http\Controllers\Front\CommunityController::class, 'toggleLike'])->name('front.community.post.like');
+
 Route::get('/offline', function () {
     return view('vendor.laravelpwa.offline');
 })->name('laravelpwa.offline');

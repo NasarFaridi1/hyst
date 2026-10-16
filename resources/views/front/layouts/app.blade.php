@@ -1165,6 +1165,10 @@
     @if(request()->is('/') || request()->is('home'))
         @include('front.partials.chatbot')
     @endif
+
+    @if(!request()->is('checkout*') && !request()->is('admin*') && !request()->is('restaurant*'))
+        @include('front.partials.welcome_popup')
+    @endif
 </body>
 
 </html>

@@ -182,12 +182,25 @@ class UsersController extends Controller
             }
 
             if ($user->role == 'support') {
-
                 return redirect('/support/dashboard');
-
             }
 
-           
+            if ($pendingInvite = session()->pull('pending_community_invite')) {
+                try {
+                    $circle = \App\Models\Community::where('invite_code', $pendingInvite)->first();
+                    if ($circle && $circle->creator_user_id !== $user->id) {
+                        \App\Models\CommunityMember::firstOrCreate([
+                            'community_id' => $circle->id,
+                            'user_id'      => $user->id,
+                        ], [
+                            'role'         => 'member',
+                            'joined_at'    => now(),
+                        ]);
+                        return redirect()->route('front.community.index')
+                            ->with('success', "🎉 Welcome! You successfully joined {$circle->name}.");
+                    }
+                } catch (\Throwable $e) {}
+            }
 
             $redirect = session()->pull('login_redirect', $request->input('redirect', !empty(session('cart')) ? '/checkout' : '/'));
 

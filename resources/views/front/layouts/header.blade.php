@@ -33,6 +33,13 @@
                     onmouseover="this.style.background='#F5F5F0'"
                     onmouseout="this.style.background='transparent'">Home</a>
 
+                <a href="{{ route('front.community.index') }}"
+                    style="padding:8px 15px; border-radius:10px; font-weight:600; font-size:14px; color:#C25A2A; text-decoration:none; display:flex; align-items:center; gap:6px; transition:background .18s;"
+                    onmouseover="this.style.background='#F5F5F0'"
+                    onmouseout="this.style.background='transparent'">
+                    <i data-lucide="users" style="width:16px; height:16px;"></i> Foodie Circle
+                </a>
+
                 {{-- <a href="/restaurants"
                     style="padding:8px 15px; border-radius:10px; font-weight:500; font-size:14px; color:#0D0D0D; text-decoration:none; display:flex; align-items:center; gap:6px; transition:background .18s;"
                     onmouseover="this.style.background='#F5F5F0'" onmouseout="this.style.background='transparent'">
