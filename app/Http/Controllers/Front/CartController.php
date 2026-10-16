@@ -394,4 +394,70 @@ class CartController extends Controller
             'success' => true
         ]);
     }
+
+    /**
+     * STEP 10: 1-Tap "Order Your Usual" Deep-Link Route
+     * Automatically loads the customer's favorite items into the session cart
+     * and redirects directly to checkout for zero browsing friction.
+     */
+    public function orderUsual(Request $request, $userId, $restaurantId)
+    {
+        // 1. Fetch user's top ordered products for this restaurant
+        $topProductIds = \Illuminate\Support\Facades\DB::table('order_items as oi')
+            ->join('orders as o', 'o.id', '=', 'oi.order_id')
+            ->where('o.user_id', $userId)
+            ->where('o.restaurant_id', $restaurantId)
+            ->where('o.status', 'completed')
+            ->select('oi.product_id', \Illuminate\Support\Facades\DB::raw('SUM(oi.quantity) as total_qty'))
+            ->groupBy('oi.product_id')
+            ->orderByDesc('total_qty')
+            ->limit(3)
+            ->pluck('oi.product_id');
+
+        if ($topProductIds->isEmpty()) {
+            // Fallback to restaurant's overall popular products
+            $topProductIds = Product::where('restaurant_id', $restaurantId)
+                ->where('is_available', 1)
+                ->limit(2)
+                ->pluck('id');
+        }
+
+        $products = Product::whereIn('id', $topProductIds)->get();
+
+        if ($products->isEmpty()) {
+            return redirect('/')->with('error', 'Could not load usual order items.');
+        }
+
+        // Clear existing cart and populate usual items
+        session()->forget('cart');
+        $cart = [];
+        $hystPct = \App\Models\ProductCharge::getActivePercentage();
+
+        foreach ($products as $prod) {
+            $basePrice = (float) $prod->price;
+            $hystChargePerUnit = $hystPct > 0 ? round(($basePrice * $hystPct) / 100, 2) : 0.0;
+            $unitPriceWithHyst = $basePrice + $hystChargePerUnit;
+            $cartKey = $prod->id . '_0_';
+
+            $cart[$cartKey] = [
+                'cart_key' => $cartKey,
+                'restaurant_id' => $prod->restaurant_id,
+                'id' => $prod->id,
+                'name' => $prod->name,
+                'variant_id' => null,
+                'variant_name' => null,
+                'addons' => [],
+                'price' => $unitPriceWithHyst,
+                'base_price' => $basePrice,
+                'hyst_charge_per_unit' => $hystChargePerUnit,
+                'addon_total' => 0.0,
+                'image' => $prod->image,
+                'quantity' => 1
+            ];
+        }
+
+        session()->put('cart', $cart);
+
+        return redirect('/checkout')->with('success', '✨ Your usual order is loaded in your cart! 1-tap checkout.');
+    }
 }

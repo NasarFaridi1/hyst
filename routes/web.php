@@ -334,6 +334,8 @@ Route::get(
 );
 
 Route::post('/cart/clear', [CartController::class, 'clear']);
+// STEP 10: 1-Tap "Order Your Usual" Deep-Link Route
+Route::get('/order/usual/{userId}/{restaurantId}', [CartController::class, 'orderUsual'])->name('order.usual');
 
 // Route::get(
 //     '/restaurants',
@@ -725,6 +727,14 @@ Route::middleware(['auth', 'restaurant_admin'])
             '/ai-analytics',
             [\App\Http\Controllers\RestaurantAdmin\AiAnalyticsController::class, 'index']
         )->name('ai_analytics.index');
+        Route::post(
+            '/ai-analytics/sync',
+            [\App\Http\Controllers\RestaurantAdmin\AiAnalyticsController::class, 'sync']
+        )->name('ai_analytics.sync');
+        Route::post(
+            '/ai-analytics/dispatch-campaigns',
+            [\App\Http\Controllers\RestaurantAdmin\AiAnalyticsController::class, 'dispatchCampaigns']
+        )->name('ai_analytics.dispatch_campaigns');
         Route::get(
 
             '/page-visits',
@@ -819,6 +829,10 @@ Route::middleware(['auth', 'restaurant_admin'])
             '/orders/store-offline',
             [RestaurantOrderController::class, 'storeOfflineOrder']
         )->name('orders.store_offline');
+        Route::post(
+            '/orders/store-miscellaneous',
+            [RestaurantOrderController::class, 'storeMiscellaneousOrder']
+        )->name('orders.store_miscellaneous');
         Route::get(
             '/verifone/terminal-status',
             [RestaurantOrderController::class, 'checkVerifoneStatus']

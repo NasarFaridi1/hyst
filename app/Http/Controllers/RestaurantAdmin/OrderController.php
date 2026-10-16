@@ -765,6 +765,161 @@ class OrderController extends Controller
         });
     }
 
+    public function storeMiscellaneousOrder(Request $request)
+    {
+        $restaurantId = auth()->user()->restaurant_id;
+
+        $request->validate([
+            'amount'         => 'required|numeric|min:0.01|max:999999',
+            'description'    => 'nullable|string|max:500',
+            'payment_method' => 'required|string',
+            'payment_status' => 'required|in:pending,paid',
+            'customer_name'  => 'nullable|string|max:255',
+            'customer_phone' => 'nullable|string|max:50',
+            'table_number'   => 'nullable|string|max:50',
+        ]);
+
+        return DB::transaction(function () use ($request, $restaurantId) {
+            $amount = (float) $request->amount;
+            $customerName = $request->filled('customer_name') ? $request->customer_name : 'Walk-in Guest';
+            $orderDesc = $request->filled('description') 
+                ? '[Misc Charge] ' . $request->description 
+                : 'Miscellaneous / Custom POS Charge';
+
+            $table = $request->filled('table_number') ? 'Table ' . $request->table_number : 'Counter / Direct Charge';
+
+            $isVerifone = ($request->payment_method === 'verifone_pos');
+            $initialOrderStatus = ($request->payment_status === 'paid' && !$isVerifone) ? 'completed' : 'pending';
+
+            // Ensure a designated Misc Product exists for this restaurant to guarantee DB foreign key & order view integrity
+            $category = Category::where(function ($q) use ($restaurantId) {
+                $q->where('restaurant_id', $restaurantId)->orWhereNull('restaurant_id');
+            })->where('status', 1)->first();
+
+            $miscProduct = Product::firstOrCreate(
+                [
+                    'restaurant_id' => $restaurantId,
+                    'name'          => 'Miscellaneous / Custom Charge',
+                ],
+                [
+                    'category_id'   => $category?->id ?? 1,
+                    'slug'          => 'misc-charge-' . $restaurantId . '-' . time(),
+                    'description'   => 'Direct miscellaneous / custom offline order charge',
+                    'price'         => 0.00,
+                    'currency'      => 'GBP',
+                    'status'        => 0, // Hidden from online storefront menus
+                    'product_type'  => 'veg',
+                ]
+            );
+
+            // Create Order with dummy data
+            $order = Order::create([
+                'user_id'        => null,
+                'is_guest'       => true,
+                'guest_name'     => $customerName,
+                'guest_email'    => null,
+                'guest_phone'    => $request->customer_phone,
+                'restaurant_id'  => $restaurantId,
+                'total_amount'   => $amount,
+                'service_charge' => 0,
+                'delivery_charge'=> 0,
+                'hyst_charge'    => 0,
+                'product_charge' => 0,
+                'order_type'     => 'dine_in',
+                'phone'          => $request->customer_phone,
+                'address'        => $table,
+                'payment_method' => $request->payment_method,
+                'status'         => $initialOrderStatus,
+                'order_from'     => 'restaurant_pos',
+                'description'    => $orderDesc,
+            ]);
+
+            // Create OrderItem
+            OrderItem::create([
+                'order_id'     => $order->id,
+                'product_id'   => $miscProduct->id,
+                'variant_name' => $request->description ? substr($request->description, 0, 100) : 'Custom Charge',
+                'quantity'     => 1,
+                'price'        => $amount,
+                'total'        => $amount,
+            ]);
+
+            // Create Payment
+            $payment = Payment::create([
+                'order_id'       => $order->id,
+                'restaurant_id'  => $restaurantId,
+                'user_id'        => null,
+                'payment_method' => $request->payment_method,
+                'payment_type'   => 'Offline',
+                'amount'         => $amount,
+                'payment_status' => $isVerifone ? 'pending' : $request->payment_status,
+            ]);
+
+            // Verifone POS Machine Terminal Payment
+            if ($isVerifone) {
+                $order->load(['restaurant', 'items.product', 'items.addons']);
+                $verifoneRes = $this->verifone->processSalePayment($order, $amount);
+
+                if ($verifoneRes['success']) {
+                    $payment->update([
+                        'payment_status'     => 'paid',
+                        'poi_transaction_id' => $verifoneRes['poi_transaction_id'] ?? null,
+                        'poi_timestamp'      => $verifoneRes['poi_timestamp'] ?? null,
+                        'masked_pan'         => $verifoneRes['masked_pan'] ?? null,
+                        'card_brand'         => $verifoneRes['card_brand'] ?? null,
+                        'auth_code'          => $verifoneRes['auth_code'] ?? null,
+                        'nexo_service_id'    => $verifoneRes['service_id'] ?? null,
+                    ]);
+
+                    $order->update(['status' => 'completed']);
+
+                    // Print receipt on terminal
+                    try {
+                        $this->verifone->printReceipt($order, 'CUSTOMERRECEIPT');
+                    } catch (\Throwable $e) {
+                        Log::error('Verifone POS Print Failed after storeMiscellaneousOrder', ['order_id' => $order->id, 'error' => $e->getMessage()]);
+                    }
+
+                    if ($request->wantsJson() || $request->ajax()) {
+                        return response()->json([
+                            'success'      => true,
+                            'message'      => 'Payment approved on Verifone terminal!',
+                            'order_id'     => $order->id,
+                            'redirect_url' => route('restaurant.orders.show', $order->id),
+                        ]);
+                    }
+
+                    return redirect()->route('restaurant.orders.show', $order->id)
+                        ->with('success', 'Order #' . $order->id . ' paid & created via Verifone POS.');
+                } else {
+                    $payment->update(['payment_status' => 'failed']);
+                    $order->update(['status' => 'cancelled', 'cancel_reason' => 'Verifone payment failed: ' . ($verifoneRes['error'] ?? 'Declined')]);
+
+                    if ($request->wantsJson() || $request->ajax()) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Verifone POS Payment Failed: ' . ($verifoneRes['error'] ?? 'Transaction declined.'),
+                        ], 400);
+                    }
+
+                    return back()->with('error', 'Verifone POS Payment Failed: ' . ($verifoneRes['error'] ?? 'Declined on terminal.'))->withInput();
+                }
+            }
+
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success'      => true,
+                    'message'      => 'Miscellaneous Order #' . $order->id . ' created successfully.',
+                    'order_id'     => $order->id,
+                    'redirect_url' => route('restaurant.orders.show', $order->id),
+                ]);
+            }
+
+            return redirect()->route('restaurant.orders.show', $order->id)
+                ->with('success', 'Miscellaneous Order #' . $order->id . ' created successfully.');
+        });
+    }
+
     public function checkVerifoneStatus(Request $request)
     {
         $restaurant = \App\Models\Restaurant::find(auth()->user()->restaurant_id);

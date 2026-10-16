@@ -51,16 +51,23 @@
                 </p>
             </div>
 
-            <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+            <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto justify-between sm:justify-end flex-wrap sm:flex-nowrap">
                 <a href="/restaurant/orders"
-                   class="bg-black hover:bg-gray-800 text-white font-semibold px-4 py-2.5 rounded-xl transition duration-150 inline-flex items-center gap-2 text-xs sm:text-sm shadow">
+                   class="bg-black hover:bg-gray-800 text-white font-semibold px-3.5 sm:px-4 py-2.5 rounded-xl transition duration-150 inline-flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm shadow">
                     ← Back to Orders
                 </a>
+
+                {{-- Quick Miscellaneous / Custom Amount Button --}}
+                <button type="button"
+                        onclick="openMiscModal()"
+                        class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-3.5 sm:px-4 py-2.5 rounded-xl transition duration-150 inline-flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm shadow">
+                    ⚡ Misc Amount
+                </button>
                 
                 {{-- Quick Cart View Button in Header --}}
                 <button type="button" 
                         onclick="openCartDrawer()"
-                        class="bg-[#C25A2A] hover:bg-[#A3451E] text-white font-bold px-4 py-2.5 rounded-xl transition duration-150 flex items-center gap-2 text-xs sm:text-sm shadow">
+                        class="bg-[#C25A2A] hover:bg-[#A3451E] text-white font-bold px-3.5 sm:px-4 py-2.5 rounded-xl transition duration-150 flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm shadow">
                     🛒 Order Cart
                     <span id="headerCartBadge" class="bg-white text-[#C25A2A] text-xs font-extrabold px-2 py-0.5 rounded-full">0</span>
                 </button>
@@ -449,6 +456,119 @@
                 class="w-full bg-[#C25A2A] hover:bg-[#A3451E] text-white font-bold py-3.5 rounded-xl shadow-md text-sm transition flex items-center justify-center gap-2">
             Add to Order (<span id="modalTotalPrice">£0.00</span>)
         </button>
+    </div>
+</div>
+
+{{-- MISCELLANEOUS / CUSTOM AMOUNT POPUP MODAL --}}
+<div id="miscAmountModal" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto border border-gray-100">
+        <button type="button" onclick="closeMiscModal()" class="absolute right-4 top-4 text-gray-400 hover:text-gray-600 w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-lg font-bold">✕</button>
+        
+        <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-xl flex-shrink-0">
+                ⚡
+            </div>
+            <div>
+                <h3 class="text-lg font-extrabold text-gray-900 leading-tight">Miscellaneous Amount</h3>
+                <p class="text-xs text-gray-500">Quick direct charge for walk-in or offline transactions</p>
+            </div>
+        </div>
+
+        {{-- Dummy Customer Pill Notice --}}
+        <div class="bg-amber-50/70 border border-amber-200/60 rounded-xl p-2.5 mb-4 flex items-center justify-between text-[11px] text-amber-900">
+            <span class="font-medium">👤 Customer: <strong>Walk-in Guest</strong></span>
+            <span class="font-medium">🍽️ Order: <strong>Dine-in / Direct</strong></span>
+        </div>
+
+        <div class="space-y-4">
+            {{-- Amount Input --}}
+            <div>
+                <label class="block text-xs font-extrabold text-gray-800 uppercase tracking-wider mb-1.5">
+                    Amount (£) *
+                </label>
+                <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-extrabold text-lg">£</span>
+                    <input type="number"
+                           id="miscAmountInput"
+                           step="0.01"
+                           min="0.01"
+                           placeholder="0.00"
+                           oninput="updateMiscBtnTotal()"
+                           class="w-full pl-9 pr-4 py-3 bg-gray-50 border border-gray-300 rounded-2xl text-xl font-black text-gray-900 focus:ring-2 focus:ring-amber-500 focus:bg-white focus:border-amber-500 focus:outline-none transition">
+                </div>
+                
+                {{-- Quick Preset Chips --}}
+                <div class="flex items-center gap-2 mt-2">
+                    <button type="button" onclick="setMiscAmount(5)" class="px-2.5 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-lg transition">+£5</button>
+                    <button type="button" onclick="setMiscAmount(10)" class="px-2.5 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-lg transition">+£10</button>
+                    <button type="button" onclick="setMiscAmount(20)" class="px-2.5 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-lg transition">+£20</button>
+                    <button type="button" onclick="setMiscAmount(50)" class="px-2.5 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-lg transition">+£50</button>
+                    <button type="button" onclick="clearMiscAmount()" class="px-2 py-1 text-gray-400 hover:text-red-500 text-xs font-semibold ml-auto">Clear</button>
+                </div>
+            </div>
+
+            {{-- Description / Reason Input (Optional) --}}
+            <div>
+                <label class="block text-xs font-extrabold text-gray-800 uppercase tracking-wider mb-1.5">
+                    Reason / Description <span class="text-gray-400 font-normal normal-case">(Optional)</span>
+                </label>
+                <input type="text"
+                       id="miscDescriptionInput"
+                       placeholder="e.g. Catering balance, Custom meal request, Special fee..."
+                       class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none bg-white">
+            </div>
+
+            {{-- Payment Method Selection --}}
+            <div>
+                <label class="block text-xs font-extrabold text-gray-800 uppercase tracking-wider mb-1.5">
+                    Payment Method
+                </label>
+                <select id="miscPaymentMethodSelect" class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none bg-white font-medium">
+                    <option value="verifone_pos" selected>📲 Verifone Cloud POS Machine (Card)</option>
+                    <option value="Cash">💵 Cash</option>
+                    <option value="Card at Counter">💳 Card at Counter / Manual POS</option>
+                    <option value="Pay at Counter">🏬 Pay at Counter</option>
+                    <option value="Offline Payment">🏦 Direct Offline Payment</option>
+                </select>
+            </div>
+
+            {{-- Table / Reference (Optional) --}}
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Customer (Dummy)</label>
+                    <input type="text"
+                           id="miscCustomerNameInput"
+                           value="Walk-in Guest"
+                           placeholder="Walk-in Guest"
+                           class="w-full border border-gray-300 rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none bg-gray-50 text-gray-700 font-medium">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Table / Ref (Optional)</label>
+                    <input type="text"
+                           id="miscTableInput"
+                           placeholder="e.g. Table 4 / Counter"
+                           class="w-full border border-gray-300 rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none bg-white">
+                </div>
+            </div>
+        </div>
+
+        {{-- Error Alert in Modal --}}
+        <div id="miscModalError" class="hidden mt-3 bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-xl text-xs font-medium"></div>
+
+        {{-- Action Buttons --}}
+        <div class="mt-6 flex flex-col gap-2.5">
+            <button type="button"
+                    id="btnSubmitMiscOrder"
+                    onclick="submitMiscOrder()"
+                    class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3.5 rounded-xl shadow-md text-sm transition flex items-center justify-center gap-2">
+                <span>🚀</span> Place Direct Order (<span id="miscBtnTotal">£0.00</span>)
+            </button>
+            <button type="button"
+                    onclick="closeMiscModal()"
+                    class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 rounded-xl text-xs transition">
+                Cancel
+            </button>
+        </div>
     </div>
 </div>
 
@@ -860,16 +980,224 @@
         renderCart();
     }
 
+    let lastPaymentType = 'direct_order';
+    let lastMiscPayload = null;
+    let miscTimeoutId = null;
+
     // Keyboard support (Escape closes modals)
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             closeCartDrawer();
             closeOptionsModal();
+            closeMiscModal();
         }
     });
 
+    // Miscellaneous Modal Controls
+    function openMiscModal() {
+        const modal = document.getElementById('miscAmountModal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            hideMiscError();
+            const input = document.getElementById('miscAmountInput');
+            if (input) {
+                input.focus();
+                updateMiscBtnTotal();
+            }
+        }
+    }
+
+    function closeMiscModal() {
+        const modal = document.getElementById('miscAmountModal');
+        if (modal) {
+            modal.classList.add('hidden');
+            document.body.style.overflow = '';
+            hideMiscError();
+        }
+    }
+
+    function setMiscAmount(addVal) {
+        const input = document.getElementById('miscAmountInput');
+        if (input) {
+            let current = parseFloat(input.value) || 0;
+            current += addVal;
+            input.value = current.toFixed(2);
+            updateMiscBtnTotal();
+        }
+    }
+
+    function clearMiscAmount() {
+        const input = document.getElementById('miscAmountInput');
+        if (input) {
+            input.value = '';
+            updateMiscBtnTotal();
+        }
+    }
+
+    function updateMiscBtnTotal() {
+        const input = document.getElementById('miscAmountInput');
+        const val = parseFloat(input ? input.value : 0) || 0;
+        const totalEl = document.getElementById('miscBtnTotal');
+        if (totalEl) {
+            totalEl.innerText = '£' + val.toFixed(2);
+        }
+        hideMiscError();
+    }
+
+    function showMiscError(msg) {
+        const errEl = document.getElementById('miscModalError');
+        if (errEl) {
+            errEl.innerText = msg;
+            errEl.classList.remove('hidden');
+        }
+    }
+
+    function hideMiscError() {
+        const errEl = document.getElementById('miscModalError');
+        if (errEl) {
+            errEl.classList.add('hidden');
+            errEl.innerText = '';
+        }
+    }
+
+    // Submit Miscellaneous Direct Order
+    function submitMiscOrder(isRetry = false, overrideMethod = null) {
+        let amount, description, paymentMethod, customerName, tableNumber;
+
+        if (isRetry && lastMiscPayload) {
+            amount = lastMiscPayload.amount;
+            description = lastMiscPayload.description;
+            paymentMethod = overrideMethod || lastMiscPayload.payment_method;
+            customerName = lastMiscPayload.customer_name;
+            tableNumber = lastMiscPayload.table_number;
+        } else {
+            const amountInput = document.getElementById('miscAmountInput');
+            amount = parseFloat(amountInput ? amountInput.value : 0);
+
+            if (isNaN(amount) || amount <= 0) {
+                showMiscError('Please enter a valid amount greater than £0.00');
+                if (amountInput) amountInput.focus();
+                return;
+            }
+
+            description = document.getElementById('miscDescriptionInput')?.value?.trim() || '';
+            paymentMethod = overrideMethod || document.getElementById('miscPaymentMethodSelect')?.value || 'verifone_pos';
+            customerName = document.getElementById('miscCustomerNameInput')?.value?.trim() || 'Walk-in Guest';
+            tableNumber = document.getElementById('miscTableInput')?.value?.trim() || '';
+        }
+
+        const payload = {
+            amount: amount,
+            description: description,
+            payment_method: paymentMethod,
+            payment_status: 'paid',
+            customer_name: customerName,
+            table_number: tableNumber,
+            _token: '{{ csrf_token() }}'
+        };
+
+        lastPaymentType = 'misc_order';
+        lastMiscPayload = payload;
+
+        closeMiscModal();
+
+        const btnSubmit = document.getElementById('btnSubmitMiscOrder');
+        if (btnSubmit) {
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = '<span>⏳</span> Processing...';
+        }
+
+        // Handle Verifone POS Terminal Payment
+        if (paymentMethod === 'verifone_pos') {
+            const modal = document.getElementById('verifoneModal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                setVerifoneModalState('waiting', `Sending £${parseFloat(amount).toFixed(2)} request to Verifone terminal...`);
+            }
+
+            if (miscTimeoutId) clearTimeout(miscTimeoutId);
+            miscTimeoutId = setTimeout(() => {
+                setVerifoneModalState('timeout', 'Payment session timed out (60s). Terminal transaction was aborted.');
+            }, 60000);
+
+            fetch('{{ route("restaurant.orders.store_miscellaneous") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(res => {
+                if (miscTimeoutId) clearTimeout(miscTimeoutId);
+                return res.json().then(data => ({ status: res.status, ok: res.ok, data }));
+            })
+            .then(({ status, ok, data }) => {
+                if (btnSubmit) {
+                    btnSubmit.disabled = false;
+                    btnSubmit.innerHTML = `<span>🚀</span> Place Direct Order (<span id="miscBtnTotal">£${parseFloat(amount).toFixed(2)}</span>)`;
+                }
+
+                if (ok && data.success) {
+                    setVerifoneModalState('success', 'Payment Approved! Printing customer receipt...');
+                    setTimeout(() => {
+                        window.location.href = data.redirect_url;
+                    }, 1200);
+                } else if (data.message && data.message.toLowerCase().includes('time')) {
+                    setVerifoneModalState('timeout', data.message);
+                } else {
+                    setVerifoneModalState('connection_lost', data.message || 'Payment declined or terminal unavailable.');
+                }
+            })
+            .catch(err => {
+                if (miscTimeoutId) clearTimeout(miscTimeoutId);
+                if (btnSubmit) {
+                    btnSubmit.disabled = false;
+                    btnSubmit.innerHTML = `<span>🚀</span> Place Direct Order (<span id="miscBtnTotal">£${parseFloat(amount).toFixed(2)}</span>)`;
+                }
+                setVerifoneModalState('connection_lost', 'Connection lost: Unable to reach Verifone Cloud POS. Please check terminal Wi-Fi.');
+            });
+
+        } else {
+            // Cash, Card at Counter, Pay at Counter, Offline
+            fetch('{{ route("restaurant.orders.store_miscellaneous") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (btnSubmit) {
+                    btnSubmit.disabled = false;
+                    btnSubmit.innerHTML = `<span>🚀</span> Place Direct Order (<span id="miscBtnTotal">£${parseFloat(amount).toFixed(2)}</span>)`;
+                }
+                if (data.success && data.redirect_url) {
+                    window.location.href = data.redirect_url;
+                } else {
+                    alert(data.message || 'Error creating order.');
+                }
+            })
+            .catch(err => {
+                if (btnSubmit) {
+                    btnSubmit.disabled = false;
+                    btnSubmit.innerHTML = `<span>🚀</span> Place Direct Order (<span id="miscBtnTotal">£${parseFloat(amount).toFixed(2)}</span>)`;
+                }
+                alert('An unexpected error occurred while placing miscellaneous order.');
+            });
+        }
+    }
+
     // Intercept Direct Order Form submission for Verifone POS
     document.getElementById('directOrderForm')?.addEventListener('submit', function(e) {
+        lastPaymentType = 'direct_order';
         const payMethod = document.getElementById('paymentMethodSelect')?.value;
         if (payMethod === 'verifone_pos') {
             e.preventDefault();
@@ -944,14 +1272,23 @@
 
     function retryVerifonePayment() {
         setVerifoneModalState('waiting');
-        document.getElementById('directOrderForm')?.dispatchEvent(new Event('submit', { cancelable: true }));
+        if (lastPaymentType === 'misc_order' && lastMiscPayload) {
+            submitMiscOrder(true);
+        } else {
+            document.getElementById('directOrderForm')?.dispatchEvent(new Event('submit', { cancelable: true }));
+        }
     }
 
     function switchPaymentToCash() {
-        const sel = document.getElementById('paymentMethodSelect');
-        if (sel) sel.value = 'cash';
-        cancelVerifonePayment();
-        alert('Payment method switched to Cash. Please submit order when ready.');
+        if (lastPaymentType === 'misc_order' && lastMiscPayload) {
+            cancelVerifonePayment();
+            submitMiscOrder(false, 'Cash');
+        } else {
+            const sel = document.getElementById('paymentMethodSelect');
+            if (sel) sel.value = 'cash';
+            cancelVerifonePayment();
+            alert('Payment method switched to Cash. Please submit order when ready.');
+        }
     }
 
     function cancelVerifonePayment() {
