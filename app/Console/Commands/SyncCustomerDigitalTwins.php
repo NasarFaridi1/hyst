@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use Illuminate\Support\Facades\Crypt;
 use Exception;
+use GPBMetadata\Google\Api\Log;
+use Illuminate\Support\Facades\Log as FacadeLog;
 
 class SyncCustomerDigitalTwins extends Command
 {
@@ -31,6 +33,8 @@ class SyncCustomerDigitalTwins extends Command
     {
         $startTime = now();
         $this->info('Starting Customer Digital Twin Sync Process...');
+
+        FacadeLog::info('Starting Customer Digital Twin Sync Process...');
 
         // 1. Log Job Execution Start
         $logId = null;
@@ -218,6 +222,8 @@ class SyncCustomerDigitalTwins extends Command
                     }
                 }
 
+                FacadeLog::info("Processing User ID {$user->id}: Email={$userEmail}, Phone={$userPhone}, TotalOrders={$totalOrders}, TotalSpend={$totalSpend}");
+
                 // 3. Upsert into hyst_ai_growth.customer_digital_twins
                 DB::connection('hyst_ai')->table('customer_digital_twins')->updateOrInsert(
                     ['user_id' => $user->id],
@@ -350,6 +356,9 @@ class SyncCustomerDigitalTwins extends Command
                     'completed_at' => now(),
                 ]);
             }
+
+            // 6. Log Success
+            FacadeLog::info("Successfully synced {$processedCount} Customer Digital Twins!");
 
             $this->info("Successfully synced {$processedCount} Customer Digital Twins!");
 
