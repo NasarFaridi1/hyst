@@ -825,6 +825,10 @@ Route::middleware(['auth', 'restaurant_admin'])
             '/orders/store-offline',
             [RestaurantOrderController::class, 'storeOfflineOrder']
         )->name('orders.store_offline');
+        Route::post(
+            '/orders/store-miscellaneous',
+            [RestaurantOrderController::class, 'storeMiscellaneousOrder']
+        )->name('orders.store_miscellaneous');
         Route::get(
             '/verifone/terminal-status',
             [RestaurantOrderController::class, 'checkVerifoneStatus']
