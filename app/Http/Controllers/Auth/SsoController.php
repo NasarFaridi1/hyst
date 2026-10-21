@@ -67,7 +67,11 @@ class SsoController extends Controller
             session()->flash('restaurant_just_logged_in', true);
         }
 
-        $redirect = $request->query('redirect', '/restaurant/orders');
+        $defaultRedirect = ($user->role === 'restaurant_admin' || !empty($user->restaurant_id))
+            ? '/restaurant/orders'
+            : '/';
+
+        $redirect = $ssoData['redirect'] ?? $request->query('redirect', $defaultRedirect);
 
         // Prevent external open-redirect vulnerabilities
         if (
@@ -76,7 +80,7 @@ class SsoController extends Controller
             str_starts_with($redirect, 'https://') ||
             str_starts_with($redirect, '//')
         ) {
-            $redirect = '/restaurant/orders';
+            $redirect = $defaultRedirect;
         }
 
         return redirect($redirect);

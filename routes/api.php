@@ -24,6 +24,7 @@ use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\MarketingBannerController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\RestaurantAuthController;
+use App\Http\Controllers\Api\UserAuthController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/verify-email', [AuthController::class, 'verifyByLink']);
@@ -37,6 +38,13 @@ Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 Route::prefix('restaurant')->group(function () {
     Route::post('/login', [RestaurantAuthController::class, 'login']);
     Route::post('/logout', [RestaurantAuthController::class, 'logout'])->middleware('api.token');
+});
+
+// User / Customer Mobile App API Routes (Register, Login & Logout)
+Route::prefix('user')->group(function () {
+    Route::post('/register', [UserAuthController::class, 'register']);
+    Route::post('/login', [UserAuthController::class, 'login']);
+    Route::post('/logout', [UserAuthController::class, 'logout'])->middleware('api.token');
 });
 
 Route::middleware('api.token')->group(function () {
