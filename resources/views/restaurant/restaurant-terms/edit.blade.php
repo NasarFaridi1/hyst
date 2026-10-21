@@ -1,10 +1,10 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="p-8">
+<div class="p-2 sm:p-4 md:p-6">
 
-    <div class="mb-8">
-        <h1 class="text-2xl font-medium">
+    <div class="mb-6 sm:mb-8">
+        <h1 class="text-2xl font-bold text-gray-900">
             Restaurant Terms & Conditions
         </h1>
 
@@ -13,9 +13,7 @@
         </p>
     </div>
 
-    
-
-    <div class="bg-white border border-gray-100 rounded-xl p-6">
+    <div class="bg-white border border-gray-100 rounded-xl p-4 sm:p-6 shadow-sm">
         <form
             action="{{ route('restaurant.terms.update',$restaurant->id) }}"
             method="POST"

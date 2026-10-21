@@ -293,42 +293,43 @@
             z-index: 40;
         } */
 
-        #sidebar-overlay{
-            position:fixed;
-            inset:0;
-            background:rgba(0,0,0,.4);
-            z-index:998;
-            display:none;
-        }
-
-        #sidebar-overlay.active{
-            display:block;
-        }
-
-        .mobile-menu-btn {
+        #sidebar-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            backdrop-filter: blur(2px);
+            z-index: 9990;
             display: none;
+            transition: opacity .2s ease;
+        }
+
+        #sidebar-overlay.active {
+            display: block;
+        }
+
+        .main-inner-content {
+            padding: 28px;
+            background: rgba(245, 240, 232, 0.95);
+            min-height: calc(100vh - 68px);
         }
 
         @media(max-width: 1024px) {
-            #sidebar {
-                transform: translateX(-100%);
+            .main-inner-content {
+                padding: 20px 16px;
             }
+        }
 
-            #sidebar.open {
-                transform: translateX(0);
-            } */
-
-            #main-content {
-                margin-left: 0 !important;
+        @media(max-width: 640px) {
+            .main-inner-content {
+                padding: 16px 12px;
+                min-height: calc(100vh - 60px);
             }
+        }
 
-            .mobile-menu-btn {
-                display: flex !important;
+        @media(max-width: 480px) {
+            .main-inner-content {
+                padding: 12px 8px;
             }
-
-            /* #sidebar-overlay.active {
-                display: block;
-            } */
         }
     </style>
 </head>
@@ -336,13 +337,13 @@
 <body>
     @include('partials.global_loader')
 
-    {{-- <div id="sidebar-overlay" onclick="closeSidebar()"></div> --}}
+    <div id="sidebar-overlay" onclick="closeSidebar()"></div>
     
     @include('layouts.sidebar')
     <div id="main-content">
         @include('layouts.navbar')
 
-        <div style="padding: 28px 28px; background: rgba(245, 240, 232, 0.95); min-height: calc(100vh - 68px);">
+        <div class="main-inner-content">
             @if(session('success'))
                 <div class="alert-success">
                     <i data-lucide="circle-check" style="width:18px; height:18px; flex-shrink:0;"></i>
@@ -594,29 +595,55 @@
     <script>
 
     function toggleSidebar() {
-
-        document
-            .getElementById('sidebar')
-            .classList.toggle('open');
-
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        if (sidebar) {
+            const isOpen = sidebar.classList.toggle('open');
+            if (overlay) {
+                if (isOpen) {
+                    overlay.classList.add('active');
+                } else {
+                    overlay.classList.remove('active');
+                }
+            }
+        }
     }
 
-    document.addEventListener('click', function(e){
-
-        const sidebar =
-            document.getElementById('sidebar');
-
-        const button =
-            document.getElementById('menuToggle');
-
-        if(
-            !sidebar.contains(e.target)
-            &&
-            !button.contains(e.target)
-        ){
+    function closeSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        if (sidebar) {
             sidebar.classList.remove('open');
         }
+        if (overlay) {
+            overlay.classList.remove('active');
+        }
+    }
 
+    document.addEventListener('click', function(e) {
+        const sidebar = document.getElementById('sidebar');
+        const button = document.getElementById('menuToggle');
+        const overlay = document.getElementById('sidebar-overlay');
+
+        if (!sidebar || !sidebar.classList.contains('open')) {
+            return;
+        }
+
+        const clickedInsideSidebar = sidebar.contains(e.target);
+        const clickedButton = button && button.contains(e.target);
+
+        if (!clickedInsideSidebar && !clickedButton) {
+            sidebar.classList.remove('open');
+            if (overlay) {
+                overlay.classList.remove('active');
+            }
+        }
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeSidebar();
+        }
     });
 
     </script>

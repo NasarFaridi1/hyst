@@ -1454,6 +1454,9 @@
     }
 
     @media (max-width: 480px) {
+      .ai-page {
+        padding: 8px 2px;
+      }
       .metric-grid {
         grid-template-columns: 1fr;
         gap: 12px;

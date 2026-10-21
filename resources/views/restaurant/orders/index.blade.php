@@ -3,29 +3,23 @@
 @section('content')
 
    
-    <div class="flex flex-col md:flex-row justify-between items-center gap-2 mb-8">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
 
-        <h1 class="text-4xl font-bold">
-
-        Today's All  Orders 
-
+        <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">
+            Today's All Orders 
         </h1>
 
-        <div class="flex items-center gap-3">
+        <div class="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
             <a
                 href="{{ route('restaurant.orders.create_order') }}"
-                class="bg-[#C25A2A] hover:bg-[#A3451E] text-white px-6 py-3 rounded-xl font-bold transition shadow">
-
+                class="bg-[#C25A2A] hover:bg-[#A3451E] text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-bold transition shadow text-xs sm:text-sm text-center flex-1 sm:flex-initial">
                 + Create Direct Order
-
             </a>
 
             <a
                 href="/restaurant/all-orders"
-                class="bg-black text-white px-6 py-3 rounded-xl font-bold">
-
+                class="bg-black hover:bg-gray-800 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-bold text-xs sm:text-sm text-center flex-1 sm:flex-initial transition">
                 All Orders view
-
             </a>
         </div>
 
@@ -33,7 +27,7 @@
 
     <div class="bg-white rounded-2xl shadow overflow-x-auto">
 
-        <table class="w-full">
+        <table class="w-full min-w-[650px]">
 
             <thead class="bg-gray-100">
 
@@ -174,7 +168,7 @@
 
                     <tr>
 
-                        <td colspan="4" class="text-center py-20 text-gray-500">
+                        <td colspan="6" class="text-center py-20 text-gray-500">
 
                             No Orders Found
 

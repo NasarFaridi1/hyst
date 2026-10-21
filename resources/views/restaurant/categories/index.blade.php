@@ -1,16 +1,16 @@
 @extends('layouts.app')
 @section('content')
-<div class="p-8">
-  <div class="flex justify-between items-center mb-6">
+<div class="p-2 sm:p-4 md:p-6">
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
     <div>
-      <h1 class="text-2xl font-medium">Categories</h1>
+      <h1 class="text-2xl font-bold text-gray-900">Categories</h1>
       <p class="text-sm text-gray-500 mt-1">Manage your food categories</p>
     </div>
-    <a href="{{ route('restaurant.categories.create') }}" class="inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium">+ Add category</a>
+    <a href="{{ route('restaurant.categories.create') }}" class="inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition shadow-sm">+ Add category</a>
   </div>
 
   <div class="bg-white border border-gray-100 rounded-xl overflow-x-auto">
-    <table class="w-full">
+    <table class="w-full min-w-[650px]">
       <thead>
         <tr class="bg-gray-50 border-b border-gray-100">
           <th class="text-left px-4 py-3 text-xs uppercase tracking-wide text-gray-400 font-medium">Image</th>

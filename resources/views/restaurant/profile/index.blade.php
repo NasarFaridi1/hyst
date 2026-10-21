@@ -224,7 +224,7 @@
                             </label>
                             <p class="text-xs text-gray-500 mt-0.5">Specify custom opening & closing times for each day of the week</p>
                         </div>
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-2 flex-wrap">
                             <button type="button" onclick="copyMondayToWeekdays()" class="px-3 py-1.5 text-xs font-semibold text-[#C25A2A] bg-orange-50 hover:bg-orange-100 rounded-lg border border-orange-200 transition">
                                 Copy Mon &rarr; Mon-Fri
                             </button>

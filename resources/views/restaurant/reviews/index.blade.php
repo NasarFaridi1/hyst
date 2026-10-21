@@ -4,9 +4,9 @@
 
 <div class="max-w-7xl mx-auto">
 
-    <div class="flex justify-between items-center mb-8">
+    <div class="flex justify-between items-center mb-6 sm:mb-8">
 
-        <h1 class="text-4xl font-bold">
+        <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">
 
             Customer Reviews
 
@@ -18,7 +18,7 @@
 
         @foreach($reviews as $review)
 
-            <div class="bg-white rounded-3xl shadow p-8">
+            <div class="bg-white rounded-3xl shadow p-5 sm:p-8">
 
                 <div class="flex justify-between gap-6 flex-wrap">
 

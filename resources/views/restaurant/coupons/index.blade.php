@@ -10,13 +10,13 @@
 
 <div class="max-w-7xl mx-auto px-4 py-6">
 
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <h2 class="text-2xl font-bold text-gray-800">
             Coupons
         </h2>
 
         <a href="{{ route('restaurant.coupons.create') }}"
-           class="inline-flex items-center px-4 py-2 bg-[#C25A2A] hover:bg-[#A54A1F] text-white rounded-lg transition">
+           class="inline-flex items-center px-4 py-2 bg-[#C25A2A] hover:bg-[#A54A1F] text-white rounded-lg transition shadow-sm text-sm">
             <i class="fas fa-plus mr-2"></i>
             Add Coupon
         </a>
@@ -28,7 +28,7 @@
 
         <div class="overflow-x-auto">
 
-            <table class="min-w-full divide-y divide-gray-200">
+            <table class="min-w-full divide-y divide-gray-200 min-w-[700px]">
 
                 <thead class="bg-gray-100">
 

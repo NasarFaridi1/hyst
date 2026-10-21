@@ -1,9 +1,9 @@
 @extends('layouts.app')
 @section('content')
-<div class="p-8 max-w-2xl">
-  <div class="flex justify-between items-center mb-6">
+<div class="p-3 sm:p-6 max-w-2xl mx-auto">
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
     <div>
-      <h1 class="text-2xl font-medium">Add category</h1>
+      <h1 class="text-2xl font-bold text-gray-900">Add category</h1>
       <p class="text-sm text-gray-500 mt-1">Create a new food category</p>
     </div>
     <a href="{{ route('restaurant.categories.index') }}" class="inline-flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-medium">← Back</a>

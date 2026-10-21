@@ -1,19 +1,14 @@
-<div style="background:rgba(245, 240, 232, 0.95); border-bottom:1px solid #F0F0EC; padding:0 28px; height:68px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:30;">
+<div class="navbar-container" style="background:rgba(245, 240, 232, 0.95); border-bottom:1px solid #F0F0EC; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:30;">
 
     <!-- LEFT: Mobile toggle + Page title -->
-    <div style="display:flex; align-items:center; gap:14px;">
-
-        <!-- Mobile menu toggle -->
-        {{-- <button class="mobile-menu-btn" onclick="openSidebar()"
-                style="display:none; align-items:center; justify-content:center; width:40px; height:40px; background:#F5F5F0; border:none; border-radius:10px; cursor:pointer;">
-            <i data-lucide="menu" style="width:20px; height:20px;"></i>
-        </button> --}}
+    <div style="display:flex; align-items:center; gap:10px;">
 
         <button
+            id="menuToggle"
             onclick="toggleSidebar()"
+            aria-label="Toggle Navigation Menu"
+            class="navbar-menu-btn"
             style="
-                width:52px;
-                height:52px;
                 border:none;
                 border-radius:50%;
                 background:#C25A2A;
@@ -22,13 +17,15 @@
                 display:flex;
                 align-items:center;
                 justify-content:center;
+                flex-shrink:0;
+                transition: transform .15s ease, background-color .15s ease;
             ">
-            <i data-lucide="menu"></i>
+            <i data-lucide="menu" style="width:22px; height:22px;"></i>
         </button>
 
         <!-- Dynamic page title -->
-        <div>
-            <h1 style="font-family:'Poppins',sans-serif; font-size:20px; font-weight:700; color:#0D0D0D; margin:0; letter-spacing:-.3px;">
+        <div style="min-width:0;">
+            <h1 class="navbar-title" style="font-family:'Poppins',sans-serif; font-weight:700; color:#0D0D0D; margin:0; letter-spacing:-.3px; line-height:1.2;">
                 @php
                     $path = request()->path();
                     $titles = [
@@ -49,7 +46,7 @@
                 @endphp
                 {{ $pageTitle }}
             </h1>
-            <p style="font-size:12px; color:#9CA3AF; margin:1px 0 0; font-weight:400;">
+            <p class="navbar-date" style="font-size:12px; color:#9CA3AF; margin:1px 0 0; font-weight:400;">
                 {{ now()->format('l, d M Y') }}
             </p>
         </div>
@@ -57,7 +54,7 @@
 
     <!-- RIGHT: Notifications + User -->
     @auth
-        <div style="display:flex; align-items:center; gap:10px;">
+        <div style="display:flex; align-items:center; gap:8px;">
 
             <!-- Enable Notifications Button -->
             <button id="btnEnableNavbarPush" onclick="enablePushNotifications(this)"
@@ -66,7 +63,7 @@
                         color: #fff;
                         border: none;
                         border-radius: 10px;
-                        padding: 8px 14px;
+                        padding: 8px 12px;
                         font-family: 'Poppins', sans-serif;
                         font-size: 12px;
                         font-weight: 600;
@@ -76,9 +73,10 @@
                         gap: 6px;
                         box-shadow: 0 2px 6px rgba(194, 90, 42, 0.25);
                         transition: all 0.2s;
+                        white-space: nowrap;
                     ">
-                <i data-lucide="bell-ring" style="width:14px; height:14px;"></i>
-                <span>Enable Alerts</span>
+                <i data-lucide="bell-ring" style="width:14px; height:14px; flex-shrink:0;"></i>
+                <span class="navbar-alert-text">Enable Alerts</span>
             </button>
 
             @php
@@ -150,6 +148,7 @@
                         top:50px;
                         right:0;
                         width:380px;
+                        max-width:calc(100vw - 24px);
                         max-height:500px;
                         overflow:hidden;
                         background:white;
@@ -522,6 +521,53 @@ document.addEventListener('click', function(e){
 </script>
 
 <style>
+.navbar-container {
+    padding: 0 28px;
+    height: 68px;
+}
+.navbar-menu-btn {
+    width: 48px;
+    height: 48px;
+}
+.navbar-title {
+    font-size: 20px;
+}
+@media(max-width: 768px) {
+    .navbar-container {
+        padding: 0 14px;
+        height: 60px;
+    }
+    .navbar-menu-btn {
+        width: 42px;
+        height: 42px;
+    }
+    .navbar-title {
+        font-size: 16px;
+    }
+    .navbar-date {
+        display: none !important;
+    }
+    .navbar-alert-text {
+        display: none !important;
+    }
+}
+@media(max-width: 480px) {
+    .navbar-container {
+        padding: 0 10px;
+        height: 56px;
+    }
+    .navbar-menu-btn {
+        width: 38px;
+        height: 38px;
+    }
+    .navbar-title {
+        font-size: 14px;
+        max-width: 120px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
 @media(min-width:600px){
     .user-info-text { display:block !important; }
 }

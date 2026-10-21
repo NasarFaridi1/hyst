@@ -1,18 +1,16 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="p-8">
+<div class="p-2 sm:p-4 md:p-6">
 
-    <div class="mb-8">
-        <h1 class="text-2xl font-medium">Restaurant Refund Policy</h1>
+    <div class="mb-6 sm:mb-8">
+        <h1 class="text-2xl font-bold text-gray-900">Restaurant Refund Policy</h1>
         <p class="text-gray-500 text-sm mt-1">
             Manage website Restaurant Refund Policy
         </p>
     </div>
 
-    
-
-    <div class="bg-white border border-gray-100 rounded-xl p-6">
+    <div class="bg-white border border-gray-100 rounded-xl p-4 sm:p-6 shadow-sm">
         <form action="{{ route('restaurant.refund-policy.update',$restaurant->id)}}" method="POST">
             @csrf
 

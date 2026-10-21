@@ -2,27 +2,27 @@
 
 @section('content')
 
-<div class="flex justify-between items-center mb-8">
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
 
     <div>
-        <h1 class="text-3xl font-bold">
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">
             Restaurant Addons
         </h1>
 
-        <p class="text-gray-500 mt-2">
+        <p class="text-gray-500 mt-1 text-xs sm:text-sm">
             Manage Common Addons (Available Across All Products)
         </p>
     </div>
 
-    <div class="flex gap-3">
+    <div class="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
 
         <a href="{{ route('restaurant.products.index') }}"
-           class="bg-gray-500 text-white px-5 py-3 rounded-lg">
+           class="bg-gray-500 hover:bg-gray-600 text-white px-4 sm:px-5 py-2.5 sm:py-3 rounded-lg text-xs sm:text-sm font-semibold flex-1 sm:flex-initial text-center transition">
             Back to Products
         </a>
 
         <a href="{{ route('restaurant.addons.create') }}"
-           class="bg-blue-600 text-white px-5 py-3 rounded-lg">
+           class="bg-blue-600 hover:bg-blue-700 text-white px-4 sm:px-5 py-2.5 sm:py-3 rounded-lg text-xs sm:text-sm font-semibold flex-1 sm:flex-initial text-center transition shadow">
             + Add Addon
         </a>
 
@@ -31,14 +31,14 @@
 </div>
 
 @if(session('success'))
-<div class="bg-green-100 text-green-700 p-4 rounded-lg mb-5">
+<div class="bg-green-100 text-green-700 p-4 rounded-lg mb-5 text-sm">
     {{ session('success') }}
 </div>
 @endif
 
-<div class="bg-white rounded-xl shadow overflow-hidden">
+<div class="bg-white rounded-xl shadow overflow-x-auto">
 
-<table class="w-full">
+<table class="w-full min-w-[550px]">
 
 <thead class="bg-gray-100">
 

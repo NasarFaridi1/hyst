@@ -2,17 +2,17 @@
 
 @section('content')
 
-<div class="flex justify-between items-center mb-8">
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
 
     <div>
 
-        <h1 class="text-4xl font-bold">
+        <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold">
 
             My Products
 
         </h1>
 
-        <p class="text-gray-500 mt-2">
+        <p class="text-gray-500 mt-1 text-xs sm:text-sm">
 
             Restaurant products list
 
@@ -20,47 +20,49 @@
 
     </div>
 
-    <div class="flex gap-3">
+    <div class="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
         <a href="{{ route('restaurant.addons.index') }}"
-        class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl">
+        class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-semibold flex-1 sm:flex-initial text-center transition shadow">
             Manage Addons
         </a>
         <a href="/restaurant/products/create"
-        class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl">
-            Add Product
+        class="bg-blue-500 hover:bg-blue-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-semibold flex-1 sm:flex-initial text-center transition shadow">
+            + Add Product
         </a>
     </div>
 
 </div>
-<div class="bg-white rounded-2xl shadow p-5 mb-6">
+<div class="bg-white rounded-2xl shadow p-4 sm:p-5 mb-6">
 
     <form method="GET">
 
-        <div class="flex gap-3">
+        <div class="flex flex-col sm:flex-row gap-3">
 
             <input
                 type="text"
                 name="search"
                 value="{{ request('search') }}"
                 placeholder="Search product, category, price..."
-                class="flex-1 border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                class="flex-1 border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
 
-            <button
-                type="submit"
-                class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl">
+            <div class="flex gap-2">
+                <button
+                    type="submit"
+                    class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold text-sm flex-1 sm:flex-initial text-center transition">
 
-                Search
+                    Search
 
-            </button>
+                </button>
 
-            @if(request('search'))
-                <a href="{{ url()->current() }}"
-                   class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-xl">
+                @if(request('search'))
+                    <a href="{{ url()->current() }}"
+                       class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-xl font-semibold text-sm flex-1 sm:flex-initial text-center transition">
 
-                    Reset
+                        Reset
 
-                </a>
-            @endif
+                    </a>
+                @endif
+            </div>
 
         </div>
 
@@ -71,7 +73,7 @@
 
 <div class="bg-white rounded-2xl shadow overflow-x-auto">
 
-    <table class="w-full">
+    <table class="w-full min-w-[700px]">
 
         <thead class="bg-gray-100">
 
@@ -242,7 +244,7 @@
 
             <tr>
 
-                <td colspan="6"
+                <td colspan="7"
                 class="text-center py-20 text-gray-500">
 
                     No Products Found

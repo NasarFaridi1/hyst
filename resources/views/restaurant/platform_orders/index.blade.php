@@ -5,17 +5,17 @@
 <div class="max-w-7xl mx-auto">
 
     <!-- Header & Platform Settings Trigger -->
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
         <div>
-            <h1 class="text-4xl font-extrabold text-gray-900 flex items-center gap-3">
+            <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-900 flex items-center gap-3">
                 <span>🛵 All Platforms Orders</span>
             </h1>
-            <p class="text-gray-500 mt-1">Manage orders from Uber Eats, Deliveroo, Just Eat & Direct Website in one place.</p>
+            <p class="text-gray-500 mt-1 text-xs sm:text-sm">Manage orders from Uber Eats, Deliveroo, Just Eat & Direct Website in one place.</p>
         </div>
 
         <button onclick="document.getElementById('credentialsModal').classList.remove('hidden')" 
-                class="bg-black hover:bg-gray-800 text-white font-bold px-6 py-3 rounded-2xl shadow flex items-center gap-2 text-sm transition">
-            <span>⚙️ Platform Integration Settings</span>
+                class="bg-black hover:bg-gray-800 text-white font-bold px-4 sm:px-6 py-2.5 sm:py-3 rounded-2xl shadow flex items-center gap-2 text-xs sm:text-sm transition w-full sm:w-auto justify-center">
+            <span>⚙️ Platform Settings</span>
         </button>
     </div>
 
@@ -94,35 +94,35 @@
     </div>
 
     <!-- Platform Filter Tabs (All, Uber Eats, Deliveroo, Just Eat) -->
-    <div class="flex border-b border-gray-200 mb-6 gap-2">
+    <div class="flex border-b border-gray-200 mb-6 gap-2 overflow-x-auto whitespace-nowrap pb-1">
         <a href="{{ route('restaurant.platform_orders.index', ['tab' => 'all']) }}" 
-           class="px-6 py-3 font-bold text-sm border-b-2 transition flex items-center gap-2 {{ $tab === 'all' ? 'border-black text-black' : 'border-transparent text-gray-500 hover:text-gray-700' }}">
+           class="px-4 sm:px-6 py-3 font-bold text-xs sm:text-sm border-b-2 transition flex items-center gap-2 flex-shrink-0 {{ $tab === 'all' ? 'border-black text-black' : 'border-transparent text-gray-500 hover:text-gray-700' }}">
             📦 All Platforms <span class="bg-gray-200 text-gray-800 text-xs px-2 py-0.5 rounded-full">{{ $counts['all'] }}</span>
         </a>
         <a href="{{ route('restaurant.platform_orders.index', ['tab' => 'ubereats']) }}" 
-           class="px-6 py-3 font-bold text-sm border-b-2 transition flex items-center gap-2 {{ $tab === 'ubereats' ? 'border-black text-black' : 'border-transparent text-gray-500 hover:text-gray-700' }}">
+           class="px-4 sm:px-6 py-3 font-bold text-xs sm:text-sm border-b-2 transition flex items-center gap-2 flex-shrink-0 {{ $tab === 'ubereats' ? 'border-black text-black' : 'border-transparent text-gray-500 hover:text-gray-700' }}">
             🟢 Uber Eats <span class="bg-emerald-100 text-emerald-800 text-xs px-2 py-0.5 rounded-full">{{ $counts['ubereats'] }}</span>
         </a>
         <a href="{{ route('restaurant.platform_orders.index', ['tab' => 'deliveroo']) }}" 
-           class="px-6 py-3 font-bold text-sm border-b-2 transition flex items-center gap-2 {{ $tab === 'deliveroo' ? 'border-black text-black' : 'border-transparent text-gray-500 hover:text-gray-700' }}">
+           class="px-4 sm:px-6 py-3 font-bold text-xs sm:text-sm border-b-2 transition flex items-center gap-2 flex-shrink-0 {{ $tab === 'deliveroo' ? 'border-black text-black' : 'border-transparent text-gray-500 hover:text-gray-700' }}">
             🦘 Deliveroo <span class="bg-teal-100 text-teal-800 text-xs px-2 py-0.5 rounded-full">{{ $counts['deliveroo'] }}</span>
         </a>
         <a href="{{ route('restaurant.platform_orders.index', ['tab' => 'justeat']) }}" 
-           class="px-6 py-3 font-bold text-sm border-b-2 transition flex items-center gap-2 {{ $tab === 'justeat' ? 'border-black text-black' : 'border-transparent text-gray-500 hover:text-gray-700' }}">
+           class="px-4 sm:px-6 py-3 font-bold text-xs sm:text-sm border-b-2 transition flex items-center gap-2 flex-shrink-0 {{ $tab === 'justeat' ? 'border-black text-black' : 'border-transparent text-gray-500 hover:text-gray-700' }}">
             🔴 Just Eat <span class="bg-red-100 text-red-800 text-xs px-2 py-0.5 rounded-full">{{ $counts['justeat'] }}</span>
         </a>
     </div>
 
     <!-- Flash Notifications -->
     @if(session('success'))
-        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-xl mb-6 font-semibold">
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-xl mb-6 font-semibold text-sm">
             {{ session('success') }}
         </div>
     @endif
 
     <!-- Orders Stream Table -->
-    <div class="bg-white rounded-2xl shadow overflow-hidden border border-gray-100">
-        <table class="w-full text-left">
+    <div class="bg-white rounded-2xl shadow overflow-x-auto border border-gray-100">
+        <table class="w-full text-left min-w-[750px]">
             <thead class="bg-gray-50 text-gray-600 text-xs uppercase font-bold border-b">
                 <tr>
                     <th class="p-4">Platform</th>
@@ -212,10 +212,10 @@
 </div>
 
 <!-- Integration Settings Modal Drawer -->
-<div id="credentialsModal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-3xl w-full p-8 max-h-[90vh] overflow-y-auto shadow-2xl">
+<div id="credentialsModal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-white rounded-3xl max-w-3xl w-full p-4 sm:p-8 max-h-[90vh] overflow-y-auto shadow-2xl">
         <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-extrabold text-gray-900">⚙️ Platform Credentials Settings</h2>
+            <h2 class="text-xl sm:text-2xl font-extrabold text-gray-900">⚙️ Platform Credentials Settings</h2>
             <button onclick="document.getElementById('credentialsModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
         </div>
 
@@ -226,15 +226,15 @@
             <form method="POST" action="{{ route('restaurant.platform_orders.save_credentials') }}" class="pt-4">
                 @csrf
                 <input type="hidden" name="platform" value="ubereats">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="font-extrabold text-lg text-gray-900 flex items-center gap-2">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+                    <h3 class="font-extrabold text-base sm:text-lg text-gray-900 flex items-center gap-2">
                         <span class="bg-black text-white text-xs font-black px-2 py-0.5 rounded">UBER</span> Uber Eats Marketplace Settings
                     </h3>
                     <label class="flex items-center gap-2 text-xs font-bold text-gray-700">
                         <input type="checkbox" name="is_enabled" value="1" {{ ($ue->is_enabled ?? 0) ? 'checked' : '' }} class="rounded text-black"> Enable Uber Eats
                     </label>
                 </div>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div>
                         <label class="block text-xs font-bold text-gray-600 mb-1">Uber Store UUID *</label>
                         <input type="text" name="store_id" value="{{ $ue->store_id ?? '' }}" placeholder="a11e6f29-6850-4d8d-b88d-0ae69cec1111" class="w-full text-xs border rounded-xl p-3">
@@ -262,15 +262,15 @@
             <form method="POST" action="{{ route('restaurant.platform_orders.save_credentials') }}" class="pt-6">
                 @csrf
                 <input type="hidden" name="platform" value="deliveroo">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="font-extrabold text-lg text-teal-700 flex items-center gap-2">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+                    <h3 class="font-extrabold text-base sm:text-lg text-teal-700 flex items-center gap-2">
                         <span class="bg-teal-600 text-white text-xs font-black px-2 py-0.5 rounded">DELIVEROO</span> Deliveroo Partner Settings
                     </h3>
                     <label class="flex items-center gap-2 text-xs font-bold text-gray-700">
                         <input type="checkbox" name="is_enabled" value="1" {{ ($dl->is_enabled ?? 0) ? 'checked' : '' }} class="rounded text-teal-600"> Enable Deliveroo
                     </label>
                 </div>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div>
                         <label class="block text-xs font-bold text-gray-600 mb-1">Deliveroo Site / Location ID *</label>
                         <input type="text" name="store_id" value="{{ $dl->store_id ?? '' }}" placeholder="site_UK_LON_89432" class="w-full text-xs border rounded-xl p-3">
@@ -298,15 +298,15 @@
             <form method="POST" action="{{ route('restaurant.platform_orders.save_credentials') }}" class="pt-6">
                 @csrf
                 <input type="hidden" name="platform" value="justeat">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="font-extrabold text-lg text-red-700 flex items-center gap-2">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+                    <h3 class="font-extrabold text-base sm:text-lg text-red-700 flex items-center gap-2">
                         <span class="bg-red-600 text-white text-xs font-black px-2 py-0.5 rounded">JUST EAT</span> Just Eat Partner Settings
                     </h3>
                     <label class="flex items-center gap-2 text-xs font-bold text-gray-700">
                         <input type="checkbox" name="is_enabled" value="1" {{ ($je->is_enabled ?? 0) ? 'checked' : '' }} class="rounded text-red-600"> Enable Just Eat
                     </label>
                 </div>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div>
                         <label class="block text-xs font-bold text-gray-600 mb-1">Just Eat Merchant / Restaurant ID *</label>
                         <input type="text" name="store_id" value="{{ $je->store_id ?? '' }}" placeholder="JE_STORE_94821" class="w-full text-xs border rounded-xl p-3">

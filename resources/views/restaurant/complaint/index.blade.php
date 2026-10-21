@@ -2,17 +2,17 @@
 
 @section('content')
 
-    <div class="flex justify-between items-center mb-8">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
 
-    <h1 class="text-4xl font-bold">
+    <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">
 
-        All complained Orders
+        All Complained Orders
 
     </h1>
 
     <a
         href="/restaurant/complaint"
-        class="bg-black text-white px-6 py-3 rounded-xl">
+        class="bg-black hover:bg-gray-800 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-semibold transition">
 
         Complaint's Orders
 
@@ -20,35 +20,37 @@
 
 </div>
 
-<div class="bg-white rounded-2xl shadow p-5 mb-6">
+<div class="bg-white rounded-2xl shadow p-4 sm:p-5 mb-6">
 
     <form method="GET">
 
-        <div class="flex gap-3">
+        <div class="flex flex-col sm:flex-row gap-3">
 
             <input
                 type="text"
                 name="search"
                 value="{{ request('search') }}"
                 placeholder="Search order ID, user, status..."
-                class="flex-1 border border-gray-300 rounded-xl px-4 py-3">
+                class="flex-1 border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#C25A2A] text-sm">
 
-            <button
-                type="submit"
-                class="bg-black text-white px-6 py-3 rounded-xl">
+            <div class="flex gap-2">
+                <button
+                    type="submit"
+                    class="bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-xl font-semibold text-sm flex-1 sm:flex-initial text-center transition">
 
-                Search
+                    Search
 
-            </button>
+                </button>
 
-            @if(request('search'))
-                <a href="{{ url()->current() }}"
-                   class="bg-gray-500 text-white px-6 py-3 rounded-xl">
+                @if(request('search'))
+                    <a href="{{ url()->current() }}"
+                       class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-xl font-semibold text-sm flex-1 sm:flex-initial text-center transition">
 
-                    Reset
+                        Reset
 
-                </a>
-            @endif
+                    </a>
+                @endif
+            </div>
 
         </div>
 
@@ -58,7 +60,7 @@
 
     <div class="bg-white rounded-2xl shadow overflow-x-auto">
 
-        <table class="w-full">
+        <table class="w-full min-w-[650px]">
 
             <thead class="bg-gray-100">
 

@@ -6,7 +6,7 @@
 <div class="max-w-7xl mx-auto px-4 py-6">
 
     <!-- Header -->
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <div>
             <h2 class="text-2xl font-bold text-gray-800">Delivery Charges</h2>
             <p class="text-sm text-gray-500">
@@ -15,7 +15,7 @@
         </div>
 
         <a href="{{ route('restaurant.delivery-charges.create') }}"
-           class="inline-flex items-center px-4 py-2 bg-[#C25A2A] hover:bg-blue-700 text-white rounded-lg shadow transition">
+           class="inline-flex items-center px-4 py-2 bg-[#C25A2A] hover:bg-orange-700 text-white rounded-lg shadow transition text-sm">
             <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
             Add Delivery Charge
         </a>
@@ -28,7 +28,7 @@
 
         <div class="overflow-x-auto">
 
-            <table class="min-w-full divide-y divide-gray-200">
+            <table class="min-w-full divide-y divide-gray-200 min-w-[650px]">
 
                 <thead class="bg-gray-100">
                     <tr>

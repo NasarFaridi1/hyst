@@ -278,7 +278,7 @@
                        class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#C25A2A] focus:border-[#C25A2A] text-sm">
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Min. Order Amount (£)</label>
                     <input type="number" step="0.01" min="0.01" name="minimum_order_amount" id="minAmount" required 
@@ -296,7 +296,7 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Reward Value</label>
                     <input type="number" step="0.01" min="0.01" name="reward_value" id="rewardValue" required 
@@ -312,7 +312,7 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Max Usages Per Reward</label>
                     <input type="number" min="1" name="max_usage" id="maxUsage" required 
@@ -320,7 +320,7 @@
                            class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#C25A2A] focus:border-[#C25A2A] text-sm">
                 </div>
 
-                <div class="flex items-center pt-6">
+                <div class="flex items-center pt-2 sm:pt-6">
                     <label class="inline-flex items-center cursor-pointer">
                         <input type="checkbox" name="is_active" id="isActive" value="1" checked class="sr-only peer">
                         <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#C25A2A] relative"></div>

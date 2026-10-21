@@ -41,11 +41,7 @@
     ::-webkit-scrollbar-thumb { background: var(--terra); border-radius: 4px; }
 
     /* ── Layout ── */
-    .db-shell { display: flex; min-height: 100vh; background: var(--cream); }
-
-
-
-
+    .db-shell { display: flex; min-height: 100vh; background: var(--cream); width: 100%; overflow-x: hidden; }
 
     /* ── Top bar ── */
 
@@ -60,10 +56,16 @@
     .qr-btn:hover { background: var(--terra-l); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(194,90,42,0.4); }
 
     /* ── Page body ── */
-    .page-body { padding: 28px; }
+    .page-body { padding: 24px; }
+    @media(max-width: 768px) {
+      .page-body { padding: 10px 4px; }
+    }
+    @media(max-width: 480px) {
+      .page-body { padding: 6px 0; }
+    }
 
     /* ── Page header ── */
-    .pg-header { margin-bottom: 28px; }
+    .pg-header { margin-bottom: 24px; }
     .pg-eyebrow {
       font-size: 11px; font-weight: 700; text-transform: uppercase;
       letter-spacing: 0.16em; color: var(--terra); margin-bottom: 6px;
@@ -72,7 +74,7 @@
     .pg-eyebrow::before { content: ''; width: 16px; height: 2px; background: var(--terra); border-radius: 2px; }
     .pg-header h1 {
       font-family: 'Playfair Display', serif;
-      font-size: 32px; font-weight: 700; color: var(--ink); line-height: 1.15;
+      font-size: clamp(22px, 4vw, 32px); font-weight: 700; color: var(--ink); line-height: 1.15;
     }
     .pg-header h1 span { color: var(--terra); }
     .pg-sub { font-size: 13px; color: var(--muted); margin-top: 4px; font-weight: 400; }
@@ -89,7 +91,7 @@
       display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px;
     }
     @media(max-width:1100px) { .stat-grid { grid-template-columns: repeat(2,1fr); } }
-    @media(max-width:580px)  { .stat-grid { grid-template-columns: 1fr; } }
+    @media(max-width:580px)  { .stat-grid { grid-template-columns: 1fr; gap: 12px; } }
 
     .stat-card {
       background: #fff; border: 1px solid var(--border);
@@ -135,14 +137,27 @@
     .c-red   .stat-value { color: var(--red); }
     .stat-meta { font-size: 12px; color: var(--muted); }
 
+    @media(max-width:480px) {
+      .stat-card { padding: 16px; }
+      .stat-value { font-size: 26px; }
+      .stat-icon { width: 36px; height: 36px; font-size: 16px; margin-bottom: 10px; }
+    }
+
     /* ── Status row ── */
     .status-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
-    @media(max-width:580px) { .status-row { grid-template-columns: 1fr; } }
+    @media(max-width:580px) { .status-row { grid-template-columns: 1fr; gap: 12px; } }
 
     .status-card {
       border-radius: 16px; padding: 22px 24px;
       display: flex; align-items: center; gap: 18px;
       animation: fadeUp .5s var(--ease) .25s both;
+      box-shadow: var(--shadow);
+    }
+    @media(max-width:480px) {
+      .status-card { padding: 16px; gap: 12px; }
+      .status-circle { width: 46px; height: 46px; font-size: 20px; }
+      .status-num { font-size: 30px; }
+    }
       box-shadow: var(--shadow);
     }
     .status-card.pending  { background: #fff; border: 1.5px solid rgba(194,90,42,0.2); }
@@ -524,8 +539,8 @@
         <h1>{{ $restaurant->name ?? 'Restaurant' }} <span>Dashboard</span></h1>
         <p class="pg-sub" id="pgDate">Loading…</p>
 
-        <div class="flex justify-end gap-3 items-center flex-wrap">
-            <a href="{{ route('restaurant.ai_analytics.index') }}" target="_blank" style="display:inline-flex; align-items:center; gap:8px; background:linear-gradient(135deg, #1A1208, #2E2318); color:#fff; border:1px solid var(--terra); border-radius:9px; padding:9px 18px; font-family:'Poppins',sans-serif; font-size:13px; font-weight:600; text-decoration:none; box-shadow:0 3px 12px rgba(194,90,42,0.25); transition:all .2s ease;">
+        <div class="flex justify-start sm:justify-end gap-2 sm:gap-3 items-center flex-wrap mt-3">
+            <a href="{{ route('restaurant.ai_analytics.index') }}" target="_blank" style="display:inline-flex; align-items:center; gap:8px; background:linear-gradient(135deg, #1A1208, #2E2318); color:#fff; border:1px solid var(--terra); border-radius:9px; padding:9px 16px; font-family:'Poppins',sans-serif; font-size:12.5px; font-weight:600; text-decoration:none; box-shadow:0 3px 12px rgba(194,90,42,0.25); transition:all .2s ease;">
                 <span style="font-size:15px;">🤖</span> AI Analytics & Growth Engine <span style="color:#4ADE80; font-size:12px;">↗</span>
             </a>
             <button class="qr-btn" onclick="openQrModal()">
@@ -535,18 +550,18 @@
       </div>
 
       {{-- AI Growth Engine Highlight Bar --}}
-      <div style="background:linear-gradient(135deg, #2E2318 0%, #1A1208 100%); color:#fff; border-radius:16px; padding:18px 24px; margin-bottom:24px; box-shadow:var(--shadow); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; border:1px solid rgba(194,90,42,0.3);">
-          <div style="display:flex; align-items:center; gap:14px;">
-              <div style="width:48px; height:48px; border-radius:12px; background:rgba(194,90,42,0.2); border:1px solid var(--terra); display:flex; align-items:center; justify-content:center; font-size:24px;">
+      <div class="ai-growth-highlight" style="background:linear-gradient(135deg, #2E2318 0%, #1A1208 100%); color:#fff; border-radius:16px; padding:18px 24px; margin-bottom:24px; box-shadow:var(--shadow); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; border:1px solid rgba(194,90,42,0.3);">
+          <div style="display:flex; align-items:center; gap:14px; min-width:0;">
+              <div style="width:48px; height:48px; border-radius:12px; background:rgba(194,90,42,0.2); border:1px solid var(--terra); display:flex; align-items:center; justify-content:center; font-size:24px; flex-shrink:0;">
                   🧠
               </div>
-              <div>
+              <div style="min-width:0;">
                   <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#E0D5C0;">HYST AI Growth Flywheel</div>
-                  <h3 style="font-size:18px; font-weight:700; margin:2px 0 0; color:#fff;">Identify Reorder Opportunities & Customer Digital Twins</h3>
+                  <h3 style="font-size:clamp(15px, 2.5vw, 18px); font-weight:700; margin:2px 0 0; color:#fff; line-height:1.25;">Identify Reorder Opportunities & Customer Digital Twins</h3>
               </div>
           </div>
           <div>
-              <a href="{{ route('restaurant.ai_analytics.index') }}" target="_blank" style="background:var(--terra); color:#fff; padding:10px 20px; border-radius:10px; font-weight:600; font-size:13px; text-decoration:none; display:inline-flex; align-items:center; gap:6px; box-shadow:0 4px 14px rgba(194,90,42,0.4);">
+              <a href="{{ route('restaurant.ai_analytics.index') }}" target="_blank" style="background:var(--terra); color:#fff; padding:10px 18px; border-radius:10px; font-weight:600; font-size:12.5px; text-decoration:none; display:inline-flex; align-items:center; gap:6px; box-shadow:0 4px 14px rgba(194,90,42,0.4); white-space:nowrap;">
                   Open AI Analytics Tab <span style="font-size:14px;">↗</span>
               </a>
           </div>
@@ -975,21 +990,6 @@
   if(el) el.textContent = str;
   if(tb){ tb.textContent = d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'}); tb.style.display=''; }
 })();
-
-// Sidebar
-function toggleSidebar() {
-  const sb  = document.getElementById('sidebar');
-  const ov  = document.getElementById('sidebar-overlay');
-  const mc  = document.getElementById('main-content');
-  const isW = window.innerWidth > 1024;
-  if(isW) {
-    sb.classList.toggle('collapsed');
-    mc.classList.toggle('expanded');
-  } else {
-    sb.classList.toggle('open');
-    ov.classList.toggle('active');
-  }
-}
 
 // QR
 function openQrModal()  { document.getElementById('qrModal').classList.add('open'); }

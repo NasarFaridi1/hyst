@@ -36,9 +36,12 @@
   ::-webkit-scrollbar-track { background: var(--cream2); }
   ::-webkit-scrollbar-thumb { background: var(--terra); border-radius: 4px; }
 
-  .cd-wrap { margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+  .cd-wrap { margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+  @media(max-width:640px) {
+    .cd-wrap { padding: 0.5rem 0.25rem 2rem; }
+  }
 
-  .pg-header { margin-bottom: 28px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; }
+  .pg-header { margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; }
   .pg-eyebrow {
     font-size: 11px; font-weight: 700; text-transform: uppercase;
     letter-spacing: 0.16em; color: var(--terra); margin-bottom: 6px;
@@ -47,7 +50,7 @@
   .pg-eyebrow::before { content: ''; width: 16px; height: 2px; background: var(--terra); border-radius: 2px; }
   .pg-header h1 {
     font-family: 'Playfair Display', serif;
-    font-size: 32px; font-weight: 700; color: var(--ink); line-height: 1.15;
+    font-size: clamp(22px, 4vw, 32px); font-weight: 700; color: var(--ink); line-height: 1.15;
   }
   .pg-header h1 span { color: var(--terra); }
 
@@ -99,8 +102,8 @@
   }
   .cd-card-body { padding: 0; }
 
-  .cd-table-wrap { overflow-x: auto; }
-  table.cd-table { width: 100%; border-collapse: collapse; }
+  .cd-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table.cd-table { width: 100%; min-width: 550px; border-collapse: collapse; }
   table.cd-table thead th {
     background: var(--cream); padding: 13px 20px; text-align: left;
     font-size: 10.5px; font-weight: 700; text-transform: uppercase;

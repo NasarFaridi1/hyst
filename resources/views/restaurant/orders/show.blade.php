@@ -43,10 +43,13 @@
   ::-webkit-scrollbar-thumb { background: var(--terra); border-radius: 4px; }
 
   /* ── Page wrap ── */
-  .od-wrap {  margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+  .od-wrap { margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+  @media(max-width:640px) {
+    .od-wrap { padding: 0.5rem 0.25rem 2rem; }
+  }
 
   /* ── Page header ── */
-  .pg-header { margin-bottom: 28px; display: flex; justify-content: space-between; align-items: flex-start; }
+  .pg-header { margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 14px; }
   .pg-eyebrow {
     font-size: 11px; font-weight: 700; text-transform: uppercase;
     letter-spacing: 0.16em; color: var(--terra); margin-bottom: 6px;
@@ -227,12 +230,13 @@
   /* ── Items table ── */
   .od-table-wrap {
     background: #fff; border: 1px solid var(--border); border-radius: 16px;
-    overflow: hidden; margin-bottom: 16px; box-shadow: var(--shadow);
+    overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 16px; box-shadow: var(--shadow);
     animation: fadeUp .5s var(--ease) .3s both;
   }
   .od-tbl-header {
     display: grid; grid-template-columns: 1fr 110px 70px 110px;
     padding: 0 22px; background: var(--cream); border-bottom: 1px solid var(--border);
+    min-width: 460px;
   }
   .od-tbl-header span {
     padding: 12px 0; font-size: 10.5px; font-weight: 700;
@@ -242,6 +246,7 @@
     display: grid; grid-template-columns: 1fr 110px 70px 110px;
     padding: 0 22px; border-bottom: 1px solid rgba(194,90,42,0.06);
     transition: background .15s;
+    min-width: 460px;
   }
   .od-tbl-row:last-child { border-bottom: none; }
   .od-tbl-row:hover { background: var(--cream); }
@@ -357,9 +362,10 @@
   }
 
   @media(max-width:640px) {
-    .od-tbl-header { grid-template-columns: 1fr 80px 50px 80px; }
-    .od-tbl-row    { grid-template-columns: 1fr 80px 50px 80px; }
-    .pg-header h1  { font-size: 24px; }
+    .od-tbl-header { grid-template-columns: 1fr 90px 60px 90px; }
+    .od-tbl-row    { grid-template-columns: 1fr 90px 60px 90px; }
+    .pg-header h1  { font-size: clamp(20px, 4.5vw, 28px); }
+    .od-card       { padding: 16px; }
   }
 </style>
 

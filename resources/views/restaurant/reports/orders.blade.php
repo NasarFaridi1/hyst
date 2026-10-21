@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="p-6 max-w-[1600px] mx-auto font-sans">
+<div class="p-2 sm:p-4 md:p-6 max-w-[1600px] mx-auto font-sans">
     
     <!-- ════════════════════════════════════════════════════════════
          TOP HEADER & ACTION BUTTONS
@@ -584,8 +584,8 @@
                     <span>Payment Transaction Log</span>
                     <span class="text-[11px] font-normal text-gray-400">${paymentsList.length || 1} Record(s)</span>
                 </h4>
-                <div class="border border-gray-200 rounded-xl overflow-hidden bg-white">
-                    <table class="w-full text-left">
+                <div class="border border-gray-200 rounded-xl overflow-x-auto bg-white">
+                    <table class="w-full text-left min-w-[550px]">
                         <thead class="bg-gray-50 text-[10px] font-bold uppercase text-gray-500 border-b border-gray-200">
                             <tr>
                                 <th class="py-2.5 px-3">#</th>

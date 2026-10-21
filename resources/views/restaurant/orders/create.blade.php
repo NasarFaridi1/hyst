@@ -2,73 +2,65 @@
 
 @section('content')
 
-    <div class="flex justify-between items-center mb-8">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
 
-    <h1 class="text-4xl font-bold">
+        <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">
+            All Orders
+        </h1>
 
-        All Orders
+        <div class="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
+            <a
+                href="{{ route('restaurant.orders.create_order') }}"
+                class="bg-[#C25A2A] hover:bg-[#A3451E] text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-bold transition shadow text-xs sm:text-sm text-center flex-1 sm:flex-initial">
+                + Create Direct Order
+            </a>
 
-    </h1>
-
-    <div class="flex items-center gap-3">
-        <a
-            href="{{ route('restaurant.orders.create_order') }}"
-            class="bg-[#C25A2A] hover:bg-[#A3451E] text-white px-6 py-3 rounded-xl font-bold transition shadow">
-
-            + Create Direct Order
-
-        </a>
-
-        <a
-            href="/restaurant/orders"
-            class="bg-black text-white px-6 py-3 rounded-xl font-bold">
-
-            Today's Orders
-
-        </a>
-    </div>
-
-</div>
-
-<div class="bg-white rounded-2xl shadow p-5 mb-6">
-
-    <form method="GET">
-
-        <div class="flex gap-3">
-
-            <input
-                type="text"
-                name="search"
-                value="{{ request('search') }}"
-                placeholder="Search order ID, user, status..."
-                class="flex-1 border border-gray-300 rounded-xl px-4 py-3">
-
-            <button
-                type="submit"
-                class="bg-black text-white px-6 py-3 rounded-xl">
-
-                Search
-
-            </button>
-
-            @if(request('search'))
-                <a href="{{ url()->current() }}"
-                   class="bg-gray-500 text-white px-6 py-3 rounded-xl">
-
-                    Reset
-
-                </a>
-            @endif
-
+            <a
+                href="/restaurant/orders"
+                class="bg-black hover:bg-gray-800 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-bold text-xs sm:text-sm text-center flex-1 sm:flex-initial transition">
+                Today's Orders
+            </a>
         </div>
 
-    </form>
+    </div>
 
-</div>
+    <div class="bg-white rounded-2xl shadow p-4 sm:p-5 mb-6">
+
+        <form method="GET">
+
+            <div class="flex flex-col sm:flex-row gap-3">
+
+                <input
+                    type="text"
+                    name="search"
+                    value="{{ request('search') }}"
+                    placeholder="Search order ID, user, status..."
+                    class="flex-1 border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#C25A2A] text-sm">
+
+                <div class="flex gap-2">
+                    <button
+                        type="submit"
+                        class="bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-xl font-semibold text-sm flex-1 sm:flex-initial text-center transition">
+                        Search
+                    </button>
+
+                    @if(request('search'))
+                        <a href="{{ url()->current() }}"
+                           class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-xl font-semibold text-sm flex-1 sm:flex-initial text-center transition">
+                            Reset
+                        </a>
+                    @endif
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
 
     <div class="bg-white rounded-2xl shadow overflow-x-auto">
 
-        <table class="w-full">
+        <table class="w-full min-w-[650px]">
 
             <thead class="bg-gray-100">
 
@@ -209,7 +201,7 @@
 
                     <tr>
 
-                        <td colspan="4" class="text-center py-20 text-gray-500">
+                        <td colspan="6" class="text-center py-20 text-gray-500">
 
                             No Orders Found
 

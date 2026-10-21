@@ -37,9 +37,12 @@
   ::-webkit-scrollbar-track { background: var(--cream2); }
   ::-webkit-scrollbar-thumb { background: var(--terra); border-radius: 4px; }
 
-  .cm-wrap { margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+  .cm-wrap { margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+  @media(max-width:640px) {
+    .cm-wrap { padding: 0.5rem 0.25rem 2rem; }
+  }
 
-  .pg-header { margin-bottom: 28px; }
+  .pg-header { margin-bottom: 24px; }
   .pg-eyebrow {
     font-size: 11px; font-weight: 700; text-transform: uppercase;
     letter-spacing: 0.16em; color: var(--terra); margin-bottom: 6px;
@@ -48,7 +51,7 @@
   .pg-eyebrow::before { content: ''; width: 16px; height: 2px; background: var(--terra); border-radius: 2px; }
   .pg-header h1 {
     font-family: 'Playfair Display', serif;
-    font-size: 32px; font-weight: 700; color: var(--ink); line-height: 1.15;
+    font-size: clamp(22px, 4vw, 32px); font-weight: 700; color: var(--ink); line-height: 1.15;
   }
   .pg-header h1 span { color: var(--terra); }
   .pg-sub { font-size: 13px; color: var(--muted); margin-top: 4px; font-weight: 400; }
@@ -59,15 +62,15 @@
     animation: fadeUp .5s var(--ease) both;
   }
   .cm-card-header {
-    padding: 18px 24px; background: var(--cream); border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 20px; background: var(--cream); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
   }
   .cm-card-header h5 {
     font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 700; color: var(--ink); margin: 0;
   }
 
-  .cm-table-wrap { overflow-x: auto; }
-  table.cm-table { width: 100%; border-collapse: collapse; }
+  .cm-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table.cm-table { width: 100%; min-width: 600px; border-collapse: collapse; }
   table.cm-table thead th {
     background: var(--cream); padding: 13px 20px; text-align: left;
     font-size: 10.5px; font-weight: 700; text-transform: uppercase;

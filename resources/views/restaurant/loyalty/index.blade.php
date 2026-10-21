@@ -303,6 +303,20 @@
             padding: 18px;
         }
     }
+
+    @media (max-width: 480px) {
+        .lr-wrap {
+            padding: 10px 4px;
+        }
+
+        .lr-card {
+            padding: 14px 10px;
+        }
+
+        .lr-heading {
+            font-size: 22px;
+        }
+    }
 </style>
 
 

@@ -4,15 +4,15 @@
 
     <div class="max-w-5xl mx-auto">
 
-        <div class="flex justify-between items-center mb-8">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
 
-            <h1 class="text-4xl font-bold">
+            <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold">
 
                 Add Product
 
             </h1>
 
-            <a href="/restaurant/products" class="bg-black text-white px-6 py-3 rounded-xl">
+            <a href="/restaurant/products" class="bg-black hover:bg-gray-800 text-white px-5 py-2.5 sm:px-6 sm:py-3 rounded-xl text-sm font-semibold transition">
 
                 Back
 
@@ -20,13 +20,13 @@
 
         </div>
 
-        <div class="bg-white rounded-2xl shadow p-10">
+        <div class="bg-white rounded-2xl shadow p-5 sm:p-8 md:p-10">
 
             <form method="POST" action="/restaurant/products" enctype="multipart/form-data">
 
                 @csrf
 
-                <div class="grid grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
 
                     <div>
 
@@ -36,7 +36,7 @@
 
                         </label>
 
-                        <input type="text" name="name" class="w-full border p-4 rounded-xl">
+                        <input type="text" name="name" class="w-full border p-3.5 sm:p-4 rounded-xl text-sm">
 
                     </div>
 
@@ -48,7 +48,7 @@
 
                         </label>
 
-                        <select name="category_id" class="w-full border p-4 rounded-xl">
+                        <select name="category_id" class="w-full border p-3.5 sm:p-4 rounded-xl text-sm">
 
                             @foreach($categories as $category)
 
@@ -72,7 +72,7 @@
 
                         </label>
 
-                        <select name="product_type" class="w-full border p-4 rounded-xl">
+                        <select name="product_type" class="w-full border p-3.5 sm:p-4 rounded-xl text-sm">
 
                             <option value="veg">🟢 Vegetarian (Veg)</option>
 
@@ -82,19 +82,7 @@
 
                     </div>
 
-                    {{-- <div>
-
-                        <label class="font-bold block mb-2">
-
-                            Price
-
-                        </label>
-
-                        <input type="number" name="price" class="w-full border p-4 rounded-xl">
-
-                    </div> --}}
-
-                    <div class="col-span-2">
+                    <div class="col-span-1 md:col-span-2">
                         <label class="font-bold block mb-2">
                             Product Price (Regular)
                         </label>
@@ -103,11 +91,11 @@
                             type="number"
                             step="0.01"
                             name="price"
-                            class="w-full border p-4 rounded-xl"
+                            class="w-full border p-3.5 sm:p-4 rounded-xl text-sm"
                             required>
                     </div>
 
-                    <div class="col-span-2">
+                    <div class="col-span-1 md:col-span-2">
                         <div class="flex justify-between items-center mb-3">
                             <label class="font-bold">
                                 Product Variants
@@ -116,7 +104,7 @@
                             <button
                                 type="button"
                                 onclick="addVariant()"
-                                class="bg-green-500 text-white px-4 py-2 rounded-lg">
+                                class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">
                                 + Add Variant
                             </button>
                         </div>
@@ -124,7 +112,7 @@
                         <div id="variants-wrapper"></div>
                     </div>
 
-                    <div>
+                    <div class="col-span-1 md:col-span-2">
 
                         <label class="font-bold block mb-2">
 
@@ -132,7 +120,7 @@
 
                         </label>
 
-                        <input type="file" name="image" class="w-full border p-4 rounded-xl">
+                        <input type="file" name="image" class="w-full border p-3.5 sm:p-4 rounded-xl text-sm">
 
                     </div>
 
@@ -184,31 +172,31 @@ ClassicEditor
 <script>
 function addVariant() {
     let html = `
-        <div class="grid grid-cols-12 gap-3 mb-3 variant-row">
+        <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 sm:gap-3 mb-3 variant-row bg-gray-50 sm:bg-transparent p-3 sm:p-0 rounded-xl border sm:border-0 border-gray-200">
 
-            <div class="col-span-5">
+            <div class="sm:col-span-5">
                 <input
                     type="text"
                     name="variant_name[]"
                     placeholder="Small / Medium / Large etc."
-                    class="w-full border p-3 rounded-lg">
+                    class="w-full border p-3 rounded-lg text-sm bg-white">
             </div>
 
-            <div class="col-span-5">
+            <div class="sm:col-span-5">
                 <input
                     type="number"
                     step="0.01"
                     name="variant_price[]"
                     placeholder="Price"
-                    class="w-full border p-3 rounded-lg">
+                    class="w-full border p-3 rounded-lg text-sm bg-white">
             </div>
 
-            <div class="col-span-2">
+            <div class="sm:col-span-2 flex justify-end sm:justify-start">
                 <button
                     type="button"
                     onclick="this.closest('.variant-row').remove()"
-                    class="bg-red-500 text-white px-4 py-3 rounded-lg">
-                    X
+                    class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 sm:py-3 rounded-lg text-sm font-semibold w-full sm:w-auto transition">
+                    Remove
                 </button>
             </div>
 

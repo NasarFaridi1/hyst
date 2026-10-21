@@ -2,9 +2,9 @@
 
 @section('content')
 
-<div class="max-w-2xl mx-auto bg-white rounded-xl shadow p-8">
+<div class="max-w-2xl mx-auto bg-white rounded-xl shadow p-5 sm:p-8">
 
-<h2 class="text-3xl font-bold mb-8">
+<h2 class="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-gray-900">
 
 Edit Restaurant Addon
 

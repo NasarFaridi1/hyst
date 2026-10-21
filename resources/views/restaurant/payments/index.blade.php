@@ -76,21 +76,19 @@
 
 <div class="bg-white rounded-3xl shadow overflow-hidden">
 
-    
+    <div class="p-4 sm:p-8 border-b">
 
-    <div class="p-8 border-b">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
 
-        <div class="flex justify-between items-center">
+            <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">
 
-                <h1 class="text-4xl font-bold">
+                Today's Payments
 
-                    Today's Payments
-
-                </h1>
+            </h1>
 
             <a
                 href="/restaurant/all-payments"
-                class="bg-black text-white px-6 py-3 rounded-xl">
+                class="bg-black hover:bg-gray-800 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-semibold transition">
 
                 View All Payments
 
@@ -100,7 +98,8 @@
 
     </div>
 
-    <table class="w-full">
+    <div class="overflow-x-auto">
+        <table class="w-full min-w-[650px]">
 
         <thead class="bg-gray-100">
 
@@ -212,6 +211,8 @@
         </tbody>
 
     </table>
+
+    </div>
 
 </div>
 
