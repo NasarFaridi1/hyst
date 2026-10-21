@@ -86,7 +86,7 @@
             </div>
 
             <!-- Status -->
-            <div class="mb-8">
+            <div class="mb-6">
                 <label class="block text-sm font-semibold text-gray-700 mb-2">Publishing Status <span class="text-red-500">*</span></label>
                 <select name="status" class="w-full md:w-1/2 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none">
                     <option value="active" {{ old('status') == 'active' ? 'selected' : '' }}>Active (Published on frontend)</option>
@@ -94,8 +94,11 @@
                 </select>
             </div>
 
+            <!-- SEO & Schema Management Section -->
+            @include('admin.blogs._seo_fields')
+
             <!-- Submit Button -->
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-4 mt-8 pt-6 border-t border-gray-200">
                 <button type="submit"
                         class="bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white font-bold px-8 py-3.5 rounded-xl shadow-md transition">
                     Save & Publish Blog

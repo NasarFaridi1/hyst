@@ -1,7 +1,11 @@
 @extends('front.layouts.app')
 
-@section('title', $blog->title . ' | HYST Blog')
-@section('meta_description', Str::limit(strip_tags($blog->description), 160))
+@section('title', $seo['title'] ?? ($blog->effective_meta_title ?? ($blog->title . ' | HYST Blog')))
+@section('meta_description', $seo['description'] ?? ($blog->effective_meta_description ?? Str::limit(strip_tags($blog->description), 160)))
+@if(!empty($blog->meta_keywords))
+@section('meta_keywords', $blog->meta_keywords)
+@endif
+@section('canonical', $seo['canonical'] ?? ($blog->effective_canonical_url ?? url()->current()))
 
 @section('content')
 @php

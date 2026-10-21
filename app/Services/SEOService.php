@@ -452,23 +452,36 @@ class SEOService
             return $this->forBlogIndex();
         }
 
-        $title = e($blog->title ?? 'Food Guide | HYST');
-        if (mb_strlen($title) > 65) {
-            $title = Str::limit($title, 62) . ' | HYST';
-        } else {
-            $title .= ' | HYST';
-        }
+        $title = !empty($blog->meta_title)
+            ? $blog->meta_title
+            : (!empty($blog->title) ? (mb_strlen($blog->title) > 65 ? Str::limit($blog->title, 62) . ' | HYST' : $blog->title . ' | HYST') : 'Food Guide | HYST');
 
-        $description = Str::limit(strip_tags($blog->content ?? $blog->excerpt ?? 'Read our local Hounslow food guide on HYST.'), 155);
-        $url = $this->baseUrl . '/blog/' . ($blog->slug ?? '');
-        $image = !empty($blog->image) ? asset($blog->image) : $this->defaultImage;
+        $description = !empty($blog->meta_description)
+            ? $blog->meta_description
+            : Str::limit(strip_tags($blog->description ?? 'Read our local Hounslow food guide on HYST.'), 155);
 
-        $schemas = [
-            [
+        $url = !empty($blog->canonical_url)
+            ? $blog->canonical_url
+            : $this->baseUrl . '/blog/' . ($blog->slug ?? '');
+
+        $keywords = !empty($blog->meta_keywords) ? $blog->meta_keywords : null;
+
+        $ogTitle = !empty($blog->og_title) ? $blog->og_title : $title;
+        $ogDescription = !empty($blog->og_description) ? $blog->og_description : $description;
+
+        $ogImage = !empty($blog->og_image)
+            ? (Str::startsWith($blog->og_image, ['http://', 'https://']) ? $blog->og_image : asset($blog->og_image))
+            : (!empty($blog->image) ? asset($blog->image) : $this->defaultImage);
+
+        // Build BlogPosting schema
+        $blogPostingSchema = method_exists($blog, 'toBlogPostingSchema')
+            ? $blog->toBlogPostingSchema($this->baseUrl, $this->defaultImage)
+            : [
                 '@context' => 'https://schema.org',
                 '@type' => 'BlogPosting',
                 'headline' => $blog->title,
-                'image' => $image,
+                'description' => $description,
+                'image' => $ogImage,
                 'url' => $url,
                 'datePublished' => optional($blog->created_at)->toIso8601String() ?? now()->toIso8601String(),
                 'dateModified' => optional($blog->updated_at)->toIso8601String() ?? now()->toIso8601String(),
@@ -484,33 +497,34 @@ class SEOService
                         'url' => $this->defaultImage,
                     ],
                 ],
-            ],
-            [
-                '@context' => 'https://schema.org',
-                '@type' => 'BreadcrumbList',
-                'itemListElement' => [
-                    ['@type' => 'ListItem', 'position' => 1, 'name' => 'Home', 'item' => $this->baseUrl],
-                    ['@type' => 'ListItem', 'position' => 2, 'name' => 'Blog', 'item' => $this->baseUrl . '/blogs'],
-                    ['@type' => 'ListItem', 'position' => 3, 'name' => $blog->title, 'item' => $url],
-                ],
+            ];
+
+        $breadcrumbsSchema = [
+            '@context' => 'https://schema.org',
+            '@type' => 'BreadcrumbList',
+            'itemListElement' => [
+                ['@type' => 'ListItem', 'position' => 1, 'name' => 'Home', 'item' => $this->baseUrl],
+                ['@type' => 'ListItem', 'position' => 2, 'name' => 'Blog', 'item' => $this->baseUrl . '/blogs'],
+                ['@type' => 'ListItem', 'position' => 3, 'name' => $blog->title, 'item' => $url],
             ],
         ];
 
         return [
             'title' => $title,
             'description' => $description,
+            'keywords' => $keywords,
             'canonical' => $url,
             'robots' => 'index, follow',
             'og_type' => 'article',
-            'og_title' => $title,
-            'og_description' => $description,
+            'og_title' => $ogTitle,
+            'og_description' => $ogDescription,
             'og_url' => $url,
-            'og_image' => $image,
+            'og_image' => $ogImage,
             'twitter_card' => 'summary_large_image',
-            'twitter_title' => $title,
-            'twitter_description' => $description,
-            'twitter_image' => $image,
-            'schema_json_ld' => $schemas,
+            'twitter_title' => $ogTitle,
+            'twitter_description' => $ogDescription,
+            'twitter_image' => $ogImage,
+            'schema_json_ld' => [$blogPostingSchema, $breadcrumbsSchema],
         ];
     }
 

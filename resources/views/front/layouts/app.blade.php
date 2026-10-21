@@ -9,8 +9,8 @@
 
     <meta name="description" content="{{ $seo['description'] ?? View::yieldContent('meta_description', 'Discover local restaurants, takeaway & food delivery in Hounslow, London. Order directly at genuine menu prices on HYST.') }}">
 
-    <meta name="keywords" content="Hounslow restaurants, food delivery Hounslow, takeaway Hounslow, Indian restaurants Hounslow, biryani Hounslow, pizza Hounslow, West London food, HYST">
-    <meta name="author" content="HYST">
+    <meta name="keywords" content="{{ $seo['keywords'] ?? $seo['meta_keywords'] ?? View::yieldContent('meta_keywords', 'Hounslow restaurants, food delivery Hounslow, takeaway Hounslow, Indian restaurants Hounslow, biryani Hounslow, pizza Hounslow, West London food, HYST') }}">
+    <meta name="author" content="{{ $seo['author'] ?? 'HYST' }}">
     <meta name="robots" content="{{ $seo['robots'] ?? View::yieldContent('robots', 'index, follow') }}">
     <meta name="language" content="English">
 
