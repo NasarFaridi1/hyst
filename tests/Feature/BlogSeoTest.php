@@ -316,5 +316,12 @@ class BlogSeoTest extends TestCase
         $editHtml = View::make('admin.blogs.edit', compact('blog', 'errors'))->render();
         $this->assertStringContainsString('Custom Edit Meta Title', $editHtml);
         $this->assertStringContainsString('name="meta_title"', $editHtml);
+
+        // 3. Index view with responsive cards & table
+        $blogs = Blog::latest()->paginate(10);
+        $indexHtml = View::make('admin.blogs.index', compact('blogs'))->render();
+        $this->assertStringContainsString('Blog Posts', $indexHtml);
+        $this->assertStringContainsString('md:hidden', $indexHtml);
+        $this->assertStringContainsString('hidden md:block', $indexHtml);
     }
 }
