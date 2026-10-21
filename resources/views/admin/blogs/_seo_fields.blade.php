@@ -1,8 +1,10 @@
 @php
     $blog = $blog ?? null;
     $defaultBaseUrl = rtrim(config('app.url', 'https://hyst.uk'), '/');
-    $defaultCanonical = $blog ? $defaultBaseUrl . '/blog/' . ($blog->slug ?? $blog->id) : $defaultBaseUrl . '/blog/your-slug';
-    $defaultOgImage = $blog && $blog->image ? asset($blog->image) : asset('twitter.jpeg');
+    $defaultCanonical = ($blog && ($blog->slug || $blog->id)) ? $defaultBaseUrl . '/blog/' . ($blog->slug ?? $blog->id) : $defaultBaseUrl . '/blog/your-slug';
+    $defaultOgImage = ($blog && !empty($blog->image)) ? asset($blog->image) : asset('twitter.jpeg');
+    $defaultMetaTitle = $blog?->meta_title ?? ($blog?->title ? $blog->title . ' | HYST Blog' : 'Food Guide | HYST Blog');
+    $defaultMetaDesc = $blog?->meta_description ?? (!empty($blog?->description) ? Str::limit(strip_tags($blog->description), 155) : 'Read our local Hounslow food guide on HYST.');
 @endphp
 
 <div class="mt-10 pt-8 border-t border-gray-200">
@@ -55,7 +57,7 @@
                     <span id="metaTitleCount" class="text-xs font-mono font-medium text-gray-400">0 / 60 chars</span>
                 </div>
                 <input type="text" name="meta_title" id="inputMetaTitle"
-                       value="{{ old('meta_title', $blog->meta_title ?? '') }}"
+                       value="{{ old('meta_title', $blog?->meta_title ?? '') }}"
                        placeholder="e.g. Best Halal Indian Restaurants in Hounslow | HYST Guide"
                        class="w-full border border-gray-200 rounded-xl px-4 py-3 bg-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none text-sm transition">
                 <p class="text-xs text-gray-400 mt-1.5">Recommended: 50-60 characters. Appears as the clickable headline in Google search results.</p>
@@ -72,7 +74,7 @@
                 </div>
                 <textarea name="meta_description" id="inputMetaDesc" rows="3"
                           placeholder="e.g. Explore our curated guide to top dining spots in Hounslow. Discover mouthwatering curries, fresh biryanis, opening times, and order directly on HYST."
-                          class="w-full border border-gray-200 rounded-xl p-4 bg-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none text-sm transition">{{ old('meta_description', $blog->meta_description ?? '') }}</textarea>
+                          class="w-full border border-gray-200 rounded-xl p-4 bg-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none text-sm transition">{{ old('meta_description', $blog?->meta_description ?? '') }}</textarea>
                 <p class="text-xs text-gray-400 mt-1.5">Recommended: 150-160 characters. Provides a summary under the title link in search engine results.</p>
             </div>
 
@@ -83,7 +85,7 @@
                         Meta Keywords <span class="text-xs text-gray-400 font-normal">(Optional)</span>
                     </label>
                     <input type="text" name="meta_keywords" id="inputMetaKeywords"
-                           value="{{ old('meta_keywords', $blog->meta_keywords ?? '') }}"
+                           value="{{ old('meta_keywords', $blog?->meta_keywords ?? '') }}"
                            placeholder="e.g. hounslow food, indian takeaway, biryani, halal food"
                            class="w-full border border-gray-200 rounded-xl px-4 py-3 bg-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none text-sm transition">
                     <p class="text-xs text-gray-400 mt-1.5">Comma-separated keywords relating directly to this article.</p>
@@ -96,7 +98,7 @@
                         <span class="text-xs text-gray-400 font-normal ml-1">(Optional - auto-defaults to post URL)</span>
                     </label>
                     <input type="url" name="canonical_url" id="inputCanonical"
-                       value="{{ old('canonical_url', $blog->canonical_url ?? '') }}"
+                       value="{{ old('canonical_url', $blog?->canonical_url ?? '') }}"
                        placeholder="{{ $defaultCanonical }}"
                        class="w-full border border-gray-200 rounded-xl px-4 py-3 bg-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none text-sm transition">
                     <p class="text-xs text-gray-400 mt-1.5">Specifies the preferred URL version to prevent duplicate content issues across web crawlers.</p>
@@ -119,7 +121,7 @@
                     <span class="text-xs text-gray-400 font-normal ml-1">(Defaults to SEO Meta Title or Blog Title)</span>
                 </label>
                 <input type="text" name="og_title" id="inputOgTitle"
-                       value="{{ old('og_title', $blog->og_title ?? '') }}"
+                       value="{{ old('og_title', $blog?->og_title ?? '') }}"
                        placeholder="e.g. 10 Best Food Spots in Hounslow You Must Try"
                        class="w-full border border-gray-200 rounded-xl px-4 py-3 bg-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none text-sm transition">
             </div>
@@ -132,7 +134,7 @@
                 </label>
                 <textarea name="og_description" id="inputOgDesc" rows="3"
                           placeholder="Short engaging hook for social media feeds..."
-                          class="w-full border border-gray-200 rounded-xl p-4 bg-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none text-sm transition">{{ old('og_description', $blog->og_description ?? '') }}</textarea>
+                          class="w-full border border-gray-200 rounded-xl p-4 bg-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none text-sm transition">{{ old('og_description', $blog?->og_description ?? '') }}</textarea>
             </div>
 
             <!-- OG Image -->
@@ -142,7 +144,7 @@
                     <span class="text-xs text-gray-400 font-normal ml-1">(Defaults to Featured Image)</span>
                 </label>
 
-                @if(!empty($blog->og_image))
+                @if(!empty($blog?->og_image))
                     <div class="mb-3 flex items-center gap-4 bg-white p-3 rounded-xl border border-gray-200">
                         <img src="{{ Str::startsWith($blog->og_image, ['http://', 'https://']) ? $blog->og_image : asset($blog->og_image) }}"
                              alt="OG Image" class="w-20 h-14 object-cover rounded-lg border border-gray-200">
@@ -162,7 +164,7 @@
                     <div>
                         <label class="block text-xs font-medium text-gray-600 mb-1">OR Provide External OG Image URL</label>
                         <input type="url" name="og_image_url" id="inputOgUrl"
-                               value="{{ old('og_image_url', (isset($blog->og_image) && Str::startsWith($blog->og_image, ['http://', 'https://'])) ? $blog->og_image : '') }}"
+                               value="{{ old('og_image_url', (!empty($blog?->og_image) && Str::startsWith($blog->og_image, ['http://', 'https://'])) ? $blog->og_image : '') }}"
                                placeholder="https://images.unsplash.com/..."
                                class="w-full border border-gray-200 rounded-xl px-4 py-2.5 bg-white focus:ring-2 focus:ring-orange-500 outline-none text-sm">
                     </div>
@@ -189,7 +191,7 @@
                         <span class="text-xs text-gray-400 font-normal ml-1">(Defaults to Blog Title)</span>
                     </label>
                     <input type="text" name="schema_headline" id="inputSchemaHeadline"
-                           value="{{ old('schema_headline', $blog->schema_headline ?? '') }}"
+                           value="{{ old('schema_headline', $blog?->schema_headline ?? '') }}"
                            placeholder="Defaults to Blog Title"
                            class="w-full border border-gray-200 rounded-xl px-4 py-3 bg-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none text-sm transition">
                 </div>
@@ -200,7 +202,7 @@
                         <span class="text-xs text-gray-400 font-normal ml-1">(Defaults to Meta Description)</span>
                     </label>
                     <input type="text" name="schema_description" id="inputSchemaDesc"
-                           value="{{ old('schema_description', $blog->schema_description ?? '') }}"
+                           value="{{ old('schema_description', $blog?->schema_description ?? '') }}"
                            placeholder="Defaults to Meta Description"
                            class="w-full border border-gray-200 rounded-xl px-4 py-3 bg-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none text-sm transition">
                 </div>
@@ -214,7 +216,7 @@
                         <span class="text-xs text-gray-400 font-normal ml-1">(Default: "HYST")</span>
                     </label>
                     <input type="text" name="schema_author" id="inputSchemaAuthor"
-                           value="{{ old('schema_author', $blog->schema_author ?? 'HYST') }}"
+                           value="{{ old('schema_author', $blog?->schema_author ?? 'HYST') }}"
                            placeholder="HYST or Author Name"
                            class="w-full border border-gray-200 rounded-xl px-4 py-3 bg-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none text-sm transition">
                 </div>
@@ -225,7 +227,7 @@
                         <span class="text-xs text-gray-400 font-normal ml-1">(Default: "HYST")</span>
                     </label>
                     <input type="text" name="schema_publisher" id="inputSchemaPublisher"
-                           value="{{ old('schema_publisher', $blog->schema_publisher ?? 'HYST') }}"
+                           value="{{ old('schema_publisher', $blog?->schema_publisher ?? 'HYST') }}"
                            placeholder="HYST"
                            class="w-full border border-gray-200 rounded-xl px-4 py-3 bg-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none text-sm transition">
                 </div>
@@ -239,7 +241,7 @@
                         <span class="text-xs text-gray-400 font-normal ml-1">(Leave empty for auto creation date)</span>
                     </label>
                     <input type="datetime-local" name="schema_date_published" id="inputSchemaPublished"
-                           value="{{ old('schema_date_published', isset($blog->schema_date_published) && $blog->schema_date_published ? $blog->schema_date_published->format('Y-m-d\TH:i') : '') }}"
+                           value="{{ old('schema_date_published', (!empty($blog?->schema_date_published)) ? $blog->schema_date_published->format('Y-m-d\TH:i') : '') }}"
                            class="w-full border border-gray-200 rounded-xl px-4 py-3 bg-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none text-sm transition">
                 </div>
 
@@ -249,7 +251,7 @@
                         <span class="text-xs text-gray-400 font-normal ml-1">(Leave empty for auto update date)</span>
                     </label>
                     <input type="datetime-local" name="schema_date_modified" id="inputSchemaModified"
-                           value="{{ old('schema_date_modified', isset($blog->schema_date_modified) && $blog->schema_date_modified ? $blog->schema_date_modified->format('Y-m-d\TH:i') : '') }}"
+                           value="{{ old('schema_date_modified', (!empty($blog?->schema_date_modified)) ? $blog->schema_date_modified->format('Y-m-d\TH:i') : '') }}"
                            class="w-full border border-gray-200 rounded-xl px-4 py-3 bg-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none text-sm transition">
                 </div>
             </div>
@@ -261,7 +263,7 @@
                     <span class="text-xs text-gray-400 font-normal ml-1">(Optional - falls back to OG Image or Featured Image)</span>
                 </label>
 
-                @if(!empty($blog->schema_image))
+                @if(!empty($blog?->schema_image))
                     <div class="mb-3 flex items-center gap-4 bg-white p-3 rounded-xl border border-gray-200">
                         <img src="{{ Str::startsWith($blog->schema_image, ['http://', 'https://']) ? $blog->schema_image : asset($blog->schema_image) }}"
                              alt="Schema Image" class="w-20 h-14 object-cover rounded-lg border border-gray-200">
@@ -279,7 +281,7 @@
                     </div>
                     <div>
                         <input type="url" name="schema_image_url"
-                               value="{{ old('schema_image_url', (isset($blog->schema_image) && Str::startsWith($blog->schema_image, ['http://', 'https://'])) ? $blog->schema_image : '') }}"
+                               value="{{ old('schema_image_url', (!empty($blog?->schema_image) && Str::startsWith($blog->schema_image, ['http://', 'https://'])) ? $blog->schema_image : '') }}"
                                placeholder="https://..."
                                class="w-full border border-gray-200 rounded-xl px-4 py-2.5 bg-white focus:ring-2 focus:ring-orange-500 outline-none text-sm">
                     </div>
@@ -292,11 +294,11 @@
                         class="text-xs font-semibold text-gray-600 hover:text-orange-600 flex items-center gap-1.5 focus:outline-none">
                     <span>⚙️</span> Advanced: Custom JSON-LD Schema Override (Optional) &darr;
                 </button>
-                <div id="customJsonWrapper" class="{{ old('schema_custom_json', $blog->schema_custom_json ?? '') ? '' : 'hidden' }} mt-3 space-y-2">
+                <div id="customJsonWrapper" class="{{ old('schema_custom_json', $blog?->schema_custom_json ?? '') ? '' : 'hidden' }} mt-3 space-y-2">
                     <p class="text-xs text-gray-400">If you provide valid JSON here, it will replace the auto-generated BlogPosting JSON-LD schema.</p>
                     <textarea name="schema_custom_json" id="inputCustomJson" rows="6"
                               placeholder='{ "@context": "https://schema.org", "@type": "BlogPosting", ... }'
-                              class="w-full font-mono text-xs border border-gray-200 rounded-xl p-4 bg-gray-900 text-emerald-400 focus:ring-2 focus:ring-orange-500 outline-none transition">{{ old('schema_custom_json', $blog->schema_custom_json ?? '') }}</textarea>
+                              class="w-full font-mono text-xs border border-gray-200 rounded-xl p-4 bg-gray-900 text-emerald-400 focus:ring-2 focus:ring-orange-500 outline-none transition">{{ old('schema_custom_json', $blog?->schema_custom_json ?? '') }}</textarea>
                     <button type="button" id="btnValidateCustomJson" class="text-xs font-medium text-orange-600 hover:underline">
                         Format & Validate Custom JSON
                     </button>
@@ -332,12 +334,12 @@
 
                 <!-- Clickable Title -->
                 <h4 id="previewTitle" class="text-lg text-blue-800 hover:underline cursor-pointer font-medium leading-snug line-clamp-1 pt-0.5">
-                    {{ old('meta_title', $blog->meta_title ?? ($blog->title ?? 'Food Guide | HYST Blog')) }}
+                    {{ old('meta_title', $defaultMetaTitle) }}
                 </h4>
 
                 <!-- Snippet Description -->
                 <p id="previewDescription" class="text-xs text-gray-600 leading-relaxed line-clamp-2 pt-0.5">
-                    {{ old('meta_description', $blog->meta_description ?? ($blog->description ? Str::limit(strip_tags($blog->description), 155) : 'Read our local Hounslow food guide on HYST.')) }}
+                    {{ old('meta_description', $defaultMetaDesc) }}
                 </p>
             </div>
         </div>
@@ -362,10 +364,10 @@
                 <div class="p-4 bg-gray-50/90 space-y-1 border-t border-gray-100">
                     <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">HYST.UK</span>
                     <h5 id="previewOgTitle" class="text-sm font-bold text-gray-900 line-clamp-1">
-                        {{ old('og_title', $blog->og_title ?? ($blog->meta_title ?? ($blog->title ?? 'HYST Blog Guide'))) }}
+                        {{ old('og_title', $blog?->og_title ?? $defaultMetaTitle) }}
                     </h5>
                     <p id="previewOgDesc" class="text-xs text-gray-500 line-clamp-2 leading-relaxed">
-                        {{ old('og_description', $blog->og_description ?? ($blog->meta_description ?? 'Discover great food and direct ordering on HYST.')) }}
+                        {{ old('og_description', $blog?->og_description ?? $defaultMetaDesc) }}
                     </p>
                 </div>
             </div>

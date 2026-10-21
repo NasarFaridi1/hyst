@@ -30,9 +30,39 @@ class BlogSeoTest extends TestCase
         DB::purge('sqlite');
         DB::reconnect('sqlite');
 
-        // Run blogs table migration
-        $migration = require database_path('migrations/2026_10_21_000001_add_seo_fields_to_blogs_table.php');
-        $migration->up();
+        // Create blogs table schema for testing
+        Schema::create('blogs', function (Blueprint $table) {
+            $table->id();
+            $table->string('title');
+            $table->string('slug')->unique();
+            $table->longText('description')->nullable();
+            $table->string('image')->nullable();
+            $table->string('video')->nullable();
+            $table->string('status')->default('active');
+            
+            // SEO Meta Fields
+            $table->string('meta_title')->nullable();
+            $table->text('meta_description')->nullable();
+            $table->text('meta_keywords')->nullable();
+            $table->string('canonical_url', 500)->nullable();
+            
+            // Open Graph Fields
+            $table->string('og_title')->nullable();
+            $table->text('og_description')->nullable();
+            $table->string('og_image', 500)->nullable();
+            
+            // JSON-LD Schema (BlogPosting) Fields
+            $table->string('schema_headline')->nullable();
+            $table->text('schema_description')->nullable();
+            $table->string('schema_image', 500)->nullable();
+            $table->string('schema_author')->nullable();
+            $table->string('schema_publisher')->nullable();
+            $table->timestamp('schema_date_published')->nullable();
+            $table->timestamp('schema_date_modified')->nullable();
+            $table->longText('schema_custom_json')->nullable();
+
+            $table->timestamps();
+        });
     }
 
     /**
@@ -259,5 +289,32 @@ class BlogSeoTest extends TestCase
         $this->assertEquals('Updated Meta Description', $blog->meta_description);
         $this->assertEquals('https://hyst.uk/blog/updated-canonical', $blog->canonical_url);
         $this->assertEquals('Lead Writer', $blog->schema_author);
+    }
+
+    /**
+     * Test admin create and edit views render without errors when blog is null or set.
+     */
+    public function test_admin_views_render_successfully(): void
+    {
+        $errors = new \Illuminate\Support\ViewErrorBag();
+
+        // 1. Create view (blog is null)
+        $createHtml = View::make('admin.blogs.create', compact('errors'))->render();
+        $this->assertStringContainsString('SEO & Structured Data Settings', $createHtml);
+        $this->assertStringContainsString('name="meta_title"', $createHtml);
+        $this->assertStringContainsString('name="schema_headline"', $createHtml);
+
+        // 2. Edit view (blog is present)
+        $blog = Blog::create([
+            'title' => 'Sample Blog for Edit View',
+            'slug' => 'sample-blog-for-edit-view',
+            'description' => '<p>Some description.</p>',
+            'status' => 'active',
+            'meta_title' => 'Custom Edit Meta Title',
+        ]);
+
+        $editHtml = View::make('admin.blogs.edit', compact('blog', 'errors'))->render();
+        $this->assertStringContainsString('Custom Edit Meta Title', $editHtml);
+        $this->assertStringContainsString('name="meta_title"', $editHtml);
     }
 }

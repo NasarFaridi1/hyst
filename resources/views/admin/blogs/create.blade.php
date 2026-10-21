@@ -95,7 +95,7 @@
             </div>
 
             <!-- SEO & Schema Management Section -->
-            @include('admin.blogs._seo_fields')
+            @include('admin.blogs._seo_fields', ['blog' => null])
 
             <!-- Submit Button -->
             <div class="flex items-center gap-4 mt-8 pt-6 border-t border-gray-200">
