@@ -697,11 +697,11 @@ class OrderController extends Controller
                 'payment_method' => $request->payment_method,
                 'payment_type' => 'Offline',
                 'amount' => $totalAmount,
-                'payment_status' => $isVerifone ? 'pending' : $request->payment_status,
+                'payment_status' => ($isVerifone && $request->payment_status === 'paid') ? 'pending' : $request->payment_status,
             ]);
 
-            // Handle Verifone POS Machine Terminal Payment
-            if ($isVerifone) {
+            // Handle Verifone POS Machine Terminal Payment (ONLY when Paid Now)
+            if ($isVerifone && $request->payment_status === 'paid') {
                 $order->load(['restaurant', 'items.product', 'items.addons', 'user']);
                 $verifoneRes = $this->verifone->processSalePayment($order, $totalAmount);
 
@@ -1026,6 +1026,84 @@ class OrderController extends Controller
             'payment_method' => 'nullable|string'
         ]);
 
+        $targetMethod = $request->payment_method ?? $order->payment_method ?? 'Cash';
+
+        // Verifone Cloud POS terminal payment processing
+        if ($targetMethod === 'verifone_pos' && $request->payment_status === 'paid') {
+            $order->load(['restaurant', 'items.product', 'items.addons', 'user']);
+            $verifoneRes = $this->verifone->processSalePayment($order, (float) $order->total_amount);
+
+            if ($verifoneRes['success']) {
+                $payment = Payment::where('order_id', $order->id)->first();
+                $paymentData = [
+                    'payment_method'     => 'verifone_pos',
+                    'payment_type'       => 'Offline',
+                    'amount'             => $order->total_amount,
+                    'payment_status'     => 'paid',
+                    'poi_transaction_id' => $verifoneRes['poi_transaction_id'] ?? null,
+                    'poi_timestamp'      => $verifoneRes['poi_timestamp'] ?? null,
+                    'masked_pan'         => $verifoneRes['masked_pan'] ?? null,
+                    'card_brand'         => $verifoneRes['card_brand'] ?? null,
+                    'auth_code'          => $verifoneRes['auth_code'] ?? null,
+                    'nexo_service_id'    => $verifoneRes['service_id'] ?? null,
+                ];
+
+                if (!$payment) {
+                    $paymentData['order_id'] = $order->id;
+                    $paymentData['restaurant_id'] = $order->restaurant_id;
+                    $paymentData['user_id'] = $order->user_id;
+                    $payment = Payment::create($paymentData);
+                } else {
+                    $payment->update($paymentData);
+                }
+
+                $order->update([
+                    'payment_method' => 'verifone_pos',
+                    'status'         => 'completed',
+                ]);
+
+                // Print receipt on terminal
+                try {
+                    $this->verifone->printReceipt($order, 'CUSTOMERRECEIPT');
+                } catch (\Throwable $e) {
+                    Log::error('Verifone POS Print Failed on order updatePaymentStatus', ['order_id' => $order->id, 'error' => $e->getMessage()]);
+                }
+
+                if ($order->user_id) {
+                    sendNotification(
+                        $order->user_id,
+                        'payment_status',
+                        'Payment Completed',
+                        'Payment of £' . number_format($order->total_amount, 2) . ' for order #' . $order->id . ' was completed via Verifone POS.',
+                        'order',
+                        $order->id,
+                        $order->id
+                    );
+                }
+
+                if ($request->wantsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success'      => true,
+                        'message'      => 'Payment approved on Verifone terminal!',
+                        'order_id'     => $order->id,
+                        'redirect_url' => route('restaurant.orders.show', $order->id),
+                    ]);
+                }
+
+                return redirect()->route('restaurant.orders.show', $order->id)
+                    ->with('success', 'Order #' . $order->id . ' paid & completed via Verifone POS.');
+            } else {
+                if ($request->wantsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Verifone POS Payment Failed: ' . ($verifoneRes['error'] ?? 'Transaction declined.'),
+                    ], 400);
+                }
+
+                return back()->with('error', 'Verifone POS Payment Failed: ' . ($verifoneRes['error'] ?? 'Declined on terminal.'));
+            }
+        }
+
         $payment = Payment::where('order_id', $order->id)->first();
 
         if (!$payment) {
@@ -1067,6 +1145,15 @@ class OrderController extends Controller
                 $order->id,
                 $order->id
             );
+        }
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success'      => true,
+                'message'      => 'Payment Status Updated Successfully',
+                'order_id'     => $order->id,
+                'redirect_url' => route('restaurant.orders.show', $order->id),
+            ]);
         }
 
         return back()->with(

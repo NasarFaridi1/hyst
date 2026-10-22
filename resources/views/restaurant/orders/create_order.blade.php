@@ -369,7 +369,7 @@
                             <div>
                                 <label class="block text-xs font-bold text-gray-700 mb-1">Payment Method</label>
                                 <select name="payment_method" id="paymentMethodSelect" class="w-full border border-gray-300 rounded-xl px-3.5 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-[#C25A2A] focus:outline-none bg-white font-medium">
-                                    <option value="verifone_pos">📲 Verifone Cloud POS Machine (Card)</option>
+                                    <option value="verifone_pos">📲 Hyst POS Machine (Card)</option>
                                     <option value="Cash">💵 Cash</option>
                                     <option value="Card at Counter">💳 Card at Counter / Manual POS</option>
                                     <option value="Pay at Counter">🏬 Pay at Counter</option>
@@ -1195,11 +1195,13 @@
         }
     }
 
-    // Intercept Direct Order Form submission for Verifone POS
+    // Intercept Direct Order Form submission for Verifone POS (ONLY when Paid Now)
     document.getElementById('directOrderForm')?.addEventListener('submit', function(e) {
         lastPaymentType = 'direct_order';
         const payMethod = document.getElementById('paymentMethodSelect')?.value;
-        if (payMethod === 'verifone_pos') {
+        const payStatus = document.querySelector('input[name="payment_status"]:checked')?.value || 'paid';
+
+        if (payMethod === 'verifone_pos' && payStatus === 'paid') {
             e.preventDefault();
             const modal = document.getElementById('verifoneModal');
             if (modal) {
@@ -1242,6 +1244,13 @@
                 clearTimeout(timeoutId);
                 setVerifoneModalState('connection_lost', 'Connection lost: Unable to reach Verifone POS Cloud CST. Please check terminal Wi-Fi.');
             });
+        } else {
+            // For Pay Later or non-terminal orders, disable button to prevent double-submission
+            const btnSubmit = document.getElementById('btnSubmitOrder');
+            if (btnSubmit) {
+                btnSubmit.disabled = true;
+                btnSubmit.innerHTML = `<span>⏳</span> Creating Order...`;
+            }
         }
     });
 
@@ -1285,7 +1294,7 @@
             submitMiscOrder(false, 'Cash');
         } else {
             const sel = document.getElementById('paymentMethodSelect');
-            if (sel) sel.value = 'cash';
+            if (sel) sel.value = 'Cash';
             cancelVerifonePayment();
             alert('Payment method switched to Cash. Please submit order when ready.');
         }
