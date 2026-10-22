@@ -283,7 +283,7 @@ class CommunityController extends Controller
                 'user_id'        => $user->id,
                 'restaurant_id'  => $request->restaurant_id ?: null,
                 'product_id'     => $request->product_id ?: null,
-                'content'        => clean($request->content),
+                'content'        => strip_tags(trim($request->content)),
                 'rating'         => $request->rating ?: null,
                 'tag'            => $request->tag ?: 'Foodie Thought',
                 'image'          => $imagePath,
