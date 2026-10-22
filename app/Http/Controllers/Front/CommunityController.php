@@ -7,9 +7,11 @@ use App\Models\Community;
 use App\Models\CommunityMember;
 use App\Models\CommunityPost;
 use App\Models\CommunityPostLike;
+use App\Models\Product;
 use App\Models\Restaurant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 
 class CommunityController extends Controller
@@ -25,6 +27,17 @@ class CommunityController extends Controller
         $joinedCircles = collect();
         $restaurants = collect();
 
+        // 1. Fetch ALL active restaurants independently (no limit, all active)
+        try {
+            $restaurants = Restaurant::where('status', 1)
+                ->orderBy('name', 'asc')
+                ->get(['id', 'name', 'slug', 'image']);
+        } catch (\Throwable $e) {
+            Log::error('CommunityController fetch restaurants error: ' . $e->getMessage());
+            $restaurants = collect();
+        }
+
+        // 2. Fetch User circle, memberships, and posts (isolated so community DB state never blocks restaurants)
         try {
             if ($user) {
                 // Get or create primary circle for logged in user
@@ -55,17 +68,10 @@ class CommunityController extends Controller
                     ->take(15)
                     ->get();
             }
-
-            // Top restaurants for food tagging
-            $restaurants = Restaurant::where('status', 1)
-                ->take(20)
-                ->get(['id', 'name', 'slug', 'image']);
-
         } catch (\Throwable $e) {
-            // Failsafe in case DB schema is pending deployment
+            Log::warning('CommunityController feed error (DB schema pending): ' . $e->getMessage());
             $posts = collect();
             $joinedCircles = collect();
-            $restaurants = collect();
         }
 
         // WhatsApp invite link for the user's circle
@@ -182,6 +188,50 @@ class CommunityController extends Controller
     }
 
     /**
+     * Get products for a restaurant to allow dish selection & photo tagging
+     */
+    public function getRestaurantProducts($id)
+    {
+        try {
+            $products = Product::where('restaurant_id', $id)
+                ->where('status', 1)
+                ->whereNotNull('image')
+                ->where('image', '!=', '')
+                ->orderBy('name', 'asc')
+                ->get(['id', 'restaurant_id', 'name', 'price', 'image']);
+
+            $driveUrl = config('services.google_drive.image_url');
+
+            $data = $products->map(function ($p) use ($driveUrl) {
+                $imgUrl = str_starts_with($p->image, 'http')
+                    ? $p->image
+                    : (str_starts_with($p->image, 'storage/') || str_starts_with($p->image, 'uploads/')
+                        ? asset($p->image)
+                        : $driveUrl . $p->image);
+
+                return [
+                    'id'        => $p->id,
+                    'name'      => $p->name,
+                    'price'     => number_format((float) $p->price, 2),
+                    'image'     => $p->image,
+                    'image_url' => $imgUrl,
+                ];
+            });
+
+            return response()->json([
+                'success'  => true,
+                'products' => $data,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success'  => false,
+                'message'  => $e->getMessage(),
+                'products' => [],
+            ], 500);
+        }
+    }
+
+    /**
      * Post a new thought, review, or recommendation
      */
     public function storePost(Request $request)
@@ -195,6 +245,8 @@ class CommunityController extends Controller
             'content'        => 'required|string|max:1000',
             'community_id'   => 'nullable|integer',
             'restaurant_id'  => 'nullable|integer',
+            'product_id'     => 'nullable|integer',
+            'selected_image' => 'nullable|string|max:1000',
             'rating'         => 'nullable|integer|min:1|max:5',
             'tag'            => 'nullable|string|max:50',
             'image'          => 'nullable|image|max:4096',
@@ -210,18 +262,27 @@ class CommunityController extends Controller
             }
 
             $imagePath = null;
+            // Priority 1: User uploaded a custom photo from their device
             if ($request->hasFile('image')) {
                 $file = $request->file('image');
                 $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
                 $file->move(public_path('uploads/community'), $filename);
                 $imagePath = 'uploads/community/' . $filename;
+            } elseif ($request->filled('selected_image')) {
+                // Priority 2: User selected a dish from the restaurant's products
+                $imagePath = $request->selected_image;
+            } elseif ($request->filled('product_id')) {
+                $prod = Product::find($request->product_id);
+                if ($prod && $prod->image) {
+                    $imagePath = $prod->image;
+                }
             }
 
             CommunityPost::create([
-                'community_id'   => $circle->id,
+                'community_id'   => $circle ? $circle->id : 1,
                 'user_id'        => $user->id,
                 'restaurant_id'  => $request->restaurant_id ?: null,
-                'product_id'     => null,
+                'product_id'     => $request->product_id ?: null,
                 'content'        => clean($request->content),
                 'rating'         => $request->rating ?: null,
                 'tag'            => $request->tag ?: 'Foodie Thought',

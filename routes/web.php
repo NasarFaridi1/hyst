@@ -57,6 +57,7 @@ Route::get('/community/join/{code}', [\App\Http\Controllers\Front\CommunityContr
 Route::post('/community/join', [\App\Http\Controllers\Front\CommunityController::class, 'joinCommunity'])->name('front.community.join.submit');
 Route::post('/community/posts', [\App\Http\Controllers\Front\CommunityController::class, 'storePost'])->name('front.community.post');
 Route::post('/community/posts/{id}/like', [\App\Http\Controllers\Front\CommunityController::class, 'toggleLike'])->name('front.community.post.like');
+Route::get('/community/restaurant/{id}/products', [\App\Http\Controllers\Front\CommunityController::class, 'getRestaurantProducts'])->name('front.community.restaurant.products');
 
 Route::get('/offline', function () {
     return view('vendor.laravelpwa.offline');

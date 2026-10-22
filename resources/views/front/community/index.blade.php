@@ -74,7 +74,7 @@
                             <!-- Restaurant Tag -->
                             <div>
                                 <label class="block text-[11px] font-bold text-stone-600 uppercase mb-1">Tag Restaurant</label>
-                                <select name="restaurant_id" class="w-full rounded-xl border border-stone-200 p-2.5 text-xs text-stone-700 focus:outline-none focus:ring-1 focus:ring-[#C25A2A]">
+                                <select name="restaurant_id" id="communityRestaurantSelect" onchange="onCommunityRestaurantChange(this.value)" class="w-full rounded-xl border border-stone-200 p-2.5 text-xs text-stone-700 focus:outline-none focus:ring-1 focus:ring-[#C25A2A]">
                                     <option value="">-- None / General --</option>
                                     @foreach($restaurants as $r)
                                         <option value="{{ $r->id }}">{{ $r->name }}</option>
@@ -105,15 +105,48 @@
                             </div>
                         </div>
 
+                        <!-- Restaurant Dishes / Product Photo Selector -->
+                        <div id="restaurantDishesContainer" class="hidden mt-3 pt-3 border-t border-stone-100">
+                            <div class="flex items-center justify-between mb-2">
+                                <label class="text-[11px] font-bold text-stone-700 uppercase tracking-wider flex items-center gap-1.5">
+                                    <span>🍲</span> Select Dish Photo from Menu:
+                                </label>
+                                <span id="dishesLoadingStatus" class="text-[10px] text-stone-400 font-medium"></span>
+                            </div>
+
+                            <!-- Scrollable Dish Cards -->
+                            <div id="dishesList" class="flex items-stretch gap-2.5 overflow-x-auto pb-2 scrollbar-thin">
+                                <!-- Rendered dynamically via JS -->
+                            </div>
+                        </div>
+
+                        <!-- Selected Dish Active Badge & Preview -->
+                        <div id="selectedDishPreview" class="hidden mt-2.5 p-2.5 rounded-xl bg-amber-50/80 border border-amber-200 flex items-center justify-between gap-3">
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                <img id="selectedDishImg" src="" alt="Selected Dish" class="w-11 h-11 rounded-lg object-cover border border-amber-300 shadow-2xs flex-shrink-0">
+                                <div class="min-w-0">
+                                    <div class="text-xs font-extrabold text-stone-900 truncate" id="selectedDishName"></div>
+                                    <div class="text-[11px] font-bold text-[#C25A2A]" id="selectedDishPrice"></div>
+                                </div>
+                            </div>
+                            <button type="button" onclick="clearSelectedDish()" class="text-xs text-stone-400 hover:text-red-600 font-bold px-2 py-1 transition-colors">
+                                ✕ Remove
+                            </button>
+                        </div>
+
+                        <input type="hidden" name="product_id" id="selectedProductId" value="">
+                        <input type="hidden" name="selected_image" id="selectedDishImage" value="">
+
                         <div class="flex items-center justify-between pt-2 border-t border-stone-100">
-                            <div>
+                            <div class="flex items-center gap-2.5 flex-wrap">
                                 <label class="cursor-pointer inline-flex items-center gap-1.5 text-xs text-stone-600 hover:text-[#C25A2A] font-medium transition-colors">
                                     <svg class="w-4 h-4 text-[#C25A2A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                     </svg>
-                                    <span>Add Dish Photo</span>
-                                    <input type="file" name="image" accept="image/*" class="hidden">
+                                    <span id="photoUploadLabel">Upload Custom Photo</span>
+                                    <input type="file" name="image" id="customPhotoInput" accept="image/*" class="hidden" onchange="onCustomPhotoChange(this)">
                                 </label>
+                                <span id="customPhotoBadge" class="hidden text-[11px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full font-semibold"></span>
                             </div>
 
                             <button type="submit" class="px-6 py-2.5 rounded-xl bg-[#C25A2A] hover:bg-[#A94A1F] text-white font-bold text-xs sm:text-sm shadow-md shadow-[#C25A2A]/30 transition-all cursor-pointer">
@@ -183,9 +216,32 @@
                         </p>
 
                         <!-- Attached Image -->
-                        @if($post->image)
-                            <div class="rounded-2xl overflow-hidden mb-4 border border-stone-100 max-h-80">
-                                <img src="{{ asset($post->image) }}" alt="Food dish" class="w-full h-full object-cover">
+                        @php
+                            $postImgUrl = null;
+                            if (!empty($post->image)) {
+                                if (str_starts_with($post->image, 'http')) {
+                                    $postImgUrl = $post->image;
+                                } elseif (str_starts_with($post->image, 'uploads/') || str_starts_with($post->image, 'storage/')) {
+                                    $postImgUrl = asset($post->image);
+                                } else {
+                                    $postImgUrl = config('services.google_drive.image_url') . $post->image;
+                                }
+                            }
+                        @endphp
+                        @if($postImgUrl)
+                            <div class="rounded-2xl overflow-hidden mb-4 border border-stone-100 max-h-80 bg-stone-50">
+                                <img src="{{ $postImgUrl }}" alt="Food dish" class="w-full h-full object-cover">
+                            </div>
+                        @endif
+
+                        <!-- Dish / Product Tag (if selected) -->
+                        @if($post->product)
+                            <div class="inline-flex items-center gap-1.5 px-3 py-1 mb-3 rounded-xl bg-amber-50/90 border border-amber-200 text-stone-800 text-xs font-bold">
+                                <span>🍲</span>
+                                <span>{{ $post->product->name }}</span>
+                                @if($post->product->price)
+                                    <span class="text-[#C25A2A]">£{{ number_format((float)$post->product->price, 2) }}</span>
+                                @endif
                             </div>
                         @endif
 
@@ -344,6 +400,140 @@ function togglePostLike(postId, button) {
         }
     })
     .catch(err => console.error(err));
+}
+
+// ── Restaurant Dishes & Menu Photo Selector ──
+let currentRestaurantProducts = [];
+
+function onCommunityRestaurantChange(restaurantId) {
+    clearSelectedDish();
+    const container = document.getElementById('restaurantDishesContainer');
+    const list = document.getElementById('dishesList');
+    const status = document.getElementById('dishesLoadingStatus');
+
+    if (!container || !list) return;
+
+    if (!restaurantId) {
+        container.classList.add('hidden');
+        list.innerHTML = '';
+        currentRestaurantProducts = [];
+        return;
+    }
+
+    container.classList.remove('hidden');
+    list.innerHTML = '';
+    if (status) status.textContent = 'Loading menu dishes...';
+
+    fetch('/community/restaurant/' + restaurantId + '/products', {
+        headers: {
+            'Accept': 'application/json'
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (status) status.textContent = '';
+        if (data.success && data.products && data.products.length > 0) {
+            currentRestaurantProducts = data.products;
+            if (status) status.textContent = `${data.products.length} dishes available`;
+
+            data.products.forEach(p => {
+                const card = document.createElement('div');
+                card.id = 'dish-card-' + p.id;
+                card.className = 'dish-select-card flex-shrink-0 w-28 bg-white border border-stone-200 rounded-xl p-2 cursor-pointer hover:border-[#C25A2A] hover:shadow-xs transition-all text-center group';
+                card.onclick = () => selectDish(p.id, p.name, p.price, p.image, p.image_url);
+
+                card.innerHTML = `
+                    <div class="relative w-full h-16 rounded-lg overflow-hidden mb-1.5 bg-stone-100">
+                        <img src="${p.image_url}" alt="${p.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200">
+                        <div class="dish-check-badge hidden absolute top-1 right-1 w-4 h-4 bg-[#C25A2A] text-white rounded-full flex items-center justify-center text-[10px] font-bold">✓</div>
+                    </div>
+                    <div class="text-[11px] font-bold text-stone-800 line-clamp-1 group-hover:text-[#C25A2A]">${p.name}</div>
+                    <div class="text-[10px] font-extrabold text-[#C25A2A]">£${p.price}</div>
+                `;
+                list.appendChild(card);
+            });
+        } else {
+            if (status) status.textContent = '';
+            list.innerHTML = `
+                <div class="text-[11px] text-stone-400 py-2 italic">
+                    No dish photos available for this restaurant. You can upload your own photo below.
+                </div>
+            `;
+        }
+    })
+    .catch(err => {
+        if (status) status.textContent = '';
+        list.innerHTML = `
+            <div class="text-[11px] text-stone-400 py-2 italic">
+                Could not load menu dishes. You can upload a photo below.
+            </div>
+        `;
+    });
+}
+
+function selectDish(productId, dishName, dishPrice, dishImage, dishImageUrl) {
+    // Set hidden inputs
+    document.getElementById('selectedProductId').value = productId;
+    document.getElementById('selectedDishImage').value = dishImage;
+
+    // Show preview
+    const preview = document.getElementById('selectedDishPreview');
+    if (preview) {
+        document.getElementById('selectedDishImg').src = dishImageUrl;
+        document.getElementById('selectedDishName').textContent = dishName;
+        document.getElementById('selectedDishPrice').textContent = '£' + dishPrice;
+        preview.classList.remove('hidden');
+    }
+
+    // Highlight card
+    document.querySelectorAll('.dish-select-card').forEach(c => {
+        c.classList.remove('border-[#C25A2A]', 'ring-2', 'ring-[#C25A2A]/40', 'bg-amber-50/50');
+        const badge = c.querySelector('.dish-check-badge');
+        if (badge) badge.classList.add('hidden');
+    });
+
+    const activeCard = document.getElementById('dish-card-' + productId);
+    if (activeCard) {
+        activeCard.classList.add('border-[#C25A2A]', 'ring-2', 'ring-[#C25A2A]/40', 'bg-amber-50/50');
+        const badge = activeCard.querySelector('.dish-check-badge');
+        if (badge) badge.classList.remove('hidden');
+    }
+
+    // Reset custom file input if a menu photo is selected
+    const fileInput = document.getElementById('customPhotoInput');
+    if (fileInput) fileInput.value = '';
+    const fileBadge = document.getElementById('customPhotoBadge');
+    if (fileBadge) fileBadge.classList.add('hidden');
+}
+
+function clearSelectedDish() {
+    const prodInput = document.getElementById('selectedProductId');
+    if (prodInput) prodInput.value = '';
+    const imgInput = document.getElementById('selectedDishImage');
+    if (imgInput) imgInput.value = '';
+
+    const preview = document.getElementById('selectedDishPreview');
+    if (preview) preview.classList.add('hidden');
+
+    document.querySelectorAll('.dish-select-card').forEach(c => {
+        c.classList.remove('border-[#C25A2A]', 'ring-2', 'ring-[#C25A2A]/40', 'bg-amber-50/50');
+        const badge = c.querySelector('.dish-check-badge');
+        if (badge) badge.classList.add('hidden');
+    });
+}
+
+function onCustomPhotoChange(input) {
+    const fileBadge = document.getElementById('customPhotoBadge');
+    if (input.files && input.files[0]) {
+        // If uploading custom photo, unselect menu dish photo so custom photo takes precedence
+        clearSelectedDish();
+        if (fileBadge) {
+            fileBadge.textContent = '📷 ' + input.files[0].name;
+            fileBadge.classList.remove('hidden');
+        }
+    } else {
+        if (fileBadge) fileBadge.classList.add('hidden');
+    }
 }
 </script>
 @endsection
