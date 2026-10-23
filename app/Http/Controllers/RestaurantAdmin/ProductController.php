@@ -52,6 +52,7 @@ class ProductController extends Controller
     public function index(Request $request)
 {
     $search = $request->search;
+    $filter = $request->filter; // 'todays' | 'restaurant' | null
 
     $products = Product::with('category')
         ->join('categories', 'categories.id', '=', 'products.category_id')
@@ -66,6 +67,12 @@ class ProductController extends Controller
                   });
             });
         })
+        ->when($filter === 'todays', function ($query) {
+            $query->where('products.is_todays_special', 1);
+        })
+        ->when($filter === 'restaurant', function ($query) {
+            $query->where('products.is_restaurant_special', 1);
+        })
         ->orderByRaw('categories.display_order IS NULL')
         ->orderBy('categories.display_order', 'ASC')
         ->orderBy('products.id', 'ASC')
@@ -74,9 +81,44 @@ class ProductController extends Controller
 
     return view(
         'restaurant.products.index',
-        compact('products', 'search')
+        compact('products', 'search', 'filter')
     );
 }
+
+    public function toggleSpecial(Request $request, $id)
+    {
+        $product = Product::where('id', $id)
+            ->where('restaurant_id', auth()->user()->restaurant_id)
+            ->firstOrFail();
+
+        $type = $request->input('type'); // 'todays' or 'restaurant'
+
+        if ($type === 'todays') {
+            $product->is_todays_special = !$product->is_todays_special;
+            $product->save();
+
+            return response()->json([
+                'success' => true,
+                'type'    => 'todays',
+                'status'  => (bool) $product->is_todays_special,
+                'message' => $product->is_todays_special ? "Marked as Today's Special" : "Removed from Today's Special"
+            ]);
+        }
+
+        if ($type === 'restaurant') {
+            $product->is_restaurant_special = !$product->is_restaurant_special;
+            $product->save();
+
+            return response()->json([
+                'success' => true,
+                'type'    => 'restaurant',
+                'status'  => (bool) $product->is_restaurant_special,
+                'message' => $product->is_restaurant_special ? "Marked as Restaurant Special" : "Removed from Restaurant Special"
+            ]);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Invalid type'], 400);
+    }
 
     public function create()
     {

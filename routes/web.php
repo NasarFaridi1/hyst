@@ -755,6 +755,8 @@ Route::middleware(['auth', 'restaurant_admin'])
         Route::resource('categories', CategoryController::class);
         Route::resource('payments', RestaurantPaymentController::class);
         Route::resource('products', RestaurantProductController::class);
+        Route::post('/products/{id}/toggle-special', [RestaurantProductController::class, 'toggleSpecial'])
+            ->name('products.toggle_special');
         Route::resource('offers', OfferController::class);
         Route::resource('banners', RestaurantBannerController::class)
         ->names('banners');
