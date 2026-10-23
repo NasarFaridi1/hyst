@@ -74,6 +74,8 @@ class ProfileController extends Controller
 
             'description' => $request->description,
 
+            'welcome_message' => $request->welcome_message,
+
             'image' => $image,
 
             'dine_in' => $request->dine_in,

@@ -789,6 +789,11 @@
                         qtyValue.innerText = qty;
 
                         updateCounts(data.count);
+
+                        if (typeof window.showElegantCartToast === 'function') {
+                            window.showElegantCartToast(@json($product->name));
+                        }
+
                         setTimeout(() => {
 
                             maybeShowFavoritePopup();

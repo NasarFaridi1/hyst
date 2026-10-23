@@ -488,31 +488,35 @@
     .btn-checkout:hover { background: #333; color: #fff; }
 
     /* ============================================================
-    ITEM DETAIL MODAL (desktop)
+    ITEM DETAIL MODAL (desktop & responsive)
     ============================================================ */
     .item-modal-overlay {
         position: fixed;
         inset: 0;
-        background: rgba(0,0,0,.5);
+        background: rgba(0,0,0,.6);
+        backdrop-filter: blur(4px);
         z-index: 9000;
         display: flex;
         align-items: center;
         justify-content: center;
+        padding: 16px;
     }
 
     .item-modal-box {
         width: 580px;
-        max-height: 85vh;
+        max-width: 100%;
+        max-height: 88vh;
         background: #fff;
-        border-radius: 20px;
+        border-radius: 22px;
         overflow: hidden;
         display: flex;
         flex-direction: column;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
     }
 
     .item-modal-img-wrap {
         position: relative;
-        height: 260px;
+        height: 250px;
         flex-shrink: 0;
         overflow: hidden;
     }
@@ -551,15 +555,141 @@
         font-weight: 700;
         color: #1A1A1A;
         box-shadow: 0 2px 8px rgba(0,0,0,.15);
+        z-index: 5;
     }
 
     .item-modal-body {
-        padding: 24px;
+        padding: 22px 24px;
         overflow-y: auto;
         flex: 1;
         display: flex;
         flex-direction: column;
+        gap: 12px;
+    }
+
+    /* Modal Description Box */
+    .modal-desc-box {
+        margin-top: 6px;
+        padding: 12px 14px;
+        background: #FFFBF8;
+        border: 1px solid #FED7AA;
+        border-radius: 12px;
+    }
+
+    .modal-desc-heading {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #C25A2A;
+        margin-bottom: 4px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .modal-desc-text {
+        font-size: 13.5px;
+        color: #4B5563;
+        line-height: 1.6;
+        word-break: break-word;
+        max-height: 140px;
+        overflow-y: auto;
+        white-space: pre-line;
+    }
+
+    /* ============================================================
+    RESTAURANT WELCOME / ANNOUNCEMENT MARQUEE
+    ============================================================ */
+    .res-welcome-marquee-wrapper {
+        background: linear-gradient(90deg, #FFF7ED 0%, #FFFDF7 50%, #FFF7ED 100%);
+        border-top: 1px solid #FFE7D6;
+        border-bottom: 1.5px solid #FED7AA;
+        padding: 10px 16px;
+        display: flex;
+        align-items: center;
         gap: 14px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(194, 90, 42, 0.05);
+    }
+
+    .res-welcome-marquee-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: linear-gradient(135deg, #C25A2A 0%, #EA580C 100%);
+        color: #ffffff;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        padding: 5px 12px;
+        border-radius: 999px;
+        flex-shrink: 0;
+        box-shadow: 0 2px 8px rgba(194, 90, 42, 0.25);
+        z-index: 2;
+    }
+
+    .res-marquee-icon {
+        font-size: 13px;
+        display: inline-block;
+        animation: pulseMarqueeIcon 2s ease-in-out infinite;
+    }
+
+    @keyframes pulseMarqueeIcon {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.15); }
+    }
+
+    .res-welcome-marquee-track-container {
+        flex: 1;
+        overflow: hidden;
+        white-space: nowrap;
+        position: relative;
+        mask-image: linear-gradient(to right, transparent 0%, black 2%, black 98%, transparent 100%);
+        -webkit-mask-image: linear-gradient(to right, transparent 0%, black 2%, black 98%, transparent 100%);
+    }
+
+    .res-welcome-marquee-content {
+        display: inline-flex;
+        align-items: center;
+        white-space: nowrap;
+        animation: hystMarqueeScroll 28s linear infinite;
+        will-change: transform;
+    }
+
+    .res-welcome-marquee-wrapper:hover .res-welcome-marquee-content {
+        animation-play-state: paused;
+    }
+
+    .res-welcome-marquee-item {
+        display: inline-flex;
+        align-items: center;
+        font-family: 'DM Sans', 'Poppins', sans-serif;
+        font-size: 13.5px;
+        font-weight: 600;
+        color: #7C2D12;
+        padding-right: 48px;
+    }
+
+    .marquee-sparkle {
+        margin-right: 6px;
+        font-size: 14px;
+    }
+
+    @keyframes hystMarqueeScroll {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+    }
+
+    /* Cart Toast Custom Styling */
+    .hyst-cart-toast {
+        border-radius: 18px !important;
+        border: 1.5px solid #FED7AA !important;
+        box-shadow: 0 16px 36px rgba(194, 90, 42, 0.16) !important;
+        background: #FFFDF9 !important;
+        padding: 14px 18px !important;
     }
 
     .item-modal-footer {
@@ -1237,6 +1367,57 @@
         .menu-card-name {
             font-size: 13.5px;
         }
+
+        /* Responsive Marquee */
+        .res-welcome-marquee-wrapper {
+            padding: 8px 12px !important;
+            gap: 10px !important;
+        }
+        .res-welcome-marquee-badge {
+            font-size: 10px !important;
+            padding: 4px 9px !important;
+        }
+        .res-welcome-marquee-item {
+            font-size: 12px !important;
+            padding-right: 32px !important;
+        }
+
+        /* Responsive Item Detail Modal */
+        .item-modal-overlay {
+            padding: 0 !important;
+            align-items: flex-end !important;
+        }
+        .item-modal-box {
+            width: 100% !important;
+            max-width: 100% !important;
+            max-height: 86vh !important;
+            border-radius: 22px 22px 0 0 !important;
+        }
+        .item-modal-img-wrap {
+            height: 180px !important;
+        }
+        .item-modal-body {
+            padding: 16px !important;
+            gap: 10px !important;
+        }
+        .item-modal-footer {
+            padding: 12px 16px !important;
+        }
+        .modal-desc-box {
+            padding: 10px 12px !important;
+        }
+        .modal-desc-text {
+            font-size: 12.5px !important;
+            max-height: 110px !important;
+        }
+
+        /* Responsive Variant Modal */
+        .variant-modal-box {
+            width: 100% !important;
+            max-width: 100% !important;
+            border-radius: 22px 22px 0 0 !important;
+            padding: 18px 16px !important;
+        }
     }
 </style>
 
@@ -1339,6 +1520,33 @@
         });
     </script>
 </section>
+
+{{-- ════════════════════════════════════════════════════════════════
+     RESTAURANT WELCOME / ANNOUNCEMENT MARQUEE
+     ════════════════════════════════════════════════════════════════ --}}
+@php
+    $welcomeMsg = trim($restaurant->welcome_message ?? '');
+    if (!$welcomeMsg) {
+        $welcomeMsg = "Welcome to " . $restaurant->name . "! You are exploring our finest hand-crafted menu, freshly prepared with authentic ingredients and zero markups. Enjoy your delicious food!";
+    }
+@endphp
+
+<div class="res-welcome-marquee-wrapper" title="Chef's Welcome Message">
+    <div class="res-welcome-marquee-badge">
+        <span class="res-marquee-icon">✨</span>
+        <span>Welcome</span>
+    </div>
+    <div class="res-welcome-marquee-track-container">
+        <div class="res-welcome-marquee-content">
+            <span class="res-welcome-marquee-item">
+                <span class="marquee-sparkle">👑</span> {{ $welcomeMsg }}
+            </span>
+            <span class="res-welcome-marquee-item" aria-hidden="true">
+                <span class="marquee-sparkle">👑</span> {{ $welcomeMsg }}
+            </span>
+        </div>
+    </div>
+</div>
 
 @if(!($restaurant->is_open ?? true))
 <div style="padding:16px 32px; background:#FEF2F2; border-bottom:1px solid #FECACA; color:#991B1B; font-family:'DM Sans',sans-serif; display:flex; align-items:center; gap:12px; font-weight:600; font-size:14px;">
@@ -1680,7 +1888,12 @@ function copyCoupon(button, code) {
                     </div>
 
                     {{-- 3. Description --}}
-                    <div style="font-size:14px; color:#757575; line-height:1.55;" id="modalDesc"></div>
+                    <div id="modalDescSection" class="modal-desc-box">
+                        <div class="modal-desc-heading">
+                            <span>📖 About this item</span>
+                        </div>
+                        <div class="modal-desc-text" id="modalDesc"></div>
+                    </div>
                 </div>
                 <div style="font-size:13px; font-weight:600; color:#06C167; flex-shrink:0;" id="modalRating"></div>
             </div>
@@ -1707,7 +1920,14 @@ function copyCoupon(button, code) {
      ════════════════════════════════════════════ --}}
 <div id="variantModal">
     <div class="variant-modal-box">
-        <h3>Customise your order</h3>
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px;">
+            <div>
+                <h3 style="margin:0 0 4px; font-size:20px; font-weight:700;">Customise your order</h3>
+                <div id="variantModalProductName" style="font-size:13.5px; font-weight:700; color:#C25A2A;"></div>
+            </div>
+            <button type="button" onclick="closeVariantModal()" style="border:none; background:#F3F4F6; width:32px; height:32px; border-radius:50%; font-size:15px; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#555; transition:background .2s;" onmouseover="this.style.background='#E5E7EB'" onmouseout="this.style.background='#F3F4F6'">✕</button>
+        </div>
+        <div id="variantModalProductDesc" style="display:none; font-size:12.5px; color:#4B5563; line-height:1.5; margin-bottom:14px; padding:10px 12px; background:#FFFBF8; border:1px solid #FED7AA; border-radius:10px;"></div>
         <div id="variantOptions"></div>
         <div class="variant-modal-actions">
             <button onclick="closeVariantModal()" class="btn-black" style="flex:1;">Cancel</button>
@@ -1796,6 +2016,8 @@ let activeForm      = null;
 let pendingCartForm = null;
 let selectedSpice   = 'Medium';
 let modalCurrentProductId    = null;
+let modalCurrentProductName  = '';
+let modalCurrentProductDesc  = '';
 let modalCurrentProductPrice = 0;
 let modalCurrentQty          = 1;
 let variantQty = 1;
@@ -1931,6 +2153,8 @@ function openItemModalFromElement(el) {
 
 function openItemModal(productId, name, price, desc, imgUrl, isVeg, hasCustom, rating, arImg, allergies, dietaries) {
     modalCurrentProductId    = productId;
+    modalCurrentProductName  = name || '';
+    modalCurrentProductDesc  = desc || '';
     modalCurrentProductPrice = parseFloat(price) || 0;
     modalCurrentQty          = 1;
 
@@ -1964,8 +2188,11 @@ function openItemModal(productId, name, price, desc, imgUrl, isVeg, hasCustom, r
         dietaryEl.textContent = dietaries.length > 0 ? dietaries.join(', ') : (isVeg ? 'Vegetarian' : 'Non-Vegetarian');
     }
 
-    // 3. Description
-    setElText('modalDesc', desc || '');
+    // 3. Description (Responsive & Fallback)
+    const descEl = document.getElementById('modalDesc');
+    if (descEl) {
+        descEl.textContent = (desc && desc.trim()) ? desc.trim() : 'Freshly prepared to order with authentic ingredients and our chef’s special touch.';
+    }
     setElText('modalRating', rating ? '★ ' + rating : '');
     setElText('modalQty', 1);
     setElText('modalAddLabel', 'Add to order');
@@ -2052,6 +2279,24 @@ function buildVariantAddonModal(form) {
     if (typeof window.hideGlobalLoader === 'function') {
         window.hideGlobalLoader();
     }
+    const prodName = form.dataset.productName || (form.closest('.menu-card')?.dataset.name) || modalCurrentProductName || '';
+    const prodDesc = (form.closest('.menu-card')?.dataset.desc) || modalCurrentProductDesc || '';
+    
+    const vNameEl = document.getElementById('variantModalProductName');
+    if (vNameEl) {
+        vNameEl.textContent = prodName;
+        vNameEl.style.display = prodName ? 'block' : 'none';
+    }
+    const vDescEl = document.getElementById('variantModalProductDesc');
+    if (vDescEl) {
+        if (prodDesc && prodDesc.trim()) {
+            vDescEl.textContent = prodDesc.trim();
+            vDescEl.style.display = 'block';
+        } else {
+            vDescEl.style.display = 'none';
+        }
+    }
+
     const variants = JSON.parse(form.dataset.variants || '[]');
     const addons   = JSON.parse(form.dataset.addons   || '[]');
     let html = '';
@@ -2225,6 +2470,54 @@ function confirmVariant() {
 }
 
 /* ══════════════════════════════════════════
+   ELEGANT CART TOAST
+══════════════════════════════════════════ */
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/[&<>"']/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[m]);
+}
+
+function showElegantCartToast(itemName) {
+    const compliments = [
+        "✨ Excellent choice! Prepared fresh with authentic passion.",
+        "🎉 Great pick! Handcrafted with love just for you.",
+        "🍽️ Delicious selection! Made to order with genuine ingredients.",
+        "🌟 Wonderful choice! Fresh, flavoursome, and top quality.",
+        "👌 Splendid pick! You are in for a truly delightful meal."
+    ];
+    const phrase = compliments[Math.floor(Math.random() * compliments.length)];
+    const titleText = itemName ? "Added to your feast!" : "Added to your cart!";
+    const itemHighlight = itemName ? `<div style="font-size:13.5px; font-weight:700; color:#C25A2A; margin-bottom:3px;">${escapeHtml(itemName)}</div>` : '';
+
+    if (typeof Swal !== 'undefined') {
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            iconColor: '#C25A2A',
+            html: `
+                <div style="text-align:left; font-family:'DM Sans','Poppins',sans-serif; padding-right:6px;">
+                    <div style="font-size:14px; font-weight:800; color:#111827; margin-bottom:2px; display:flex; align-items:center; gap:5px;">
+                        <span>🛒</span> <span>${titleText}</span>
+                    </div>
+                    ${itemHighlight}
+                    <div style="font-size:12px; color:#4B5563; line-height:1.45;">
+                        ${phrase}
+                    </div>
+                </div>
+            `,
+            showConfirmButton: false,
+            timer: 3200,
+            timerProgressBar: true,
+            background: '#FFFDF9',
+            customClass: {
+                popup: 'hyst-cart-toast'
+            }
+        });
+    }
+}
+
+/* ══════════════════════════════════════════
    CART: SUBMIT
 ══════════════════════════════════════════ */
 async function submitCart(form) {
@@ -2254,16 +2547,9 @@ async function submitCart(form) {
             closeVariantModal();
             updateCounts(data.count);
             refreshCartSidebar();
-            if (typeof Swal !== 'undefined') {
-                Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    icon: 'success',
-                    title: 'Item added to cart',
-                    showConfirmButton: false,
-                    timer: 1500
-                });
-            }
+            
+            const itemName = (form ? (form.dataset.productName || form.closest('.menu-card')?.dataset.name) : '') || modalCurrentProductName || '';
+            showElegantCartToast(itemName);
         }
     } catch (e) {
         console.error(e);

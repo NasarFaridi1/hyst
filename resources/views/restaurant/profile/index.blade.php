@@ -75,6 +75,45 @@
                             class="w-full border border-gray-200 rounded-xl p-3.5 text-sm text-gray-900 focus:ring-2 focus:ring-[#C25A2A] focus:border-[#C25A2A] outline-none transition bg-gray-50/50 focus:bg-white resize-y">{{ old('description', $restaurant->description) }}</textarea>
                     </div>
 
+                    <!-- Welcome / Announcement Marquee Message -->
+                    <div class="md:col-span-2 bg-gradient-to-r from-orange-50/60 to-amber-50/40 p-5 rounded-2xl border border-orange-200/70">
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="block text-xs font-bold text-[#C25A2A] uppercase tracking-wider">
+                                ✨ Customer Welcome / Announcement Message (Menu Marquee)
+                            </label>
+                            <span class="text-[11px] font-semibold text-orange-600 bg-orange-100/80 px-2 py-0.5 rounded-full">
+                                Live on Menu Page
+                            </span>
+                        </div>
+                        <p class="text-xs text-gray-600 mb-3">
+                            This message runs as an elegant ticker/marquee at the top of your menu list page to welcome customers and build trust. If left empty, our standard warm welcome message is displayed automatically.
+                        </p>
+                        <textarea name="welcome_message" id="welcomeMessageInput" rows="2"
+                            placeholder="e.g. Welcome to {{ $restaurant->name }}! Discover our chef-crafted gourmet menu prepared fresh daily with the finest ingredients. Enjoy genuine menu prices & speedy delivery!"
+                            class="w-full border border-orange-200 rounded-xl p-3.5 text-sm text-gray-900 focus:ring-2 focus:ring-[#C25A2A] focus:border-[#C25A2A] outline-none transition bg-white resize-y">{{ old('welcome_message', $restaurant->welcome_message) }}</textarea>
+                        
+                        <!-- Live preview box -->
+                        <div class="mt-3 p-2.5 bg-white/90 border border-orange-200 rounded-xl flex items-center gap-2 overflow-hidden text-xs text-gray-700">
+                            <span class="inline-flex items-center gap-1 font-bold text-[#C25A2A] flex-shrink-0 bg-orange-100 px-2 py-0.5 rounded-md text-[10.5px]">
+                                📢 PREVIEW:
+                            </span>
+                            <span id="welcomeMessagePreview" class="truncate italic text-gray-600">
+                                {{ old('welcome_message', $restaurant->welcome_message) ?: 'Welcome to ' . $restaurant->name . '! Discover our chef-crafted gourmet menu prepared fresh daily with the finest ingredients. Enjoy genuine menu prices & speedy delivery!' }}
+                            </span>
+                        </div>
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function() {
+                                const input = document.getElementById('welcomeMessageInput');
+                                const preview = document.getElementById('welcomeMessagePreview');
+                                if (input && preview) {
+                                    input.addEventListener('input', function() {
+                                        preview.textContent = this.value.trim() || 'Welcome to {{ addslashes($restaurant->name) }}! Discover our chef-crafted gourmet menu prepared fresh daily with the finest ingredients. Enjoy genuine menu prices & speedy delivery!';
+                                    });
+                                }
+                            });
+                        </script>
+                    </div>
+
                     <!-- Dietary Categories -->
                     <div class="md:col-span-2">
                         <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">

@@ -19,6 +19,7 @@ class Restaurant extends Model
         'latitude',
         'longitude',
         'description',
+        'welcome_message',
         'image',
         'category_ids',
         'status',

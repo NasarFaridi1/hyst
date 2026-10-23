@@ -41,6 +41,93 @@
             box-sizing: border-box;
         }
 
+        /* ---- RESTAURANT WELCOME MARQUEE ---- */
+        .res-welcome-marquee-wrapper {
+            background: linear-gradient(90deg, #FFF7ED 0%, #FFFDF7 50%, #FFF7ED 100%);
+            border-top: 1px solid #FFE7D6;
+            border-bottom: 1.5px solid #FED7AA;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(194, 90, 42, 0.05);
+        }
+
+        .res-welcome-marquee-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, #C25A2A 0%, #EA580C 100%);
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            padding: 5px 12px;
+            border-radius: 999px;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(194, 90, 42, 0.25);
+            z-index: 2;
+        }
+
+        .res-welcome-marquee-track-container {
+            flex: 1;
+            overflow: hidden;
+            white-space: nowrap;
+            position: relative;
+            mask-image: linear-gradient(to right, transparent 0%, black 2%, black 98%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to right, transparent 0%, black 2%, black 98%, transparent 100%);
+        }
+
+        .res-welcome-marquee-content {
+            display: inline-flex;
+            align-items: center;
+            white-space: nowrap;
+            animation: hystMarqueeScroll 28s linear infinite;
+            will-change: transform;
+        }
+
+        .res-welcome-marquee-wrapper:hover .res-welcome-marquee-content {
+            animation-play-state: paused;
+        }
+
+        .res-welcome-marquee-item {
+            display: inline-flex;
+            align-items: center;
+            font-family: 'DM Sans', 'Poppins', sans-serif;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: #7C2D12;
+            padding-right: 48px;
+        }
+
+        .marquee-sparkle {
+            margin-right: 6px;
+            font-size: 14px;
+        }
+
+        @keyframes hystMarqueeScroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        @media (max-width: 640px) {
+            .res-welcome-marquee-wrapper {
+                padding: 8px 12px !important;
+                gap: 10px !important;
+            }
+            .res-welcome-marquee-badge {
+                font-size: 10px !important;
+                padding: 4px 9px !important;
+            }
+            .res-welcome-marquee-item {
+                font-size: 12px !important;
+                padding-right: 32px !important;
+            }
+        }
+
         /* ---- OFFER SLIDER ---- */
         .res-offer-slider-wrap {
             overflow: hidden;
@@ -522,6 +609,33 @@
             </div>
         </div>
     </section>
+
+    {{-- ════════════════════════════════════════════════════════════════
+         RESTAURANT WELCOME / ANNOUNCEMENT MARQUEE
+         ════════════════════════════════════════════════════════════════ --}}
+    @php
+        $welcomeMsg = trim($restaurant->welcome_message ?? '');
+        if (!$welcomeMsg) {
+            $welcomeMsg = "Welcome to " . $restaurant->name . "! You are exploring our finest hand-crafted menu, freshly prepared with authentic ingredients and zero markups. Enjoy your delicious food!";
+        }
+    @endphp
+
+    <div class="res-welcome-marquee-wrapper" title="Chef's Welcome Message">
+        <div class="res-welcome-marquee-badge">
+            <span class="res-marquee-icon">✨</span>
+            <span>Welcome</span>
+        </div>
+        <div class="res-welcome-marquee-track-container">
+            <div class="res-welcome-marquee-content">
+                <span class="res-welcome-marquee-item">
+                    <span class="marquee-sparkle">👑</span> {{ $welcomeMsg }}
+                </span>
+                <span class="res-welcome-marquee-item" aria-hidden="true">
+                    <span class="marquee-sparkle">👑</span> {{ $welcomeMsg }}
+                </span>
+            </div>
+        </div>
+    </div>
 
     {{-- ======== OFFER & DISCOUNT SLIDER SECTION ======== --}}
     {{-- @if(isset($offers) && $offers->count())
@@ -2024,6 +2138,10 @@
                 if(data.success){
                     updateCounts(data.count);
                     closeVariantModal();
+                    if (typeof window.showElegantCartToast === 'function') {
+                        const cardName = form ? (form.closest('div[style*="border-radius:20px"]')?.querySelector('h3 span')?.textContent || '') : '';
+                        window.showElegantCartToast(cardName);
+                    }
                 }
             }catch(err){
                 console.log(err);

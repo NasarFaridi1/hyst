@@ -160,6 +160,7 @@
                           data-no-loader="true"
                           data-product="{{ $product->id }}"
                           data-product-id="{{ $product->id }}"
+                          data-product-name="{{ $product->name }}"
                           data-variants='@json($variants)'
                           data-addons='@json($addons)'
                           style="display:contents;">

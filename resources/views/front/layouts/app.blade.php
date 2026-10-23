@@ -1169,6 +1169,50 @@
     @if(!request()->is('checkout*') && !request()->is('admin*') && !request()->is('restaurant*'))
         @include('front.partials.welcome_popup')
     @endif
+
+    <script>
+        window.showElegantCartToast = function(itemName) {
+            const compliments = [
+                "✨ Excellent choice! Prepared fresh with authentic passion.",
+                "🎉 Great pick! Handcrafted with love just for you.",
+                "🍽️ Delicious selection! Made to order with genuine ingredients.",
+                "🌟 Wonderful choice! Fresh, flavoursome, and top quality.",
+                "👌 Splendid pick! You are in for a truly delightful meal."
+            ];
+            const phrase = compliments[Math.floor(Math.random() * compliments.length)];
+            const titleText = itemName ? "Added to your feast!" : "Added to your cart!";
+            const itemHighlight = itemName 
+                ? `<div style="font-size:13.5px; font-weight:700; color:#C25A2A; margin-bottom:3px;">${String(itemName).replace(/[&<>"']/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[m])}</div>` 
+                : '';
+
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    iconColor: '#C25A2A',
+                    html: `
+                        <div style="text-align:left; font-family:'DM Sans','Poppins',sans-serif; padding-right:6px;">
+                            <div style="font-size:14px; font-weight:800; color:#111827; margin-bottom:2px; display:flex; align-items:center; gap:5px;">
+                                <span>🛒</span> <span>${titleText}</span>
+                            </div>
+                            ${itemHighlight}
+                            <div style="font-size:12px; color:#4B5563; line-height:1.45;">
+                                ${phrase}
+                            </div>
+                        </div>
+                    `,
+                    showConfirmButton: false,
+                    timer: 3200,
+                    timerProgressBar: true,
+                    background: '#FFFDF9',
+                    customClass: {
+                        popup: 'hyst-cart-toast'
+                    }
+                });
+            }
+        };
+    </script>
 </body>
 
 </html>
