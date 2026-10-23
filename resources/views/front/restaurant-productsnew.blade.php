@@ -1325,6 +1325,141 @@
         padding: 1px 6px; border-radius: 4px; flex-shrink: 0; margin-top: 2px;
     }
 
+    /* ── Special Highlights & Badges ── */
+    .special-spotlight-bar {
+        background: linear-gradient(135deg, #FFFDF5 0%, #FFF8EA 100%);
+        border: 1px solid #F5E6CC;
+        border-radius: 16px;
+        padding: 16px 20px;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+    .special-spotlight-text {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 260px;
+        flex: 1;
+    }
+    .special-spotlight-icon {
+        font-size: 26px;
+        line-height: 1;
+        flex-shrink: 0;
+    }
+    .special-spotlight-title {
+        font-size: 14.5px;
+        font-weight: 700;
+        color: #1A1A1A;
+        margin: 0;
+    }
+    .special-spotlight-desc {
+        font-size: 13px;
+        color: #6B7280;
+        margin: 2px 0 0 0;
+    }
+    .special-spotlight-buttons {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    .special-filter-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all .18s ease;
+        border: 1.5px solid transparent;
+        background: #fff;
+        color: #1A1A1A;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .special-filter-btn.todays-btn {
+        border-color: #C7D2FE;
+        color: #3730A3;
+        background: #EEF2FF;
+    }
+    .special-filter-btn.todays-btn:hover {
+        background: #4F46E5;
+        border-color: #4F46E5;
+        color: #fff;
+    }
+    .special-filter-btn.todays-btn.active {
+        background: #4F46E5;
+        border-color: #4F46E5;
+        color: #fff;
+        box-shadow: 0 2px 8px rgba(79, 70, 229, 0.35);
+    }
+    .special-filter-btn.restaurant-btn {
+        border-color: #FDE68A;
+        color: #92400E;
+        background: #FFFBEB;
+    }
+    .special-filter-btn.restaurant-btn:hover {
+        background: #D97706;
+        border-color: #D97706;
+        color: #fff;
+    }
+    .special-filter-btn.restaurant-btn.active {
+        background: #D97706;
+        border-color: #D97706;
+        color: #fff;
+        box-shadow: 0 2px 8px rgba(217, 119, 6, 0.35);
+    }
+    .special-filter-btn .badge-num {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 18px;
+        height: 18px;
+        padding: 0 5px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+        background: rgba(0,0,0,0.08);
+        color: inherit;
+    }
+    .special-filter-btn.active .badge-num {
+        background: rgba(255,255,255,0.25);
+        color: #fff;
+    }
+    .special-filter-btn.reset-btn {
+        border-color: #E5E7EB;
+        background: #F3F4F6;
+        color: #4B5563;
+    }
+    .special-filter-btn.reset-btn:hover {
+        background: #E5E7EB;
+        color: #111827;
+    }
+    .special-pill {
+        font-size: 10px;
+        font-weight: 700;
+        padding: 1.5px 6px;
+        border-radius: 4px;
+        flex-shrink: 0;
+        margin-left: 4px;
+    }
+    .todays-special-pill {
+        background: #EEF2FF;
+        color: #4338CA;
+        border: 1px solid #C7D2FE;
+    }
+    .restaurant-special-pill {
+        background: #FEF3C7;
+        color: #B45309;
+        border: 1px solid #FDE68A;
+    }
+
     /* ── Section heading ── */
     .menu-section       { margin-bottom: 32px; }
     .menu-section-title { font-size: 20px; font-weight: 700; letter-spacing: -.3px; margin: 0 0 14px; }
@@ -1737,6 +1872,44 @@ function copyCoupon(button, code) {
     {{-- ── ITEMS COLUMN ── --}}
     <div class="items-column" id="itemsColumn">
 
+        {{-- ── RESTAURANT & TODAY'S SPECIAL SPOTLIGHT BAR ── --}}
+        @php
+            $todaysSpecialCount = $products->where('is_todays_special', 1)->count();
+            $restaurantSpecialCount = $products->where('is_restaurant_special', 1)->count();
+        @endphp
+
+        @if($todaysSpecialCount > 0 || $restaurantSpecialCount > 0)
+            <div class="special-spotlight-bar" id="specialSpotlightBar">
+                <div class="special-spotlight-text">
+                    <span class="special-spotlight-icon">✨</span>
+                    <div>
+                        <h3 class="special-spotlight-title">Chef's Signature Recommendations</h3>
+                        <p class="special-spotlight-desc">Discover today's fresh highlights and our restaurant's all-time special delicacies.</p>
+                    </div>
+                </div>
+
+                <div class="special-spotlight-buttons">
+                    @if($todaysSpecialCount > 0)
+                        <button type="button" class="special-filter-btn todays-btn" data-filter="todays" onclick="filterBySpecial('todays', this)">
+                            <span>⚡ Today's Special</span>
+                            <span class="badge-num">{{ $todaysSpecialCount }}</span>
+                        </button>
+                    @endif
+
+                    @if($restaurantSpecialCount > 0)
+                        <button type="button" class="special-filter-btn restaurant-btn" data-filter="restaurant" onclick="filterBySpecial('restaurant', this)">
+                            <span>🌟 Special Food of Restaurant</span>
+                            <span class="badge-num">{{ $restaurantSpecialCount }}</span>
+                        </button>
+                    @endif
+
+                    <button type="button" class="special-filter-btn reset-btn" id="specialResetBtn" style="display:none;" onclick="clearSpecialFilter()">
+                        ✕ Show Full Menu
+                    </button>
+                </div>
+            </div>
+        @endif
+
         {{-- Search bar (inline, above items) --}}
         <div style="margin-bottom:20px; display:flex; gap:10px; align-items:center;">
             <div class="search-wrap" style="max-width:100%;">
@@ -2009,12 +2182,13 @@ window.isFavorite = @json(
 */
 
 /* ── STATE ── */
-let isVegOnly       = false;
-let currentUrl      = window._currentUrl  || location.href;
-let currentSlug     = window._currentSlug || '';
-let activeForm      = null;
-let pendingCartForm = null;
-let selectedSpice   = 'Medium';
+let isVegOnly            = false;
+let currentSpecialFilter = null; // 'todays' | 'restaurant' | null
+let currentUrl           = window._currentUrl  || location.href;
+let currentSlug          = window._currentSlug || '';
+let activeForm           = null;
+let pendingCartForm      = null;
+let selectedSpice        = 'Medium';
 let modalCurrentProductId    = null;
 let modalCurrentProductName  = '';
 let modalCurrentProductDesc  = '';
@@ -2026,7 +2200,7 @@ window.selectedAddons = [];
 
 
 /* ══════════════════════════════════════════
-   VEG FILTER
+   VEG & SPECIAL HIGHLIGHT FILTERS
 ══════════════════════════════════════════ */
 function toggleVeg() {
     isVegOnly = !isVegOnly;
@@ -2035,16 +2209,70 @@ function toggleVeg() {
     filterProductsLocally();
 }
 
-function filterProductsLocally() {
-    document.querySelectorAll('.menu-card').forEach(card => {
-        const veg = card.dataset.veg === '1';
-        card.style.display = (isVegOnly && !veg) ? 'none' : '';
+function filterBySpecial(type, btn) {
+    if (currentSpecialFilter === type) {
+        clearSpecialFilter();
+        return;
+    }
+    currentSpecialFilter = type;
+    document.querySelectorAll('.special-filter-btn[data-filter]').forEach(b => {
+        if (b.dataset.filter === type) {
+            b.classList.add('active');
+        } else {
+            b.classList.remove('active');
+        }
     });
+    const resetBtn = document.getElementById('specialResetBtn');
+    if (resetBtn) resetBtn.style.display = 'inline-flex';
+    filterProductsLocally();
+}
+
+function clearSpecialFilter() {
+    currentSpecialFilter = null;
+    document.querySelectorAll('.special-filter-btn[data-filter]').forEach(b => b.classList.remove('active'));
+    const resetBtn = document.getElementById('specialResetBtn');
+    if (resetBtn) resetBtn.style.display = 'none';
+    filterProductsLocally();
+}
+
+function filterProductsLocally() {
+    let visibleCount = 0;
+    const cards = document.querySelectorAll('.menu-card');
+
+    cards.forEach(card => {
+        const veg          = card.dataset.veg === '1';
+        const isTodays     = card.getAttribute('data-is-todays-special') === '1';
+        const isRestaurant = card.getAttribute('data-is-restaurant-special') === '1';
+
+        let show = true;
+        if (isVegOnly && !veg) {
+            show = false;
+        }
+        if (currentSpecialFilter === 'todays' && !isTodays) {
+            show = false;
+        }
+        if (currentSpecialFilter === 'restaurant' && !isRestaurant) {
+            show = false;
+        }
+
+        card.style.display = show ? '' : 'none';
+        if (show) visibleCount++;
+    });
+
     document.querySelectorAll('.menu-section').forEach(sec => {
         const visible = [...sec.querySelectorAll('.menu-card')]
             .some(c => c.style.display !== 'none');
         sec.style.display = visible ? '' : 'none';
     });
+
+    const countEl = document.getElementById('productCount');
+    if (countEl) {
+        if (currentSpecialFilter || isVegOnly) {
+            countEl.textContent = visibleCount + (visibleCount === 1 ? ' item' : ' items');
+        } else {
+            countEl.textContent = cards.length + (cards.length === 1 ? ' item' : ' items');
+        }
+    }
 }
 
 /* ══════════════════════════════════════════
@@ -2087,7 +2315,7 @@ function fetchProducts(baseUrl, search, slug, catName) {
             setActiveTab(slug);
             window.history.pushState({}, '', url.toString());
             bindAddCartForms();
-            if (isVegOnly) filterProductsLocally();
+            if (isVegOnly || currentSpecialFilter) filterProductsLocally();
         })
         .catch(console.error)
         .finally(() => { if (loader) loader.style.display = 'none'; });

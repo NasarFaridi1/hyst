@@ -133,6 +133,10 @@ class ProductController extends Controller
 
             'product_type' => $request->product_type ?? 'veg',
 
+            'is_restaurant_special' => $request->has('is_restaurant_special') ? 1 : 0,
+
+            'is_todays_special' => $request->has('is_todays_special') ? 1 : 0,
+
             'status' => 1
         ]);
 
@@ -225,7 +229,11 @@ class ProductController extends Controller
 
             'price' => $request->price,
 
-            'product_type' => $request->product_type ?? 'veg'
+            'product_type' => $request->product_type ?? 'veg',
+
+            'is_restaurant_special' => $request->has('is_restaurant_special') ? 1 : 0,
+
+            'is_todays_special' => $request->has('is_todays_special') ? 1 : 0
         ]);
 
 

@@ -96,6 +96,33 @@
 
                     </div>
 
+                    {{-- Restaurant Special & Today's Special Options --}}
+                    <div class="col-span-1 md:col-span-2 bg-amber-50/60 border border-amber-200/80 rounded-2xl p-4 sm:p-5">
+                        <label class="font-bold block text-gray-900 mb-1 text-sm sm:text-base">
+                            Featured Highlights (Optional)
+                        </label>
+                        <p class="text-xs sm:text-sm text-gray-600 mb-4">
+                            Highlight this dish on your menu page with dedicated quick-filter buttons for customers.
+                        </p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                            <label class="flex items-start gap-3 bg-white border border-gray-200 rounded-xl p-3.5 cursor-pointer hover:border-amber-400 transition">
+                                <input type="checkbox" name="is_restaurant_special" value="1" {{ !empty($product->is_restaurant_special) ? 'checked' : '' }} class="mt-1 w-4 h-4 text-amber-600 rounded border-gray-300 focus:ring-amber-500">
+                                <div>
+                                    <span class="block font-semibold text-gray-900 text-sm">🌟 Special Food of Restaurant</span>
+                                    <span class="block text-xs text-gray-500 mt-0.5">Mark as chef's recommendation / signature dish</span>
+                                </div>
+                            </label>
+
+                            <label class="flex items-start gap-3 bg-white border border-gray-200 rounded-xl p-3.5 cursor-pointer hover:border-amber-400 transition">
+                                <input type="checkbox" name="is_todays_special" value="1" {{ !empty($product->is_todays_special) ? 'checked' : '' }} class="mt-1 w-4 h-4 text-amber-600 rounded border-gray-300 focus:ring-amber-500">
+                                <div>
+                                    <span class="block font-semibold text-gray-900 text-sm">⚡ Today's Special Food</span>
+                                    <span class="block text-xs text-gray-500 mt-0.5">Mark as today's fresh daily special</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
                     <div class="col-span-1 md:col-span-2">
                         <div class="flex justify-between items-center mb-3">
                             <label class="font-bold">Variants</label>

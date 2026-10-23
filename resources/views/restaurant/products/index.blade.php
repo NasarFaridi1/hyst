@@ -135,7 +135,19 @@
 
                 <td class="p-5 font-bold">
 
-                    {{ $product->name }}
+                    <div>{{ $product->name }}</div>
+                    <div class="flex items-center gap-1.5 flex-wrap mt-1">
+                        @if(!empty($product->is_restaurant_special))
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-800 border border-amber-300">
+                                🌟 Restaurant Special
+                            </span>
+                        @endif
+                        @if(!empty($product->is_todays_special))
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-indigo-100 text-indigo-800 border border-indigo-300">
+                                ⚡ Today's Special
+                            </span>
+                        @endif
+                    </div>
 
                 </td>
 

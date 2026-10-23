@@ -23,7 +23,14 @@ class Product extends Model
         'image_3d',
         'allergy',
         'dietary',
-        'product_type'
+        'product_type',
+        'is_restaurant_special',
+        'is_todays_special'
+    ];
+
+    protected $casts = [
+        'is_restaurant_special' => 'boolean',
+        'is_todays_special' => 'boolean',
     ];
 
     public function category()

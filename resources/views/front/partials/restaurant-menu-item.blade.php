@@ -60,7 +60,9 @@
      data-ar-img="{{ $arImg }}"
      data-allergies='@json($allergies)'
      data-dietaries='@json($dietaries)'
-     data-veg="{{ $isVeg ? '1' : '0' }}">
+     data-veg="{{ $isVeg ? '1' : '0' }}"
+     data-is-restaurant-special="{{ !empty($product->is_restaurant_special) ? '1' : '0' }}"
+     data-is-todays-special="{{ !empty($product->is_todays_special) ? '1' : '0' }}">
 
     {{-- LEFT: image --}}
     @if($hasImage)
@@ -78,6 +80,12 @@
         <div class="menu-card-name-row">
             <span class="veg-dot-wrap {{ $dotClass }}"><span></span></span>
             <span class="menu-card-name">{{ $product->name }}</span>
+            @if(!empty($product->is_todays_special))
+                <span class="special-pill todays-special-pill" title="Today's Special">⚡ Today's Special</span>
+            @endif
+            @if(!empty($product->is_restaurant_special))
+                <span class="special-pill restaurant-special-pill" title="Restaurant's Special">🌟 Chef's Special</span>
+            @endif
             @if($product->is_popular ?? false)
                 <span class="popular-badge">Popular</span>
             @endif
