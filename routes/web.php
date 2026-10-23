@@ -1010,6 +1010,11 @@ Route::get('/terms-and-conditions', [TermsAndConditionController::class, 'termsA
 
 Route::get('/privacy-policy', [PrivacyPolicyController::class, 'privacy'])
     ->name('privacy.policy');
+
+// HYST Customer Mobile App Privacy Policy (Separate dedicated page)
+Route::get('/customer-privacy-policy', function () {
+    return view('front.customer-privacy-policy');
+})->name('front.customer.privacy');
  
 Route::get('/restaurant/policy/{slug}', [RestaurantPolicyController::class, 'policy'])
     ->name('policy');   
