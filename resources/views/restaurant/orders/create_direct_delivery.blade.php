@@ -20,7 +20,7 @@
         </div>
 
         <div class="flex items-center gap-3">
-            <a href="{{ route('restaurant.orders.index') }}"
+            <a href="{{ url('/restaurant/orders') }}"
                class="bg-black hover:bg-gray-800 text-white font-semibold px-4 py-2.5 rounded-xl transition duration-150 inline-flex items-center gap-2 text-sm shadow">
                 ← Back to Orders
             </a>

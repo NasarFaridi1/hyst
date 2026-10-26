@@ -831,7 +831,7 @@ Route::middleware(['auth', 'restaurant_admin'])
         Route::get(
             '/orders',
             [RestaurantOrderController::class, 'index']
-        );
+        )->name('orders.index');
         Route::get(
             '/orders/create-order',
             [RestaurantOrderController::class, 'createOrder']
