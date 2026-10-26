@@ -243,6 +243,14 @@ class PaymentController extends Controller
                 }
 
                 $data = json_decode($payment->checkout_data, true);
+
+                // Check for Restaurant Direct Delivery order
+                if (($payment->order && $payment->order->order_type === 'direct_delivery') || ($data['order_type'] ?? '') === 'direct_delivery') {
+                    app(\App\Http\Controllers\RestaurantAdmin\OrderController::class)->fulfillDirectDeliveryAfterPayment($payment);
+                    return redirect()->route('restaurant.orders.direct_delivery_track', $payment->order_id)
+                        ->with('success', 'Direct Delivery booked successfully! Uber courier is requested.');
+                }
+
                 $newRequest = new Request($data);
 
                 app(OrderController::class)->placeOrder($newRequest, $payment);
@@ -288,6 +296,14 @@ class PaymentController extends Controller
                 ]);
 
                 $data = json_decode($payment->checkout_data, true);
+
+                // Check for Restaurant Direct Delivery order
+                if (($payment->order && $payment->order->order_type === 'direct_delivery') || ($data['order_type'] ?? '') === 'direct_delivery') {
+                    app(\App\Http\Controllers\RestaurantAdmin\OrderController::class)->fulfillDirectDeliveryAfterPayment($payment);
+                    return redirect()->route('restaurant.orders.direct_delivery_track', $payment->order_id)
+                        ->with('success', 'Direct Delivery booked successfully! Uber courier is requested.');
+                }
+
                 $newRequest = new Request($data);
 
                 app(OrderController::class)->placeOrder($newRequest, $payment);

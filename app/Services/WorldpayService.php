@@ -220,7 +220,7 @@ class WorldpayService
         $addressLine1 = Str::limit($data['address'] ?? '1 Main Street', 100, '');
 
         $payload = [
-            "ReturnUrl" => route('payment.callback'),
+            "ReturnUrl" => $data['return_url'] ?? route('payment.callback'),
             "CardAuthorizationType" => "RECURRING",
             "Template" => "Basic",
             "Transaction" => [

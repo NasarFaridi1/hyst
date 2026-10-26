@@ -59,6 +59,9 @@ class Order extends Model
         'deliverable_action',
         'undeliverable_action',
         'dropoff_notes',
+        'items_text',
+        'uber_base_fee',
+        'uber_markup_fee',
 
         // Guest Order
         'is_guest',

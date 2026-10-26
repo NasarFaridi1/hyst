@@ -11,8 +11,14 @@
 
         <div class="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
             <a
+                href="{{ route('restaurant.orders.create_direct_delivery') }}"
+                class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl font-bold transition shadow text-xs sm:text-sm text-center flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5">
+                <span>🚚</span> + Create Direct Delivery
+            </a>
+
+            <a
                 href="{{ route('restaurant.orders.create_order') }}"
-                class="bg-[#C25A2A] hover:bg-[#A3451E] text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-bold transition shadow text-xs sm:text-sm text-center flex-1 sm:flex-initial">
+                class="bg-[#C25A2A] hover:bg-[#A3451E] text-white px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl font-bold transition shadow text-xs sm:text-sm text-center flex-1 sm:flex-initial">
                 + Create Direct Order
             </a>
 

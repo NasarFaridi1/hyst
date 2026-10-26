@@ -555,6 +555,28 @@ class UberService
             }
         }
 
+        // Support for Direct Delivery with free-text items
+        if (empty($items) && !empty($order->items_text)) {
+            $lines = preg_split("/\r\n|\n|\r/", trim($order->items_text));
+            foreach ($lines as $line) {
+                $cleanLine = trim(preg_replace('/^(\d+[\.\)\-:]|\*|-)\s*/', '', $line));
+                if (!empty($cleanLine)) {
+                    $items[] = [
+                        "name"       => Str::limit($cleanLine, 50, ''),
+                        "quantity"   => 1,
+                        "price"      => 0,
+                        "size"       => "small",
+                        "weight"     => 1,
+                        "dimensions" => [
+                            "length" => 20,
+                            "height" => 20,
+                            "depth"  => 20
+                        ],
+                    ];
+                }
+            }
+        }
+
         if (empty($items)) {
             $items[] = [
                 "name"     => "Food Order #" . $order->id,

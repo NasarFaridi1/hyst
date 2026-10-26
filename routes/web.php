@@ -844,6 +844,29 @@ Route::middleware(['auth', 'restaurant_admin'])
             '/orders/store-miscellaneous',
             [RestaurantOrderController::class, 'storeMiscellaneousOrder']
         )->name('orders.store_miscellaneous');
+
+        // Direct Delivery via Uber Direct with 20% Markup & Worldpay Payment
+        Route::get(
+            '/orders/create-direct-delivery',
+            [RestaurantOrderController::class, 'createDirectDelivery']
+        )->name('orders.create_direct_delivery');
+        Route::post(
+            '/orders/direct-delivery/quote',
+            [RestaurantOrderController::class, 'getDirectDeliveryQuote']
+        )->name('orders.direct_delivery_quote');
+        Route::post(
+            '/orders/direct-delivery/store',
+            [RestaurantOrderController::class, 'storeDirectDelivery']
+        )->name('orders.direct_delivery_store');
+        Route::match(
+            ['get', 'post'],
+            '/orders/direct-delivery/callback',
+            [RestaurantOrderController::class, 'directDeliveryPaymentCallback']
+        )->name('orders.direct_delivery_callback');
+        Route::get(
+            '/orders/direct-delivery/{id}/track',
+            [RestaurantOrderController::class, 'trackDirectDelivery']
+        )->name('orders.direct_delivery_track');
         Route::get(
             '/verifone/terminal-status',
             [RestaurantOrderController::class, 'checkVerifoneStatus']

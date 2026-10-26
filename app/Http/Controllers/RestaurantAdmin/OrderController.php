@@ -920,6 +920,397 @@ class OrderController extends Controller
         });
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | DIRECT DELIVERY VIA UBER DIRECT & WORLDPAY (RESTAURANT PORTAL)
+    |--------------------------------------------------------------------------
+    */
+
+    public function createDirectDelivery(Request $request)
+    {
+        $restaurantId = auth()->user()->restaurant_id;
+        $restaurant = \App\Models\Restaurant::findOrFail($restaurantId);
+
+        $categories = Category::where(function ($q) use ($restaurantId) {
+            $q->where('restaurant_id', $restaurantId)->orWhereNull('restaurant_id');
+        })
+        ->where('status', 1)
+        ->orderBy('name')
+        ->get();
+
+        $products = Product::where('restaurant_id', $restaurantId)
+            ->where('status', 1)
+            ->orderBy('name')
+            ->get();
+
+        return view('restaurant.orders.create_direct_delivery', compact('restaurant', 'categories', 'products'));
+    }
+
+    public function getDirectDeliveryQuote(Request $request)
+    {
+        $restaurantId = auth()->user()->restaurant_id;
+        $restaurant = \App\Models\Restaurant::findOrFail($restaurantId);
+
+        $request->validate([
+            'dropoff_name'     => 'required|string|max:255',
+            'dropoff_phone'    => 'required|string|max:50',
+            'dropoff_address'  => 'required|string|max:500',
+            'dropoff_city'     => 'required|string|max:100',
+            'dropoff_postcode' => 'required|string|max:20',
+            'order_value'      => 'nullable|numeric|min:0',
+        ]);
+
+        if (empty($restaurant->address) || empty($restaurant->postcode)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Your restaurant address or postcode is missing in profile. Please update restaurant address first.',
+            ], 422);
+        }
+
+        try {
+            $uber = new UberService();
+
+            $checkout = [
+                'address'   => $request->dropoff_address,
+                'city'      => $request->dropoff_city,
+                'state'     => $request->dropoff_state ?? '',
+                'country'   => $request->dropoff_country ?? 'GB',
+                'postcode'  => $request->dropoff_postcode,
+                'latitude'  => (float) ($request->dropoff_latitude ?? 0),
+                'longitude' => (float) ($request->dropoff_longitude ?? 0),
+                'amount'    => (float) ($request->order_value ?? 10.00),
+            ];
+
+            $quote = $uber->quoteFromCheckout($restaurant, null, $checkout);
+
+            Log::info('Direct Delivery Uber Quote Response', [
+                'restaurant_id' => $restaurantId,
+                'quote'         => $quote,
+            ]);
+
+            if (empty($quote) || (isset($quote['kind']) && $quote['kind'] === 'error') || !empty($quote['code'])) {
+                $errMessage = $quote['message'] ?? 'Unable to obtain Uber delivery quote. Please verify the destination address and postcode.';
+                return response()->json([
+                    'success' => false,
+                    'message' => $errMessage,
+                    'data'    => $quote,
+                ], 400);
+            }
+
+            $rawFee = $quote['fee'] ?? 0;
+            // Uber returns fee in minor currency unit (pence)
+            $uberFee = ($rawFee > 50 && is_numeric($rawFee)) ? round($rawFee / 100, 2) : (float) $rawFee;
+            $markupFee = round($uberFee * 0.20, 2); // 20% platform markup
+            $totalFee = round($uberFee + $markupFee, 2);
+
+            return response()->json([
+                'success'      => true,
+                'quote_id'     => $quote['id'] ?? null,
+                'uber_fee'     => number_format($uberFee, 2, '.', ''),
+                'markup_fee'   => number_format($markupFee, 2, '.', ''),
+                'total_fee'    => number_format($totalFee, 2, '.', ''),
+                'expires_at'   => $quote['expires'] ?? null,
+                'duration_min' => $quote['duration'] ?? null,
+                'eta'          => isset($quote['dropoff_eta']) ? date('H:i', strtotime($quote['dropoff_eta'])) : null,
+            ]);
+
+        } catch (\Throwable $e) {
+            Log::error('Direct Delivery Quote Exception', [
+                'restaurant_id' => $restaurantId,
+                'message'       => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error connecting to Uber Direct: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function storeDirectDelivery(Request $request)
+    {
+        $restaurantId = auth()->user()->restaurant_id;
+        $restaurant = \App\Models\Restaurant::findOrFail($restaurantId);
+
+        $request->validate([
+            'items_text'            => 'required|string|max:2000',
+            'order_value'           => 'nullable|numeric|min:0',
+            'customer_name'         => 'required|string|max:255',
+            'customer_phone'        => 'required|string|max:50',
+            'address'               => 'required|string|max:500',
+            'city'                  => 'required|string|max:100',
+            'postcode'              => 'required|string|max:20',
+            'uber_quote_id'         => 'required|string',
+            'uber_base_fee'         => 'required|numeric|min:0',
+            'total_delivery_charge' => 'required|numeric|min:0.01',
+            'notes'                 => 'nullable|string|max:500',
+            'deliverable_action'    => 'nullable|string',
+            'undeliverable_action'  => 'nullable|string',
+        ]);
+
+        return DB::transaction(function () use ($request, $restaurant) {
+            $totalAmount = (float) $request->total_delivery_charge;
+            $uberBaseFee = (float) $request->uber_base_fee;
+            $markupFee = round($totalAmount - $uberBaseFee, 2);
+
+            $order = Order::create([
+                'restaurant_id'        => $restaurant->id,
+                'user_id'              => auth()->id(),
+                'is_guest'             => true,
+                'guest_name'           => $request->customer_name,
+                'guest_phone'          => $request->customer_phone,
+                'guest_address'        => $request->address,
+                'guest_city'           => $request->city,
+                'guest_postcode'       => $request->postcode,
+                'guest_country'        => $request->country ?? 'GB',
+                'address'              => $request->address . ', ' . $request->city . ' ' . $request->postcode,
+                'phone'                => $request->customer_phone,
+                'pincode'              => $request->postcode,
+                'order_type'           => 'direct_delivery',
+                'total_amount'         => $totalAmount,
+                'delivery_charge'      => $totalAmount,
+                'uber_base_fee'        => $uberBaseFee,
+                'uber_markup_fee'      => $markupFee,
+                'items_text'           => $request->items_text,
+                'status'               => 'pending',
+                'delivery_provider'    => 'uber',
+                'payment_method'       => 'worldpay',
+                'uber_quote_id'        => $request->uber_quote_id,
+                'deliverable_action'   => $request->deliverable_action ?? 'deliverable_action_meet_at_door',
+                'undeliverable_action' => $request->undeliverable_action ?? 'leave_at_door',
+                'dropoff_notes'        => $request->notes ?? 'Direct Delivery via Restaurant',
+            ]);
+
+            $reference = 'DD-ORDER-' . $order->id . '-' . time();
+
+            $payment = Payment::create([
+                'order_id'       => $order->id,
+                'restaurant_id'  => $restaurant->id,
+                'user_id'        => auth()->id(),
+                'payment_method' => 'worldpay',
+                'transaction_id' => $reference,
+                'amount'         => $totalAmount,
+                'payment_status' => 'pending',
+                'checkout_data'  => json_encode([
+                    'order_type'            => 'direct_delivery',
+                    'order_id'              => $order->id,
+                    'uber_quote_id'         => $request->uber_quote_id,
+                    'items_text'            => $request->items_text,
+                    'customer_name'         => $request->customer_name,
+                    'customer_phone'        => $request->customer_phone,
+                    'address'               => $request->address,
+                    'city'                  => $request->city,
+                    'postcode'              => $request->postcode,
+                    'order_value'           => $request->order_value,
+                    'notes'                 => $request->notes,
+                    'deliverable_action'    => $request->deliverable_action ?? 'deliverable_action_meet_at_door',
+                    'undeliverable_action'  => $request->undeliverable_action ?? 'leave_at_door',
+                    'total_delivery_charge' => $totalAmount,
+                ]),
+            ]);
+
+            try {
+                $accessToken = $this->worldpay->login($restaurant);
+                $hppData = [
+                    'order_id'      => $order->id,
+                    'reference'     => $reference,
+                    'amount'        => $totalAmount,
+                    'name'          => $restaurant->name ?? auth()->user()->name,
+                    'email'         => $restaurant->email ?? auth()->user()->email,
+                    'phone'         => $restaurant->phone ?? auth()->user()->phone ?? '',
+                    'address'       => $restaurant->address ?? 'Main Street',
+                    'city'          => $restaurant->city ?? 'London',
+                    'postcode'      => $restaurant->postcode ?? 'SW1A 1AA',
+                    'country'       => 'GB',
+                    'user_id'       => auth()->id(),
+                    'description'   => 'Direct Delivery Courier Fee for Order #' . $order->id,
+                    'return_url'    => route('restaurant.orders.direct_delivery_callback'),
+                    'disbursements' => [
+                        [
+                            "BusinessId" => 24785, // HYST Platform
+                            "Type"       => 'MISC_FEE',
+                            "Amount"     => $totalAmount,
+                        ]
+                    ],
+                ];
+
+                $hpp = $this->worldpay->generateHostedPayment($restaurant, $accessToken, $hppData);
+
+                $paymentUrl = $hpp['redirectUrl'] ?? $hpp['url'] ?? null;
+                $webPageToken = $hpp['webPageToken'] ?? null;
+
+                if ($webPageToken) {
+                    $payment->update(['transaction_id' => $webPageToken]);
+                }
+
+                if (!$paymentUrl) {
+                    throw new \Exception('Worldpay did not return a valid hosted payment page URL.');
+                }
+
+                return response()->json([
+                    'success'      => true,
+                    'order_id'     => $order->id,
+                    'redirect_url' => $paymentUrl,
+                ]);
+
+            } catch (\Throwable $e) {
+                Log::error('Direct Delivery Worldpay Initiation Failed', [
+                    'order_id' => $order->id,
+                    'error'    => $e->getMessage(),
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Worldpay initialization error: ' . $e->getMessage(),
+                ], 500);
+            }
+        });
+    }
+
+    public function directDeliveryPaymentCallback(Request $request)
+    {
+        $webPageToken = $request->webPageToken;
+
+        if (!$webPageToken) {
+            Log::error('Direct Delivery Worldpay Callback missing webPageToken', $request->all());
+            return redirect()->route('restaurant.orders.create_direct_delivery')
+                ->with('error', 'Payment authorization session not found.');
+        }
+
+        $payment = Payment::where('transaction_id', $webPageToken)->firstOrFail();
+        $restaurant = \App\Models\Restaurant::findOrFail($payment->restaurant_id);
+
+        try {
+            $accessToken = $this->worldpay->login($restaurant);
+            $result = $this->worldpay->getHostedPaymentStatus(
+                $restaurant,
+                $accessToken,
+                $webPageToken,
+                $payment->id,
+                $payment->order_id
+            );
+
+            if (($result['status'] ?? null) === 'PROCESSED_SUCCESSFUL') {
+                $payment->update([
+                    'payment_status'           => 'paid',
+                    'payment_transaction_id'   => $result['transaction']['transactionId'] ?? null,
+                    'secondary_transaction_id' => $result['transaction']['secondaryTransactionId'] ?? null,
+                    'payment_method'           => $result['transaction']['paymentMethod'] ?? 'worldpay',
+                ]);
+
+                $this->fulfillDirectDeliveryAfterPayment($payment);
+
+                return redirect()->route('restaurant.orders.direct_delivery_track', $payment->order_id)
+                    ->with('success', 'Payment successful! Uber Direct courier has been requested.');
+            }
+
+            $payment->update(['payment_status' => 'failed']);
+            return redirect()->route('restaurant.orders.create_direct_delivery')
+                ->with('error', 'Payment was not successful. Status: ' . ($result['status'] ?? 'declined'));
+
+        } catch (\Throwable $e) {
+            Log::error('Direct Delivery Callback Exception', ['message' => $e->getMessage()]);
+            $payment->update(['payment_status' => 'failed']);
+            return redirect()->route('restaurant.orders.create_direct_delivery')
+                ->with('error', 'Payment verification error: ' . $e->getMessage());
+        }
+    }
+
+    public function fulfillDirectDeliveryAfterPayment(Payment $payment)
+    {
+        $order = $payment->order;
+        if (!$order) {
+            $order = Order::find($payment->order_id);
+        }
+
+        if (!$order) {
+            Log::error('Direct Delivery fulfillment failed: Order not found for payment', ['payment_id' => $payment->id]);
+            return;
+        }
+
+        if (!empty($order->uber_delivery_id)) {
+            Log::info('Direct Delivery already has Uber delivery dispatched', ['order_id' => $order->id, 'uber_id' => $order->uber_delivery_id]);
+            return;
+        }
+
+        $restaurant = $order->restaurant;
+        $uber = new UberService();
+
+        $deliveryReq = new Request([
+            'name'                 => $order->guest_name,
+            'phone'                => $order->guest_phone,
+            'address'              => $order->guest_address,
+            'city'                 => $order->guest_city,
+            'postcode'             => $order->guest_postcode,
+            'uber_quote_id'        => $order->uber_quote_id,
+            'deliverable_action'   => $order->deliverable_action ?? 'deliverable_action_meet_at_door',
+            'undeliverable_action' => $order->undeliverable_action ?? 'leave_at_door',
+            'dropoff_notes'        => $order->dropoff_notes,
+        ]);
+
+        try {
+            $uberdelivery = $uber->createDelivery($order, $restaurant, $deliveryReq);
+
+            Log::info('Direct Delivery Uber courier dispatched successfully', [
+                'order_id' => $order->id,
+                'response' => $uberdelivery,
+            ]);
+
+            if (!empty($uberdelivery) && isset($uberdelivery['id'])) {
+                $order->update([
+                    'status'               => 'processing',
+                    'delivery_status'      => 'pending',
+                    'delivery_provider'    => 'uber',
+                    'uber_delivery_id'     => $uberdelivery['id'],
+                    'uber_tracking_url'    => $uberdelivery['tracking_url'] ?? null,
+                    'uber_delivery_status' => $uberdelivery['status'] ?? 'pending',
+                    'driver_name'          => $uberdelivery['courier']['name'] ?? null,
+                    'driver_phone'         => $uberdelivery['courier']['phone_number'] ?? null,
+                ]);
+            } else {
+                Log::warning('Uber delivery response missing id', ['order_id' => $order->id, 'response' => $uberdelivery]);
+                $order->update([
+                    'status'               => 'processing',
+                    'delivery_status'      => 'failed',
+                    'cancel_reason'        => $uberdelivery['message'] ?? 'Uber courier dispatch failed.',
+                ]);
+            }
+        } catch (\Throwable $e) {
+            Log::error('Direct Delivery Uber dispatch exception', [
+                'order_id' => $order->id,
+                'error'    => $e->getMessage(),
+            ]);
+        }
+    }
+
+    public function trackDirectDelivery($id)
+    {
+        $restaurantId = auth()->user()->restaurant_id;
+        $order = Order::where('restaurant_id', $restaurantId)->findOrFail($id);
+        $restaurant = \App\Models\Restaurant::findOrFail($restaurantId);
+
+        // Refresh live delivery status from Uber if active delivery id exists
+        if (!empty($order->uber_delivery_id) && !in_array($order->uber_delivery_status, ['delivered', 'canceled'])) {
+            try {
+                $uber = new UberService();
+                $uberData = $uber->getDelivery($order->uber_delivery_id, $restaurant);
+                if (!empty($uberData) && isset($uberData['status'])) {
+                    $order->update([
+                        'uber_delivery_status' => $uberData['status'],
+                        'uber_tracking_url'    => $uberData['tracking_url'] ?? $order->uber_tracking_url,
+                        'driver_name'          => $uberData['courier']['name'] ?? $order->driver_name,
+                        'driver_phone'         => $uberData['courier']['phone_number'] ?? $order->driver_phone,
+                    ]);
+                    $order->refresh();
+                }
+            } catch (\Throwable $e) {
+                Log::warning('Unable to refresh Uber Direct status', ['order_id' => $order->id, 'error' => $e->getMessage()]);
+            }
+        }
+
+        return view('restaurant.orders.direct_delivery_track', compact('order', 'restaurant'));
+    }
+
     public function checkVerifoneStatus(Request $request)
     {
         $restaurant = \App\Models\Restaurant::find(auth()->user()->restaurant_id);
