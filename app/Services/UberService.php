@@ -634,8 +634,8 @@ class UberService
             "pickup_longitude"    => (float) $restaurant->longitude,
             "pickup_notes"        => $pickupNotes,
 
-            "dropoff_latitude"  => (float) ($request->latitude ?? $latitude ?? 0),
-            "dropoff_longitude" => (float) ($request->longitude ?? $longitude ?? 0),
+            "dropoff_latitude"  => (float) ($request->latitude ?? $order->guest_latitude ?? $latitude ?? 0),
+            "dropoff_longitude" => (float) ($request->longitude ?? $order->guest_longitude ?? $longitude ?? 0),
             "dropoff_notes"     => $dropoffNotes,
 
             "deliverable_action"   => $deliverableAction,
