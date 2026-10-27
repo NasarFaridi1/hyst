@@ -104,8 +104,290 @@
     .pv-foot li.active > span, .pv-foot li > a:hover { background:#4e73df; border-color:#4e73df; color:#fff; }
     .pv-foot li.disabled > span { color:#c7cad9; }
 
-    .pv-alert { background:#fff8e6; border:1px solid #ffe4a3; color:#8a6d00; padding:10px 16px; border-radius:9px; font-size:.85rem; margin-bottom:16px; display:none; }
+    .pv-alert { background:#fff8e6; border:1px solid #ffe4a3; color:#8a6d00; padding:10px 16px; border-radius:99px; font-size:.85rem; margin-bottom:16px; display:none; }
     .pv-alert.show { display:block; }
+
+    /* =========================================================
+       Unique Visitor Profiles & Browsing Journeys (Image 2 style)
+       ========================================================= */
+    .pv-journey-card-wrap {
+        background:#ffffff;
+        border-radius:16px;
+        border:1px solid #e2e8f0;
+        box-shadow:0 1px 4px rgba(0,0,0,.04);
+        overflow:hidden;
+        margin-bottom:24px;
+    }
+    .pv-journey-head {
+        padding:20px 24px;
+        border-bottom:1px solid #f1f5f9;
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        flex-wrap:wrap;
+        gap:14px;
+    }
+    .pv-journey-title-wrap {
+        display:flex;
+        align-items:center;
+        gap:14px;
+    }
+    .pv-journey-icon {
+        width:40px;
+        height:40px;
+        border-radius:10px;
+        background:#ecfdf5;
+        border:1px solid #a7f3d0;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        color:#059669;
+        flex-shrink:0;
+    }
+    .pv-journey-title {
+        margin:0;
+        font-size:1.15rem;
+        font-weight:800;
+        color:#0f172a;
+        letter-spacing:-.2px;
+    }
+    .pv-journey-subtitle {
+        margin:3px 0 0 0;
+        font-size:.82rem;
+        color:#64748b;
+        font-weight:400;
+    }
+    .pv-journey-table {
+        width:100%;
+        border-collapse:separate;
+        border-spacing:0;
+        font-size:.85rem;
+    }
+    .pv-journey-table thead th {
+        background:#f8fafc;
+        color:#475569;
+        text-transform:uppercase;
+        font-size:.72rem;
+        font-weight:700;
+        letter-spacing:.05em;
+        padding:14px 20px;
+        text-align:left;
+        border-bottom:1px solid #e2e8f0;
+        white-space:nowrap;
+    }
+    .pv-journey-table tbody td {
+        padding:15px 20px;
+        border-bottom:1px solid #f1f5f9;
+        vertical-align:middle;
+        color:#334155;
+        white-space:nowrap;
+        background:#ffffff;
+    }
+    .pv-journey-table tbody tr.pv-visitor-row:hover td {
+        background:#fbfcfe;
+    }
+    .pv-ip-text {
+        font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
+        font-weight:700;
+        color:#2563eb;
+        font-size:.88rem;
+    }
+    .pv-loc-wrap {
+        display:flex;
+        align-items:center;
+        gap:10px;
+    }
+    .pv-loc-icon {
+        width:28px;
+        height:28px;
+        border-radius:8px;
+        background:#eff6ff;
+        border:1px solid #dbeafe;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        color:#3b82f6;
+        flex-shrink:0;
+    }
+    .pv-loc-city {
+        font-weight:700;
+        color:#0f172a;
+        font-size:.86rem;
+        line-height:1.2;
+    }
+    .pv-loc-country {
+        color:#64748b;
+        font-size:.74rem;
+        margin-top:2px;
+    }
+    .pv-pill-times {
+        background:#ecfdf5;
+        border:1px solid #a7f3d0;
+        color:#059669;
+        padding:4px 12px;
+        border-radius:999px;
+        font-size:.76rem;
+        font-weight:700;
+        display:inline-flex;
+        align-items:center;
+        gap:5px;
+    }
+    .pv-pages-viewed {
+        font-weight:700;
+        color:#0f172a;
+        font-size:.86rem;
+    }
+    .pv-device-os {
+        color:#334155;
+        font-size:.84rem;
+        font-weight:500;
+    }
+    .pv-first-seen {
+        color:#64748b;
+        font-size:.8rem;
+    }
+    .pv-last-active {
+        color:#0f172a;
+        font-size:.82rem;
+        font-weight:600;
+    }
+    .pv-btn-journey {
+        background:#4f46e5;
+        color:#ffffff;
+        font-size:.78rem;
+        font-weight:700;
+        padding:7px 16px;
+        border-radius:999px;
+        border:none;
+        cursor:pointer;
+        display:inline-flex;
+        align-items:center;
+        gap:6px;
+        transition:all .18s ease;
+        box-shadow:0 2px 6px rgba(79,70,229,.25);
+    }
+    .pv-btn-journey:hover {
+        background:#4338ca;
+        transform:translateY(-1px);
+        box-shadow:0 4px 10px rgba(79,70,229,.35);
+    }
+    .pv-btn-journey.active {
+        background:#1e1b4b;
+        box-shadow:none;
+    }
+    .pv-drawer-row td {
+        padding:20px 24px !important;
+        background:#f8fafc !important;
+        border-bottom:2px solid #e2e8f0 !important;
+    }
+    .pv-drawer-header {
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        margin-bottom:14px;
+        flex-wrap:wrap;
+        gap:10px;
+    }
+    .pv-drawer-title {
+        display:flex;
+        align-items:center;
+        gap:8px;
+        font-weight:800;
+        color:#4338ca;
+        font-size:.92rem;
+    }
+    .pv-drawer-loc-pill {
+        background:#eef2ff;
+        border:1px solid #c7d2fe;
+        color:#4338ca;
+        border-radius:999px;
+        padding:4px 14px;
+        font-size:.76rem;
+        font-weight:600;
+        display:inline-flex;
+        align-items:center;
+        gap:5px;
+    }
+    .pv-journey-step-card {
+        background:#ffffff;
+        border:1px solid #e2e8f0;
+        border-radius:10px;
+        padding:11px 16px;
+        margin-bottom:8px;
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:14px;
+        transition:border-color .15s ease;
+    }
+    .pv-journey-step-card:hover {
+        border-color:#cbd5e1;
+    }
+    .pv-step-left {
+        display:flex;
+        align-items:center;
+        gap:12px;
+        flex:1;
+        min-width:0;
+    }
+    .pv-step-time {
+        color:#475569;
+        font-size:.78rem;
+        font-weight:500;
+        white-space:nowrap;
+        min-width:125px;
+    }
+    .pv-step-page {
+        font-weight:700;
+        color:#0f172a;
+        font-size:.84rem;
+        white-space:nowrap;
+    }
+    .pv-step-arrow {
+        color:#94a3b8;
+        margin:0 4px;
+    }
+    .pv-step-url {
+        color:#475569;
+        font-size:.8rem;
+        text-decoration:none;
+        overflow:hidden;
+        text-overflow:ellipsis;
+        white-space:nowrap;
+    }
+    .pv-step-url:hover {
+        color:#2563eb;
+        text-decoration:underline;
+    }
+    .pv-step-right {
+        display:flex;
+        align-items:center;
+        gap:8px;
+        flex-shrink:0;
+    }
+    .pv-view-switcher {
+        display:flex;
+        background:#f1f5f9;
+        border-radius:8px;
+        padding:3px;
+        gap:3px;
+    }
+    .pv-view-tab {
+        border:none;
+        background:none;
+        padding:5px 12px;
+        font-size:.78rem;
+        font-weight:600;
+        color:#64748b;
+        border-radius:6px;
+        cursor:pointer;
+        transition:all .15s ease;
+    }
+    .pv-view-tab.active {
+        background:#fff;
+        color:#0f172a;
+        box-shadow:0 1px 3px rgba(0,0,0,.08);
+    }
 </style>
 
 <div class="pv">
@@ -307,14 +589,216 @@
             </form>
         </div>
     </div>
-    {{-- Table --}}
-    <div class="pv-card" style="margin-bottom:0;">
-        <div class="pv-card-head">
-            <span> Page Visit History</span>
-            <span class="pv-count">{{ number_format($pageVisits->total()) }} total record(s)</span>
+    {{-- =========================================================
+         UNIQUE VISITOR PROFILES & BROWSING JOURNEYS (Image 2 Style)
+         ========================================================= --}}
+    <div class="pv-journey-card-wrap">
+        <div class="pv-journey-head">
+            <div class="pv-journey-title-wrap">
+                <div class="pv-journey-icon">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                        <rect x="9" y="3" width="6" height="4" rx="1"/>
+                        <rect x="2" y="17" width="6" height="4" rx="1"/>
+                        <rect x="16" y="17" width="6" height="4" rx="1"/>
+                        <path d="M12 7v5m0 0H5v5m7-5h7v5"/>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="pv-journey-title">Unique Visitor Profiles &amp; Browsing Journeys</h3>
+                    <p class="pv-journey-subtitle">Each IP address appears once with total visit count and click-by-click page history</p>
+                </div>
+            </div>
+
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div class="pv-view-switcher">
+                    <button type="button" class="pv-view-tab active" id="btnViewJourneys" onclick="switchPvView('journeys')">
+                        Journeys View
+                    </button>
+                    <button type="button" class="pv-view-tab" id="btnViewRaw" onclick="switchPvView('raw')">
+                        Raw Log ({{ number_format($pageVisits->total()) }})
+                    </button>
+                </div>
+                <span class="pv-count" style="font-size:12px; background:#f1f5f9; color:#475569; padding:5px 12px; border-radius:8px; font-weight:700;">
+                    {{ number_format($totalUniqueVisitors ?? $uniqueVisitors->total()) }} unique visitor(s)
+                </span>
+            </div>
         </div>
 
-        <div class="pv-table-wrap">
+        {{-- JOURNEYS VIEW TABLE (Image 2) --}}
+        <div id="pvJourneysView" class="pv-table-wrap">
+            <table class="pv-journey-table">
+                <thead>
+                    <tr>
+                        <th>IP ADDRESS</th>
+                        <th>LOCATION / CITY</th>
+                        <th>TIMES VISITED</th>
+                        <th>PAGES VIEWED</th>
+                        <th>DEVICE &amp; OS</th>
+                        <th>FIRST SEEN</th>
+                        <th>LAST ACTIVE</th>
+                        <th>ACTION</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($uniqueVisitors as $visitor)
+                        @php
+                            $ip = $visitor->ip_address;
+                            $ipVisits = $visitsByIp[$ip] ?? collect();
+                            $latestVisit = $ipVisits->first();
+
+                            $city = $latestVisit->city ?? '';
+                            $state = $latestVisit->state ?? '';
+                            $country = $latestVisit->country ?? '';
+                            $countryCode = \App\Http\Controllers\Admin\PageVisitController::getCountryCode($country);
+
+                            $deviceOs = \App\Http\Controllers\Admin\PageVisitController::formatDeviceAndOs(
+                                $latestVisit->platform ?? '',
+                                $latestVisit->browser ?? '',
+                                $latestVisit->user_agent ?? ''
+                            );
+
+                            $visitCount = $visitor->total_sessions > 1 ? $visitor->total_sessions : ($visitor->total_views > 1 ? $visitor->total_views : 1);
+                            $pagesCount = $visitor->total_views;
+
+                            $firstSeen = $visitor->first_seen ? \Carbon\Carbon::parse($visitor->first_seen)->format('M d, H:i') : '—';
+                            $lastActive = $visitor->last_active ? \Carbon\Carbon::parse($visitor->last_active)->diffForHumans() : '—';
+                            $drawerId = 'journey-drawer-' . $loop->index;
+                        @endphp
+                        <tr class="pv-visitor-row">
+                            <td>
+                                <span class="pv-ip-text">{{ $ip }}</span>
+                            </td>
+                            <td>
+                                <div class="pv-loc-wrap">
+                                    <div class="pv-loc-icon">
+                                        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div class="pv-loc-city">{{ $city ?: 'Unknown City' }}</div>
+                                        <div class="pv-loc-country">{{ $country ?: 'Unknown' }} {{ $countryCode }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="pv-pill-times">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-1.19"/>
+                                    </svg>
+                                    <span>{{ $visitCount }} {{ $visitCount == 1 ? 'time' : 'times' }}</span>
+                                </span>
+                            </td>
+                            <td>
+                                <span class="pv-pages-viewed">{{ $pagesCount }} pages</span>
+                            </td>
+                            <td>
+                                <span class="pv-device-os">{{ $deviceOs }}</span>
+                            </td>
+                            <td>
+                                <span class="pv-first-seen">{{ $firstSeen }}</span>
+                            </td>
+                            <td>
+                                <span class="pv-last-active">{{ $lastActive }}</span>
+                            </td>
+                            <td>
+                                <button type="button" 
+                                        class="pv-btn-journey" 
+                                        onclick="toggleJourneyDrawer('{{ $drawerId }}', this)">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                        <circle cx="12" cy="12" r="3"></circle>
+                                    </svg>
+                                    <span>View Journey ({{ $pagesCount }})</span>
+                                </button>
+                            </td>
+                        </tr>
+
+                        {{-- Expanded Click-by-Click History Drawer --}}
+                        <tr id="{{ $drawerId }}" class="pv-drawer-row" style="display:none;">
+                            <td colspan="8">
+                                <div class="pv-drawer-header">
+                                    <div class="pv-drawer-title">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <polyline points="12 6 12 12 16 14"></polyline>
+                                        </svg>
+                                        <span>Browsing History for IP: <strong style="font-family:monospace; color:#1E1B4B;">{{ $ip }}</strong></span>
+                                    </div>
+                                    <div class="pv-drawer-loc-pill">
+                                        <span>📍</span>
+                                        <span>{{ implode(', ', array_filter([$city, $state, $country])) ?: 'Location Unavailable' }}</span>
+                                    </div>
+                                </div>
+
+                                <div class="pv-journey-steps-list">
+                                    @forelse($ipVisits as $visitItem)
+                                        <div class="pv-journey-step-card">
+                                            <div class="pv-step-left">
+                                                <span class="pv-step-time">
+                                                    {{ $visitItem->created_at ? $visitItem->created_at->format('M d, H:i:s') : '—' }}
+                                                </span>
+                                                <span class="pv-step-page">
+                                                    {{ $visitItem->page_name ?: 'Home' }}
+                                                </span>
+                                                @if($visitItem->page_url)
+                                                    <span class="pv-step-arrow">→</span>
+                                                    <a href="{{ $visitItem->page_url }}" target="_blank" rel="noopener" class="pv-step-url" title="{{ $visitItem->page_url }}">
+                                                        {{ $visitItem->page_url }}
+                                                    </a>
+                                                @endif
+                                            </div>
+                                            <div class="pv-step-right">
+                                                @if($visitItem->restaurant_name)
+                                                    <span style="background:#FFF7ED; color:#C25A2A; border:1px solid #FED7AA; font-size:11px; font-weight:700; padding:2px 8px; border-radius:6px; white-space:nowrap;">
+                                                        🍽️ {{ $visitItem->restaurant_name }}
+                                                    </span>
+                                                @endif
+                                                @if($visitItem->product_id)
+                                                    <span style="background:#F0FDF4; color:#166534; border:1px solid #BBF7D0; font-size:11px; font-weight:700; padding:2px 8px; border-radius:6px; white-space:nowrap;">
+                                                        📦 Product #{{ $visitItem->product_id }}
+                                                    </span>
+                                                @endif
+                                                @if($visitItem->order_id)
+                                                    <span style="background:#EEF2FF; color:#4338CA; border:1px solid #C7D2FE; font-size:11px; font-weight:700; padding:2px 8px; border-radius:6px; white-space:nowrap;">
+                                                        🧾 Order #{{ $visitItem->order_id }}
+                                                    </span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @empty
+                                        <div style="padding:14px; text-align:center; color:#94A3B8; font-size:13px;">
+                                            No page history recorded for this IP.
+                                        </div>
+                                    @endforelse
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="8" style="text-align:center; padding:48px 20px; color:#94A3B8;">
+                                <div style="font-size:32px; margin-bottom:10px;">🔍</div>
+                                <div style="font-size:15px; font-weight:700; color:#475569;">No visitor profiles found</div>
+                                <div style="font-size:13px; color:#94A3B8; margin-top:4px;">Try adjusting your search filters above.</div>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+
+            <div class="pv-foot">
+                <div style="font-size:13px; color:#64748B; font-weight:600;">
+                    Showing {{ $uniqueVisitors->firstItem() ?? 0 }} to {{ $uniqueVisitors->lastItem() ?? 0 }} of {{ number_format($uniqueVisitors->total()) }} unique visitor(s)
+                </div>
+                <div>
+                    {{ $uniqueVisitors->appends(request()->query())->links() }}
+                </div>
+            </div>
+        </div>
+
+        {{-- RAW FLAT LOG VIEW (Optional Toggle) --}}
+        <div id="pvRawView" class="pv-table-wrap" style="display:none;">
             <table class="pv-table">
                 <thead>
                     <tr>
@@ -337,17 +821,8 @@
                             <td>{{ $visit->id }}</td>
                             <td>{{ $users[$visit->user_id] ?? 'Guest' }}</td>
                             <td>{{ $visit->restaurant_name ?? '—' }}</td>
-                            {{-- <td>
-                                @if($visit->page_url)
-                                    <a href="{{ $visit->page_url }}" target="_blank" rel="noopener" style="color:#4e73df;">{{ $visit->page_name }}</a>
-                                @else
-                                    {{ $visit->page_name ?? '—' }}
-                                @endif
-                            </td> --}}
                             <td>{{ $visit->page_name ?? '—' }}</td>
-                            <td>
-                                {{ $products[$visit->product_id] ?? '—' }}
-                            </td>
+                            <td>{{ $products[$visit->product_id] ?? '—' }}</td>
                             <td>{{ $visit->order_id ?? '—' }}</td>
                             <td>{{ $visit->ip_address ?? '—' }}</td>
                             <td>
@@ -376,12 +851,68 @@
                     @endforelse
                 </tbody>
             </table>
-        </div>
 
-        <div class="pv-foot">
-    {{ $pageVisits->appends(request()->query())->links() }}
-</div>
+            <div class="pv-foot">
+                <div style="font-size:13px; color:#64748B; font-weight:600;">
+                    Showing {{ $pageVisits->firstItem() ?? 0 }} to {{ $pageVisits->lastItem() ?? 0 }} of {{ number_format($pageVisits->total()) }} total record(s)
+                </div>
+                <div>
+                    {{ $pageVisits->appends(request()->query())->links() }}
+                </div>
+            </div>
+        </div>
     </div>
+
+    <script>
+        function toggleJourneyDrawer(drawerId, btn) {
+            var drawer = document.getElementById(drawerId);
+            if (!drawer) return;
+
+            if (drawer.style.display === 'none' || drawer.style.display === '') {
+                drawer.style.display = 'table-row';
+                if (btn) {
+                    btn.classList.add('active');
+                    var span = btn.querySelector('span');
+                    if (span && !span.dataset.orig) {
+                        span.dataset.orig = span.innerText;
+                    }
+                    if (span) {
+                        span.innerText = span.innerText.replace('View', 'Hide');
+                    }
+                }
+            } else {
+                drawer.style.display = 'none';
+                if (btn) {
+                    btn.classList.remove('active');
+                    var span = btn.querySelector('span');
+                    if (span && span.dataset.orig) {
+                        span.innerText = span.dataset.orig;
+                    } else if (span) {
+                        span.innerText = span.innerText.replace('Hide', 'View');
+                    }
+                }
+            }
+        }
+
+        function switchPvView(viewType) {
+            var journeys = document.getElementById('pvJourneysView');
+            var raw = document.getElementById('pvRawView');
+            var btnJ = document.getElementById('btnViewJourneys');
+            var btnR = document.getElementById('btnViewRaw');
+
+            if (viewType === 'journeys') {
+                if (journeys) journeys.style.display = 'block';
+                if (raw) raw.style.display = 'none';
+                if (btnJ) btnJ.classList.add('active');
+                if (btnR) btnR.classList.remove('active');
+            } else {
+                if (journeys) journeys.style.display = 'none';
+                if (raw) raw.style.display = 'block';
+                if (btnJ) btnJ.classList.remove('active');
+                if (btnR) btnR.classList.add('active');
+            }
+        }
+    </script>
 
 </div>
 

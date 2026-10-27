@@ -8,6 +8,8 @@ use App\Models\User;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Carbon\Carbon;
 
 class PageVisitController extends Controller
 {
@@ -110,8 +112,6 @@ class PageVisitController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        
-
         $userIds = $pageVisits->pluck('user_id')->filter()->unique()->values();
 
         $users = User::whereIn('id', $userIds)->pluck('name', 'id');
@@ -123,6 +123,54 @@ class PageVisitController extends Controller
 
         $products = Product::whereIn('id', $productIds)
             ->pluck('name', 'id');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Unique Visitor Profiles & Browsing Journeys (Grouped by IP)
+        |--------------------------------------------------------------------------
+        */
+        $perPage = 15;
+        $page = (int) $request->get('page', 1);
+
+        $totalUniqueVisitors = (clone $query)
+            ->whereNotNull('ip_address')
+            ->where('ip_address', '!=', '')
+            ->distinct('ip_address')
+            ->count('ip_address');
+
+        $uniqueIps = (clone $query)
+            ->select(
+                'ip_address',
+                DB::raw('COUNT(*) as total_views'),
+                DB::raw('COUNT(DISTINCT session_id) as total_sessions'),
+                DB::raw('MIN(created_at) as first_seen'),
+                DB::raw('MAX(created_at) as last_active')
+            )
+            ->whereNotNull('ip_address')
+            ->where('ip_address', '!=', '')
+            ->groupBy('ip_address')
+            ->orderByDesc(DB::raw('MAX(created_at)'))
+            ->forPage($page, $perPage)
+            ->get();
+
+        $uniqueVisitors = new LengthAwarePaginator(
+            $uniqueIps,
+            $totalUniqueVisitors,
+            $perPage,
+            $page,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
+
+        $pageIps = $uniqueIps->pluck('ip_address')->filter()->values()->toArray();
+
+        $visitsByIp = [];
+        if (!empty($pageIps)) {
+            $rawVisits = PageVisit::whereIn('ip_address', $pageIps)
+                ->orderByDesc('created_at')
+                ->get();
+
+            $visitsByIp = $rawVisits->groupBy('ip_address');
+        }
 
         /*
         |--------------------------------------------------------------------------
@@ -249,6 +297,9 @@ class PageVisitController extends Controller
             'admin.page-visits.index',
             compact(
                 'pageVisits',
+                'uniqueVisitors',
+                'visitsByIp',
+                'totalUniqueVisitors',
                 'users',
                 'products',
 
@@ -268,5 +319,95 @@ class PageVisitController extends Controller
         );
     }
 
- 
+    public static function getCountryCode($countryName)
+    {
+        if (empty($countryName)) return '';
+        $map = [
+            'India' => 'IN',
+            'United Kingdom' => 'GB',
+            'UK' => 'GB',
+            'England' => 'GB',
+            'Australia' => 'AU',
+            'United States' => 'US',
+            'USA' => 'US',
+            'France' => 'FR',
+            'Philippines' => 'PH',
+            'Canada' => 'CA',
+            'Germany' => 'DE',
+            'Netherlands' => 'NL',
+            'Singapore' => 'SG',
+            'United Arab Emirates' => 'AE',
+            'UAE' => 'AE',
+            'Spain' => 'ES',
+            'Italy' => 'IT',
+            'Ireland' => 'IE',
+            'Pakistan' => 'PK',
+            'Bangladesh' => 'BD',
+            'Albania' => 'AL',
+            'Russia' => 'RU',
+            'China' => 'CN',
+            'Japan' => 'JP',
+            'Brazil' => 'BR',
+            'South Africa' => 'ZA',
+            'New Zealand' => 'NZ',
+            'Sweden' => 'SE',
+            'Switzerland' => 'CH',
+            'Norway' => 'NO',
+            'Finland' => 'FI',
+            'Poland' => 'PL',
+            'Belgium' => 'BE',
+            'Austria' => 'AT',
+            'Portugal' => 'PT',
+            'Greece' => 'GR',
+            'Turkey' => 'TR',
+            'Saudi Arabia' => 'SA',
+            'Malaysia' => 'MY',
+            'Thailand' => 'TH',
+            'Vietnam' => 'VN',
+            'Indonesia' => 'ID',
+        ];
+        if (isset($map[$countryName])) {
+            return $map[$countryName];
+        }
+        if (strlen($countryName) === 2) {
+            return strtoupper($countryName);
+        }
+        return strtoupper(substr($countryName, 0, 2));
+    }
+
+    public static function formatDeviceAndOs($platform, $browser, $userAgent = '')
+    {
+        $platform = trim((string)$platform);
+        $browser = trim((string)$browser);
+        $ua = strtolower((string)$userAgent);
+
+        $isMobile = false;
+        if (in_array(strtolower($platform), ['android', 'ios', 'iphone', 'ipad', 'windows phone']) 
+            || strpos($ua, 'mobile') !== false 
+            || strpos($ua, 'android') !== false 
+            || strpos($ua, 'iphone') !== false) {
+            $isMobile = true;
+        }
+
+        $deviceType = $isMobile ? 'Mobile' : 'Desktop';
+
+        // Normalize OS
+        if (stripos($platform, 'OS X') !== false || stripos($platform, 'mac') !== false) {
+            $os = 'macOS';
+        } elseif (stripos($platform, 'Windows') !== false) {
+            $os = 'Windows';
+        } elseif (stripos($platform, 'Android') !== false) {
+            $os = 'Android';
+        } elseif (stripos($platform, 'iOS') !== false || stripos($platform, 'iphone') !== false) {
+            $os = 'iOS';
+        } elseif (stripos($platform, 'Linux') !== false) {
+            $os = 'Linux';
+        } else {
+            $os = $platform ?: 'Windows';
+        }
+
+        $browserName = $browser ?: 'Chrome';
+
+        return "{$deviceType} • {$browserName} ({$os})";
+    }
 }
