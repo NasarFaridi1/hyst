@@ -1571,6 +1571,8 @@
     @include('front.layouts.bottombars')
 </div> --}}
 
+{{-- Celebration & Choice Reassurance Experience --}}
+@include('front.partials.restaurant-celebration')
 
 <section class="res-hero-section">
 
@@ -1617,6 +1619,10 @@
                     <span>·</span>
                     <span>📍 {{ $restaurant->location }}</span>
                 @endif
+                <span>·</span>
+                <span class="hyst-choice-pill">
+                    <span>✨</span> Top Choice • Direct Menu
+                </span>
             </div>
         </div>
 
