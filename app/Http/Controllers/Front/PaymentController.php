@@ -205,7 +205,26 @@ class PaymentController extends Controller
             return redirect()->route('checkout.failed')->with('error', 'Invalid payment token.');
         }
 
-        $payment = Payment::where('transaction_id', $webPageToken)->firstOrFail();
+        $payment = Payment::where('transaction_id', $webPageToken)->first();
+
+        if (!$payment) {
+            $log = \App\Models\WorldpayPaymentLog::where('response_payload', 'LIKE', '%' . $webPageToken . '%')->latest()->first();
+            if ($log) {
+                $payment = Payment::where('id', $log->payment_id)
+                    ->orWhere('order_id', $log->order_id)
+                    ->orWhere('transaction_id', $log->reference)
+                    ->first();
+                if ($payment) {
+                    $payment->update(['transaction_id' => $webPageToken]);
+                }
+            }
+        }
+
+        if (!$payment) {
+            Log::error('Worldpay Callback Payment not found for token: ' . $webPageToken);
+            return redirect()->route('checkout.failed')->with('error', 'Payment session not found.');
+        }
+
         $restaurant = Restaurant::findOrFail($payment->restaurant_id);
 
         try {

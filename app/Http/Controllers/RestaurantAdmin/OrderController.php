@@ -1139,12 +1139,14 @@ class OrderController extends Controller
 
                 $hpp = $this->worldpay->generateHostedPayment($restaurant, $accessToken, $hppData);
 
-                $paymentUrl = $hpp['redirectUrl'] ?? $hpp['url'] ?? null;
-                $webPageToken = $hpp['webPageToken'] ?? null;
+                $paymentUrl = $hpp['redirectToUrl'] ?? $hpp['redirectUrl'] ?? $hpp['url'] ?? null;
+                $token = $hpp['token'] ?? $hpp['webPageToken'] ?? null;
 
-                if ($webPageToken) {
-                    $payment->update(['transaction_id' => $webPageToken]);
+                if ($token) {
+                    $payment->update(['transaction_id' => $token]);
                 }
+
+                \App\Models\WorldpayPaymentLog::where('reference', $reference)->update(['payment_id' => $payment->id]);
 
                 if (!$paymentUrl) {
                     throw new \Exception('Worldpay did not return a valid hosted payment page URL.');
@@ -1172,15 +1174,55 @@ class OrderController extends Controller
 
     public function directDeliveryPaymentCallback(Request $request)
     {
-        $webPageToken = $request->webPageToken;
+        $webPageToken = $request->webPageToken ?? $request->token;
 
         if (!$webPageToken) {
             Log::error('Direct Delivery Worldpay Callback missing webPageToken', $request->all());
             return redirect()->route('restaurant.orders.create_direct_delivery')
-                ->with('error', 'Payment authorization session not found.');
+                ->with('error', 'Payment authorization session token was missing.');
         }
 
-        $payment = Payment::where('transaction_id', $webPageToken)->firstOrFail();
+        // 1. Direct match by transaction_id
+        $payment = Payment::where('transaction_id', $webPageToken)->first();
+
+        // 2. Fallback: match via WorldpayPaymentLog containing this token
+        if (!$payment) {
+            $log = \App\Models\WorldpayPaymentLog::where('response_payload', 'LIKE', '%' . $webPageToken . '%')
+                ->latest()
+                ->first();
+            if ($log) {
+                $payment = Payment::where('id', $log->payment_id)
+                    ->orWhere('order_id', $log->order_id)
+                    ->orWhere('transaction_id', $log->reference)
+                    ->first();
+
+                if ($payment) {
+                    $payment->update(['transaction_id' => $webPageToken]);
+                }
+            }
+        }
+
+        // 3. Fallback: match latest pending direct delivery payment for this restaurant
+        if (!$payment && auth()->check() && auth()->user()->restaurant_id) {
+            $payment = Payment::where('restaurant_id', auth()->user()->restaurant_id)
+                ->where('payment_status', 'pending')
+                ->whereHas('order', function ($q) {
+                    $q->where('order_type', 'direct_delivery');
+                })
+                ->latest()
+                ->first();
+
+            if ($payment) {
+                $payment->update(['transaction_id' => $webPageToken]);
+            }
+        }
+
+        if (!$payment) {
+            Log::error('Direct Delivery Payment not found for token: ' . $webPageToken);
+            return redirect()->route('restaurant.orders.create_direct_delivery')
+                ->with('error', 'Payment record could not be matched. Please contact support.');
+        }
+
         $restaurant = \App\Models\Restaurant::findOrFail($payment->restaurant_id);
 
         try {
