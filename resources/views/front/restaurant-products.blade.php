@@ -446,6 +446,9 @@
             @include('front.layouts.bottombars')
         </div> --}}
         
+    {{-- Celebration & Choice Reassurance Experience --}}
+    @include('front.partials.restaurant-celebration')
+
     {{-- ======== RESTAURANT HEADER ======== --}}
     <section style="position:relative;  border-bottom:3px solid #C25A2A; overflow:hidden;">
        
@@ -594,6 +597,9 @@
                                     🛡 Hygiene {{ number_format($restaurant->hygiene_rating, 1) }}/5
                                 </span>
                             @endif
+                            <span class="hyst-choice-pill">
+                                <span>✨</span> Top Choice • Direct Menu
+                            </span>
                         </div>
                     </div>
                 </div>
