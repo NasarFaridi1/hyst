@@ -108,6 +108,11 @@ return [
         'api_url'     => env('WORLDPAY_ENV') === 'production'
                             ? 'https://rest.paymentsapi.io'
                             : 'https://sandbox.rest.paymentsapi.io',
+
+        // Platform (HYST Master) Credentials (Used for Direct Delivery)
+        'platform_username'    => env('HYST_WORLDPAY_USERNAME'),
+        'platform_password'    => env('HYST_WORLDPAY_PASSWORD'),
+        'platform_business_id' => env('HYST_WORLDPAY_BUSINESS_ID', '24785'),
     ],
 
 ];

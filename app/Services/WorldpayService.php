@@ -81,12 +81,15 @@ class WorldpayService
 
     /**
      * Login to Worldpay & cache token for 3500 seconds (~1 hour)
+     * If $restaurant is provided and has credentials, authenticates with restaurant credentials.
+     * Otherwise, authenticates using HYST Platform master credentials from config/services.php (.env).
      */
-    public function login(Restaurant $restaurant): string
+    public function login(?Restaurant $restaurant = null): string
     {
-        $cacheKey = 'worldpay_token_' . $restaurant->id;
+        $isPlatform = ($restaurant === null || empty($restaurant->worldpay_username));
+        $cacheKey = $isPlatform ? 'worldpay_token_platform' : ('worldpay_token_' . $restaurant->id);
 
-        return Cache::remember($cacheKey, 3500, function () use ($restaurant) {
+        return Cache::remember($cacheKey, 3500, function () use ($restaurant, $isPlatform) {
             $authUrl = $this->getAuthUrl() . '/login';
             $startTime = microtime(true);
 
@@ -95,9 +98,24 @@ class WorldpayService
                 'Accept: application/json',
             ];
 
+            $username = $isPlatform
+                ? config('services.worldpay.platform_username')
+                : $restaurant->worldpay_username;
+
+            $password = $isPlatform
+                ? config('services.worldpay.platform_password')
+                : $restaurant->worldpay_password;
+
+            if (empty($username) || empty($password)) {
+                $err = $isPlatform
+                    ? "HYST Platform Worldpay credentials missing in .env (HYST_WORLDPAY_USERNAME / HYST_WORLDPAY_PASSWORD)."
+                    : "Worldpay credentials missing for restaurant #{$restaurant->id}.";
+                throw new \Exception($err);
+            }
+
             $payload = [
-                'Username' => $restaurant->worldpay_username,
-                'Password' => $restaurant->worldpay_password,
+                'Username' => $username,
+                'Password' => $password,
             ];
 
             $curl = curl_init();
@@ -118,7 +136,7 @@ class WorldpayService
                 curl_close($curl);
 
                 $this->recordLog([
-                    'restaurant_id'     => $restaurant->id,
+                    'restaurant_id'     => $restaurant?->id ?? null,
                     'action'            => 'LOGIN',
                     'endpoint_url'      => $authUrl,
                     'http_method'       => 'POST',
@@ -137,7 +155,7 @@ class WorldpayService
             curl_close($curl);
 
             $this->recordLog([
-                'restaurant_id'     => $restaurant->id,
+                'restaurant_id'     => $restaurant?->id ?? null,
                 'action'            => 'LOGIN',
                 'endpoint_url'      => $authUrl,
                 'http_method'       => 'POST',
@@ -165,15 +183,30 @@ class WorldpayService
     }
 
     /**
+     * Dedicated Platform Login helper using HYST credentials
+     */
+    public function loginPlatform(): string
+    {
+        return $this->login(null);
+    }
+
+    /**
      * Generate Hosted Payment Page Token
+     * If $restaurant is provided and not in platform mode, uses restaurant's business ID.
+     * Otherwise, uses HYST platform master business ID from .env (e.g. 24785).
      */
     public function generateHostedPayment(
-        Restaurant $restaurant,
+        ?Restaurant $restaurant,
         string $accessToken,
         array $data
     ): array {
 
-        $apiUrl = $this->getApiUrl() . "/businesses/{$restaurant->worldpay_business_id}/services/tokens/hpp/";
+        $isPlatform = ($restaurant === null || !empty($data['is_platform']));
+        $businessId = ($restaurant && !empty($restaurant->worldpay_business_id) && !$isPlatform)
+            ? $restaurant->worldpay_business_id
+            : config('services.worldpay.platform_business_id', 24785);
+
+        $apiUrl = $this->getApiUrl() . "/businesses/{$businessId}/services/tokens/hpp/";
         $startTime = microtime(true);
 
         $country = !empty($data['country']) ? $data['country'] : 'GB';
@@ -184,6 +217,9 @@ class WorldpayService
         // Prepare Disbursements for extra charges (delivery charge, platform fee, service fee, etc.)
         if (!empty($data['disbursements']) && is_array($data['disbursements'])) {
             $disbursements = $data['disbursements'];
+        } elseif ($isPlatform) {
+            // For Direct Delivery and platform payments, funds land directly into HYST merchant account
+            $disbursements = [];
         } else {
             $isDineIn   = ($data['order_type'] ?? '') === 'dine_in';
             $isTakeaway = ($data['order_type'] ?? '') === 'takeaway';
@@ -206,12 +242,12 @@ class WorldpayService
                 $disbursementAmount = (float) ($data['default_disbursement_amount'] ?? 2.25);
             }
 
-            $businessId = $data['disbursement_business_id'] ?? $data['business_id'] ?? 24785;
+            $businessIdDisb = $data['disbursement_business_id'] ?? $data['business_id'] ?? config('services.worldpay.platform_business_id', 24785);
             $type = $data['disbursement_type'] ?? 'MISC_FEE';
 
             $disbursements = [
                 [
-                    "BusinessId" => (int) $businessId,
+                    "BusinessId" => (int) $businessIdDisb,
                     "Type"       => $type,
                     "Amount"     => (float) $disbursementAmount,
                 ]
@@ -219,18 +255,23 @@ class WorldpayService
         }
         $addressLine1 = Str::limit($data['address'] ?? '1 Main Street', 100, '');
 
+        $transaction = [
+            "ProcessType" => "COMPLETE",
+            "Reference" => $data['reference'],
+            "Description" => $data['description'] ?? 'Online Order',
+            "Amount" => (float) $data['amount'],
+            "ServiceDate" => now()->toIso8601String(),
+        ];
+
+        if (!empty($disbursements)) {
+            $transaction["Disbursements"] = $disbursements;
+        }
+
         $payload = [
             "ReturnUrl" => $data['return_url'] ?? route('payment.callback'),
             "CardAuthorizationType" => "RECURRING",
             "Template" => "Basic",
-            "Transaction" => [
-                "ProcessType" => "COMPLETE",
-                "Reference" => $data['reference'],
-                "Description" => $data['description'] ?? 'Online Order',
-                "Amount" => (float) $data['amount'],
-                "ServiceDate" => now()->toIso8601String(),
-                "Disbursements" => $disbursements,
-            ],
+            "Transaction" => $transaction,
             "Payer" => [
                 "SavePayer" => true,
                 "UniqueReference" => "USER-" . $data['user_id'],
@@ -282,7 +323,7 @@ class WorldpayService
             curl_close($curl);
 
             $this->recordLog([
-                'restaurant_id'     => $restaurant->id,
+                'restaurant_id'     => $restaurant?->id ?? null,
                 'payment_id'        => $data['payment_id'] ?? null,
                 'order_id'          => $data['order_id'] ?? null,
                 'reference'         => $data['reference'],
@@ -304,7 +345,7 @@ class WorldpayService
         curl_close($curl);
 
         $this->recordLog([
-            'restaurant_id'     => $restaurant->id,
+            'restaurant_id'     => $restaurant?->id ?? null,
             'payment_id'        => $data['payment_id'] ?? null,
             'order_id'          => $data['order_id'] ?? null,
             'reference'         => $data['reference'],
@@ -331,13 +372,19 @@ class WorldpayService
      * Retrieve Hosted Payment Status
      */
     public function getHostedPaymentStatus(
-        Restaurant $restaurant,
+        ?Restaurant $restaurant,
         string $accessToken,
         string $webPageToken,
         ?int $paymentId = null,
-        ?int $orderId = null
+        ?int $orderId = null,
+        bool $isPlatform = false
     ): array {
-        $apiUrl = $this->getApiUrl() . "/businesses/{$restaurant->worldpay_business_id}/services/tokens/{$webPageToken}";
+        $isPlatform = ($restaurant === null || $isPlatform);
+        $businessId = ($restaurant && !empty($restaurant->worldpay_business_id) && !$isPlatform)
+            ? $restaurant->worldpay_business_id
+            : config('services.worldpay.platform_business_id', 24785);
+
+        $apiUrl = $this->getApiUrl() . "/businesses/{$businessId}/services/tokens/{$webPageToken}";
         $startTime = microtime(true);
 
         $headers = [
@@ -362,7 +409,7 @@ class WorldpayService
             curl_close($curl);
 
             $this->recordLog([
-                'restaurant_id'     => $restaurant->id,
+                'restaurant_id'     => $restaurant?->id ?? null,
                 'payment_id'        => $paymentId,
                 'order_id'          => $orderId,
                 'reference'         => $webPageToken,
@@ -384,7 +431,7 @@ class WorldpayService
         curl_close($curl);
 
         $this->recordLog([
-            'restaurant_id'     => $restaurant->id,
+            'restaurant_id'     => $restaurant?->id ?? null,
             'payment_id'        => $paymentId,
             'order_id'          => $orderId,
             'reference'         => $webPageToken,

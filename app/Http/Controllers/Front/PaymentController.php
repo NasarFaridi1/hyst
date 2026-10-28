@@ -225,17 +225,35 @@ class PaymentController extends Controller
             return redirect()->route('checkout.failed')->with('error', 'Payment session not found.');
         }
 
-        $restaurant = Restaurant::findOrFail($payment->restaurant_id);
+        $restaurant = Restaurant::find($payment->restaurant_id);
+        $data = json_decode($payment->checkout_data, true);
+        $isDirectDelivery = ($payment->order && $payment->order->order_type === 'direct_delivery')
+            || (($data['order_type'] ?? '') === 'direct_delivery');
 
         try {
-            $accessToken = $this->worldpay->login($restaurant);
-            $result = $this->worldpay->getHostedPaymentStatus(
-                $restaurant,
-                $accessToken,
-                $webPageToken,
-                $payment->id,
-                $payment->order_id
-            );
+            if ($isDirectDelivery) {
+                $accessToken = $this->worldpay->loginPlatform();
+                $result = $this->worldpay->getHostedPaymentStatus(
+                    null,
+                    $accessToken,
+                    $webPageToken,
+                    $payment->id,
+                    $payment->order_id,
+                    true
+                );
+            } else {
+                if (!$restaurant) {
+                    throw new \Exception('Restaurant not found for payment.');
+                }
+                $accessToken = $this->worldpay->login($restaurant);
+                $result = $this->worldpay->getHostedPaymentStatus(
+                    $restaurant,
+                    $accessToken,
+                    $webPageToken,
+                    $payment->id,
+                    $payment->order_id
+                );
+            }
 
             if (($result['status'] ?? null) === 'PROCESSED_SUCCESSFUL') {
 

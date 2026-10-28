@@ -1113,7 +1113,7 @@ class OrderController extends Controller
             ]);
 
             try {
-                $accessToken = $this->worldpay->login($restaurant);
+                $accessToken = $this->worldpay->loginPlatform();
                 $hppData = [
                     'order_id'      => $order->id,
                     'reference'     => $reference,
@@ -1128,16 +1128,10 @@ class OrderController extends Controller
                     'user_id'       => auth()->id(),
                     'description'   => 'Direct Delivery Courier Fee for Order #' . $order->id,
                     'return_url'    => route('restaurant.orders.direct_delivery_callback'),
-                    'disbursements' => [
-                        [
-                            "BusinessId" => 24785, // HYST Platform
-                            "Type"       => 'MISC_FEE',
-                            "Amount"     => $totalAmount,
-                        ]
-                    ],
+                    'is_platform'   => true,
                 ];
 
-                $hpp = $this->worldpay->generateHostedPayment($restaurant, $accessToken, $hppData);
+                $hpp = $this->worldpay->generateHostedPayment(null, $accessToken, $hppData);
 
                 $paymentUrl = $hpp['redirectToUrl'] ?? $hpp['redirectUrl'] ?? $hpp['url'] ?? null;
                 $token = $hpp['token'] ?? $hpp['webPageToken'] ?? null;
@@ -1223,16 +1217,17 @@ class OrderController extends Controller
                 ->with('error', 'Payment record could not be matched. Please contact support.');
         }
 
-        $restaurant = \App\Models\Restaurant::findOrFail($payment->restaurant_id);
+        $restaurant = \App\Models\Restaurant::find($payment->restaurant_id);
 
         try {
-            $accessToken = $this->worldpay->login($restaurant);
+            $accessToken = $this->worldpay->loginPlatform();
             $result = $this->worldpay->getHostedPaymentStatus(
-                $restaurant,
+                null,
                 $accessToken,
                 $webPageToken,
                 $payment->id,
-                $payment->order_id
+                $payment->order_id,
+                true // isPlatform
             );
 
             if (($result['status'] ?? null) === 'PROCESSED_SUCCESSFUL') {
