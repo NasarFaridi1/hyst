@@ -633,6 +633,12 @@ Route::middleware(['auth', 'super_admin'])
             ->name('restaurants.toggleStatus');
         Route::post('/restaurants/{id}/verify-email', [RestaurantController::class, 'verifyEmail'])
             ->name('restaurants.verifyEmail');
+        Route::get('/restaurants/{restaurant}/verifone', [RestaurantController::class, 'verifone'])
+            ->name('restaurants.verifone');
+        Route::post('/restaurants/{restaurant}/verifone', [RestaurantController::class, 'updateVerifone'])
+            ->name('restaurants.verifone.update');
+        Route::match(['get', 'post'], '/restaurants/{restaurant}/verifone/status', [RestaurantController::class, 'checkVerifoneStatus'])
+            ->name('restaurants.verifone.status');
         Route::get(
             '/users',
             [UserController::class, 'index']

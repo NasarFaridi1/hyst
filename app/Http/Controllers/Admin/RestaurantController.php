@@ -603,4 +603,77 @@ class RestaurantController extends Controller
 
         return back()->with('success', 'Email verified successfully for ' . $restaurant->name);
     }
+
+    public function verifone($id)
+    {
+        $restaurant = Restaurant::findOrFail($id);
+        return view('admin.restaurants.verifone', compact('restaurant'));
+    }
+
+    public function updateVerifone(Request $request, $id)
+    {
+        $restaurant = Restaurant::findOrFail($id);
+
+        $request->validate([
+            'verifone_environment'   => 'required|in:sandbox,production',
+            'verifone_serial_number' => 'nullable|string|max:255',
+            'verifone_uid'           => 'nullable|string|max:255',
+            'verifone_api_key'       => 'nullable|string|max:500',
+            'verifone_poiid'         => 'nullable|string|max:255',
+            'verifone_entity_uid'    => 'nullable|string|max:255',
+            'verifone_sale_id'       => 'nullable|string|max:255',
+        ]);
+
+        $enabled = $request->has('verifone_enabled') && ($request->input('verifone_enabled') == '1' || $request->input('verifone_enabled') === true);
+
+        $updateData = [
+            'verifone_enabled'       => $enabled,
+            'verifone_environment'   => $request->input('verifone_environment', 'sandbox'),
+            'verifone_serial_number' => $request->input('verifone_serial_number'),
+            'verifone_uid'           => $request->input('verifone_uid'),
+            'verifone_poiid'         => $request->input('verifone_poiid'),
+            'verifone_entity_uid'    => $request->input('verifone_entity_uid'),
+            'verifone_sale_id'       => $request->input('verifone_sale_id', 'RetailPOS'),
+        ];
+
+        if ($request->filled('verifone_api_key')) {
+            $updateData['verifone_api_key'] = $request->input('verifone_api_key');
+        }
+
+        $restaurant->update($updateData);
+
+        // If Verifone is enabled and Serial Number or POI ID is provided, automatically query Status API to fetch POIID & EntityUID
+        if ($restaurant->verifone_enabled && ($restaurant->verifone_serial_number || $restaurant->verifone_poiid)) {
+            try {
+                app(\App\Services\VerifonePosService::class)->checkStatus($restaurant);
+            } catch (\Throwable $e) {
+                Log::warning('Auto fetch Verifone status failed: ' . $e->getMessage());
+            }
+        }
+
+        return back()->with('success', 'Verifone POS details updated successfully.');
+    }
+
+    public function checkVerifoneStatus(Request $request, $id)
+    {
+        $restaurant = Restaurant::findOrFail($id);
+
+        if ($request->filled('verifone_serial_number')) {
+            $restaurant->verifone_serial_number = $request->input('verifone_serial_number');
+        }
+        if ($request->filled('verifone_uid')) {
+            $restaurant->verifone_uid = $request->input('verifone_uid');
+        }
+        if ($request->filled('verifone_api_key')) {
+            $restaurant->verifone_api_key = $request->input('verifone_api_key');
+        }
+        if ($request->filled('verifone_environment')) {
+            $restaurant->verifone_environment = $request->input('verifone_environment');
+        }
+
+        $verifone = app(\App\Services\VerifonePosService::class);
+        $res = $verifone->checkStatus($restaurant, $request->input('verifone_serial_number'));
+
+        return response()->json($res);
+    }
 }

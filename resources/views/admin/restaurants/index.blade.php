@@ -296,6 +296,15 @@
 
                         </a>
 
+                        <a href="{{ route('admin.restaurants.verifone', $restaurant->id) }}"
+                        class="{{ $restaurant->verifone_enabled ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-[#C25A2A] hover:bg-[#A84B22]' }} text-white px-4 py-2 rounded-lg text-sm flex items-center gap-1.5 font-medium shadow-sm"
+                        title="{{ $restaurant->verifone_enabled ? 'Verifone POS Configured & Active' : 'Add Verifone Details' }}">
+                            <span>📲</span> Add Verifone Details
+                            @if($restaurant->verifone_enabled)
+                                <span class="inline-block w-2 h-2 rounded-full bg-white animate-pulse" title="Active"></span>
+                            @endif
+                        </a>
+
                         <a href="{{ route('admin.restaurant.privacy-policy.edit', $restaurant->id) }}"
                         class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm">
                             Policy

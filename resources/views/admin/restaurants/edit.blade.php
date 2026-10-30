@@ -24,6 +24,35 @@
         </div>
     @endif
 
+    <!-- Verifone Cloud POS Integration Banner -->
+    <div class="mb-8 bg-orange-50/70 border border-orange-200 p-5 rounded-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-sm">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-orange-100 text-[#C25A2A] flex items-center justify-center font-bold text-lg">
+                📲
+            </div>
+            <div>
+                <h3 class="font-bold text-gray-900 text-base">Verifone Cloud POS Integration (Nexo)</h3>
+                <p class="text-xs text-gray-600 mt-0.5">
+                    Terminal Status: 
+                    @if($restaurant->verifone_enabled)
+                        <span class="text-emerald-700 font-bold">● Active & Enabled</span>
+                    @else
+                        <span class="text-gray-500 font-medium">○ Disabled</span>
+                    @endif
+                    @if($restaurant->verifone_serial_number)
+                        · Serial No: <code class="font-mono text-gray-800 font-bold">{{ $restaurant->verifone_serial_number }}</code>
+                    @endif
+                    @if($restaurant->verifone_poiid)
+                        · POI ID: <code class="font-mono text-gray-800">{{ $restaurant->verifone_poiid }}</code>
+                    @endif
+                </p>
+            </div>
+        </div>
+        <a href="{{ route('admin.restaurants.verifone', $restaurant->id) }}" class="bg-[#C25A2A] hover:bg-[#A84B22] text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow transition flex items-center gap-2 whitespace-nowrap">
+            <span>⚙️</span> Add / Manage Verifone Details
+        </a>
+    </div>
+
     <!-- Uber Direct Membership Invite Card -->
     <div class="mb-8 bg-gray-900 text-white p-6 rounded-2xl shadow-lg border border-black">
         <div class="flex items-center justify-between mb-4">
