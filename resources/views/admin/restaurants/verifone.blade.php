@@ -111,8 +111,19 @@
                 <!-- Verifone API Key -->
                 <div>
                     <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">API Key</label>
-                    <input type="password" name="verifone_api_key" id="verifoneApiKeyInput" value="{{ old('verifone_api_key', $restaurant->verifone_api_key) }}" placeholder="cGEFFLjYuUCtmerXlhTf..."
-                        class="w-full border border-gray-200 rounded-xl p-3.5 text-sm text-gray-900 focus:ring-2 focus:ring-[#C25A2A] outline-none bg-gray-50/50 focus:bg-white">
+                    <div class="relative">
+                        <input type="password" name="verifone_api_key" id="verifoneApiKeyInput" value="{{ old('verifone_api_key', $restaurant->verifone_api_key) }}" placeholder="cGEFFLjYuUCtmerXlhTf..."
+                            class="w-full border border-gray-200 rounded-xl p-3.5 pr-12 text-sm text-gray-900 focus:ring-2 focus:ring-[#C25A2A] outline-none bg-gray-50/50 focus:bg-white font-mono">
+                        <button type="button" 
+                                onclick="toggleApiKeyVisibility()"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 focus:outline-none p-1.5 cursor-pointer"
+                                title="Show / Hide API Key">
+                            <svg id="verifone_api_key_eye_icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- POI ID (Auto-Fetched) -->
@@ -158,6 +169,24 @@
 </div>
 
 <script>
+function toggleApiKeyVisibility() {
+    const input = document.getElementById('verifoneApiKeyInput');
+    const icon = document.getElementById('verifone_api_key_eye_icon');
+    if (!input) return;
+
+    if (input.type === 'password') {
+        input.type = 'text';
+        if (icon) {
+            icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+        }
+    } else {
+        input.type = 'password';
+        if (icon) {
+            icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+        }
+    }
+}
+
 function testVerifoneTerminalConnection() {
     const alertBox = document.getElementById('verifoneStatusAlert');
     if (alertBox) {
