@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    @include('partials.google-tag')
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Go Grill Newcastle | Flame-Grilled Peri Peri, Smashed Burgers & Squad Feasts | Order Direct on HYST</title>

@@ -1136,7 +1136,6 @@ Route::get(
     [HomeController::class, 'restaurantProducts']
 )->name('restaurant.products');
 
-
 Route::get(
     '/restaurant/{slug}/{category}',
     [HomeController::class, 'restaurantCategoryProducts']

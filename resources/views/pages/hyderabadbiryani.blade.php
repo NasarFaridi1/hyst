@@ -2,6 +2,7 @@
 <html lang="en-GB" class="scroll-smooth">
 
 <head>
+    @include('partials.google-tag')
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hyderabad Biryani Center | Authentic Royal Dum Biryani Delivery on HYST UK</title>
