@@ -20,11 +20,17 @@ class DashboardController extends Controller
 
         $users = User::count();
 
+        $playersCount = 0;
+        try {
+            $playersCount = \App\Models\PlayerCatalogue::count();
+        } catch (\Throwable $e) {}
+
         return view('admin.dashboard', compact(
             'restaurants',
             'products',
             'orders',
-            'users'
+            'users',
+            'playersCount'
         ));
     }
 }

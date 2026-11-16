@@ -121,12 +121,13 @@
     </div>
   </div>
 
-  <div class="grid grid-cols-4 gap-4 mb-8">
+  <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
     @foreach([
       ['label'=>'Restaurants','value'=>$restaurants,'icon'=>'🍽️','bg'=>'bg-blue-50','text'=>'text-blue-600'],
       ['label'=>'Products','value'=>$products,'icon'=>'📦','bg'=>'bg-green-50','text'=>'text-green-600'],
       ['label'=>'Orders','value'=>$orders,'icon'=>'🛒','bg'=>'bg-yellow-50','text'=>'text-yellow-600'],
       ['label'=>'Users','value'=>$users,'icon'=>'👥','bg'=>'bg-purple-50','text'=>'text-purple-600'],
+      ['label'=>'Fantasy Squad','value'=>$playersCount,'icon'=>'🏴󠁧󠁢󠁥󠁮󠁧󠁿','bg'=>'bg-amber-50','text'=>'text-amber-600'],
     ] as $stat)
     <div class="bg-white border border-gray-100 rounded-xl p-5">
       <div class="w-9 h-9 {{ $stat['bg'] }} rounded-lg flex items-center justify-center text-lg mb-3">{{ $stat['icon'] }}</div>
@@ -136,11 +137,13 @@
     @endforeach
   </div>
 
-  <div class="grid grid-cols-2 gap-4">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <div class="bg-white border border-gray-100 rounded-xl p-5">
       <p class="text-sm font-medium text-gray-500 mb-3">Quick actions</p>
-      <div class="flex flex-col gap-2">
-        <a href="{{ route('admin.products.create') }}" class="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium w-fit">+ Add product</a>
+      <div class="flex flex-wrap gap-2.5">
+        <a href="{{ route('admin.products.create') }}" class="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium">+ Add product</a>
+        <a href="{{ route('admin.matchday.players.index') }}" class="inline-flex items-center gap-2 bg-[#C25A2A] hover:bg-[#a94c20] text-white px-4 py-2 rounded-lg text-sm font-medium">🏴󠁧󠁢󠁥󠁮󠁧󠁿 Manage Fantasy Squad</a>
+        <a href="{{ route('admin.matchday.campaigns.index') }}" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium">⚙️ Campaign Rules</a>
       </div>
     </div>
     <div class="bg-white border border-gray-100 rounded-xl p-5">

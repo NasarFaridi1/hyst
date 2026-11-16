@@ -586,6 +586,50 @@
     <!-- ══════════════════════════════════════════════════════════════
          MINI RETRO TV AD POPUP (Bottom-Left England Matchday Showcase)
     ══════════════════════════════════════════════════════════════ -->
+    @php
+        try {
+            $tvPlayers = \App\Models\PlayerCatalogue::where('is_active', 1)
+                ->orderBy('overall_rating', 'desc')
+                ->take(6)
+                ->get();
+        } catch (\Throwable $e) {
+            $tvPlayers = collect();
+        }
+
+        if ($tvPlayers->isEmpty()) {
+            $tvPlayers = collect([
+                (object)[
+                    'name' => 'Harry Kane',
+                    'club_name' => 'England Captain',
+                    'position' => 'ST',
+                    'overall_rating' => 90,
+                    'image_url' => 'https://resources.premierleague.com/premierleague/photos/players/250x250/p78830.png',
+                ],
+                (object)[
+                    'name' => 'Bukayo Saka',
+                    'club_name' => 'Arsenal',
+                    'position' => 'RW',
+                    'overall_rating' => 88,
+                    'image_url' => 'https://resources.premierleague.com/premierleague/photos/players/250x250/p223340.png',
+                ],
+                (object)[
+                    'name' => 'Cole Palmer',
+                    'club_name' => 'Chelsea',
+                    'position' => 'CAM',
+                    'overall_rating' => 88,
+                    'image_url' => 'https://resources.premierleague.com/premierleague/photos/players/250x250/p244855.png',
+                ],
+                (object)[
+                    'name' => 'Phil Foden',
+                    'club_name' => 'Man City',
+                    'position' => 'LW',
+                    'overall_rating' => 88,
+                    'image_url' => 'https://resources.premierleague.com/premierleague/photos/players/250x250/p209244.png',
+                ],
+            ]);
+        }
+        $firstTvPlayer = $tvPlayers->first();
+    @endphp
     <div id="hyst-tv-ad-widget" class="hyst-tv-container" style="display:none;" role="complementary" aria-label="England Matchday Fantasy XI Ad">
         
         <!-- TV Antennas -->
@@ -625,42 +669,29 @@
                         <span class="hyst-tv-live-pill">
                             <span class="hyst-live-dot"></span> LIVE &bull; UK FEST
                         </span>
-                        <span id="hyst-tv-ovr-pill" class="hyst-tv-ovr-pill">90 OVR</span>
+                        <span id="hyst-tv-ovr-pill" class="hyst-tv-ovr-pill">{{ $firstTvPlayer->overall_rating }} OVR</span>
                     </div>
 
-                    <!-- Player Carousel Stage -->
+                    <!-- Player Carousel Stage (Dynamic Admin CRUD Connected) -->
                     <div class="hyst-tv-player-stage">
-                        
-                        <!-- Slide 1: Harry Kane -->
-                        <div class="hyst-tv-slide active" data-name="Harry Kane" data-role="England Captain &bull; ST" data-ovr="90 OVR">
-                            <img src="https://resources.premierleague.com/premierleague/photos/players/250x250/p78830.png" 
-                                 alt="Harry Kane" class="hyst-tv-player-img" loading="lazy">
-                        </div>
-
-                        <!-- Slide 2: Bukayo Saka -->
-                        <div class="hyst-tv-slide" data-name="Bukayo Saka" data-role="Arsenal &bull; RW" data-ovr="88 OVR">
-                            <img src="https://resources.premierleague.com/premierleague/photos/players/250x250/p223340.png" 
-                                 alt="Bukayo Saka" class="hyst-tv-player-img" loading="lazy">
-                        </div>
-
-                        <!-- Slide 3: Cole Palmer -->
-                        <div class="hyst-tv-slide" data-name="Cole Palmer" data-role="Chelsea &bull; CAM" data-ovr="88 OVR">
-                            <img src="https://resources.premierleague.com/premierleague/photos/players/250x250/p244855.png" 
-                                 alt="Cole Palmer" class="hyst-tv-player-img" loading="lazy">
-                        </div>
-
-                        <!-- Slide 4: Phil Foden -->
-                        <div class="hyst-tv-slide" data-name="Phil Foden" data-role="Man City &bull; LW" data-ovr="88 OVR">
-                            <img src="https://resources.premierleague.com/premierleague/photos/players/250x250/p209244.png" 
-                                 alt="Phil Foden" class="hyst-tv-player-img" loading="lazy">
-                        </div>
-
+                        @foreach($tvPlayers as $tIdx => $tp)
+                            <div class="hyst-tv-slide {{ $tIdx === 0 ? 'active' : '' }}" 
+                                 data-name="{{ $tp->name }}" 
+                                 data-role="{{ $tp->club_name }} &bull; {{ $tp->position }}" 
+                                 data-ovr="{{ $tp->overall_rating }} OVR">
+                                <img src="{{ $tp->image_url }}" 
+                                     alt="{{ $tp->name }}" 
+                                     class="hyst-tv-player-img" 
+                                     loading="lazy"
+                                     onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode($tp->name) }}&background=0F172A&color=FFF';">
+                            </div>
+                        @endforeach
                     </div>
 
                     <!-- Player Meta Caption -->
                     <div class="hyst-tv-player-meta">
-                        <div id="hyst-tv-player-name" class="hyst-tv-name">Harry Kane</div>
-                        <div id="hyst-tv-player-role" class="hyst-tv-role">England Captain &bull; ST</div>
+                        <div id="hyst-tv-player-name" class="hyst-tv-name">{{ $firstTvPlayer->name }}</div>
+                        <div id="hyst-tv-player-role" class="hyst-tv-role">{{ $firstTvPlayer->club_name }} &bull; {{ $firstTvPlayer->position }}</div>
                     </div>
 
                     <!-- Mini CTA Banner inside Screen -->

@@ -186,7 +186,61 @@
                         </div>
                     </div>
 
-                    <!-- Center: Interactive England Player Display -->
+                    @php
+                        try {
+                            $popStars = \App\Models\PlayerCatalogue::where('is_active', 1)
+                                ->orderBy('overall_rating', 'desc')
+                                ->take(3)
+                                ->get();
+                        } catch (\Throwable $e) {
+                            $popStars = collect();
+                        }
+
+                        if ($popStars->count() < 3) {
+                            $popStars = collect([
+                                (object)[
+                                    'id' => 1,
+                                    'name' => 'Harry Kane',
+                                    'sub' => 'England Captain &bull; 90 OVR &bull; Striker',
+                                    'tab_name' => 'Kane 90',
+                                    'stat_att' => 93, 'stat_mid' => 85, 'stat_def' => 46,
+                                    'image_url' => 'https://resources.premierleague.com/premierleague/photos/players/250x250/p78830.png',
+                                ],
+                                (object)[
+                                    'id' => 2,
+                                    'name' => 'Bukayo Saka',
+                                    'sub' => 'Arsenal &bull; 88 OVR &bull; Right Wing',
+                                    'tab_name' => 'Saka 88',
+                                    'stat_att' => 89, 'stat_mid' => 84, 'stat_def' => 65,
+                                    'image_url' => 'https://resources.premierleague.com/premierleague/photos/players/250x250/p223340.png',
+                                ],
+                                (object)[
+                                    'id' => 3,
+                                    'name' => 'Cole Palmer',
+                                    'sub' => 'Chelsea &bull; 88 OVR &bull; Attacking Mid',
+                                    'tab_name' => 'Palmer 88',
+                                    'stat_att' => 88, 'stat_mid' => 89, 'stat_def' => 48,
+                                    'image_url' => 'https://resources.premierleague.com/premierleague/photos/players/250x250/p244855.png',
+                                ],
+                            ]);
+                        } else {
+                            $popStars = $popStars->map(function($p, $idx) {
+                                return (object)[
+                                    'id' => $idx + 1,
+                                    'name' => $p->name,
+                                    'sub' => ($p->club_name ?: 'England') . ' &bull; ' . $p->overall_rating . ' OVR &bull; ' . ($p->sub_position ?: $p->position),
+                                    'tab_name' => ($p->display_name ?: \Illuminate\Support\Str::limit($p->name, 8)) . ' ' . $p->overall_rating,
+                                    'stat_att' => $p->stat_attack,
+                                    'stat_mid' => $p->stat_midfield,
+                                    'stat_def' => $p->stat_defence,
+                                    'image_url' => $p->image_url,
+                                ];
+                            });
+                        }
+                        $firstPopStar = $popStars->first();
+                    @endphp
+
+                    <!-- Center: Interactive England Player Display (Dynamic Admin CRUD Connected) -->
                     <div class="relative z-10 my-auto py-2 text-center">
                         
                         <!-- Player Portrait Stage with Glow -->
@@ -194,61 +248,41 @@
                             <!-- Golden Halo Glow -->
                             <div class="absolute inset-0 rounded-full bg-gradient-to-t from-amber-400/20 via-[#C25A2A]/30 to-transparent blur-xl"></div>
                             
-                            <!-- Player 1: Harry Kane (Default) -->
-                            <img id="popup-player-img-1" 
-                                 src="https://resources.premierleague.com/premierleague/photos/players/250x250/p78830.png" 
-                                 alt="Harry Kane" 
-                                 class="popup-player-img w-full h-full object-contain filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.6)] transition-all duration-300">
-
-                            <!-- Player 2: Bukayo Saka -->
-                            <img id="popup-player-img-2" 
-                                 src="https://resources.premierleague.com/premierleague/photos/players/250x250/p223340.png" 
-                                 alt="Bukayo Saka" 
-                                 class="popup-player-img hidden w-full h-full object-contain filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.6)] transition-all duration-300">
-
-                            <!-- Player 3: Cole Palmer -->
-                            <img id="popup-player-img-3" 
-                                 src="https://resources.premierleague.com/premierleague/photos/players/250x250/p244855.png" 
-                                 alt="Cole Palmer" 
-                                 class="popup-player-img hidden w-full h-full object-contain filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.6)] transition-all duration-300">
+                            @foreach($popStars as $psIdx => $ps)
+                                <img id="popup-player-img-{{ $ps->id }}" 
+                                     src="{{ $ps->image_url }}" 
+                                     alt="{{ $ps->name }}" 
+                                     class="popup-player-img {{ $psIdx === 0 ? '' : 'hidden' }} w-full h-full object-contain filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.6)] transition-all duration-300"
+                                     onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode($ps->name) }}&background=0F172A&color=FFF';">
+                            @endforeach
                         </div>
 
                         <!-- Player Name & Dynamic Stats -->
                         <div id="popup-player-meta" class="mt-1">
                             <div id="popup-player-name" class="font-['Poppins'] font-extrabold text-base sm:text-lg text-white tracking-wide">
-                                Harry Kane
+                                {{ $firstPopStar->name }}
                             </div>
                             <div id="popup-player-sub" class="text-[11px] text-amber-300 font-semibold">
-                                England Captain &bull; 90 OVR &bull; Striker
+                                {!! $firstPopStar->sub !!}
                             </div>
                             <!-- Mini Stat Pills -->
                             <div class="flex items-center justify-center gap-2 mt-2">
-                                <span id="popup-stat-att" class="px-2 py-0.5 rounded-md bg-white/10 border border-white/15 text-[10px] font-bold text-white">ATT 93</span>
-                                <span id="popup-stat-mid" class="px-2 py-0.5 rounded-md bg-white/10 border border-white/15 text-[10px] font-bold text-white">MID 85</span>
-                                <span id="popup-stat-def" class="px-2 py-0.5 rounded-md bg-white/10 border border-white/15 text-[10px] font-bold text-white">DEF 46</span>
+                                <span id="popup-stat-att" class="px-2 py-0.5 rounded-md bg-white/10 border border-white/15 text-[10px] font-bold text-white">ATT {{ $firstPopStar->stat_att }}</span>
+                                <span id="popup-stat-mid" class="px-2 py-0.5 rounded-md bg-white/10 border border-white/15 text-[10px] font-bold text-white">MID {{ $firstPopStar->stat_mid }}</span>
+                                <span id="popup-stat-def" class="px-2 py-0.5 rounded-md bg-white/10 border border-white/15 text-[10px] font-bold text-white">DEF {{ $firstPopStar->stat_def }}</span>
                             </div>
                         </div>
 
                         <!-- Interactive Player Selector Dots/Pills -->
                         <div class="flex items-center justify-center gap-1.5 mt-3">
-                            <button type="button" 
-                                    onclick="switchPopupPlayer(1, 'Harry Kane', 'England Captain • 90 OVR • Striker', '93', '85', '46')"
-                                    id="popup-tab-1"
-                                    class="popup-player-tab px-2.5 py-1 rounded-full text-[10.5px] font-bold transition-all bg-white text-stone-900 shadow-sm">
-                                Kane 90
-                            </button>
-                            <button type="button" 
-                                    onclick="switchPopupPlayer(2, 'Bukayo Saka', 'Arsenal • 88 OVR • Right Wing', '89', '84', '65')"
-                                    id="popup-tab-2"
-                                    class="popup-player-tab px-2.5 py-1 rounded-full text-[10.5px] font-bold transition-all bg-white/15 hover:bg-white/25 text-white">
-                                Saka 88
-                            </button>
-                            <button type="button" 
-                                    onclick="switchPopupPlayer(3, 'Cole Palmer', 'Chelsea • 88 OVR • Attacking Mid', '88', '89', '48')"
-                                    id="popup-tab-3"
-                                    class="popup-player-tab px-2.5 py-1 rounded-full text-[10.5px] font-bold transition-all bg-white/15 hover:bg-white/25 text-white">
-                                Palmer 88
-                            </button>
+                            @foreach($popStars as $psIdx => $ps)
+                                <button type="button" 
+                                        onclick="switchPopupPlayer({{ $ps->id }}, '{{ addslashes($ps->name) }}', '{!! addslashes($ps->sub) !!}', '{{ $ps->stat_att }}', '{{ $ps->stat_mid }}', '{{ $ps->stat_def }}')"
+                                        id="popup-tab-{{ $ps->id }}"
+                                        class="popup-player-tab px-2.5 py-1 rounded-full text-[10.5px] font-bold transition-all {{ $psIdx === 0 ? 'bg-white text-stone-900 shadow-sm' : 'bg-white/15 hover:bg-white/25 text-white' }}">
+                                    {{ $ps->tab_name }}
+                                </button>
+                            @endforeach
                         </div>
                     </div>
 
