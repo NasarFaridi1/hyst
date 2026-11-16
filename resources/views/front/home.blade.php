@@ -583,4 +583,593 @@
         </div>
     </section>
 
+    <!-- ══════════════════════════════════════════════════════════════
+         MINI RETRO TV AD POPUP (Bottom-Left England Matchday Showcase)
+    ══════════════════════════════════════════════════════════════ -->
+    <div id="hyst-tv-ad-widget" class="hyst-tv-container" style="display:none;" role="complementary" aria-label="England Matchday Fantasy XI Ad">
+        
+        <!-- TV Antennas -->
+        <div class="hyst-tv-antenna-wrap">
+            <div class="hyst-tv-antenna hyst-antenna-left"></div>
+            <div class="hyst-tv-antenna hyst-antenna-right"></div>
+        </div>
+
+        <!-- TV Body / Frame -->
+        <div class="hyst-tv-casing">
+            
+            <!-- TV Top Panel Controls & Close Button -->
+            <div class="hyst-tv-top-bar">
+                <div class="hyst-tv-power-led" title="Live Broadcast"></div>
+                <div class="hyst-tv-brand-tag">HYST-TV &bull; CH-11</div>
+                
+                <!-- Close Button -->
+                <button type="button" 
+                        class="hyst-tv-close-btn" 
+                        onclick="event.stopPropagation(); closeHystTvAd();" 
+                        title="Close Ad" 
+                        aria-label="Close Advertisement">
+                    &times;
+                </button>
+            </div>
+
+            <!-- TV Screen (Clickable Ad Link) -->
+            <a href="{{ route('matchday.index') }}" class="hyst-tv-screen-link" title="Play Hyst Fantasy XI">
+                <div class="hyst-tv-screen">
+                    <!-- Glass Reflection Overlay -->
+                    <div class="hyst-tv-glass-glare"></div>
+                    <!-- CRT Scanlines -->
+                    <div class="hyst-tv-scanlines"></div>
+
+                    <!-- Screen Header: Live Badge & OVR -->
+                    <div class="hyst-tv-screen-header">
+                        <span class="hyst-tv-live-pill">
+                            <span class="hyst-live-dot"></span> LIVE &bull; UK FEST
+                        </span>
+                        <span id="hyst-tv-ovr-pill" class="hyst-tv-ovr-pill">90 OVR</span>
+                    </div>
+
+                    <!-- Player Carousel Stage -->
+                    <div class="hyst-tv-player-stage">
+                        
+                        <!-- Slide 1: Harry Kane -->
+                        <div class="hyst-tv-slide active" data-name="Harry Kane" data-role="England Captain &bull; ST" data-ovr="90 OVR">
+                            <img src="https://resources.premierleague.com/premierleague/photos/players/250x250/p78830.png" 
+                                 alt="Harry Kane" class="hyst-tv-player-img" loading="lazy">
+                        </div>
+
+                        <!-- Slide 2: Bukayo Saka -->
+                        <div class="hyst-tv-slide" data-name="Bukayo Saka" data-role="Arsenal &bull; RW" data-ovr="88 OVR">
+                            <img src="https://resources.premierleague.com/premierleague/photos/players/250x250/p223340.png" 
+                                 alt="Bukayo Saka" class="hyst-tv-player-img" loading="lazy">
+                        </div>
+
+                        <!-- Slide 3: Cole Palmer -->
+                        <div class="hyst-tv-slide" data-name="Cole Palmer" data-role="Chelsea &bull; CAM" data-ovr="88 OVR">
+                            <img src="https://resources.premierleague.com/premierleague/photos/players/250x250/p244855.png" 
+                                 alt="Cole Palmer" class="hyst-tv-player-img" loading="lazy">
+                        </div>
+
+                        <!-- Slide 4: Phil Foden -->
+                        <div class="hyst-tv-slide" data-name="Phil Foden" data-role="Man City &bull; LW" data-ovr="88 OVR">
+                            <img src="https://resources.premierleague.com/premierleague/photos/players/250x250/p209244.png" 
+                                 alt="Phil Foden" class="hyst-tv-player-img" loading="lazy">
+                        </div>
+
+                    </div>
+
+                    <!-- Player Meta Caption -->
+                    <div class="hyst-tv-player-meta">
+                        <div id="hyst-tv-player-name" class="hyst-tv-name">Harry Kane</div>
+                        <div id="hyst-tv-player-role" class="hyst-tv-role">England Captain &bull; ST</div>
+                    </div>
+
+                    <!-- Mini CTA Banner inside Screen -->
+                    <div class="hyst-tv-cta-bar">
+                        <div class="hyst-tv-cta-text">
+                            <span>⚽ Unlock cards with food!</span>
+                        </div>
+                        <span class="hyst-tv-play-btn">Pick XI &rarr;</span>
+                    </div>
+
+                </div>
+            </a>
+
+            <!-- TV Bottom Speaker Bar & Dials -->
+            <div class="hyst-tv-bottom-bar">
+                <div class="hyst-tv-speakers">
+                    <span></span><span></span><span></span><span></span>
+                </div>
+                <div class="hyst-tv-dials">
+                    <div class="hyst-tv-dial"></div>
+                    <div class="hyst-tv-dial"></div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- TV Stand Legs -->
+        <div class="hyst-tv-feet">
+            <div class="hyst-tv-foot hyst-foot-left"></div>
+            <div class="hyst-tv-foot hyst-foot-right"></div>
+        </div>
+
+    </div>
+
+    <style>
+        /* ══════════════════════════════════════
+           MINI TV AD WIDGET STYLES
+        ══════════════════════════════════════ */
+        .hyst-tv-container {
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            z-index: 9999;
+            width: 240px;
+            font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+            user-select: none;
+            animation: hystTvSpringIn 0.75s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+            filter: drop-shadow(0 18px 30px rgba(0, 0, 0, 0.45));
+            transition: transform 0.25s ease, filter 0.25s ease;
+        }
+
+        .hyst-tv-container:hover {
+            transform: translateY(-4px) scale(1.02);
+            filter: drop-shadow(0 24px 38px rgba(194, 90, 42, 0.35));
+        }
+
+        /* Power-off dismissal animation */
+        .hyst-tv-container.tv-powering-off {
+            animation: hystTvPowerOff 0.45s cubic-bezier(0.4, 0, 1, 1) forwards !important;
+            pointer-events: none;
+        }
+
+        @keyframes hystTvSpringIn {
+            0% {
+                opacity: 0;
+                transform: translateY(120px) scale(0.6) rotate(-4deg);
+            }
+            70% {
+                opacity: 1;
+                transform: translateY(-8px) scale(1.04) rotate(1deg);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1) rotate(0deg);
+            }
+        }
+
+        @keyframes hystTvPowerOff {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scaleX(1.1) scaleY(0.04);
+                opacity: 0.9;
+                filter: brightness(2.5);
+            }
+            100% {
+                transform: scale(0);
+                opacity: 0;
+            }
+        }
+
+        /* Antennas */
+        .hyst-tv-antenna-wrap {
+            position: relative;
+            height: 18px;
+            width: 100%;
+        }
+
+        .hyst-tv-antenna {
+            position: absolute;
+            bottom: 0;
+            width: 3px;
+            height: 22px;
+            background: linear-gradient(to top, #64748B, #CBD5E1);
+            border-radius: 2px;
+            transform-origin: bottom center;
+        }
+
+        .hyst-tv-antenna::after {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -2.5px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #F1F5F9, #94A3B8);
+            box-shadow: 0 0 4px rgba(255, 255, 255, 0.8);
+        }
+
+        .hyst-antenna-left {
+            left: 36%;
+            transform: rotate(-26deg);
+        }
+
+        .hyst-antenna-right {
+            right: 36%;
+            transform: rotate(26deg);
+        }
+
+        /* TV Outer Casing */
+        .hyst-tv-casing {
+            background: linear-gradient(155deg, #1E293B 0%, #0F172A 60%, #020617 100%);
+            border: 3px solid #334155;
+            border-radius: 18px;
+            padding: 7px 8px 6px;
+            box-shadow: inset 0 2px 3px rgba(255, 255, 255, 0.15),
+                        inset 0 -3px 6px rgba(0, 0, 0, 0.8);
+            position: relative;
+        }
+
+        /* Top Bar & Close */
+        .hyst-tv-top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 4px 5px;
+        }
+
+        .hyst-tv-power-led {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #EF4444;
+            box-shadow: 0 0 6px #EF4444;
+            animation: hystLedBlink 1.8s infinite;
+        }
+
+        @keyframes hystLedBlink {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+        }
+
+        .hyst-tv-brand-tag {
+            font-size: 8.5px;
+            font-weight: 800;
+            color: #94A3B8;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+        }
+
+        .hyst-tv-close-btn {
+            background: #334155;
+            border: 1px solid #475569;
+            color: #E2E8F0;
+            width: 17px;
+            height: 17px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            line-height: 1;
+            cursor: pointer;
+            padding: 0;
+            transition: all 0.15s ease;
+        }
+
+        .hyst-tv-close-btn:hover {
+            background: #DC2626;
+            color: #fff;
+            border-color: #EF4444;
+            transform: scale(1.15) rotate(90deg);
+        }
+
+        /* TV Screen Link */
+        .hyst-tv-screen-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        /* Screen Surface */
+        .hyst-tv-screen {
+            position: relative;
+            background: radial-gradient(circle at 50% 30%, #172554 0%, #0B132B 65%, #030712 100%);
+            border-radius: 12px;
+            border: 2px solid #1E293B;
+            padding: 6px 8px;
+            overflow: hidden;
+            box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.95);
+        }
+
+        /* Glass reflection */
+        .hyst-tv-glass-glare {
+            position: absolute;
+            top: -40%;
+            left: -20%;
+            width: 140%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.02) 45%, transparent 60%);
+            transform: rotate(-18deg);
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        /* CRT Scanlines */
+        .hyst-tv-scanlines {
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.14) 0px,
+                rgba(0, 0, 0, 0.14) 1px,
+                transparent 1px,
+                transparent 3px
+            );
+            pointer-events: none;
+            z-index: 6;
+        }
+
+        /* Screen Header */
+        .hyst-tv-screen-header {
+            position: relative;
+            z-index: 7;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2px;
+        }
+
+        .hyst-tv-live-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(0, 0, 0, 0.55);
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            padding: 1px 5px;
+            border-radius: 6px;
+            font-size: 8px;
+            font-weight: 800;
+            color: #F87171;
+            letter-spacing: 0.3px;
+        }
+
+        .hyst-live-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #EF4444;
+            animation: hystLedBlink 1s infinite;
+        }
+
+        .hyst-tv-ovr-pill {
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            color: #0F172A;
+            font-size: 8.5px;
+            font-weight: 900;
+            padding: 1px 5px;
+            border-radius: 6px;
+            box-shadow: 0 1px 4px rgba(245, 158, 11, 0.4);
+        }
+
+        /* Player Carousel Stage */
+        .hyst-tv-player-stage {
+            position: relative;
+            z-index: 4;
+            height: 88px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 2px 0;
+        }
+
+        .hyst-tv-slide {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: scale(0.88) translateY(8px);
+            transition: opacity 0.45s ease, transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none;
+        }
+
+        .hyst-tv-slide.active {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            pointer-events: auto;
+        }
+
+        .hyst-tv-player-img {
+            max-height: 86px;
+            width: auto;
+            object-fit: contain;
+            filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.75));
+        }
+
+        /* Player Meta */
+        .hyst-tv-player-meta {
+            position: relative;
+            z-index: 7;
+            text-align: center;
+            background: rgba(15, 23, 42, 0.7);
+            border-radius: 6px;
+            padding: 2px 4px;
+            margin-bottom: 5px;
+        }
+
+        .hyst-tv-name {
+            font-size: 11px;
+            font-weight: 800;
+            color: #FFFFFF;
+            line-height: 1.2;
+            letter-spacing: -0.2px;
+        }
+
+        .hyst-tv-role {
+            font-size: 9px;
+            font-weight: 600;
+            color: #FBBF24;
+            line-height: 1.1;
+        }
+
+        /* Inside-screen CTA */
+        .hyst-tv-cta-bar {
+            position: relative;
+            z-index: 7;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 7px;
+            padding: 3px 6px;
+            gap: 4px;
+        }
+
+        .hyst-tv-cta-text {
+            font-size: 8px;
+            color: #E2E8F0;
+            font-weight: 700;
+            line-height: 1.1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .hyst-tv-play-btn {
+            background: linear-gradient(135deg, #C25A2A 0%, #E06530 100%);
+            color: #FFFFFF;
+            font-size: 8.5px;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 5px;
+            letter-spacing: 0.2px;
+            box-shadow: 0 1px 4px rgba(194, 90, 42, 0.5);
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+
+        .hyst-tv-screen-link:hover .hyst-tv-play-btn {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+            color: #0F172A;
+            transform: scale(1.05);
+        }
+
+        /* TV Bottom Grille & Dials */
+        .hyst-tv-bottom-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 5px 6px 1px;
+        }
+
+        .hyst-tv-speakers {
+            display: flex;
+            gap: 3px;
+        }
+
+        .hyst-tv-speakers span {
+            width: 14px;
+            height: 2.5px;
+            background: #334155;
+            border-radius: 1px;
+        }
+
+        .hyst-tv-dials {
+            display: flex;
+            gap: 4px;
+        }
+
+        .hyst-tv-dial {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #94A3B8, #475569);
+            box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.5);
+        }
+
+        /* TV Feet */
+        .hyst-tv-feet {
+            display: flex;
+            justify-content: space-between;
+            padding: 0 24px;
+        }
+
+        .hyst-tv-foot {
+            width: 14px;
+            height: 5px;
+            background: #0F172A;
+            border-bottom: 2px solid #020617;
+            border-radius: 0 0 3px 3px;
+        }
+
+        .hyst-foot-left { transform: skewX(12deg); }
+        .hyst-foot-right { transform: skewX(-12deg); }
+
+        /* Responsive Mobile Rules */
+        @media (max-width: 640px) {
+            .hyst-tv-container {
+                left: 14px;
+                bottom: 74px; /* Sits cleanly above mobile navigation bars */
+                width: 210px;
+            }
+            .hyst-tv-player-stage {
+                height: 78px;
+            }
+            .hyst-tv-player-img {
+                max-height: 76px;
+            }
+        }
+    </style>
+
+    <script>
+        (function() {
+            var tvWidget = document.getElementById('hyst-tv-ad-widget');
+            if (!tvWidget) return;
+
+            // Check if dismissed previously in this session
+            if (sessionStorage.getItem('hyst_tv_ad_closed') === '1') {
+                return;
+            }
+
+            // Display TV after gentle entrance delay (1.8s)
+            setTimeout(function() {
+                if (sessionStorage.getItem('hyst_tv_ad_closed') !== '1') {
+                    tvWidget.style.display = 'block';
+                }
+            }, 1800);
+
+            // Slides Carousel Rotation
+            var slides = tvWidget.querySelectorAll('.hyst-tv-slide');
+            var nameEl = document.getElementById('hyst-tv-player-name');
+            var roleEl = document.getElementById('hyst-tv-player-role');
+            var ovrEl = document.getElementById('hyst-tv-ovr-pill');
+            var currentIdx = 0;
+
+            if (slides.length > 1) {
+                setInterval(function() {
+                    if (tvWidget.style.display === 'none' || tvWidget.classList.contains('tv-powering-off')) return;
+                    
+                    slides[currentIdx].classList.remove('active');
+                    currentIdx = (currentIdx + 1) % slides.length;
+                    var nextSlide = slides[currentIdx];
+                    nextSlide.classList.add('active');
+
+                    if (nameEl) nameEl.textContent = nextSlide.getAttribute('data-name');
+                    if (roleEl) roleEl.innerHTML = nextSlide.getAttribute('data-role');
+                    if (ovrEl) ovrEl.textContent = nextSlide.getAttribute('data-ovr');
+                }, 3200);
+            }
+        })();
+
+        function closeHystTvAd() {
+            var tvWidget = document.getElementById('hyst-tv-ad-widget');
+            if (!tvWidget) return;
+
+            // Play CRT power-off animation
+            tvWidget.classList.add('tv-powering-off');
+            sessionStorage.setItem('hyst_tv_ad_closed', '1');
+
+            setTimeout(function() {
+                tvWidget.style.display = 'none';
+            }, 450);
+        }
+    </script>
+
 @endsection
