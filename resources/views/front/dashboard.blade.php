@@ -338,6 +338,26 @@
                 </div>
             </div>
 
+            {{-- HYST FANTASY XI PROMO CARD --}}
+            <div class="table-card mb-6" style="margin-bottom: 24px; padding: 22px 26px; background: linear-gradient(135deg, #0A192F 0%, #172A45 100%); border-radius: 18px; color: #fff; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+                <div style="max-width: 600px;">
+                    <div style="display: inline-block; background: rgba(255,255,255,0.15); padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; color: #F87171; text-transform: uppercase; margin-bottom: 6px;">
+                        ⚽ HYST FANTASY XI
+                    </div>
+                    <h2 style="font-family: 'Poppins', sans-serif; font-size: 19px; font-weight: 800; color: #FFFFFF; margin: 0 0 4px;">
+                        Build Your England Football Team & Win £500
+                    </h2>
+                    <p style="font-size: 13px; color: #CBD5E1; margin: 0; line-height: 1.4;">
+                        Every qualifying food order unlocks England footballer cards. Pick players, challenge friends, and compete for the £500 Grand Prize!
+                    </p>
+                </div>
+                <div>
+                    <a href="{{ route('matchday.index') }}" style="background: #C25A2A; color: #fff; padding: 11px 22px; border-radius: 12px; font-weight: 700; font-size: 13.5px; text-decoration: none; display: inline-block; transition: background .15s;">
+                        Enter Matchday &rarr;
+                    </a>
+                </div>
+            </div>
+
             {{-- REFERRAL CODE & REWARDS CARD --}}
             <div class="table-card mb-6" style="margin-bottom: 24px; padding: 20px 24px;">
                 <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">

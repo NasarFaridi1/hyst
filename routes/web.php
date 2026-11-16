@@ -25,6 +25,7 @@ use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\Front\CuisineController;
 use App\Http\Controllers\Front\LocationController;
 use App\Http\Controllers\Front\InfoPageController;
+use App\Http\Controllers\Front\MatchdayController;
 
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
@@ -493,6 +494,23 @@ Route::middleware(['auth'])->group(function () {
         '/my-orders/{id}/evidence',
         [OrderController::class, 'uploadCustomerEvidence']
     )->name('user.orders.evidence');
+
+    // HYST Fantasy XI / Matchday Routes
+    Route::prefix('matchday')->name('matchday.')->group(function () {
+        Route::get('/', [MatchdayController::class, 'index'])->name('index');
+        Route::get('/unlock', [MatchdayController::class, 'unlock'])->name('unlock');
+        Route::post('/claim-player', [MatchdayController::class, 'claimPlayer'])->name('claim-player');
+        Route::get('/collection', [MatchdayController::class, 'collection'])->name('collection');
+        Route::post('/gift', [MatchdayController::class, 'gift'])->name('gift');
+        Route::post('/share', [MatchdayController::class, 'share'])->name('share');
+        Route::get('/team', [MatchdayController::class, 'team'])->name('team');
+        Route::post('/save-team', [MatchdayController::class, 'saveTeam'])->name('save-team');
+        Route::get('/challenges', [MatchdayController::class, 'challenges'])->name('challenges');
+        Route::post('/create-challenge', [MatchdayController::class, 'createChallenge'])->name('create-challenge');
+        Route::post('/play-challenge/{id}', [MatchdayController::class, 'playChallenge'])->name('play-challenge');
+        Route::get('/match-result/{id}', [MatchdayController::class, 'matchResult'])->name('match-result');
+        Route::get('/leaderboard', [MatchdayController::class, 'leaderboard'])->name('leaderboard');
+    });
 
     
 

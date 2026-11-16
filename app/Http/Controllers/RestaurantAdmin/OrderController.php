@@ -369,6 +369,11 @@ class OrderController extends Controller
             if ($order->user) {
                 $referralService->getOrCreateCodeForUser($order->user, $order->restaurant_id);
             }
+            try {
+                app(\App\Services\MatchdayService::class)->processOrderCompletion($order);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Matchday hook failed: ' . $e->getMessage());
+            }
         } elseif ($request->status === 'cancelled') {
             $referralService->processOrderCancellation($order);
         }

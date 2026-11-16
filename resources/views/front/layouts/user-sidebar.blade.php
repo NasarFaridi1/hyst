@@ -153,6 +153,11 @@ $favoriteCount = auth()->check()
             <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 001.98 1.61h9.72a2 2 0 001.95-1.56L23 6H6"/></svg>
             Cart
         </a>
+        <a href="{{ route('matchday.index') }}" class="ds-link {{ request()->is('matchday*') ? 'active' : '' }}">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+            Fantasy XI
+            <span style="margin-left:auto; background:#C25A2A; color:#fff; font-size:10px; font-weight:800; padding:2px 7px; border-radius:999px;">NEW</span>
+        </a>
         <a href="{{ route('favorite.restaurants') }}"
         class="ds-link {{ request()->routeIs('favorite.restaurants') ? 'active' : '' }}">
 
@@ -236,6 +241,11 @@ $favoriteCount = auth()->check()
         <a href="/transactions" class="mob-nav-item {{ request()->is('transactions') ? 'active' : '' }}">
             <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
             Wallet
+            <span class="mob-dot"></span>
+        </a>
+        <a href="{{ route('matchday.index') }}" class="mob-nav-item {{ request()->is('matchday*') ? 'active' : '' }}">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+            Fantasy XI
             <span class="mob-dot"></span>
         </a>
         <a href="/profile" class="mob-nav-item {{ request()->is('profile') ? 'active' : '' }}">
