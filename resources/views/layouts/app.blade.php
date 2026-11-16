@@ -2,8 +2,17 @@
 <html lang="en">
 
 <head>
+    @include('partials.google-tag')
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    @if(env('BING_SITE_VERIFICATION'))
+        <meta name="msvalidate.01" content="{{ env('BING_SITE_VERIFICATION') }}">
+    @endif
+    @if(env('GOOGLE_SITE_VERIFICATION'))
+        <meta name="google-site-verification" content="{{ env('GOOGLE_SITE_VERIFICATION') }}">
+    @endif
+    @yield('verification_meta')
     <title>@yield('title', 'HYST | Zero Commission Takeaway & Food Delivery Near Me | Dine In Hounslow & UK')</title>
 
     <meta name="title" content="@yield('title', 'HYST | Zero Commission Takeaway & Food Delivery Near Me | Dine In Hounslow & UK')">
@@ -147,8 +156,9 @@
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     <link rel="shortcut icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
-    <link rel="apple-touch-icon" href="{{ asset('twitter.jpeg') }}">
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('twitter.jpeg') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon-16x16.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('images/icons/icon-192x192.png') }}">
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('js/notification-sound.js') }}"></script>
