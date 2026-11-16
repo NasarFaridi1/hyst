@@ -721,6 +721,18 @@ Route::middleware(['auth', 'super_admin'])
         Route::get('/order-reports', [\App\Http\Controllers\Admin\OrderReportController::class, 'index'])->name('order_reports.index');
         Route::get('/order-reports/export-pdf', [\App\Http\Controllers\Admin\OrderReportController::class, 'exportPdf'])->name('order_reports.export_pdf');
 
+        // England Fantasy XI / Matchday Administration
+        Route::prefix('matchday')->name('matchday.')->group(function () {
+            // Players CRUD & Actions
+            Route::post('players/seed-defaults', [\App\Http\Controllers\Admin\MatchdayPlayerController::class, 'seedDefaults'])->name('players.seed-defaults');
+            Route::post('players/{id}/toggle-status', [\App\Http\Controllers\Admin\MatchdayPlayerController::class, 'toggleStatus'])->name('players.toggle-status');
+            Route::resource('players', \App\Http\Controllers\Admin\MatchdayPlayerController::class);
+
+            // Campaigns CRUD & Actions
+            Route::post('campaigns/{id}/toggle-status', [\App\Http\Controllers\Admin\MatchdayCampaignController::class, 'toggleStatus'])->name('campaigns.toggle-status');
+            Route::resource('campaigns', \App\Http\Controllers\Admin\MatchdayCampaignController::class);
+        });
+
     });
 
     Route::post(

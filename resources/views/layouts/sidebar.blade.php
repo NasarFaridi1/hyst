@@ -243,6 +243,13 @@
                 <span>Products</span>
             </a>
 
+            <a href="{{ route('admin.matchday.players.index') }}"
+            class="sidebar-item {{ str_contains($current,'admin/matchday') ? 'active' : '' }}">
+                <div class="sidebar-icon">
+                    <i data-lucide="trophy"></i>
+                </div>
+                <span>Fantasy XI</span>
+            </a>
 
             <a href="/admin/users"
             class="sidebar-item {{ str_contains($current,'admin/users') ? 'active' : '' }}">
