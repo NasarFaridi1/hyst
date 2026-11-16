@@ -158,44 +158,143 @@
                     </div>
                 </div>
 
-                <!-- Right Column: Appetizing Food Image (5 cols, hidden on very small mobile) -->
-                <div class="md:col-span-5 relative min-h-[200px] sm:min-h-[260px] md:min-h-full overflow-hidden flex flex-col justify-end p-4 sm:p-5 bg-stone-100">
+                <!-- Right Column: England Football Festival & Player Showcase (5 cols, hidden on very small mobile) -->
+                <div class="md:col-span-5 relative min-h-[340px] sm:min-h-[380px] md:min-h-full overflow-hidden flex flex-col justify-between p-4 sm:p-5 text-white" 
+                     style="background: linear-gradient(165deg, #061224 0%, #0F2746 50%, #16365C 100%);">
                     
-                    <!-- Food Photography with Clean Light Tint -->
-                    <div class="absolute inset-0 z-0">
-                        <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=1000&auto=format&fit=crop" 
-                             alt="HYST Dining Experience" 
-                             class="w-full h-full object-cover object-center"
-                             loading="lazy"
-                             onerror="this.onerror=null; this.src='{{ asset('images/FoodMenu.png') }}';">
-                        <!-- Soft Subtle Gradient overlay to ensure text contrast -->
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+                    <!-- Decorative Stadium Pitch Overlay & Ambient Lights -->
+                    <div class="absolute inset-0 pointer-events-none opacity-20"
+                         style="background-image: radial-gradient(rgba(255,255,255,0.2) 1px, transparent 1px); background-size: 16px 16px;"></div>
+                    <div class="absolute top-0 right-0 w-48 h-48 bg-amber-400/15 rounded-full blur-3xl pointer-events-none"></div>
+                    <div class="absolute bottom-0 left-0 w-48 h-48 bg-[#C25A2A]/20 rounded-full blur-3xl pointer-events-none"></div>
+
+                    <!-- Top Header Badges -->
+                    <div class="relative z-10">
+                        <div class="flex items-center justify-between gap-1.5 mb-2">
+                            <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[10.5px] font-bold text-amber-300 shadow-sm">
+                                <span>🏴󠁧󠁢󠁥󠁮󠁧󠁿</span>
+                                <span>UK FOOTBALL FESTIVAL</span>
+                            </div>
+                            <div class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-400 text-stone-900 text-[10px] font-extrabold shadow-sm animate-pulse">
+                                <span>🏆</span>
+                                <span>£500 PRIZE</span>
+                            </div>
+                        </div>
+                        <div class="text-[12px] font-bold text-stone-200 font-['Poppins'] flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                            HYST FANTASY XI IS LIVE
+                        </div>
                     </div>
 
-                    <!-- Floating Badges over Photo -->
-                    <div class="relative z-10 space-y-2">
-                        <!-- Trending Pill -->
-                        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 backdrop-blur-md border border-stone-200/80 text-[11px] font-semibold text-stone-800 shadow-md">
-                            <span>🔥</span>
-                            <span>Trending in West London</span>
+                    <!-- Center: Interactive England Player Display -->
+                    <div class="relative z-10 my-auto py-2 text-center">
+                        
+                        <!-- Player Portrait Stage with Glow -->
+                        <div class="relative mx-auto w-36 h-40 sm:w-40 sm:h-44 flex items-center justify-center">
+                            <!-- Golden Halo Glow -->
+                            <div class="absolute inset-0 rounded-full bg-gradient-to-t from-amber-400/20 via-[#C25A2A]/30 to-transparent blur-xl"></div>
+                            
+                            <!-- Player 1: Harry Kane (Default) -->
+                            <img id="popup-player-img-1" 
+                                 src="https://resources.premierleague.com/premierleague/photos/players/250x250/p78830.png" 
+                                 alt="Harry Kane" 
+                                 class="popup-player-img w-full h-full object-contain filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.6)] transition-all duration-300">
+
+                            <!-- Player 2: Bukayo Saka -->
+                            <img id="popup-player-img-2" 
+                                 src="https://resources.premierleague.com/premierleague/photos/players/250x250/p223340.png" 
+                                 alt="Bukayo Saka" 
+                                 class="popup-player-img hidden w-full h-full object-contain filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.6)] transition-all duration-300">
+
+                            <!-- Player 3: Cole Palmer -->
+                            <img id="popup-player-img-3" 
+                                 src="https://resources.premierleague.com/premierleague/photos/players/250x250/p244855.png" 
+                                 alt="Cole Palmer" 
+                                 class="popup-player-img hidden w-full h-full object-contain filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.6)] transition-all duration-300">
                         </div>
 
-                        <!-- Mini Glass Highlight Card -->
-                        <div class="bg-white/95 backdrop-blur-md border border-stone-200/80 rounded-xl p-2.5 shadow-md text-stone-800">
-                            <div class="flex items-center justify-between gap-2 mb-1">
-                                <span class="text-[11px] font-bold flex items-center gap-1 text-stone-900">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                                    Zero Commission
-                                </span>
-                                <span class="text-amber-500 text-[11px]">★★★★★</span>
+                        <!-- Player Name & Dynamic Stats -->
+                        <div id="popup-player-meta" class="mt-1">
+                            <div id="popup-player-name" class="font-['Poppins'] font-extrabold text-base sm:text-lg text-white tracking-wide">
+                                Harry Kane
                             </div>
-                            <p class="text-[10px] text-stone-500 leading-tight">
-                                Supporting authentic local eateries directly with zero markup.
-                            </p>
+                            <div id="popup-player-sub" class="text-[11px] text-amber-300 font-semibold">
+                                England Captain &bull; 90 OVR &bull; Striker
+                            </div>
+                            <!-- Mini Stat Pills -->
+                            <div class="flex items-center justify-center gap-2 mt-2">
+                                <span id="popup-stat-att" class="px-2 py-0.5 rounded-md bg-white/10 border border-white/15 text-[10px] font-bold text-white">ATT 93</span>
+                                <span id="popup-stat-mid" class="px-2 py-0.5 rounded-md bg-white/10 border border-white/15 text-[10px] font-bold text-white">MID 85</span>
+                                <span id="popup-stat-def" class="px-2 py-0.5 rounded-md bg-white/10 border border-white/15 text-[10px] font-bold text-white">DEF 46</span>
+                            </div>
                         </div>
+
+                        <!-- Interactive Player Selector Dots/Pills -->
+                        <div class="flex items-center justify-center gap-1.5 mt-3">
+                            <button type="button" 
+                                    onclick="switchPopupPlayer(1, 'Harry Kane', 'England Captain • 90 OVR • Striker', '93', '85', '46')"
+                                    id="popup-tab-1"
+                                    class="popup-player-tab px-2.5 py-1 rounded-full text-[10.5px] font-bold transition-all bg-white text-stone-900 shadow-sm">
+                                Kane 90
+                            </button>
+                            <button type="button" 
+                                    onclick="switchPopupPlayer(2, 'Bukayo Saka', 'Arsenal • 88 OVR • Right Wing', '89', '84', '65')"
+                                    id="popup-tab-2"
+                                    class="popup-player-tab px-2.5 py-1 rounded-full text-[10.5px] font-bold transition-all bg-white/15 hover:bg-white/25 text-white">
+                                Saka 88
+                            </button>
+                            <button type="button" 
+                                    onclick="switchPopupPlayer(3, 'Cole Palmer', 'Chelsea • 88 OVR • Attacking Mid', '88', '89', '48')"
+                                    id="popup-tab-3"
+                                    class="popup-player-tab px-2.5 py-1 rounded-full text-[10.5px] font-bold transition-all bg-white/15 hover:bg-white/25 text-white">
+                                Palmer 88
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Floating Card: Call to Action -->
+                    <div class="relative z-10 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-3 sm:p-3.5 shadow-xl text-left">
+                        <div class="flex items-center justify-between gap-1 mb-1">
+                            <span class="text-[10px] font-extrabold text-amber-300 uppercase tracking-wider flex items-center gap-1">
+                                <span>⚽</span> Unlock Cards With Food Orders
+                            </span>
+                            <span class="text-[10px] text-white/80 font-bold">100% Free</span>
+                        </div>
+                        <p class="text-[11px] text-stone-200 leading-snug mb-2.5">
+                            Order food on Hyst, choose real England stars, challenge your friends, and top the leaderboard!
+                        </p>
+                        <a href="{{ route('matchday.index') }}" 
+                           class="w-full inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-gradient-to-r from-amber-400 to-[#C25A2A] hover:brightness-110 active:scale-[0.98] text-stone-950 font-extrabold text-xs tracking-wide shadow-md transition-all text-center">
+                            <span>Pick Your England XI &rarr;</span>
+                        </a>
                     </div>
 
                 </div>
+
+                <script>
+                    function switchPopupPlayer(id, name, sub, att, mid, def) {
+                        // Switch Images
+                        document.querySelectorAll('.popup-player-img').forEach(el => el.classList.add('hidden'));
+                        const targetImg = document.getElementById('popup-player-img-' + id);
+                        if (targetImg) targetImg.classList.remove('hidden');
+
+                        // Switch Text
+                        document.getElementById('popup-player-name').innerText = name;
+                        document.getElementById('popup-player-sub').innerHTML = sub;
+                        document.getElementById('popup-stat-att').innerText = 'ATT ' + att;
+                        document.getElementById('popup-stat-mid').innerText = 'MID ' + mid;
+                        document.getElementById('popup-stat-def').innerText = 'DEF ' + def;
+
+                        // Switch Tabs Style
+                        document.querySelectorAll('.popup-player-tab').forEach(btn => {
+                            btn.className = 'popup-player-tab px-2.5 py-1 rounded-full text-[10.5px] font-bold transition-all bg-white/15 hover:bg-white/25 text-white';
+                        });
+                        const activeBtn = document.getElementById('popup-tab-1' ? 'popup-tab-' + id : null);
+                        if (activeBtn) {
+                            activeBtn.className = 'popup-player-tab px-2.5 py-1 rounded-full text-[10.5px] font-bold transition-all bg-white text-stone-900 shadow-sm';
+                        }
+                    }
+                </script>
 
             </div>
         </div>

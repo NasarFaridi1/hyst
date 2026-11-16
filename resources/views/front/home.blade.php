@@ -135,6 +135,126 @@
 
 
    
+    {{-- ══════════════════════════════════════
+         NATIVE AD UNIT: UK FOOTBALL FESTIVAL & HYST FANTASY XI
+    ══════════════════════════════════════ --}}
+    <div id="hyst-matchday-native-ad" style="max-width:1280px; margin: 18px auto 6px; padding: 0 16px;">
+        <div style="
+            position: relative;
+            background: linear-gradient(90deg, #FFFFFF 0%, #FFFDF9 60%, #FFF7ED 100%);
+            border: 1px solid #EAE6DE;
+            border-left: 4px solid #C25A2A;
+            border-radius: 14px;
+            padding: 12px 16px 12px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            box-shadow: 0 2px 10px rgba(13,13,13,0.04);
+            flex-wrap: wrap;
+            transition: all .2s;
+        ">
+            <!-- Left Info & Player Face Stack -->
+            <div style="display: flex; align-items: center; gap: 14px; flex: 1; min-width: 280px;">
+                <!-- Overlapping England Star Avatars -->
+                <div style="display: flex; align-items: center; flex-shrink: 0;">
+                    <div style="width: 42px; height: 42px; border-radius: 50%; border: 2px solid #fff; background: #0A192F; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.15); z-index: 3;" title="Harry Kane (90)">
+                        <img src="https://resources.premierleague.com/premierleague/photos/players/250x250/p78830.png" alt="Harry Kane" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=Harry+Kane&background=0A192F&color=fff';">
+                    </div>
+                    <div style="width: 42px; height: 42px; border-radius: 50%; border: 2px solid #fff; background: #0F2746; overflow: hidden; margin-left: -14px; box-shadow: 0 2px 6px rgba(0,0,0,0.15); z-index: 2;" title="Bukayo Saka (88)">
+                        <img src="https://resources.premierleague.com/premierleague/photos/players/250x250/p223340.png" alt="Bukayo Saka" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=Bukayo+Saka&background=0F2746&color=fff';">
+                    </div>
+                    <div style="width: 42px; height: 42px; border-radius: 50%; border: 2px solid #fff; background: #16365C; overflow: hidden; margin-left: -14px; box-shadow: 0 2px 6px rgba(0,0,0,0.15); z-index: 1;" title="Cole Palmer (88)">
+                        <img src="https://resources.premierleague.com/premierleague/photos/players/250x250/p244855.png" alt="Cole Palmer" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=Cole+Palmer&background=16365C&color=fff';">
+                    </div>
+                </div>
+
+                <!-- Text Copy -->
+                <div>
+                    <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 2px;">
+                        <span style="font-size: 9.5px; font-weight: 800; color: #8C8C8C; text-transform: uppercase; letter-spacing: .06em; background: #F3F1EC; padding: 1px 6px; border-radius: 4px;">
+                            Ad &bull; Hyst Sports
+                        </span>
+                        <span style="font-size: 11px; font-weight: 700; color: #C25A2A; display: inline-flex; align-items: center; gap: 4px;">
+                            <span>🏴󠁧󠁢󠁥󠁮󠁧󠁿</span> UK Football Festival Live
+                        </span>
+                    </div>
+                    <div style="font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 700; color: #0D0D0D; line-height: 1.2;">
+                        Build Your England Fantasy XI &amp; Win £500
+                    </div>
+                    <div style="font-size: 11.5px; color: #666; margin-top: 1px;">
+                        Unlock England stars with every food order &bull; Back your players &bull; 100% Free to Play
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right CTAs & Dismiss -->
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <a href="{{ route('matchday.index') }}" 
+                   style="
+                       display: inline-flex;
+                       align-items: center;
+                       gap: 6px;
+                       background: #C25A2A;
+                       color: #ffffff;
+                       padding: 8px 18px;
+                       border-radius: 10px;
+                       font-family: 'Poppins', sans-serif;
+                       font-size: 12.5px;
+                       font-weight: 700;
+                       text-decoration: none;
+                       box-shadow: 0 2px 8px rgba(194,90,42,0.25);
+                       transition: background .15s, transform .15s;
+                   "
+                   onmouseover="this.style.background='#A6461D'; this.style.transform='translateY(-1px)';"
+                   onmouseout="this.style.background='#C25A2A'; this.style.transform='translateY(0)';"
+                >
+                    <span>Play Fantasy XI</span>
+                    <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                    </svg>
+                </a>
+
+                <!-- Dismiss Button -->
+                <button type="button" 
+                        onclick="dismissHystMatchdayAd()" 
+                        style="
+                            background: transparent;
+                            border: none;
+                            color: #9CA3AF;
+                            font-size: 18px;
+                            line-height: 1;
+                            cursor: pointer;
+                            padding: 4px;
+                            border-radius: 6px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                        "
+                        title="Dismiss Ad"
+                        aria-label="Dismiss Ad">
+                    &times;
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function dismissHystMatchdayAd() {
+            const ad = document.getElementById('hyst-matchday-native-ad');
+            if (ad) ad.style.display = 'none';
+            try { sessionStorage.setItem('hyst_matchday_ad_dismissed', '1'); } catch(e){}
+        }
+        (function() {
+            try {
+                if (sessionStorage.getItem('hyst_matchday_ad_dismissed') === '1') {
+                    const ad = document.getElementById('hyst-matchday-native-ad');
+                    if (ad) ad.style.display = 'none';
+                }
+            } catch(e){}
+        })();
+    </script>
+
     @include('front.restaurants')
 
     <!-- ══════════════════════════════════════
