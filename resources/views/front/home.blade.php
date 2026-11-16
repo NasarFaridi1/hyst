@@ -96,6 +96,22 @@
         }
     </style>
 
+    <!-- MATCHDAY FESTIVAL ANNOUNCEMENT RIBBON -->
+    <a href="{{ route('matchday.index') }}" style="display:flex; align-items:center; justify-content:space-between; background: linear-gradient(90deg, #991B1B 0%, #C25A2A 50%, #B45309 100%); color:#fff; padding:10px 20px; border-radius:14px; margin-bottom:16px; text-decoration:none; box-shadow:0 4px 14px rgba(194,90,42,0.25); flex-wrap:wrap; gap:8px; transition: transform .15s;">
+        <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size:18px;">🏴󠁧󠁢󠁥󠁮󠁧󠁿</span>
+            <span style="font-family:'Poppins',sans-serif; font-size:12.5px; font-weight:800; letter-spacing:0.04em; text-transform:uppercase;">
+                UK Football Festival is Live on HYST!
+            </span>
+            <span style="font-size:12px; color:#FEF3C7; font-weight:500;">
+                &bull; Order matchday food at 0% markup & unlock England player cards to win £500!
+            </span>
+        </div>
+        <div style="display:inline-flex; align-items:center; gap:6px; background:rgba(0,0,0,0.25); padding:4px 14px; border-radius:999px; font-family:'Poppins',sans-serif; font-size:11.5px; font-weight:700;">
+            <span>Play Fantasy XI ⚽</span>
+            <span>&rarr;</span>
+        </div>
+    </a>
     
     <section style="position:relative; min-height:250px; display:flex; align-items:flex-end; overflow:hidden; border-radius:12px;">
 
@@ -133,8 +149,232 @@
         }
     </style>
 
+    <!-- ══════════════════════════════════════════════════════════════
+         UK FOOTBALL MATCHDAY FESTIVAL & HYST FANTASY XI ARENA
+    ══════════════════════════════════════════════════════════════ -->
+    <section class="football-fest-section" style="background: radial-gradient(circle at 50% 0%, #1E3A8A 0%, #0A192F 55%, #020617 100%); margin: 24px 0 36px; border-radius: 24px; padding: 40px 24px 44px; color: #fff; position: relative; overflow: hidden; box-shadow: 0 16px 40px rgba(10, 25, 47, 0.25); border: 1px solid rgba(255,255,255,0.1);">
+        
+        <!-- Ambient Stadium Lights & Pitch Glow -->
+        <div style="position: absolute; top: -60px; left: 10%; width: 260px; height: 260px; background: #3B82F6; filter: blur(100px); opacity: 0.25; pointer-events: none;"></div>
+        <div style="position: absolute; top: 30%; right: 5%; width: 280px; height: 280px; background: #F59E0B; filter: blur(120px); opacity: 0.2; pointer-events: none;"></div>
 
-   
+        <div style="max-width: 1240px; margin: 0 auto; position: relative; z-index: 2;">
+            
+            <!-- FESTIVAL HEADER ROW -->
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 20px; margin-bottom: 32px;">
+                <div style="max-width: 680px;">
+                    <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.12); backdrop-filter: blur(8px); padding: 6px 14px; border-radius: 999px; margin-bottom: 14px; border: 1px solid rgba(255,255,255,0.15);">
+                        <span style="font-size: 15px;">🏴󠁧󠁢󠁥󠁮󠁧󠁿</span>
+                        <span style="font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 800; color: #FCA5A5; text-transform: uppercase; letter-spacing: 0.08em;">
+                            UK Football Festival &bull; HYST Matchday
+                        </span>
+                        <span style="background: #F59E0B; color: #000; font-size: 10px; font-weight: 800; padding: 1px 7px; border-radius: 999px;">
+                            £500 CASH PRIZE
+                        </span>
+                    </div>
+
+                    <h2 style="font-family: 'Poppins', sans-serif; font-size: 34px; font-weight: 900; line-height: 1.15; margin: 0 0 12px; color: #FFFFFF; letter-spacing: -0.02em;">
+                        Feast on Matchday. <br>
+                        <span style="color: #F59E0B; text-shadow: 0 0 24px rgba(245, 158, 11, 0.4);">Build Your England XI.</span>
+                    </h2>
+
+                    <p style="font-size: 14.5px; color: #CBD5E1; margin: 0; line-height: 1.6; font-family: 'DM Sans', sans-serif;">
+                        The UK football festival has arrived! Back your England heroes at UK clubs. Order matchday takeaway with <strong style="color: #fff;">0% markup</strong>, unlock real England player cards, challenge your mates in free 1v1 duels, and win the <strong style="color: #F59E0B;">£500 Grand Cash Prize</strong> on 31st December 2026!
+                    </p>
+                </div>
+
+                <!-- FESTIVAL QUICK CTAS -->
+                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                    <a href="{{ route('matchday.index') }}" 
+                       style="display: inline-flex; align-items: center; gap: 8px; background: #C25A2A; hover:background: #A6461D; color: #fff; padding: 13px 24px; border-radius: 14px; font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 14px; text-decoration: none; box-shadow: 0 8px 20px rgba(194, 90, 42, 0.35); transition: transform .15s;">
+                        <span>Play Fantasy XI</span>
+                        <span>⚽</span>
+                    </a>
+                    <a href="{{ route('matchday.leaderboard') }}" 
+                       style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.12); color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 13px 20px; border-radius: 14px; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 14px; text-decoration: none; backdrop-filter: blur(8px);">
+                        <span>Leaderboard</span>
+                        <span>🏆</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 6 FEATURED ENGLAND HERO CARDS -->
+            <div style="margin-bottom: 30px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <span style="font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #93C5FD;">
+                        Featured England Squad Collectibles
+                    </span>
+                    <span style="font-size: 12px; color: #CBD5E1;">
+                        1 Card Unlocked Per £15+ Food Order
+                    </span>
+                </div>
+
+                <div class="fest-cards-scroll" style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; overflow-x: auto; padding-bottom: 8px;">
+                    
+                    <!-- 1. HARRY KANE -->
+                    <div class="fest-card" style="background: rgba(255, 255, 255, 0.06); border: 2px solid #F59E0B; border-radius: 20px; padding: 16px 12px; backdrop-filter: blur(12px); text-align: center; position: relative; transition: transform .2s, box-shadow .2s;">
+                        <span style="position: absolute; top: 10px; right: 10px; background: #FEF3C7; color: #92400E; font-size: 9px; font-weight: 800; padding: 2px 7px; border-radius: 999px;">STAR</span>
+                        <div style="width: 38px; height: 38px; border-radius: 10px; background: #000; color: #F59E0B; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 14px; margin-bottom: 4px;">
+                            90 <small style="font-size: 7px; color: #fff;">ST</small>
+                        </div>
+                        <div style="height: 100px; display: flex; align-items: center; justify-content: center; margin: 4px 0;">
+                            <img src="https://resources.premierleague.com/premierleague/photos/players/250x250/p78830.png" alt="Harry Kane" style="height: 95px; object-fit: contain; filter: drop-shadow(0 6px 10px rgba(0,0,0,0.5));">
+                        </div>
+                        <h4 style="font-family: 'Poppins', sans-serif; font-size: 13.5px; font-weight: 800; color: #fff; margin: 0 0 2px;">Harry Kane</h4>
+                        <span style="font-size: 10.5px; color: #93C5FD; display: block; margin-bottom: 8px;">Captain &bull; England</span>
+                        <div style="display: flex; justify-content: space-around; background: rgba(0,0,0,0.3); border-radius: 8px; padding: 4px; font-size: 9.5px; font-weight: 700;">
+                            <span>ATT <strong style="color: #F59E0B;">93</strong></span>
+                            <span>MID <strong style="color: #F59E0B;">85</strong></span>
+                        </div>
+                    </div>
+
+                    <!-- 2. BUKAYO SAKA -->
+                    <div class="fest-card" style="background: rgba(255, 255, 255, 0.06); border: 2px solid #F59E0B; border-radius: 20px; padding: 16px 12px; backdrop-filter: blur(12px); text-align: center; position: relative; transition: transform .2s, box-shadow .2s;">
+                        <span style="position: absolute; top: 10px; right: 10px; background: #FEF3C7; color: #92400E; font-size: 9px; font-weight: 800; padding: 2px 7px; border-radius: 999px;">STAR</span>
+                        <div style="width: 38px; height: 38px; border-radius: 10px; background: #000; color: #F59E0B; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 14px; margin-bottom: 4px;">
+                            88 <small style="font-size: 7px; color: #fff;">RW</small>
+                        </div>
+                        <div style="height: 100px; display: flex; align-items: center; justify-content: center; margin: 4px 0;">
+                            <img src="https://resources.premierleague.com/premierleague/photos/players/250x250/p223340.png" alt="Bukayo Saka" style="height: 95px; object-fit: contain; filter: drop-shadow(0 6px 10px rgba(0,0,0,0.5));">
+                        </div>
+                        <h4 style="font-family: 'Poppins', sans-serif; font-size: 13.5px; font-weight: 800; color: #fff; margin: 0 0 2px;">Bukayo Saka</h4>
+                        <span style="font-size: 10.5px; color: #93C5FD; display: block; margin-bottom: 8px;">Arsenal &bull; FWD</span>
+                        <div style="display: flex; justify-content: space-around; background: rgba(0,0,0,0.3); border-radius: 8px; padding: 4px; font-size: 9.5px; font-weight: 700;">
+                            <span>ATT <strong style="color: #F59E0B;">89</strong></span>
+                            <span>MID <strong style="color: #F59E0B;">84</strong></span>
+                        </div>
+                    </div>
+
+                    <!-- 3. COLE PALMER -->
+                    <div class="fest-card" style="background: rgba(255, 255, 255, 0.06); border: 2px solid #F59E0B; border-radius: 20px; padding: 16px 12px; backdrop-filter: blur(12px); text-align: center; position: relative; transition: transform .2s, box-shadow .2s;">
+                        <span style="position: absolute; top: 10px; right: 10px; background: #FEF3C7; color: #92400E; font-size: 9px; font-weight: 800; padding: 2px 7px; border-radius: 999px;">STAR</span>
+                        <div style="width: 38px; height: 38px; border-radius: 10px; background: #000; color: #F59E0B; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 14px; margin-bottom: 4px;">
+                            88 <small style="font-size: 7px; color: #fff;">CAM</small>
+                        </div>
+                        <div style="height: 100px; display: flex; align-items: center; justify-content: center; margin: 4px 0;">
+                            <img src="https://resources.premierleague.com/premierleague/photos/players/250x250/p244855.png" alt="Cole Palmer" style="height: 95px; object-fit: contain; filter: drop-shadow(0 6px 10px rgba(0,0,0,0.5));">
+                        </div>
+                        <h4 style="font-family: 'Poppins', sans-serif; font-size: 13.5px; font-weight: 800; color: #fff; margin: 0 0 2px;">Cole Palmer</h4>
+                        <span style="font-size: 10.5px; color: #93C5FD; display: block; margin-bottom: 8px;">Chelsea &bull; MID</span>
+                        <div style="display: flex; justify-content: space-around; background: rgba(0,0,0,0.3); border-radius: 8px; padding: 4px; font-size: 9.5px; font-weight: 700;">
+                            <span>ATT <strong style="color: #F59E0B;">88</strong></span>
+                            <span>MID <strong style="color: #F59E0B;">89</strong></span>
+                        </div>
+                    </div>
+
+                    <!-- 4. PHIL FODEN -->
+                    <div class="fest-card" style="background: rgba(255, 255, 255, 0.06); border: 2px solid #F59E0B; border-radius: 20px; padding: 16px 12px; backdrop-filter: blur(12px); text-align: center; position: relative; transition: transform .2s, box-shadow .2s;">
+                        <span style="position: absolute; top: 10px; right: 10px; background: #FEF3C7; color: #92400E; font-size: 9px; font-weight: 800; padding: 2px 7px; border-radius: 999px;">STAR</span>
+                        <div style="width: 38px; height: 38px; border-radius: 10px; background: #000; color: #F59E0B; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 14px; margin-bottom: 4px;">
+                            88 <small style="font-size: 7px; color: #fff;">CAM</small>
+                        </div>
+                        <div style="height: 100px; display: flex; align-items: center; justify-content: center; margin: 4px 0;">
+                            <img src="https://resources.premierleague.com/premierleague/photos/players/250x250/p209244.png" alt="Phil Foden" style="height: 95px; object-fit: contain; filter: drop-shadow(0 6px 10px rgba(0,0,0,0.5));">
+                        </div>
+                        <h4 style="font-family: 'Poppins', sans-serif; font-size: 13.5px; font-weight: 800; color: #fff; margin: 0 0 2px;">Phil Foden</h4>
+                        <span style="font-size: 10.5px; color: #93C5FD; display: block; margin-bottom: 8px;">Man City &bull; MID</span>
+                        <div style="display: flex; justify-content: space-around; background: rgba(0,0,0,0.3); border-radius: 8px; padding: 4px; font-size: 9.5px; font-weight: 700;">
+                            <span>ATT <strong style="color: #F59E0B;">89</strong></span>
+                            <span>MID <strong style="color: #F59E0B;">88</strong></span>
+                        </div>
+                    </div>
+
+                    <!-- 5. DECLAN RICE -->
+                    <div class="fest-card" style="background: rgba(255, 255, 255, 0.06); border: 2px solid #3B82F6; border-radius: 20px; padding: 16px 12px; backdrop-filter: blur(12px); text-align: center; position: relative; transition: transform .2s, box-shadow .2s;">
+                        <span style="position: absolute; top: 10px; right: 10px; background: #DBEAFE; color: #1E40AF; font-size: 9px; font-weight: 800; padding: 2px 7px; border-radius: 999px;">RARE</span>
+                        <div style="width: 38px; height: 38px; border-radius: 10px; background: #000; color: #3B82F6; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 14px; margin-bottom: 4px;">
+                            87 <small style="font-size: 7px; color: #fff;">CDM</small>
+                        </div>
+                        <div style="height: 100px; display: flex; align-items: center; justify-content: center; margin: 4px 0;">
+                            <img src="https://resources.premierleague.com/premierleague/photos/players/250x250/p204480.png" alt="Declan Rice" style="height: 95px; object-fit: contain; filter: drop-shadow(0 6px 10px rgba(0,0,0,0.5));">
+                        </div>
+                        <h4 style="font-family: 'Poppins', sans-serif; font-size: 13.5px; font-weight: 800; color: #fff; margin: 0 0 2px;">Declan Rice</h4>
+                        <span style="font-size: 10.5px; color: #93C5FD; display: block; margin-bottom: 8px;">Arsenal &bull; MID</span>
+                        <div style="display: flex; justify-content: space-around; background: rgba(0,0,0,0.3); border-radius: 8px; padding: 4px; font-size: 9.5px; font-weight: 700;">
+                            <span>MID <strong style="color: #60A5FA;">87</strong></span>
+                            <span>DEF <strong style="color: #60A5FA;">88</strong></span>
+                        </div>
+                    </div>
+
+                    <!-- 6. JORDAN PICKFORD -->
+                    <div class="fest-card" style="background: rgba(255, 255, 255, 0.06); border: 2px solid #3B82F6; border-radius: 20px; padding: 16px 12px; backdrop-filter: blur(12px); text-align: center; position: relative; transition: transform .2s, box-shadow .2s;">
+                        <span style="position: absolute; top: 10px; right: 10px; background: #DBEAFE; color: #1E40AF; font-size: 9px; font-weight: 800; padding: 2px 7px; border-radius: 999px;">RARE</span>
+                        <div style="width: 38px; height: 38px; border-radius: 10px; background: #000; color: #3B82F6; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 14px; margin-bottom: 4px;">
+                            85 <small style="font-size: 7px; color: #fff;">GK</small>
+                        </div>
+                        <div style="height: 100px; display: flex; align-items: center; justify-content: center; margin: 4px 0;">
+                            <img src="https://resources.premierleague.com/premierleague/photos/players/250x250/p111234.png" alt="Jordan Pickford" style="height: 95px; object-fit: contain; filter: drop-shadow(0 6px 10px rgba(0,0,0,0.5));">
+                        </div>
+                        <h4 style="font-family: 'Poppins', sans-serif; font-size: 13.5px; font-weight: 800; color: #fff; margin: 0 0 2px;">Pickford</h4>
+                        <span style="font-size: 10.5px; color: #93C5FD; display: block; margin-bottom: 8px;">Everton &bull; GK</span>
+                        <div style="display: flex; justify-content: space-around; background: rgba(0,0,0,0.3); border-radius: 8px; padding: 4px; font-size: 9.5px; font-weight: 700;">
+                            <span>GK <strong style="color: #60A5FA;">87</strong></span>
+                            <span>DEF <strong style="color: #60A5FA;">60</strong></span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- 3 FESTIVAL STEPS -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; background: rgba(0,0,0,0.25); border-radius: 18px; padding: 20px 24px; border: 1px solid rgba(255,255,255,0.08);">
+                <div style="display: flex; align-items: flex-start; gap: 14px;">
+                    <div style="width: 40px; height: 40px; border-radius: 12px; background: rgba(194, 90, 42, 0.2); border: 1px solid #C25A2A; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">
+                        🍔
+                    </div>
+                    <div>
+                        <strong style="font-family: 'Poppins', sans-serif; font-size: 14px; color: #FFFFFF; display: block; margin-bottom: 2px;">1. Order Matchday Food</strong>
+                        <span style="font-size: 12px; color: #94A3B8; line-height: 1.4; display: block;">Enjoy genuine zero-markup dining delivered to your sofa.</span>
+                    </div>
+                </div>
+
+                <div style="display: flex; align-items: flex-start; gap: 14px;">
+                    <div style="width: 40px; height: 40px; border-radius: 12px; background: rgba(245, 158, 11, 0.2); border: 1px solid #F59E0B; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">
+                        🎴
+                    </div>
+                    <div>
+                        <strong style="font-family: 'Poppins', sans-serif; font-size: 14px; color: #FFFFFF; display: block; margin-bottom: 2px;">2. Pick England Players</strong>
+                        <span style="font-size: 12px; color: #94A3B8; line-height: 1.4; display: block;">Orders over £15 unlock your choice of an England footballer card!</span>
+                    </div>
+                </div>
+
+                <div style="display: flex; align-items: flex-start; gap: 14px;">
+                    <div style="width: 40px; height: 40px; border-radius: 12px; background: rgba(59, 130, 246, 0.2); border: 1px solid #3B82F6; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">
+                        🏆
+                    </div>
+                    <div>
+                        <strong style="font-family: 'Poppins', sans-serif; font-size: 14px; color: #FFFFFF; display: block; margin-bottom: 2px;">3. Challenge & Win £500</strong>
+                        <span style="font-size: 12px; color: #94A3B8; line-height: 1.4; display: block;">100% free 1v1 tactical matches against friends to climb the board.</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <style>
+        .fest-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.5);
+        }
+        @media (max-width: 1024px) {
+            .fest-cards-scroll {
+                grid-template-columns: repeat(3, minmax(160px, 1fr)) !important;
+            }
+        }
+        @media (max-width: 768px) {
+            .football-fest-section {
+                padding: 28px 16px !important;
+            }
+            .fest-cards-scroll {
+                grid-template-columns: repeat(2, minmax(140px, 1fr)) !important;
+            }
+            .football-fest-section [style*="grid-template-columns: repeat(3, 1fr)"] {
+                grid-template-columns: 1fr !important;
+            }
+        }
+    </style>
+
     @include('front.restaurants')
 
     <!-- ══════════════════════════════════════

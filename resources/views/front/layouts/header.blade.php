@@ -40,6 +40,14 @@
                     <i data-lucide="users" style="width:16px; height:16px;"></i> Foodie Circle
                 </a>
 
+                <a href="{{ route('matchday.index') }}"
+                    style="padding:8px 14px; border-radius:10px; font-weight:700; font-size:14px; color:#1E3A8A; background:rgba(30,58,138,0.08); text-decoration:none; display:flex; align-items:center; gap:6px; transition:all .18s;"
+                    onmouseover="this.style.background='rgba(30,58,138,0.16)'"
+                    onmouseout="this.style.background='rgba(30,58,138,0.08)'">
+                    <span>⚽</span> Fantasy XI
+                    <span style="background:#DC2626; color:#fff; font-size:10px; font-weight:800; padding:1px 6px; border-radius:999px;">£500</span>
+                </a>
+
                 {{-- <a href="/restaurants"
                     style="padding:8px 15px; border-radius:10px; font-weight:500; font-size:14px; color:#0D0D0D; text-decoration:none; display:flex; align-items:center; gap:6px; transition:background .18s;"
                     onmouseover="this.style.background='#F5F5F0'" onmouseout="this.style.background='transparent'">
@@ -338,6 +346,11 @@
 
     <!-- MOBILE MENU -->
     <div class="mobile-menu" id="mobileMenu">
+        <a href="{{ route('matchday.index') }}" 
+            style="display:flex; align-items:center; gap:10px; padding:12px 17px; text-decoration:none; color:#1E3A8A; font-size:14px; font-weight:700; background:rgba(30,58,138,0.06); border-radius:10px; margin-bottom:8px;">
+            <span>⚽</span> England Fantasy XI
+            <span style="margin-left:auto; background:#DC2626; color:#fff; font-size:10px; font-weight:800; padding:2px 7px; border-radius:999px;">£500 PRIZE</span>
+        </a>
         {{-- <a href="/"><i data-lucide="home" style="width:18px; height:18px; color:#C25A2A;"></i> Home</a> --}}
         {{-- <a href="/restaurants"><i data-lucide="package" style="width:18px; height:18px; color:#C25A2A;"></i>
             Restaurants</a> --}}
