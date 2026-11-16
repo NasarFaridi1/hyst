@@ -1,6 +1,6 @@
 @extends('front.layouts.app')
 
-@section('title', 'HYST Fantasy XI | Build Your England Team & Earn Rewards')
+@section('title', 'HYST Fantasy XI | Build Your England Team & Challenge Friends')
 
 @section('content')
 <style>
@@ -248,7 +248,7 @@
             <div class="f-hero">
                 <div class="f-badge">🏴󠁧󠁢󠁥󠁮󠁧󠁿 England Football Experience</div>
                 <h1>HYST FANTASY XI</h1>
-                <p>Build your own England football squad. Back your favourite players at UK clubs. Challenge friends and earn Hyst food discounts and the <strong>£500 Grand Prize</strong> on Dec 31, 2026!</p>
+                <p>Build your own England football squad. Back your favourite players at UK clubs, challenge your friends to 1v1 tactical duels, and climb to the top of the manager leaderboard!</p>
 
                 @if($totalPicksRemaining > 0)
                     <a href="{{ route('matchday.unlock') }}" class="f-hero-cta">
@@ -373,13 +373,13 @@
                 @endif
             </div>
 
-            {{-- £500 GRAND PRIZE TEASER --}}
+            {{-- LEADERBOARD TEASER --}}
             <div style="margin-top: 24px; background: #FFFBEB; border: 1px dashed #F59E0B; border-radius: 16px; padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
                 <div style="display: flex; align-items: center; gap: 14px;">
                     <div style="font-size: 28px;">🏆</div>
                     <div>
-                        <strong style="color: #92400E; font-size: 15px; font-family: 'Poppins', sans-serif;">Season Grand Prize: £500 Cash Reward</strong>
-                        <p style="margin: 2px 0 0; font-size: 13px; color: #78350F;">Awarded to the top Fantasy XI manager on 31st December 2026. Free to enter with every food order!</p>
+                        <strong style="color: #92400E; font-size: 15px; font-family: 'Poppins', sans-serif;">Season 2026 Manager Leaderboard</strong>
+                        <p style="margin: 2px 0 0; font-size: 13px; color: #78350F;">Climb to the top of the manager rankings by winning 1v1 challenges with your England XI squad. Free to play!</p>
                     </div>
                 </div>
                 <a href="{{ route('matchday.leaderboard') }}" style="background: #F59E0B; color: #fff; font-weight: 700; font-size: 13px; padding: 8px 18px; border-radius: 10px; text-decoration: none;">

@@ -175,9 +175,9 @@
                                 <span>🏴󠁧󠁢󠁥󠁮󠁧󠁿</span>
                                 <span>UK FOOTBALL FESTIVAL</span>
                             </div>
-                            <div class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-400 text-stone-900 text-[10px] font-extrabold shadow-sm animate-pulse">
+                            <div class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-400 text-stone-900 text-[10px] font-extrabold shadow-sm">
                                 <span>🏆</span>
-                                <span>£500 PRIZE</span>
+                                <span>TOP THE LEADERBOARD</span>
                             </div>
                         </div>
                         <div class="text-[12px] font-bold text-stone-200 font-['Poppins'] flex items-center gap-1.5">

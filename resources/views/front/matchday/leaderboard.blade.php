@@ -1,6 +1,6 @@
 @extends('front.layouts.app')
 
-@section('title', 'Season Leaderboard & £500 Prize | HYST Fantasy XI')
+@section('title', 'Season Leaderboard | HYST Fantasy XI')
 
 @section('content')
 <style>
@@ -22,12 +22,12 @@
     }
 
     .f-prize-card {
-        background: linear-gradient(135deg, #78350F 0%, #D97706 100%);
+        background: linear-gradient(135deg, #0A192F 0%, #172A45 50%, #1E3A8A 100%);
         border-radius: 24px;
         padding: 32px;
         color: #fff;
         margin-bottom: 24px;
-        box-shadow: 0 10px 30px rgba(217, 119, 6, 0.2);
+        box-shadow: 0 10px 30px rgba(10, 25, 47, 0.2);
     }
     .f-prize-card h1 {
         font-family: 'Poppins', sans-serif;
@@ -85,14 +85,14 @@
 
         {{-- MAIN CONTENT --}}
         <div>
-            {{-- PRIZE BANNER --}}
+            {{-- LEADERBOARD BANNER --}}
             <div class="f-prize-card">
-                <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; background: rgba(0,0,0,0.2); padding: 4px 12px; border-radius: 999px; display: inline-block; margin-bottom: 10px;">
-                    🏆 £500 Grand Cash Prize
+                <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; background: rgba(255,255,255,0.15); padding: 4px 12px; border-radius: 999px; display: inline-block; margin-bottom: 10px;">
+                    🏆 Season 2026 Rankings
                 </div>
-                <h1>Season 2026 Leaderboard</h1>
-                <p style="margin: 0; font-size: 14px; color: #FEF3C7; max-width: 600px; line-height: 1.5;">
-                    The highest point winner on <strong>31st December 2026</strong> will be awarded £500! Points are earned by winning 1v1 challenges with your England XI squad. Free to play with your orders.
+                <h1>Season Leaderboard</h1>
+                <p style="margin: 0; font-size: 14px; color: #E2E8F0; max-width: 600px; line-height: 1.5;">
+                    Points are earned by winning 1v1 challenges with your England XI squad. Free to play with your food orders. Test your football knowledge and climb to the top of the manager rankings!
                 </p>
             </div>
 

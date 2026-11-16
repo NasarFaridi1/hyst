@@ -180,7 +180,7 @@
                         </span>
                     </div>
                     <div style="font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 700; color: #0D0D0D; line-height: 1.2;">
-                        Build Your England Fantasy XI &amp; Win £500
+                        Build Your England Fantasy XI &amp; Challenge Friends
                     </div>
                     <div style="font-size: 11.5px; color: #666; margin-top: 1px;">
                         Unlock England stars with every food order &bull; Back your players &bull; 100% Free to Play

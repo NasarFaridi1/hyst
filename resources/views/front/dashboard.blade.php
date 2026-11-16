@@ -345,10 +345,10 @@
                         ⚽ HYST FANTASY XI
                     </div>
                     <h2 style="font-family: 'Poppins', sans-serif; font-size: 19px; font-weight: 800; color: #FFFFFF; margin: 0 0 4px;">
-                        Build Your England Football Team & Win £500
+                        Build Your England Football Team &amp; Challenge Friends
                     </h2>
                     <p style="font-size: 13px; color: #CBD5E1; margin: 0; line-height: 1.4;">
-                        Every qualifying food order unlocks England footballer cards. Pick players, challenge friends, and compete for the £500 Grand Prize!
+                        Every qualifying food order unlocks England footballer cards. Pick players, build your dream squad, and challenge friends!
                     </p>
                 </div>
                 <div>
