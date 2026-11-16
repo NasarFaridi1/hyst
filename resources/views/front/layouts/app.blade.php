@@ -93,11 +93,11 @@
     @endif
 
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
-    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon-16x16.png') }}">
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('images/icons/icon-192x192.png') }}">
+    <link rel="icon" type="image/x-icon" href="{{ asset('social-share.jpeg') }}">
+    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('social-share.jpeg') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('social-share.jpeg') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('social-share.jpeg') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('social-share.jpeg') }}">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>

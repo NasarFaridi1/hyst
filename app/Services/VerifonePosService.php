@@ -17,7 +17,7 @@ class VerifonePosService
     {
         $env = $restaurant->verifone_environment ?? 'sandbox';
         if ($env === 'production') {
-            return config('services.verifone.production_url', 'https://poscloud.verifone.cloud/oidc/poscloud/nexo');
+            return config('services.verifone.production_url', 'https://emea-pos.gsc.verifone.cloud/oidc/poscloud/nexo');
         }
         return config('services.verifone.sandbox_url', 'https://cstpos.test-gsc.vfims.com/oidc/poscloud/nexo');
     }
