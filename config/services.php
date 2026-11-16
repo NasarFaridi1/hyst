@@ -115,4 +115,9 @@ return [
         'platform_business_id' => env('HYST_WORLDPAY_BUSINESS_ID', '24785'),
     ],
 
+    'verifone' => [
+        'production_url' => env('VERIFONE_PRODUCTION_URL', 'https://emea-pos.gsc.verifone.cloud/oidc/poscloud/nexo'),
+        'sandbox_url' => env('VERIFONE_SANDBOX_URL', 'https://cstpos.test-gsc.vfims.com/oidc/poscloud/nexo'),
+    ],
+
 ];
