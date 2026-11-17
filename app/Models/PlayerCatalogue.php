@@ -42,10 +42,31 @@ class PlayerCatalogue extends Model
     public function getImageUrlAttribute(): string
     {
         if (!empty($this->avatar_url)) {
-            if (str_starts_with($this->avatar_url, 'http://') || str_starts_with($this->avatar_url, 'https://')) {
-                return $this->avatar_url;
+            $cleanPath = ltrim($this->avatar_url, '/');
+            if (str_starts_with($cleanPath, 'public/')) {
+                $cleanPath = substr($cleanPath, 7);
             }
-            return asset($this->avatar_url);
+
+            if (!str_starts_with($this->avatar_url, 'http://') && !str_starts_with($this->avatar_url, 'https://')) {
+                return asset($cleanPath);
+            }
+
+            // If it is an external URL, check if a local override exists first
+            $slug = \Illuminate\Support\Str::slug($this->name);
+            if (file_exists(public_path("images/players/{$slug}.jpg"))) {
+                return asset("images/players/{$slug}.jpg");
+            }
+            if (file_exists(public_path("images/players/{$slug}.png"))) {
+                return asset("images/players/{$slug}.png");
+            }
+            if (file_exists(public_path("images/players/{$this->id}.jpg"))) {
+                return asset("images/players/{$this->id}.jpg");
+            }
+            if (file_exists(public_path("images/players/{$this->id}.png"))) {
+                return asset("images/players/{$this->id}.png");
+            }
+
+            return $this->avatar_url;
         }
 
         $slug = \Illuminate\Support\Str::slug($this->name);
@@ -57,6 +78,9 @@ class PlayerCatalogue extends Model
         }
         if (file_exists(public_path("images/players/{$this->id}.png"))) {
             return asset("images/players/{$this->id}.png");
+        }
+        if (file_exists(public_path("images/players/{$this->id}.jpg"))) {
+            return asset("images/players/{$this->id}.jpg");
         }
 
         $name = urlencode($this->display_name ?: $this->name);

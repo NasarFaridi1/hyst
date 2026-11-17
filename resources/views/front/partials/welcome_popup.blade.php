@@ -204,7 +204,7 @@
                                     'sub' => 'England Captain &bull; 90 OVR &bull; Striker',
                                     'tab_name' => 'Kane 90',
                                     'stat_att' => 93, 'stat_mid' => 85, 'stat_def' => 46,
-                                    'image_url' => 'https://resources.premierleague.com/premierleague/photos/players/250x250/p78830.png',
+                                    'image_url' => asset('images/players/1.jpg'),
                                 ],
                                 (object)[
                                     'id' => 2,
@@ -212,7 +212,7 @@
                                     'sub' => 'Arsenal &bull; 88 OVR &bull; Right Wing',
                                     'tab_name' => 'Saka 88',
                                     'stat_att' => 89, 'stat_mid' => 84, 'stat_def' => 65,
-                                    'image_url' => 'https://resources.premierleague.com/premierleague/photos/players/250x250/p223340.png',
+                                    'image_url' => asset('images/players/4.jpg'),
                                 ],
                                 (object)[
                                     'id' => 3,
@@ -220,7 +220,7 @@
                                     'sub' => 'Chelsea &bull; 88 OVR &bull; Attacking Mid',
                                     'tab_name' => 'Palmer 88',
                                     'stat_att' => 88, 'stat_mid' => 89, 'stat_def' => 48,
-                                    'image_url' => 'https://resources.premierleague.com/premierleague/photos/players/250x250/p244855.png',
+                                    'image_url' => asset('images/players/11.jpg'),
                                 ],
                             ]);
                         } else {

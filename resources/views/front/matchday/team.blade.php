@@ -218,7 +218,7 @@
                                 @php 
                                     $selId = $existingSlots[$pos] ?? null; 
                                     $selectedCard = $collection['all']->firstWhere('id', $selId);
-                                    $avatarSrc = $selectedCard && $selectedCard->catalogue ? $selectedCard->catalogue->image_url : 'https://resources.premierleague.com/premierleague/photos/players/250x250/Photo-Missing.png';
+                                    $avatarSrc = $selectedCard && $selectedCard->catalogue ? $selectedCard->catalogue->image_url : 'https://ui-avatars.com/api/?name=Player&background=0F172A&color=FFF&size=150';
                                 @endphp
                                 <div class="pitch-slot">
                                     <div class="slot-avatar-wrap">
@@ -226,11 +226,11 @@
                                              id="avatar_{{ $pos }}" 
                                              class="slot-avatar-img" 
                                              alt="{{ $pos }}" 
-                                             onerror="this.onerror=null; this.src='https://resources.premierleague.com/premierleague/photos/players/250x250/Photo-Missing.png';">
+                                             onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=Player&background=0F172A&color=FFF&size=150';">
                                     </div>
                                     <span class="slot-pos-badge">{{ $pos }}</span>
                                     <select name="positions[{{ $pos }}]" onchange="updateSlotAvatar('{{ $pos }}', this)" style="width: 100%; font-size: 10px; border: 1px solid #E5E7EB; border-radius: 6px; padding: 2px;" required>
-                                        <option value="" data-img="https://resources.premierleague.com/premierleague/photos/players/250x250/Photo-Missing.png">-- Pick --</option>
+                                        <option value="" data-img="https://ui-avatars.com/api/?name=Player&background=0F172A&color=FFF&size=150">-- Pick --</option>
                                         @foreach($collection['all']->where('catalogue.position', 'FWD') as $card)
                                             <option value="{{ $card->id }}" data-img="{{ $card->catalogue->image_url }}" {{ $selId == $card->id ? 'selected' : '' }}>
                                                 {{ $card->catalogue->display_name }} ({{ $card->catalogue->overall_rating }})
@@ -250,7 +250,7 @@
                                 @php 
                                     $selId = $existingSlots[$pos] ?? null; 
                                     $selectedCard = $collection['all']->firstWhere('id', $selId);
-                                    $avatarSrc = $selectedCard && $selectedCard->catalogue ? $selectedCard->catalogue->image_url : 'https://resources.premierleague.com/premierleague/photos/players/250x250/Photo-Missing.png';
+                                    $avatarSrc = $selectedCard && $selectedCard->catalogue ? $selectedCard->catalogue->image_url : 'https://ui-avatars.com/api/?name=Player&background=0F172A&color=FFF&size=150';
                                 @endphp
                                 <div class="pitch-slot">
                                     <div class="slot-avatar-wrap">
@@ -258,11 +258,11 @@
                                              id="avatar_{{ $pos }}" 
                                              class="slot-avatar-img" 
                                              alt="{{ $pos }}" 
-                                             onerror="this.onerror=null; this.src='https://resources.premierleague.com/premierleague/photos/players/250x250/Photo-Missing.png';">
+                                             onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=Player&background=0F172A&color=FFF&size=150';">
                                     </div>
                                     <span class="slot-pos-badge">{{ $pos }}</span>
                                     <select name="positions[{{ $pos }}]" onchange="updateSlotAvatar('{{ $pos }}', this)" style="width: 100%; font-size: 10px; border: 1px solid #E5E7EB; border-radius: 6px; padding: 2px;" required>
-                                        <option value="" data-img="https://resources.premierleague.com/premierleague/photos/players/250x250/Photo-Missing.png">-- Pick --</option>
+                                        <option value="" data-img="https://ui-avatars.com/api/?name=Player&background=0F172A&color=FFF&size=150">-- Pick --</option>
                                         @foreach($collection['all']->where('catalogue.position', 'MID') as $card)
                                             <option value="{{ $card->id }}" data-img="{{ $card->catalogue->image_url }}" {{ $selId == $card->id ? 'selected' : '' }}>
                                                 {{ $card->catalogue->display_name }} ({{ $card->catalogue->overall_rating }})
@@ -282,7 +282,7 @@
                                 @php 
                                     $selId = $existingSlots[$pos] ?? null; 
                                     $selectedCard = $collection['all']->firstWhere('id', $selId);
-                                    $avatarSrc = $selectedCard && $selectedCard->catalogue ? $selectedCard->catalogue->image_url : 'https://resources.premierleague.com/premierleague/photos/players/250x250/Photo-Missing.png';
+                                    $avatarSrc = $selectedCard && $selectedCard->catalogue ? $selectedCard->catalogue->image_url : 'https://ui-avatars.com/api/?name=Player&background=0F172A&color=FFF&size=150';
                                 @endphp
                                 <div class="pitch-slot">
                                     <div class="slot-avatar-wrap">
@@ -290,11 +290,11 @@
                                              id="avatar_{{ $pos }}" 
                                              class="slot-avatar-img" 
                                              alt="{{ $pos }}" 
-                                             onerror="this.onerror=null; this.src='https://resources.premierleague.com/premierleague/photos/players/250x250/Photo-Missing.png';">
+                                             onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=Player&background=0F172A&color=FFF&size=150';">
                                     </div>
                                     <span class="slot-pos-badge">{{ $pos }}</span>
                                     <select name="positions[{{ $pos }}]" onchange="updateSlotAvatar('{{ $pos }}', this)" style="width: 100%; font-size: 10px; border: 1px solid #E5E7EB; border-radius: 6px; padding: 2px;" required>
-                                        <option value="" data-img="https://resources.premierleague.com/premierleague/photos/players/250x250/Photo-Missing.png">-- Pick --</option>
+                                        <option value="" data-img="https://ui-avatars.com/api/?name=Player&background=0F172A&color=FFF&size=150">-- Pick --</option>
                                         @foreach($collection['all']->where('catalogue.position', 'DEF') as $card)
                                             <option value="{{ $card->id }}" data-img="{{ $card->catalogue->image_url }}" {{ $selId == $card->id ? 'selected' : '' }}>
                                                 {{ $card->catalogue->display_name }} ({{ $card->catalogue->overall_rating }})
@@ -310,7 +310,7 @@
                             @php 
                                 $selId = $existingSlots['GK'] ?? null; 
                                 $selectedCard = $collection['all']->firstWhere('id', $selId);
-                                $avatarSrc = $selectedCard && $selectedCard->catalogue ? $selectedCard->catalogue->image_url : 'https://resources.premierleague.com/premierleague/photos/players/250x250/Photo-Missing.png';
+                                $avatarSrc = $selectedCard && $selectedCard->catalogue ? $selectedCard->catalogue->image_url : 'https://ui-avatars.com/api/?name=Player&background=0F172A&color=FFF&size=150';
                             @endphp
                             <div class="pitch-slot" style="background: #FEF3C7; border-color: #F59E0B;">
                                 <div class="slot-avatar-wrap" style="border-color: #D97706;">
@@ -318,11 +318,11 @@
                                          id="avatar_GK" 
                                          class="slot-avatar-img" 
                                          alt="GK" 
-                                         onerror="this.onerror=null; this.src='https://resources.premierleague.com/premierleague/photos/players/250x250/Photo-Missing.png';">
+                                         onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=Player&background=0F172A&color=FFF&size=150';">
                                 </div>
                                 <span class="slot-pos-badge" style="background: #B45309;">GK</span>
                                 <select name="positions[GK]" onchange="updateSlotAvatar('GK', this)" style="width: 100%; font-size: 10px; border: 1px solid #E5E7EB; border-radius: 6px; padding: 2px;" required>
-                                    <option value="" data-img="https://resources.premierleague.com/premierleague/photos/players/250x250/Photo-Missing.png">-- Pick GK --</option>
+                                    <option value="" data-img="https://ui-avatars.com/api/?name=Player&background=0F172A&color=FFF&size=150">-- Pick GK --</option>
                                     @foreach($collection['all']->where('catalogue.position', 'GK') as $card)
                                         <option value="{{ $card->id }}" data-img="{{ $card->catalogue->image_url }}" {{ $selId == $card->id ? 'selected' : '' }}>
                                             {{ $card->catalogue->display_name }} ({{ $card->catalogue->overall_rating }})

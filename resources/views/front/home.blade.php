@@ -138,6 +138,16 @@
     {{-- ══════════════════════════════════════
          NATIVE AD UNIT: UK FOOTBALL FESTIVAL & HYST FANTASY XI
     ══════════════════════════════════════ --}}
+    @php
+        try {
+            $bannerPlayers = \App\Models\PlayerCatalogue::where('is_active', 1)
+                ->orderBy('overall_rating', 'desc')
+                ->take(3)
+                ->get();
+        } catch (\Throwable $e) {
+            $bannerPlayers = collect();
+        }
+    @endphp
     <div id="hyst-matchday-native-ad" style="max-width:1280px; margin: 18px auto 6px; padding: 0 16px;">
         <div style="
             position: relative;
@@ -156,17 +166,30 @@
         ">
             <!-- Left Info & Player Face Stack -->
             <div style="display: flex; align-items: center; gap: 14px; flex: 1; min-width: 280px;">
-                <!-- Overlapping England Star Avatars -->
+                <!-- Overlapping England Star Avatars (Dynamic from PlayerCatalogue) -->
                 <div style="display: flex; align-items: center; flex-shrink: 0;">
-                    <div style="width: 42px; height: 42px; border-radius: 50%; border: 2px solid #fff; background: #0A192F; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.15); z-index: 3;" title="Harry Kane (90)">
-                        <img src="https://resources.premierleague.com/premierleague/photos/players/250x250/p78830.png" alt="Harry Kane" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=Harry+Kane&background=0A192F&color=fff';">
-                    </div>
-                    <div style="width: 42px; height: 42px; border-radius: 50%; border: 2px solid #fff; background: #0F2746; overflow: hidden; margin-left: -14px; box-shadow: 0 2px 6px rgba(0,0,0,0.15); z-index: 2;" title="Bukayo Saka (88)">
-                        <img src="https://resources.premierleague.com/premierleague/photos/players/250x250/p223340.png" alt="Bukayo Saka" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=Bukayo+Saka&background=0F2746&color=fff';">
-                    </div>
-                    <div style="width: 42px; height: 42px; border-radius: 50%; border: 2px solid #fff; background: #16365C; overflow: hidden; margin-left: -14px; box-shadow: 0 2px 6px rgba(0,0,0,0.15); z-index: 1;" title="Cole Palmer (88)">
-                        <img src="https://resources.premierleague.com/premierleague/photos/players/250x250/p244855.png" alt="Cole Palmer" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=Cole+Palmer&background=16365C&color=fff';">
-                    </div>
+                    @forelse($bannerPlayers as $bIdx => $bp)
+                        <div style="
+                            width: 42px; 
+                            height: 42px; 
+                            border-radius: 50%; 
+                            border: 2px solid #fff; 
+                            background: {{ $bIdx === 0 ? '#0A192F' : ($bIdx === 1 ? '#0F2746' : '#16365C') }}; 
+                            overflow: hidden; 
+                            {{ $bIdx > 0 ? 'margin-left: -14px;' : '' }} 
+                            box-shadow: 0 2px 6px rgba(0,0,0,0.15); 
+                            z-index: {{ 3 - $bIdx }};
+                        " title="{{ $bp->name }} ({{ $bp->overall_rating }})">
+                            <img src="{{ $bp->image_url }}" 
+                                 alt="{{ $bp->name }}" 
+                                 style="width: 100%; height: 100%; object-fit: cover;" 
+                                 onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode($bp->name) }}&background=C25A2A&color=fff&size=100';">
+                        </div>
+                    @empty
+                        <div style="width: 42px; height: 42px; border-radius: 50%; border: 2px solid #fff; background: #C25A2A; overflow: hidden; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:12px;">
+                            XI
+                        </div>
+                    @endforelse
                 </div>
 
                 <!-- Text Copy -->
@@ -603,28 +626,28 @@
                     'club_name' => 'England Captain',
                     'position' => 'ST',
                     'overall_rating' => 90,
-                    'image_url' => 'https://resources.premierleague.com/premierleague/photos/players/250x250/p78830.png',
+                    'image_url' => asset('images/players/1.jpg'),
                 ],
                 (object)[
                     'name' => 'Bukayo Saka',
                     'club_name' => 'Arsenal',
                     'position' => 'RW',
                     'overall_rating' => 88,
-                    'image_url' => 'https://resources.premierleague.com/premierleague/photos/players/250x250/p223340.png',
+                    'image_url' => asset('images/players/4.jpg'),
                 ],
                 (object)[
                     'name' => 'Cole Palmer',
                     'club_name' => 'Chelsea',
                     'position' => 'CAM',
                     'overall_rating' => 88,
-                    'image_url' => 'https://resources.premierleague.com/premierleague/photos/players/250x250/p244855.png',
+                    'image_url' => asset('images/players/11.jpg'),
                 ],
                 (object)[
                     'name' => 'Phil Foden',
                     'club_name' => 'Man City',
                     'position' => 'LW',
                     'overall_rating' => 88,
-                    'image_url' => 'https://resources.premierleague.com/premierleague/photos/players/250x250/p209244.png',
+                    'image_url' => asset('images/players/12.jpg'),
                 ],
             ]);
         }
