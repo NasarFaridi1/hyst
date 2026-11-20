@@ -2125,7 +2125,7 @@
                 if (delivery > 3.99) {
                     let offset = 1.99;
                     displayDelivery = Math.max(0, delivery - offset);
-                    hyst = 0;
+                    hyst = 1.99 + offset;
                 } else {
                     hyst = 1.99;
                 }
@@ -2133,7 +2133,7 @@
                 if (delivery > 3.99) {
                     let offset = 1.99;
                     displayDelivery = Math.max(0, delivery - offset);
-                    hyst = 1.99;
+                    hyst = 1.99 + offset;
                 } else {
                     hyst = 1.99;
                 }
@@ -2177,17 +2177,8 @@
         let hystInput = document.getElementById("hyst_charge");
         if (hystInput) hystInput.value = totalHystCharge.toFixed(2);
 
-        let displayHyst = hyst;
-        if (orderType && orderType.value === 'delivery') {
-            if (finalSubtotal < 20) {
-                displayHyst = 1.99;
-            } else if (finalSubtotal < 50) {
-                displayHyst = 3.99;
-            }
-        }
-
         let hystText = document.getElementById("hystChargeText");
-        if (hystText) hystText.innerHTML = "£" + displayHyst.toFixed(2);
+        if (hystText) hystText.innerHTML = "£" + totalHystCharge.toFixed(2);
 
         let limitAlert = document.getElementById("takeawayLimitAlert");
         let currentType = orderType ? orderType.value : '';
