@@ -670,13 +670,12 @@
             Please enter your details below to continue with your order.
         </p>
 
-        @if(session('quick_checkout_error'))
-            <div style="background:#FEE2E2;border:1px solid #FCA5A5;color:#991B1B;padding:12px 16px;border-radius:12px;font-size:13.5px;margin-bottom:20px;font-weight:500;">
-                {{ session('quick_checkout_error') }}
-            </div>
-        @endif
+        <div id="quickCheckoutErrorAlert"
+             style="{{ session('quick_checkout_error') ? 'display:block;' : 'display:none;' }}background:#FEE2E2;border:1px solid #FCA5A5;color:#991B1B;padding:12px 16px;border-radius:12px;font-size:13.5px;margin-bottom:20px;font-weight:500;">
+            {{ session('quick_checkout_error') ?? '' }}
+        </div>
 
-        <form method="POST" action="{{ route('cart.quickRegister') }}">
+        <form id="quickCheckoutForm" method="POST" action="{{ route('cart.quickRegister') }}">
             @csrf
 
             <div style="display:flex;flex-direction:column;gap:16px;">
@@ -684,6 +683,7 @@
                 <div>
                     <label style="display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:6px;">Full Name *</label>
                     <input type="text"
+                           id="quickCheckoutName"
                            name="name"
                            value="{{ old('name') }}"
                            placeholder="Full Name"
@@ -694,6 +694,7 @@
                 <div>
                     <label style="display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:6px;">Email Address *</label>
                     <input type="email"
+                           id="quickCheckoutEmail"
                            name="email"
                            value="{{ old('email') }}"
                            placeholder="Email Address"
@@ -701,9 +702,26 @@
                            class="guest-input">
                 </div>
 
+                <div id="quickCheckoutPasswordField" style="{{ session('quick_checkout_email_exists') ? 'display:block;' : 'display:none;' }}">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                        <label style="font-size:13px;font-weight:600;color:#374151;margin:0;">Password *</label>
+                        <a href="{{ url('/forgot-password') }}" target="_blank" style="font-size:12px;color:#C25A2A;text-decoration:none;font-weight:500;">Forgot Password?</a>
+                    </div>
+                    <input type="password"
+                           id="quickCheckoutPassword"
+                           name="password"
+                           placeholder="Enter your password"
+                           class="guest-input"
+                           autocomplete="current-password">
+                    <p style="margin:4px 0 0;font-size:12px;color:#6B7280;">
+                        An account exists with this email. Enter password to log in, or change email to use fresh details.
+                    </p>
+                </div>
+
                 <div>
                     <label style="display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:6px;">Phone Number *</label>
                     <input type="tel"
+                           id="quickCheckoutPhone"
                            name="phone"
                            value="{{ old('phone') }}"
                            placeholder="Phone Number"
@@ -715,6 +733,7 @@
 
             <div style="margin-top:24px;">
                 <button type="submit"
+                        id="quickCheckoutSubmitBtn"
                         style="
                             width:100%;
                             height:52px;
@@ -731,7 +750,9 @@
                             justify-content:center;
                             gap:8px;
                             transition:background .2s, transform .15s;">
-                    Continue to Checkout →
+                    <span id="quickCheckoutBtnText">
+                        {{ session('quick_checkout_email_exists') ? 'Log In & Continue to Checkout →' : 'Continue to Checkout →' }}
+                    </span>
                 </button>
             </div>
         </form>
@@ -876,6 +897,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
 if (window.lucide) { lucide.createIcons(); }
 
+function clearQuickCheckoutError() {
+    const alertEl = document.getElementById('quickCheckoutErrorAlert');
+    if (alertEl) {
+        alertEl.style.display = 'none';
+        alertEl.textContent = '';
+    }
+}
+
 function openQuickCheckoutModal() {
     const modal = document.getElementById('quickCheckoutModal');
     if (modal) {
@@ -889,14 +918,171 @@ function closeQuickCheckoutModal() {
     if (modal) {
         modal.style.display = 'none';
         document.body.style.overflow = '';
+        clearQuickCheckoutError();
     }
 }
 
-@if(session('quick_checkout_error') || $errors->any())
 document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('quickCheckoutForm');
+    const nameInput = document.getElementById('quickCheckoutName');
+    const emailInput = document.getElementById('quickCheckoutEmail');
+    const phoneInput = document.getElementById('quickCheckoutPhone');
+    const passwordInput = document.getElementById('quickCheckoutPassword');
+    const passwordField = document.getElementById('quickCheckoutPasswordField');
+    const submitBtn = document.getElementById('quickCheckoutSubmitBtn');
+    const btnText = document.getElementById('quickCheckoutBtnText');
+    const alertEl = document.getElementById('quickCheckoutErrorAlert');
+
+    // Clear error message when user modifies any field
+    [nameInput, emailInput, phoneInput, passwordInput].forEach(function(input) {
+        if (!input) return;
+        input.addEventListener('input', function() {
+            clearQuickCheckoutError();
+        });
+    });
+
+    // Live email check: automatically detects if email exists or is fresh
+    let emailDebounceTimer = null;
+    if (emailInput) {
+        emailInput.addEventListener('input', function() {
+            clearTimeout(emailDebounceTimer);
+            const val = this.value.trim().toLowerCase();
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            if (!val || !emailRegex.test(val)) {
+                if (passwordField) passwordField.style.display = 'none';
+                if (passwordInput) passwordInput.value = '';
+                if (btnText) btnText.textContent = 'Continue to Checkout →';
+                return;
+            }
+
+            emailDebounceTimer = setTimeout(function() {
+                const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+                const csrfToken = csrfMeta ? csrfMeta.getAttribute('content') : '{{ csrf_token() }}';
+
+                fetch('{{ route("check.email") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({ email: val })
+                })
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    if (data && data.exists) {
+                        if (passwordField) passwordField.style.display = 'block';
+                        if (btnText) btnText.textContent = 'Log In & Continue to Checkout →';
+                    } else {
+                        if (passwordField) passwordField.style.display = 'none';
+                        if (passwordInput) passwordInput.value = '';
+                        if (btnText) btnText.textContent = 'Continue to Checkout →';
+                        clearQuickCheckoutError();
+                    }
+                })
+                .catch(function(err) {
+                    // Silently ignore background check failures
+                });
+            }, 400);
+        });
+    }
+
+    // Handle Quick Checkout submission smoothly via AJAX to prevent jarring page reloads and stuck errors
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const name = nameInput ? nameInput.value.trim() : '';
+            const email = emailInput ? emailInput.value.trim() : '';
+            const phone = phoneInput ? phoneInput.value.trim() : '';
+            const password = passwordInput ? passwordInput.value : '';
+
+            if (!name || !email || !phone) {
+                if (alertEl) {
+                    alertEl.textContent = 'Please fill in all required fields.';
+                    alertEl.style.display = 'block';
+                }
+                return;
+            }
+
+            const isPasswordVisible = passwordField && passwordField.style.display !== 'none';
+            if (isPasswordVisible && !password) {
+                if (alertEl) {
+                    alertEl.textContent = 'Please enter your password to log in, or change the email address to use fresh details.';
+                    alertEl.style.display = 'block';
+                }
+                if (passwordInput) passwordInput.focus();
+                return;
+            }
+
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.style.opacity = '0.7';
+            }
+            if (btnText) {
+                btnText.textContent = 'Please wait...';
+            }
+            clearQuickCheckoutError();
+
+            const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+            const csrfToken = csrfMeta ? csrfMeta.getAttribute('content') : '{{ csrf_token() }}';
+
+            fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                body: JSON.stringify({
+                    name: name,
+                    email: email,
+                    phone: phone,
+                    password: password
+                })
+            })
+            .then(function(res) {
+                return res.json().then(function(data) {
+                    return { status: res.status, ok: res.ok, data: data };
+                });
+            })
+            .then(function(result) {
+                if (result.ok && result.data && result.data.success) {
+                    window.location.href = result.data.redirect || '/checkout';
+                    return;
+                }
+
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.style.opacity = '1';
+                }
+
+                const msg = (result.data && result.data.message) ? result.data.message : 'An error occurred. Please try again.';
+                if (alertEl) {
+                    alertEl.textContent = msg;
+                    alertEl.style.display = 'block';
+                }
+
+                if (result.data && result.data.email_exists) {
+                    if (passwordField) passwordField.style.display = 'block';
+                    if (btnText) btnText.textContent = 'Log In & Continue to Checkout →';
+                    if (passwordInput) passwordInput.focus();
+                } else {
+                    if (btnText) btnText.textContent = 'Continue to Checkout →';
+                }
+            })
+            .catch(function(err) {
+                // Network or parse error fallback: submit standard form
+                form.submit();
+            });
+        });
+    }
+
+    @if(session('quick_checkout_error') || $errors->any())
     openQuickCheckoutModal();
+    @endif
 });
-@endif
 </script>
 
 @endsection

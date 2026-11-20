@@ -274,12 +274,20 @@ class UserRegisterController extends Controller
     public function quickCheckoutRegister(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name'  => 'required|string|max:255',
-            'email' => 'required|email',
-            'phone' => 'required|string|max:50',
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email',
+            'phone'    => 'required|string|max:50',
+            'password' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $validator->errors()->first(),
+                ], 422);
+            }
+
             return redirect()->back()
                 ->withInput()
                 ->withErrors($validator)
@@ -289,18 +297,79 @@ class UserRegisterController extends Controller
         $email = strtolower(trim($request->email));
 
         if (str_ends_with($email, 'hyst.uk')) {
+            $msg = 'Registration with @hyst.uk email addresses is not allowed.';
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $msg,
+                ], 422);
+            }
+
             return redirect()->back()
                 ->withInput()
-                ->with('quick_checkout_error', 'Registration with @hyst.uk email addresses is not allowed.');
+                ->with('quick_checkout_error', $msg);
         }
 
         $emailHash = hash('sha256', $email);
         $emailExist = User::where('email_hash', $emailHash)->first();
 
         if ($emailExist) {
+            // If password was submitted, attempt authentication directly
+            if ($request->filled('password')) {
+                if (Hash::check($request->password, $emailExist->password)) {
+                    if ($emailExist->role === 'restaurant_admin' || $emailExist->restaurant_id) {
+                        $restaurant = $emailExist->restaurant ?? \App\Models\Restaurant::find($emailExist->restaurant_id);
+                        if ($restaurant && (int)$restaurant->status === 0) {
+                            $deactivatedMsg = 'Your restaurant account has been deactivated. Please contact the administrator.';
+                            if ($request->ajax() || $request->wantsJson()) {
+                                return response()->json(['success' => false, 'message' => $deactivatedMsg], 422);
+                            }
+                            return redirect()->back()->withInput()->with('quick_checkout_error', $deactivatedMsg);
+                        }
+                    }
+
+                    Auth::login($emailExist, $emailExist->role === 'restaurant_admin' || !empty($emailExist->restaurant_id));
+
+                    if ($request->ajax() || $request->wantsJson()) {
+                        return response()->json([
+                            'success'  => true,
+                            'redirect' => route('checkout'),
+                        ]);
+                    }
+
+                    return redirect()->route('checkout')
+                        ->with('message', 'Logged in successfully! Proceeding to checkout.')
+                        ->with('type', 'success');
+                } else {
+                    $errorMsg = 'Incorrect password. Please enter the correct password for this account, or use fresh details with another email.';
+                    if ($request->ajax() || $request->wantsJson()) {
+                        return response()->json([
+                            'success'      => false,
+                            'message'      => $errorMsg,
+                            'email_exists' => true,
+                        ], 422);
+                    }
+
+                    return redirect()->back()
+                        ->withInput()
+                        ->with('quick_checkout_error', $errorMsg)
+                        ->with('quick_checkout_email_exists', true);
+                }
+            }
+
+            $errorMsg = 'An account with this email already exists. Please enter your password to continue, or use fresh details with another email.';
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success'      => false,
+                    'message'      => $errorMsg,
+                    'email_exists' => true,
+                ], 422);
+            }
+
             return redirect()->back()
                 ->withInput()
-                ->with('quick_checkout_error', 'An account with this email already exists. Please log in below.');
+                ->with('quick_checkout_error', $errorMsg)
+                ->with('quick_checkout_email_exists', true);
         }
 
         $generatedPassword = Str::random(10);
@@ -308,7 +377,9 @@ class UserRegisterController extends Controller
         $user = User::create([
             'name'               => $request->name,
             'email'              => $email,
+            'email_hash'         => $emailHash,
             'phone'              => $request->phone,
+            'phone_hash'         => hash('sha256', trim($request->phone)),
             'password'           => Hash::make($generatedPassword),
             'role'               => 'user',
             'email_verified'     => 1,
@@ -325,6 +396,13 @@ class UserRegisterController extends Controller
         }
 
         Auth::login($user, $user->role === 'restaurant_admin' || !empty($user->restaurant_id));
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success'  => true,
+                'redirect' => route('checkout'),
+            ]);
+        }
 
         return redirect()->route('checkout')
             ->with('message', 'Account created successfully! Proceeding to checkout.')
