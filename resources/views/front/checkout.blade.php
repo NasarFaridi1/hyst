@@ -1346,7 +1346,11 @@
                         ⚠️ Takeaway orders cannot exceed £250. Please adjust your order amount or choose another order type.
                     </div>
 
-                    <button type="submit" class="co-place-btn" form="checkoutForm">
+                    <div id="deliveryAddressRequiredAlert" style="display:none; background:#FFFBEB; border:1px solid #F59E0B; border-radius:10px; padding:10px 14px; margin-bottom:12px; font-size:13px; font-weight:600; color:#92400E; align-items:center; gap:8px;">
+                        <span id="deliveryAddressRequiredText">⚠️ Please add a delivery address to place your order.</span>
+                    </div>
+
+                    <button type="submit" id="placeOrderBtn" class="co-place-btn" form="checkoutForm">
                         <span>Place Order</span>
                     </button>
 
@@ -1363,6 +1367,9 @@
 
 <!-- ══════════ MOBILE STICKY BOTTOM BAR ══════════ -->
 <div class="mobile-footer" id="mobileFooter">
+    <div id="mobileDeliveryAddressRequiredAlert" style="display:none; background:#FFFBEB; border-top:1px solid #F59E0B; padding:6px 14px; font-size:12px; font-weight:600; color:#92400E; text-align:center;">
+        ⚠️ Please add a delivery address to place your order.
+    </div>
     <div class="mobile-footer-inner">
         <div>
             <div class="mobile-footer-label">Total Amount</div>
@@ -1370,7 +1377,7 @@
                 £{{ number_format($finalTotal, 2) }}
             </div>
         </div>
-        <button type="submit" class="mobile-footer-btn" form="checkoutForm">
+        <button type="submit" id="mobilePlaceOrderBtn" class="mobile-footer-btn" form="checkoutForm">
             <span>Place Order</span>
         </button>
     </div>
@@ -1422,52 +1429,74 @@
         window.validateCheckoutPlaceOrderButton = function() {
             const orderTypeInput = document.querySelector('input[name="order_type"]:checked');
             const orderType = orderTypeInput ? orderTypeInput.value : 'delivery';
-            const placeBtns = document.querySelectorAll('.co-place-btn, .mobile-footer-btn');
+            const placeBtns = document.querySelectorAll('button[form="checkoutForm"].co-place-btn, button[form="checkoutForm"].mobile-footer-btn, #placeOrderBtn, #mobilePlaceOrderBtn');
+            const addrAlert = document.getElementById('deliveryAddressRequiredAlert');
+            const mobileAddrAlert = document.getElementById('mobileDeliveryAddressRequiredAlert');
 
-            // Dine In, Takeaway, or Table Booking: No delivery address validation required
-            if (orderType === 'dine_in' || orderType === 'takeaway' || orderType === 'table_book') {
+            function setPlaceOrderState(enabled) {
                 placeBtns.forEach(btn => {
-                    btn.disabled = false;
-                    btn.style.opacity = '1';
-                    btn.style.pointerEvents = 'auto';
-                    btn.style.cursor = 'pointer';
+                    btn.disabled = !enabled;
+                    btn.style.opacity = enabled ? '1' : '0.4';
+                    btn.style.pointerEvents = enabled ? 'auto' : 'none';
+                    btn.style.cursor = enabled ? 'pointer' : 'not-allowed';
                 });
+            }
+
+            // 1. Takeaway / Delivery £250 limit check
+            const limitAlert = document.getElementById("takeawayLimitAlert");
+            if (limitAlert && limitAlert.style.display !== 'none') {
+                if (addrAlert) addrAlert.style.display = 'none';
+                if (mobileAddrAlert) mobileAddrAlert.style.display = 'none';
+                setPlaceOrderState(false);
+                return false;
+            }
+
+            // 2. Dine In, Takeaway, or Table Booking: No delivery address validation required
+            if (orderType === 'dine_in' || orderType === 'takeaway' || orderType === 'table_book') {
+                if (addrAlert) addrAlert.style.display = 'none';
+                if (mobileAddrAlert) mobileAddrAlert.style.display = 'none';
+                setPlaceOrderState(true);
                 return true;
             }
 
-            // Home Delivery: Validate delivery address deliverability
-            const addressId = document.getElementById('address_id')?.value;
-            const addressVal = document.getElementById('address')?.value;
+            // 3. Home Delivery: Validate delivery address presence and quote status
+            const addressId = document.getElementById('address_id')?.value?.trim();
+            const addressVal = document.getElementById('address')?.value?.trim();
+            const hasAddress = Boolean(addressId || addressVal);
+
             const quoteStatus = document.getElementById('uberQuoteStatus');
             const hasErrorDisplay = quoteStatus && quoteStatus.style.display !== 'none' && quoteStatus.classList.contains('uber-quote-error');
 
-            let isValid = true;
+            if (!hasAddress) {
+                const hasSavedRows = document.querySelectorAll('.address-option-row').length > 0;
+                const msg = hasSavedRows 
+                    ? '⚠️ Please select a delivery address to place your order.' 
+                    : '⚠️ Please add a delivery address to place your order.';
 
-            if (!addressId && !addressVal) {
-                isValid = false;
-            }
+                if (addrAlert) {
+                    addrAlert.innerHTML = `<span>${msg}</span>`;
+                    addrAlert.style.display = 'flex';
+                }
+                if (mobileAddrAlert) {
+                    mobileAddrAlert.textContent = msg;
+                    mobileAddrAlert.style.display = 'block';
+                }
 
-            if (hasErrorDisplay) {
-                isValid = false;
-            }
-
-            if (isValid) {
-                placeBtns.forEach(btn => {
-                    btn.disabled = false;
-                    btn.style.opacity = '1';
-                    btn.style.pointerEvents = 'auto';
-                    btn.style.cursor = 'pointer';
-                });
-                return true;
-            } else {
-                placeBtns.forEach(btn => {
-                    btn.disabled = true;
-                    btn.style.opacity = '0.4';
-                    btn.style.pointerEvents = 'none';
-                    btn.style.cursor = 'not-allowed';
-                });
+                setPlaceOrderState(false);
                 return false;
             }
+
+            // Address exists, hide missing address alerts
+            if (addrAlert) addrAlert.style.display = 'none';
+            if (mobileAddrAlert) mobileAddrAlert.style.display = 'none';
+
+            if (hasErrorDisplay) {
+                setPlaceOrderState(false);
+                return false;
+            }
+
+            setPlaceOrderState(true);
+            return true;
         };
 
         const description = document.getElementById('description');
@@ -1759,10 +1788,22 @@
                 const isValid = window.validateCheckoutPlaceOrderButton();
                 if (!isValid) {
                     e.preventDefault();
+                    const hasAddress = Boolean(document.getElementById('address_id')?.value?.trim() || document.getElementById('address')?.value?.trim());
+                    const quoteStatus = document.getElementById('uberQuoteStatus');
+                    const hasErrorDisplay = quoteStatus && quoteStatus.style.display !== 'none' && quoteStatus.classList.contains('uber-quote-error');
+
+                    let swalTitle = 'Delivery Address Required';
+                    let swalText = 'Please add or select a delivery address to place your order.';
+
+                    if (hasAddress && hasErrorDisplay) {
+                        swalTitle = 'Delivery Address Unavailable';
+                        swalText = 'The selected delivery address is outside the delivery area or unavailable. Please choose a deliverable address or select Dine In / Takeaway.';
+                    }
+
                     Swal.fire({
                         icon: 'warning',
-                        title: 'Delivery Address Unavailable',
-                        text: 'The selected delivery address is outside the delivery area or unavailable. Please choose a deliverable address or select Dine In / Takeaway.',
+                        title: swalTitle,
+                        text: swalText,
                         confirmButtonColor: '#C25A2A'
                     });
                     return;
@@ -2149,26 +2190,19 @@
         if (hystText) hystText.innerHTML = "£" + displayHyst.toFixed(2);
 
         let limitAlert = document.getElementById("takeawayLimitAlert");
-        let placeBtns = document.querySelectorAll(".co-place-btn, .mobile-footer-btn");
-
         let currentType = orderType ? orderType.value : '';
         if ((currentType === 'takeaway' || currentType === 'delivery') && finalSubtotal > 250) {
             if (limitAlert) {
                 limitAlert.style.display = "block";
                 limitAlert.innerHTML = "⚠️ " + (currentType === 'takeaway' ? 'Takeaway' : 'Delivery') + " orders cannot exceed £250. Please adjust your order amount or choose another order type.";
             }
-            placeBtns.forEach(btn => {
-                btn.disabled = true;
-                btn.style.opacity = "0.5";
-                btn.style.cursor = "not-allowed";
-            });
         } else {
             if (limitAlert) limitAlert.style.display = "none";
-            placeBtns.forEach(btn => {
-                btn.disabled = false;
-                btn.style.opacity = "1";
-                btn.style.cursor = "pointer";
-            });
+        }
+
+        // Validate place order button state with single source of truth
+        if (typeof window.validateCheckoutPlaceOrderButton === 'function') {
+            window.validateCheckoutPlaceOrderButton();
         }
 
         let productChargePct = {{ $hystPercentage ?? 0 }};

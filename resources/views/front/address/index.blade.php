@@ -569,6 +569,10 @@
             $('landmark').value      = row.dataset.landmark || '';
             $('label').value         = row.dataset.label || '';
 
+            if (typeof window.validateCheckoutPlaceOrderButton === 'function') {
+                window.validateCheckoutPlaceOrderButton();
+            }
+
             // fetchUberQuote();
             // Only fetch Uber quote when Self Delivery is disabled
             const selfDelivery = "{{ $restaurant->self_delivery }}";
