@@ -461,22 +461,24 @@
                     <span>All</span>
                 </div>
 
-                @foreach($categories as $category)
-                    <div class="category-filter" data-id="{{ $category->id }}">
-                        <div class="category-image">
-                        @php
-                            $imagePath = public_path($category->image);
-                        @endphp
+                @if(isset($categories) && count($categories) > 0)
+                    @foreach($categories as $category)
+                        <div class="category-filter" data-id="{{ $category->id }}">
+                            <div class="category-image">
+                            @php
+                                $imagePath = public_path($category->image);
+                            @endphp
 
-                        @if(file_exists($imagePath))
-                            <img src="{{ asset($category->image) }}" alt="{{ $category->name }} Cuisine Restaurants in Hounslow" loading="lazy">
-                        @else
-                            <img src="{{ asset('restaurant/' . $category->image) }}" alt="{{ $category->name }} Cuisine Restaurants in Hounslow" loading="lazy">
-                        @endif
+                            @if(file_exists($imagePath))
+                                <img src="{{ asset($category->image) }}" alt="{{ $category->name }} Cuisine Restaurants in Hounslow" loading="lazy">
+                            @else
+                                <img src="{{ asset('restaurant/' . $category->image) }}" alt="{{ $category->name }} Cuisine Restaurants in Hounslow" loading="lazy">
+                            @endif
+                            </div>
+                            <span>{{ $category->name }}</span>
                         </div>
-                        <span>{{ $category->name }}</span>
-                    </div>
-                @endforeach
+                    @endforeach
+                @endif
 
             </div>
         </div>

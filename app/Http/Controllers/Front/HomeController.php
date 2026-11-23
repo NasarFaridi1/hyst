@@ -333,12 +333,14 @@ class HomeController extends Controller
             return $restaurant;
         });
 
+        $categories = RestaurantCategory::where('status', 'active')->orderBy('display_order')->get();
         $seo = $this->seoService->generate('restaurants');
 
         return view(
             'front.restaurants',
             compact(
                 'restaurants',
+                'categories',
                 'latitude',
                 'longitude',
                 'seo'
