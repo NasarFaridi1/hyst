@@ -84,7 +84,7 @@
                     
             </button>
         @empty
-            <div class="no-saved-addresses" id="noSavedAddresses">No saved addresses yet. Add one below.</div>
+            <div class="no-saved-addresses" id="noSavedAddresses" style="color:#DC2626; font-weight:600;">No saved addresses yet. Add one below.</div>
         @endforelse
     </div>
 
@@ -352,7 +352,7 @@
 
     /* ---- saved addresses list ---- */
     .saved-addresses-list{display:flex;flex-direction:column;gap:10px;margin-bottom:10px;}
-    .no-saved-addresses{font-size:13px;color:#777;padding:8px 2px;}
+    .no-saved-addresses{font-size:13.5px;color:#DC2626;font-weight:600;padding:8px 2px;}
     .address-option-row{
         display:flex;align-items:flex-start;gap:12px;width:100%;text-align:left;
         padding:14px;border:1px solid #e5e5e5;border-radius:12px;background:#fff;
@@ -1152,7 +1152,7 @@
                 if (!document.querySelector(".address-option-row")) {
 
                     document.getElementById("savedAddressesList").innerHTML =
-                        '<div class="no-saved-addresses">No saved addresses yet. Add one below.</div>';
+                        '<div class="no-saved-addresses" style="color:#DC2626; font-weight:600;">No saved addresses yet. Add one below.</div>';
 
                 }
 

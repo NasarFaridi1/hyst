@@ -1346,7 +1346,7 @@
                         ⚠️ Takeaway orders cannot exceed £250. Please adjust your order amount or choose another order type.
                     </div>
 
-                    <div id="deliveryAddressRequiredAlert" style="display:none; background:#FFFBEB; border:1px solid #F59E0B; border-radius:10px; padding:10px 14px; margin-bottom:12px; font-size:13px; font-weight:600; color:#92400E; align-items:center; gap:8px;">
+                    <div id="deliveryAddressRequiredAlert" style="display:none; background:#FEF2F2; border:1px solid #F87171; border-radius:10px; padding:10px 14px; margin-bottom:12px; font-size:13px; font-weight:700; color:#DC2626; align-items:center; gap:8px;">
                         <span id="deliveryAddressRequiredText">⚠️ Please add a delivery address to place your order.</span>
                     </div>
 
@@ -1367,7 +1367,7 @@
 
 <!-- ══════════ MOBILE STICKY BOTTOM BAR ══════════ -->
 <div class="mobile-footer" id="mobileFooter">
-    <div id="mobileDeliveryAddressRequiredAlert" style="display:none; background:#FFFBEB; border-top:1px solid #F59E0B; padding:6px 14px; font-size:12px; font-weight:600; color:#92400E; text-align:center;">
+    <div id="mobileDeliveryAddressRequiredAlert" style="display:none; background:#FEF2F2; border-top:1px solid #F87171; padding:6px 14px; font-size:12px; font-weight:700; color:#DC2626; text-align:center;">
         ⚠️ Please add a delivery address to place your order.
     </div>
     <div class="mobile-footer-inner">
