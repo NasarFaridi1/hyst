@@ -276,6 +276,11 @@
                     </div>
 
                     <div class="pv-field">
+                        <label>User Name</label>
+                        <input type="text" name="user_name" placeholder="User name" value="{{ request('user_name') }}">
+                    </div>
+
+                    <div class="pv-field">
                         <label>IP Address</label>
                         <input type="text" name="ip" placeholder="IP address" value="{{ request('ip') }}">
                     </div>

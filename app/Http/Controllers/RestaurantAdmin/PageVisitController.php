@@ -65,6 +65,11 @@ class PageVisitController extends Controller
         $query->where('user_id', $request->user);
     }
 
+    if ($request->filled('user_name')) {
+        $userIdsByName = User::where('name', 'like', '%' . trim($request->user_name) . '%')->pluck('id');
+        $query->whereIn('user_id', $userIdsByName);
+    }
+
     /*
     |--------------------------------------------------------------------------
     | IP

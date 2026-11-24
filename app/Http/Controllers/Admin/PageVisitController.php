@@ -61,6 +61,11 @@ class PageVisitController extends Controller
             $query->where('user_id', $request->user);
         }
 
+        if ($request->filled('user_name')) {
+            $userIdsByName = User::where('name', 'like', '%' . trim($request->user_name) . '%')->pluck('id');
+            $query->whereIn('user_id', $userIdsByName);
+        }
+
         /*
         |--------------------------------------------------------------------------
         | IP
@@ -164,6 +169,7 @@ class PageVisitController extends Controller
         $pageIps = $uniqueIps->pluck('ip_address')->filter()->values()->toArray();
 
         $visitsByIp = [];
+        $rawVisits = collect();
         if (!empty($pageIps)) {
             $rawVisits = PageVisit::whereIn('ip_address', $pageIps)
                 ->orderByDesc('created_at')
@@ -171,6 +177,9 @@ class PageVisitController extends Controller
 
             $visitsByIp = $rawVisits->groupBy('ip_address');
         }
+
+        $allUserIds = $pageVisits->pluck('user_id')->merge($rawVisits->pluck('user_id'))->filter()->unique()->values();
+        $users = User::whereIn('id', $allUserIds)->pluck('name', 'id');
 
         /*
         |--------------------------------------------------------------------------

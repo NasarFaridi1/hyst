@@ -563,6 +563,11 @@
                     </div>
 
                     <div class="pv-field">
+                        <label>User Name</label>
+                        <input type="text" name="user_name" placeholder="User name" value="{{ request('user_name') }}">
+                    </div>
+
+                    <div class="pv-field">
                         <label>IP Address</label>
                         <input type="text" name="ip" placeholder="IP address" value="{{ request('ip') }}">
                     </div>
@@ -750,6 +755,11 @@
                                                 @endif
                                             </div>
                                             <div class="pv-step-right">
+                                                @if($visitItem->user_id)
+                                                    <span style="background:#EFF6FF; color:#1D4ED8; border:1px solid #BFDBFE; font-size:11px; font-weight:700; padding:2px 8px; border-radius:6px; white-space:nowrap;">
+                                                        👤 {{ $users[$visitItem->user_id] ?? ('User #' . $visitItem->user_id) }}
+                                                    </span>
+                                                @endif
                                                 @if($visitItem->restaurant_name)
                                                     <span style="background:#FFF7ED; color:#C25A2A; border:1px solid #FED7AA; font-size:11px; font-weight:700; padding:2px 8px; border-radius:6px; white-space:nowrap;">
                                                         🍽️ {{ $visitItem->restaurant_name }}
