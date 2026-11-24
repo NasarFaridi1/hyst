@@ -25,12 +25,29 @@ class DashboardController extends Controller
             $playersCount = \App\Models\PlayerCatalogue::count();
         } catch (\Throwable $e) {}
 
+        $totalErrors = 0;
+        $todayErrors = 0;
+        $recentErrors = collect();
+        try {
+            $totalErrors = \App\Models\ActivityLog::where('status', '!=', 'success')->count();
+            $todayErrors = \App\Models\ActivityLog::where('status', '!=', 'success')
+                ->whereDate('created_at', today())
+                ->count();
+            $recentErrors = \App\Models\ActivityLog::where('status', '!=', 'success')
+                ->latest('id')
+                ->take(5)
+                ->get();
+        } catch (\Throwable $e) {}
+
         return view('admin.dashboard', compact(
             'restaurants',
             'products',
             'orders',
             'users',
-            'playersCount'
+            'playersCount',
+            'totalErrors',
+            'todayErrors',
+            'recentErrors'
         ));
     }
 }

@@ -11,6 +11,7 @@ use App\Http\Controllers\Front\ProfileController as FrontProfileController;
 use App\Http\Controllers\RestaurantAdmin\ItemController;
 use App\Http\Controllers\RestaurantAdmin\OfferController;
 use App\Http\Controllers\Admin\PageVisitController;
+use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\PaymentReportController;
 use App\Http\Controllers\RestaurantAdmin\RestaurantPaymentController;
 use Illuminate\Support\Facades\Route;
@@ -635,6 +636,11 @@ Route::middleware(['auth', 'super_admin'])
             [PageVisitController::class,'index']
 
         )->name('page-visits.index');
+
+        Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
+        Route::delete('/activity-logs/bulk-delete', [ActivityLogController::class, 'bulkDelete'])->name('activity-logs.bulk-delete');
+        Route::post('/activity-logs/purge', [ActivityLogController::class, 'purge'])->name('activity-logs.purge');
+        Route::delete('/activity-logs/{id}', [ActivityLogController::class, 'destroy'])->name('activity-logs.destroy');
 
         Route::resource('marketing-banners', MarketingBannerController::class);
 

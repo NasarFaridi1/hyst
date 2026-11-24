@@ -317,8 +317,6 @@
 
                 class="sidebar-item {{ str_contains($current,'admin/page-visits') ? 'active' : '' }}">
 
-
-
                 <div class="sidebar-icon">
 
                     <i data-lucide="activity"></i>
@@ -326,7 +324,14 @@
                 </div>
                 <span>Analytics Integration</span>
 
+            </a>
 
+            <a href="{{ route('admin.activity-logs.index') }}"
+                class="sidebar-item {{ str_contains($current,'admin/activity-logs') ? 'active' : '' }}">
+                <div class="sidebar-icon">
+                    <i data-lucide="alert-triangle"></i>
+                </div>
+                <span>Error & Activity Logs</span>
             </a>
 
             <a href="/admin/complaint"
