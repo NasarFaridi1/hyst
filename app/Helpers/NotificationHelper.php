@@ -14,6 +14,10 @@ if (!function_exists('sendNotification')) {
         $orderId =null
     ) {
 
+        if (empty($userId)) {
+            return null;
+        }
+
         Notification::create([
 
             'user_id' => $userId,

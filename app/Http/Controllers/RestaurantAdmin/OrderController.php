@@ -149,15 +149,17 @@ class OrderController extends Controller
             'description'   => $request->description,
         ]);
 
-        sendNotification(
-            $order->user_id,
-            'restaurant_evidence',
-            'Restaurant Uploaded Evidence',
-            'Restaurant uploaded delivery evidence for order #' . $order->id,
-            'order',
-            $order->id,
-            $order->id
-        );
+        if ($order->user_id) {
+            sendNotification(
+                $order->user_id,
+                'restaurant_evidence',
+                'Restaurant Uploaded Evidence',
+                'Restaurant uploaded delivery evidence for order #' . $order->id,
+                'order',
+                $order->id,
+                $order->id
+            );
+        }
 
         sendNotification(
             auth()->id(),
@@ -268,23 +270,17 @@ class OrderController extends Controller
 
         ]);
 
-        sendNotification(
-
-            $order->user_id,
-
-            'new_message',
-
-            'New Message From Restaurant',
-
-            'You received a new message regarding order #' .
-            $order->id,
-
-            'order',
-
-            $order->id,
-
-            $order->id
-        );
+        if ($order->user_id) {
+            sendNotification(
+                $order->user_id,
+                'new_message',
+                'New Message From Restaurant',
+                'You received a new message regarding order #' . $order->id,
+                'order',
+                $order->id,
+                $order->id
+            );
+        }
 
         return back()->with(
             'success',
@@ -410,23 +406,18 @@ class OrderController extends Controller
             'cancelled' => 'Your order has been cancelled.',
         ];
 
-        sendNotification(
-
-            $order->user_id,
-
-            'order_status',
-
-            'Order Update',
-
-            $statusMessages[$request->status]
-                ?? ('Order status changed to ' . $request->status),
-
-            'order',
-
-            $order->id,
-
-            $order->id
-        );
+        if ($order->user_id) {
+            sendNotification(
+                $order->user_id,
+                'order_status',
+                'Order Update',
+                $statusMessages[$request->status]
+                    ?? ('Order status changed to ' . $request->status),
+                'order',
+                $order->id,
+                $order->id
+            );
+        }
 
         if ($order->user && !empty($order->user->fcm_token)) {
             Log::info('SEND ORDER STATUS FCM TO USER', ['user_id' => $order->user_id, 'status' => $request->status]);
@@ -1699,36 +1690,29 @@ class OrderController extends Controller
             'payment_status'  => $status,
         ]);
 
-        sendNotification(
-
-            $order->user_id,
-
-            'refund_processed',
-
-            $status == 'refunded'
-                ? 'Full Refund Processed'
-                : 'Partial Refund Processed',
-
-            $status == 'refunded'
-
-                ? 'A full refund of £' .
-                    number_format($newRefundedAmount, 2) .
-                    ' has been processed for order #' .
-                    $order->id
-
-                : 'A partial refund of £' .
-                    number_format($request->refund_amount, 2) .
-                    ' has been processed for order #' .
-                    $order->id .
-                    '. Total refunded: £' .
-                    number_format($newRefundedAmount, 2),
-
-            'order',
-
-            $order->id,
-
-            $order->id
-        );
+        if ($order->user_id) {
+            sendNotification(
+                $order->user_id,
+                'refund_processed',
+                $status == 'refunded'
+                    ? 'Full Refund Processed'
+                    : 'Partial Refund Processed',
+                $status == 'refunded'
+                    ? 'A full refund of £' .
+                        number_format($newRefundedAmount, 2) .
+                        ' has been processed for order #' .
+                        $order->id
+                    : 'A partial refund of £' .
+                        number_format($request->refund_amount, 2) .
+                        ' has been processed for order #' .
+                        $order->id .
+                        '. Total refunded: £' .
+                        number_format($newRefundedAmount, 2),
+                'order',
+                $order->id,
+                $order->id
+            );
+        }
 
         sendNotification(
 

@@ -153,15 +153,17 @@ class OrdersController extends Controller
             'is_read'     => 0,
         ]);
 
-        sendNotification(
-            $order->user_id,
-            'new_message',
-            'New Message From Admin',
-            'You received a new message regarding Order #'.$order->id,
-            'order',
-            $order->id,
-            $order->id
-        );
+        if ($order->user_id) {
+            sendNotification(
+                $order->user_id,
+                'new_message',
+                'New Message From Admin',
+                'You received a new message regarding Order #'.$order->id,
+                'order',
+                $order->id,
+                $order->id
+            );
+        }
 
         return back()->with('success','Message Sent Successfully');
     }
