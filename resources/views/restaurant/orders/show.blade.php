@@ -843,8 +843,6 @@
                 @endif
                 <option value="Cash" {{ ($order->payment_method ?? '') == 'Cash' ? 'selected' : '' }}>💵 Cash</option>
                 <option value="Card at Counter" {{ ($order->payment_method ?? '') == 'Card at Counter' ? 'selected' : '' }}>💳 Card at Counter / Manual POS</option>
-                <option value="Pay at Counter" {{ ($order->payment_method ?? '') == 'Pay at Counter' ? 'selected' : '' }}>🏬 Pay at Counter</option>
-                <option value="Offline Payment" {{ ($order->payment_method ?? '') == 'Offline Payment' ? 'selected' : '' }}>🏦 Direct Offline Payment</option>
               </select>
             </div>
             <button type="submit" id="btnSettleOrderPayment" class="od-btn btn-accept" style="width:100%; justify-content:center; transition: all 0.2s ease;">
